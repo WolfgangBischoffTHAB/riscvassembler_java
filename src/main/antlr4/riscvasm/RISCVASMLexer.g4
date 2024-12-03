@@ -182,5 +182,7 @@ COMMA : ',' ;
 OPENING_BRACKET : '(' ;
 CLOSING_BRACKET : ')' ;
 
-ID  : [a-z]+ ;
-WS  : [ \t\r\n]+ -> skip ;
+IDENTIFIER : [a-zA-Z]+ ;
+WS : [ \t\r]+ -> skip ;
+
+NEWLINE : [\n] ;

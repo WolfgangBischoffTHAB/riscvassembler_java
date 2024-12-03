@@ -16,4 +16,46 @@ public interface RISCVASMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAsm_file(RISCVASMParser.Asm_fileContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#asm_line}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAsm_line(RISCVASMParser.Asm_lineContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#label}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLabel(RISCVASMParser.LabelContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#mnemonic}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMnemonic(RISCVASMParser.MnemonicContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#params}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParams(RISCVASMParser.ParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParam(RISCVASMParser.ParamContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr(RISCVASMParser.ExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RISCVASMParser#register}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRegister(RISCVASMParser.RegisterContext ctx);
 }
