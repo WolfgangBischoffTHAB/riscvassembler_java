@@ -33,6 +33,9 @@ public class App {
 
         String file = "src/test/resources/riscvasm/test.s";
 
+        // TODO: first step is always to let the preprocessor resolve .include instructions
+        // Let the compiler run on the combined file!
+
         final CharStream charStream = CharStreams.fromFileName(file);
 
         final RISCVASMLexer lexer = new RISCVASMLexer(charStream);

@@ -22,7 +22,12 @@ asm_file :
     ;
 
 asm_line :
-    ( label COLON )? mnemonic params
+    ( label COLON )?
+    (
+        mnemonic params
+        |
+        assembler_instruction
+    )?
     ;
 
 label :
@@ -30,7 +35,17 @@ label :
     ;
 
 mnemonic :
-    I_ADDI
+    I_ADDI | I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
+    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLT | I_BNE | I_BNEZ |
+    I_CALL | I_ECALL |
+    I_J | I_JR | I_JALR |
+    I_LA | I_LD | I_LW | I_LH | I_LB | I_LBU | I_LI | I_LUI |
+    I_MUL | I_MV |
+    I_NOP | I_NOT |
+    I_RET |
+    I_SRLI | I_SLLI | I_SD | I_SW | I_SH | I_SB |
+    I_WFI |
+    I_XORI
     ;
 
 params :
@@ -50,6 +65,12 @@ param :
 
 expr :
     register
+    |
+    NUMERIC | HEX_NUMERIC
+    |
+    IDENTIFIER
+    |
+    STRING_LITERAL
     ;
 
 register :
@@ -129,4 +150,114 @@ register :
     REG_T4 |
     REG_T5 |
     REG_T6
+    ;
+
+assembler_instruction :
+    equ_assembler_instruction
+    |
+    section_text_assembler_instruction
+    |
+    section_rodata_assembler_instruction
+    |
+    globl_assembler_instruction
+    |
+    global_assembler_instruction
+    |
+    text_assembler_instruction
+    |
+    data_assembler_instruction
+    |
+    byte_assembler_instruction
+    |
+    space_assembler_instruction
+    |
+    half_assembler_instruction
+    |
+    word_assembler_instruction
+    |
+    dword_assembler_instruction
+    |
+    file_assembler_instruction
+    |
+    skip_assembler_instruction
+    |
+    asciz_assembler_instruction
+    |
+    string_assembler_instruction
+    ;
+
+equ_assembler_instruction :
+    DOT_EQU IDENTIFIER COMMA expr
+    ;
+
+section_text_assembler_instruction :
+    DOT_SECTION DOT_TEXT
+    ;
+
+section_rodata_assembler_instruction :
+    DOT_SECTION DOT_RODATA
+    ;
+
+globl_assembler_instruction :
+    DOT_GLOBL csv_identifier_list
+    ;
+
+global_assembler_instruction :
+    DOT_GLOBAL csv_identifier_list
+    ;
+
+text_assembler_instruction :
+    DOT_TEXT
+    ;
+
+data_assembler_instruction :
+    DOT_DATA
+    ;
+
+byte_assembler_instruction :
+    DOT_BYTE csv_numeric_list
+    ;
+
+space_assembler_instruction :
+    DOT_SPACE csv_numeric_list
+    ;
+
+half_assembler_instruction :
+    DOT_HALF expr
+    ;
+
+word_assembler_instruction :
+    DOT_WORD csv_numeric_list
+    ;
+
+dword_assembler_instruction :
+    DOT_DWORD expr
+    ;
+
+file_assembler_instruction :
+    DOT_FILE expr
+    ;
+
+skip_assembler_instruction :
+    DOT_SKIP expr
+    ;
+
+asciz_assembler_instruction :
+    DOT_ASCIZ STRING_LITERAL
+    ;
+
+string_assembler_instruction :
+    DOT_STRING STRING_LITERAL
+    ;
+
+csv_identifier_list :
+    IDENTIFIER COMMA csv_identifier_list
+    |
+    IDENTIFIER
+    ;
+
+csv_numeric_list :
+    ( NUMERIC | HEX_NUMERIC ) COMMA csv_numeric_list
+    |
+    ( NUMERIC | HEX_NUMERIC )
     ;
