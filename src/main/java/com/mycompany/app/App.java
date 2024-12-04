@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import riscvasm.RISCVASMLexer;
 import riscvasm.RISCVASMParser;
-import riscvasm.RISCVASMParser.RContext;
+import riscvasm.RISCVASMParser.Asm_fileContext;
 
 /**
  * Created with:
@@ -45,7 +45,7 @@ public class App {
         final RISCVASMParser parser = new RISCVASMParser(tokens);
 
         // parse
-        RContext root = parser.r();
+        Asm_fileContext root = parser.asm_file();
 
         RawOutputListener listener = new RawOutputListener();
 
