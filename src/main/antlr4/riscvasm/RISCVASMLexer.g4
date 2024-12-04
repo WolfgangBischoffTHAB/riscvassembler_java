@@ -5,7 +5,7 @@
 lexer grammar RISCVASMLexer;
 
 LINE_COMMENT
-  : '#' ~[\r\n]* -> channel(HIDDEN)
+  : ( '#' | ';' ) ~[\r\n]* -> channel(HIDDEN)
   ;
 
 fragment A : [aA]; // match either an 'a' or 'A'
@@ -181,6 +181,8 @@ REG_T4 : X '2' '9' ; // 29, Temporary
 REG_T5 : X '3' '0' ; // 30, Temporary
 REG_T6 : X '3' '1' ; // 31, Temporary
 
+ASTERISK : '*' ;
+PLUS : '+' ;
 PERCENT : '%' ;
 DOT : '.' ;
 COLON : ':' ;
@@ -190,13 +192,15 @@ CLOSING_BRACKET : ')' ;
 
 NUMERIC : '-'? [0-9]+ ;
 HEX_NUMERIC : '0' 'x' [a-fA-F0-9]+ ;
-IDENTIFIER : ('.')?[a-zA-Z][_0-9a-zA-Z]* ;
+
+IDENTIFIER : (('.')?('_')*[_0-9a-zA-Z]*[a-zA-Z]+)(('.')?('_')*[_0-9a-zA-Z]+)* ;
+
+
+
 WS : [ \t\r]+ -> skip ;
 
 STRING_LITERAL : UNTERMINATED_STRING_LITERAL '"' ;
 
 UNTERMINATED_STRING_LITERAL : '"' (~["\\\r\n] | '\\' (. | EOF))* ;
-
-
 
 NEWLINE : [\n] ;

@@ -32,6 +32,8 @@ asm_line :
 
 label :
     IDENTIFIER
+    |
+    NUMERIC
     ;
 
 mnemonic :
@@ -61,9 +63,17 @@ param :
     expr
     |
     expr OPENING_BRACKET expr CLOSING_BRACKET
+    |
+    ( MODIFIER_HI | MODIFIER_LO ) OPENING_BRACKET expr CLOSING_BRACKET ( OPENING_BRACKET expr CLOSING_BRACKET )?
     ;
 
 expr :
+    expr PLUS expr
+    |
+    expr ASTERISK expr
+    |
+    OPENING_BRACKET expr CLOSING_BRACKET
+    |
     register
     |
     NUMERIC | HEX_NUMERIC
