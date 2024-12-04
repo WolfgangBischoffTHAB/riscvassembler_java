@@ -45,7 +45,7 @@ mnemonic :
     I_MUL | I_MV |
     I_NOP | I_NOT |
     I_RET |
-    I_SRLI | I_SLLI | I_SD | I_SW | I_SH | I_SB |
+    I_SRLI | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
     I_WFI |
     I_XORI
     ;
@@ -64,7 +64,7 @@ param :
     |
     expr OPENING_BRACKET expr CLOSING_BRACKET
     |
-    ( MODIFIER_HI | MODIFIER_LO ) OPENING_BRACKET expr CLOSING_BRACKET ( OPENING_BRACKET expr CLOSING_BRACKET )?
+    ( MODIFIER_HI | MODIFIER_LO | MODIFIER_PCREL_HI | MODIFIER_PCREL_LO ) OPENING_BRACKET expr CLOSING_BRACKET ( OPENING_BRACKET expr CLOSING_BRACKET )?
     ;
 
 expr :
@@ -165,6 +165,8 @@ register :
 assembler_instruction :
     equ_assembler_instruction
     |
+    extern_assembler_instruction
+    |
     section_text_assembler_instruction
     |
     section_rodata_assembler_instruction
@@ -174,6 +176,8 @@ assembler_instruction :
     global_assembler_instruction
     |
     text_assembler_instruction
+    |
+    type_assembler_instruction
     |
     data_assembler_instruction
     |
@@ -185,6 +189,8 @@ assembler_instruction :
     |
     word_assembler_instruction
     |
+    weak_assembler_instruction
+    |
     dword_assembler_instruction
     |
     file_assembler_instruction
@@ -194,10 +200,16 @@ assembler_instruction :
     asciz_assembler_instruction
     |
     string_assembler_instruction
+    |
+    option_assembler_instruction
     ;
 
 equ_assembler_instruction :
     DOT_EQU IDENTIFIER COMMA expr
+    ;
+
+extern_assembler_instruction :
+    DOT_EXTERN IDENTIFIER
     ;
 
 section_text_assembler_instruction :
@@ -220,6 +232,10 @@ text_assembler_instruction :
     DOT_TEXT
     ;
 
+type_assembler_instruction :
+    DOT_TYPE csv_identifier_list
+    ;
+
 data_assembler_instruction :
     DOT_DATA
     ;
@@ -234,6 +250,10 @@ space_assembler_instruction :
 
 half_assembler_instruction :
     DOT_HALF expr
+    ;
+
+weak_assembler_instruction :
+    DOT_WEAK IDENTIFIER
     ;
 
 word_assembler_instruction :
@@ -258,6 +278,10 @@ asciz_assembler_instruction :
 
 string_assembler_instruction :
     DOT_STRING STRING_LITERAL
+    ;
+
+option_assembler_instruction :
+    DOT_OPTION IDENTIFIER
     ;
 
 csv_identifier_list :

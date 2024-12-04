@@ -8,6 +8,10 @@ LINE_COMMENT
   : ( '#' | ';' ) ~[\r\n]* -> channel(HIDDEN)
   ;
 
+BLOCK_COMMENT
+    : '/*' .*? '*/' -> skip
+    ;
+
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];
@@ -37,16 +41,21 @@ fragment Z : [zZ];
 
 MODIFIER_HI : '%' H I ;
 MODIFIER_LO : '%' L O ;
+MODIFIER_PCREL_HI : '%' P C R E L '_' H I ;
+MODIFIER_PCREL_LO : '%' P C R E L '_' L O ;
 
 DOT_EQU : DOT E Q U ;
+DOT_EXTERN : DOT E X T E R N ;
 DOT_SECTION : DOT S E C T I O N ;
 DOT_GLOBL : DOT G L O B L ;
 DOT_GLOBAL : DOT G L O B A L ;
 DOT_TEXT : DOT T E X T ;
+DOT_TYPE : DOT T Y P E ;
 DOT_DATA : DOT D A T A ;
 DOT_BYTE : DOT B Y T E ;
 DOT_SPACE : DOT S P A C E ;
 DOT_HALF : DOT H A L F ;
+DOT_WEAK : DOT W E A K ;
 DOT_WORD : DOT W O R D ;
 DOT_DWORD : DOT D W O R D ;
 DOT_FILE : DOT F I L E ;
@@ -54,6 +63,7 @@ DOT_RODATA : DOT R O D A T A ;
 DOT_ASCIZ : DOT A S C I Z ; // ASCII string with zero termination
 DOT_SKIP : DOT S K I P ;
 DOT_STRING : DOT S T R I N G ;
+DOT_OPTION : DOT O P T I O N ;
 
 I_ADD : A D D ;
 I_ADDI : A D D I ;
@@ -95,6 +105,7 @@ I_RET : R E T ;
 
 I_SRLI : S R L I ;
 I_SLLI : S L L I ;
+I_SUB : S U B ;
 I_SD : S D ;
 I_SW : S W ;
 I_SH : S H ;
@@ -193,9 +204,7 @@ CLOSING_BRACKET : ')' ;
 NUMERIC : '-'? [0-9]+ ;
 HEX_NUMERIC : '0' 'x' [a-fA-F0-9]+ ;
 
-IDENTIFIER : (('.')?('_')*[_0-9a-zA-Z]*[a-zA-Z]+)(('.')?('_')*[_0-9a-zA-Z]+)* ;
-
-
+IDENTIFIER : (('@')?('.')?('_')*[_0-9a-zA-Z]*[a-zA-Z]+)(('.')?('_')*[_0-9a-zA-Z]+)* ;
 
 WS : [ \t\r]+ -> skip ;
 
