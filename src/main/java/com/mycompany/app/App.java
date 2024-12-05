@@ -1,11 +1,15 @@
 package com.mycompany.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
+import com.mycompany.data.AsmLine;
 
 import riscvasm.RISCVASMLexer;
 import riscvasm.RISCVASMParser;
@@ -50,13 +54,22 @@ public class App {
         // parse
         Asm_fileContext root = parser.asm_file();
 
-        RawOutputListener listener = new RawOutputListener();
+        List<AsmLine> asmLines = new ArrayList<>();
+
+        // RawOutputListener listener = new RawOutputListener();
+        ExtractingOutputListener listener = new ExtractingOutputListener();
+        listener.asmLines = asmLines;
 
         // create a generic parse tree walker that can trigger callbacks
         final ParseTreeWalker walker = new ParseTreeWalker();
 
         // walk the tree created during the parse, trigger callbacks
         walker.walk(listener, root);
+
+        // DEBUG
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
     }
 
