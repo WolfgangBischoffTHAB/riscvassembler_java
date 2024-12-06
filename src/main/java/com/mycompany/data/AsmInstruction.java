@@ -5,7 +5,7 @@ public enum AsmInstruction {
     EQU,
     EXTERN,
     SECTION,
-    GLOBL,
+    GLOBAL,
     TEXT,
     TYPE,
     DATA,
@@ -30,8 +30,8 @@ public enum AsmInstruction {
                 return ".extern";
             case SECTION:
                 return ".section";
-            case GLOBL:
-                return ".globl";
+            case GLOBAL:
+                return ".global";
             case TEXT:
                 return ".text";
             case TYPE:

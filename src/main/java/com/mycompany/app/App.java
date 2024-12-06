@@ -106,6 +106,31 @@ public class App {
             System.out.println(asmLine);
         }
 
+        // //
+        // // Optimize
+        // //
+
+        // if ((data_1->instruction == I_LUI) && (data_2->instruction == I_ADDI)) {
+
+        //     printf("found optimization\n", i);
+
+        //     uint32_t strlength = strlen(data_1->offset_1_expression->string_val);
+
+        //     // check if the symbol is the same
+        //     if (strncmp(data_1->offset_1_expression->string_val, data_2->offset_2_expression->string_val, strlength) == 0) {
+
+        //         reset_asm_line(data_1);
+        //         data_1->used = 1;
+        //         data_1->instruction = I_LI;
+        //         data_1->reg_rd = data_2->reg_rd;
+
+        //         data_1->offset_1_expression = data_2->offset_2_expression;
+
+        //         // second line is erased
+        //         reset_asm_line(data_2);
+        //     }
+
+        // }
     }
 
 }

@@ -257,7 +257,7 @@ space_assembler_instruction :
     ;
 
 half_assembler_instruction :
-    DOT_HALF expr
+    DOT_HALF csv_numeric_list
     ;
 
 weak_assembler_instruction :
@@ -269,7 +269,7 @@ word_assembler_instruction :
     ;
 
 dword_assembler_instruction :
-    DOT_DWORD expr
+    DOT_DWORD csv_numeric_list
     ;
 
 file_assembler_instruction :

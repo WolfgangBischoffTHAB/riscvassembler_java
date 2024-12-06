@@ -2,6 +2,8 @@ package com.mycompany.data;
 
 import java.util.List;
 
+import riscvasm.RISCVASMParser.ExprContext;
+
 public class AsmLine {
 
     public String label;
@@ -12,9 +14,9 @@ public class AsmLine {
     public Register register_1 = Register.REG_UNKNOWN;
     public Register register_2 = Register.REG_UNKNOWN;
 
-    public Integer numeric_0 = null;
-    public Integer numeric_1 = null;
-    public Integer numeric_2 = null;
+    public Long numeric_0 = null;
+    public Long numeric_1 = null;
+    public Long numeric_2 = null;
 
     public Integer offset_0 = null;
     public Integer offset_1 = null;
@@ -38,6 +40,10 @@ public class AsmLine {
 
     public String stringValue;
 
+    public ExprContext exprContext_0 = null;
+    public ExprContext exprContext_1 = null;
+    public ExprContext exprContext_2 = null;
+
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -49,6 +55,14 @@ public class AsmLine {
         if (asmInstruction != null) {
             stringBuilder.append(AsmInstruction.toString(asmInstruction));
             switch (asmInstruction) {
+
+                case SECTION:
+                case GLOBAL:
+                    stringBuilder.append(" ").append(stringValue);
+                    break;
+
+                case ASCIZ:
+                case FILE:
                 case STRING:
                     stringBuilder.append(" \"").append(stringValue).append("\"");
                     break;
@@ -93,7 +107,6 @@ public class AsmLine {
                 stringBuilder.append(")");
             }
         } else if (identifier_0 != null) {
-            //stringBuilder.append(", ");
             stringBuilder.append(identifier_0);
         } else if (offset_0 != null) {
             stringBuilder.append(offset_0).append("(");
@@ -101,6 +114,9 @@ public class AsmLine {
                 stringBuilder.append(Register.toStringAbi(register_0));
             }
             stringBuilder.append(")");
+        } else if (exprContext_0 != null) {
+            // TODO: evaluate the tree
+            stringBuilder.append(exprContext_0.toStringTree());
         } else {
             if (register_0 != Register.REG_UNKNOWN) {
                 stringBuilder.append(Register.toStringAbi(register_0));
@@ -133,8 +149,11 @@ public class AsmLine {
                 stringBuilder.append(Register.toStringAbi(register_1));
             }
             stringBuilder.append(")");
-        }
-        else {
+        } else if (exprContext_1 != null) {
+            // TODO: evaluate the tree
+            stringBuilder.append(", ");
+            stringBuilder.append(exprContext_1.toStringTree());
+        } else {
             if (register_1 != Register.REG_UNKNOWN) {
                 stringBuilder.append(", ");
                 stringBuilder.append(Register.toStringAbi(register_1));
@@ -167,6 +186,10 @@ public class AsmLine {
                 stringBuilder.append(Register.toStringAbi(register_2));
             }
             stringBuilder.append(")");
+        } else if (exprContext_2 != null) {
+            // TODO: evaluate the tree
+            stringBuilder.append(", ");
+            stringBuilder.append(exprContext_2.toStringTree());
         } else {
             if (register_2 != Register.REG_UNKNOWN) {
                 stringBuilder.append(", ");
