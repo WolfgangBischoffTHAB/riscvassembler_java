@@ -8,11 +8,13 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.Modifier;
 import com.mycompany.data.Register;
 
 import riscvasm.RISCVASMParser;
 import riscvasm.RISCVASMParser.Csv_numeric_listContext;
 import riscvasm.RISCVASMParser.ExprContext;
+import riscvasm.RISCVASMParser.ModifierContext;
 import riscvasm.RISCVASMParser.OffsetContext;
 import riscvasm.RISCVASMParser.ParamContext;
 import riscvasm.RISCVASMParser.RegisterContext;
@@ -44,6 +46,22 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
             for (ParamContext paramContext : ctx.param()) {
 
                 ExprContext exprContext = paramContext.expr().get(0);
+
+                ModifierContext modifier = paramContext.modifier();
+                if (modifier != null) {
+
+                    switch (index) {
+                        case 0:
+                            asmLine.modifier_0 = Modifier.fromString(modifier.getText());
+                            break;
+                        case 1:
+                            asmLine.modifier_1 = Modifier.fromString(modifier.getText());
+                            break;
+                        case 2:
+                            asmLine.modifier_2 = Modifier.fromString(modifier.getText());
+                            break;
+                    }
+                }
 
                 RegisterContext registerContext = exprContext.register();
                 if (registerContext != null) {
@@ -144,9 +162,26 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
     }
 
     @Override
+    public void exitString_assembler_instruction(RISCVASMParser.String_assembler_instructionContext ctx) {
+        asmLine.asmInstruction = AsmInstruction.STRING;
+
+        String val = ctx.getChild(1).toString();
+        asmLine.stringValue = val.substring(1, val.length()-1);
+    }
+
+    @Override
+    public void exitByte_assembler_instruction(RISCVASMParser.Byte_assembler_instructionContext ctx) {
+        Csv_numeric_listContext csv_numeric_list = ctx.csv_numeric_list();
+        asmLine.asmInstruction = AsmInstruction.BYTE;
+        List<String> list = new ArrayList<>();
+        recurseList(csv_numeric_list, list);
+        asmLine.csvList = list;
+    }
+
+    @Override
     public void exitWord_assembler_instruction(RISCVASMParser.Word_assembler_instructionContext ctx) {
         Csv_numeric_listContext csv_numeric_list = ctx.csv_numeric_list();
-        asmLine.asm_instruction = AsmInstruction.WORD;
+        asmLine.asmInstruction = AsmInstruction.WORD;
         List<String> list = new ArrayList<>();
         recurseList(csv_numeric_list, list);
         asmLine.csvList = list;

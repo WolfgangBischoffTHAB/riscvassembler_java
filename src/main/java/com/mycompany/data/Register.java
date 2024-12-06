@@ -82,6 +82,7 @@ public enum Register {
     // REG_T6 : X '3' '1' ; // 31, Temporary
 
     public static Register fromString(final String register) {
+
         if (register.equalsIgnoreCase("ZERO")) {
             return REG_ZERO;
         } else if (register.equalsIgnoreCase("RA")) {

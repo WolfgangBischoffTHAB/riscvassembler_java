@@ -24,9 +24,15 @@ public class AsmLine {
     public String identifier_1 = null;
     public String identifier_2 = null;
 
-    public AsmInstruction asm_instruction = null;
+    public AsmInstruction asmInstruction = null;
 
     public List<String> csvList = null;
+
+    public Modifier modifier_0;
+    public Modifier modifier_1;
+    public Modifier modifier_2;
+
+    public String stringValue;
 
     public String toString() {
 
@@ -36,8 +42,17 @@ public class AsmLine {
             stringBuilder.append(label).append(": ");
         }
 
-        if (asm_instruction != null) {
-            stringBuilder.append(AsmInstruction.toString(asm_instruction)).append(": ");
+        if (asmInstruction != null) {
+            stringBuilder.append(AsmInstruction.toString(asmInstruction));
+            switch (asmInstruction) {
+                case STRING:
+                    stringBuilder.append(" \"").append(stringValue).append("\"");
+                    break;
+
+                default:
+                    stringBuilder.append(" ");
+                    break;
+            }
         }
 
         if (csvList != null) {
@@ -61,7 +76,15 @@ public class AsmLine {
         if (numeric_0 != null) {
             stringBuilder.append(String.format("0x%08X", numeric_0));
         }
-        if (identifier_0 != null) {
+        if (modifier_0 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_0)).append("(");
+            if (identifier_0 != null) {
+                stringBuilder.append(identifier_0);
+            }
+            stringBuilder.append(")");
+        } else if (identifier_0 != null) {
+            stringBuilder.append(", ");
             stringBuilder.append(identifier_0);
         }
         if (offset_0 != null) {
@@ -80,7 +103,14 @@ public class AsmLine {
             stringBuilder.append(", ");
             stringBuilder.append(String.format("0x%08X", numeric_1));
         }
-        if (identifier_1 != null) {
+        if (modifier_1 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_1)).append("(");
+            if (identifier_1 != null) {
+                stringBuilder.append(identifier_1);
+            }
+            stringBuilder.append(")");
+        } else if (identifier_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(identifier_1);
         }
@@ -102,7 +132,14 @@ public class AsmLine {
             stringBuilder.append(", ");
             stringBuilder.append(String.format("0x%08X", numeric_2));
         }
-        if (identifier_2 != null) {
+        if (modifier_2 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_2)).append("(");
+            if (identifier_2 != null) {
+                stringBuilder.append(identifier_2);
+            }
+            stringBuilder.append(")");
+        } else if (identifier_2 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(identifier_2);
         }
