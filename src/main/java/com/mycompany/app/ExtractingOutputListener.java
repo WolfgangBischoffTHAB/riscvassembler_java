@@ -45,21 +45,42 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
             int index = 0;
             for (ParamContext paramContext : ctx.param()) {
 
-                ExprContext exprContext = paramContext.expr().get(0);
+                ExprContext exprContext = paramContext.expr();
 
-                ModifierContext modifier = paramContext.modifier();
-                if (modifier != null) {
+                OffsetContext offset = paramContext.offset();
 
-                    switch (index) {
-                        case 0:
-                            asmLine.modifier_0 = Modifier.fromString(modifier.getText());
-                            break;
-                        case 1:
-                            asmLine.modifier_1 = Modifier.fromString(modifier.getText());
-                            break;
-                        case 2:
-                            asmLine.modifier_2 = Modifier.fromString(modifier.getText());
-                            break;
+                if (offset != null) {
+                    ModifierContext modifier = offset.modifier();
+                    if (modifier != null) {
+
+                        switch (index) {
+                            case 0:
+                                asmLine.modifier_0 = Modifier.fromString(modifier.getText());
+                                break;
+                            case 1:
+                                asmLine.modifier_1 = Modifier.fromString(modifier.getText());
+                                break;
+                            case 2:
+                                asmLine.modifier_2 = Modifier.fromString(modifier.getText());
+                                break;
+                        }
+                    }
+
+                    ExprContext offsetExprContext = offset.expr();
+                    if (offsetExprContext != null) {
+                        String offsetLabel = offsetExprContext.getChild(0).toString();
+
+                        switch (index) {
+                            case 0:
+                                asmLine.offsetLabel_0 = offsetLabel;
+                                break;
+                            case 1:
+                                asmLine.offsetLabel_1 = offsetLabel;
+                                break;
+                            case 2:
+                                asmLine.offsetLabel_2 = offsetLabel;
+                                break;
+                        }
                     }
                 }
 
@@ -134,17 +155,21 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
 
                 OffsetContext offsetContext = paramContext.offset();
                 if (offsetContext != null) {
-                    String numeric = offsetContext.expr().NUMERIC().toString();
-                    switch (index) {
-                        case 0:
-                            asmLine.offset_0 = Integer.parseInt(numeric);
-                            break;
-                        case 1:
-                            asmLine.offset_1 = Integer.parseInt(numeric);
-                            break;
-                        case 2:
-                            asmLine.offset_2 = Integer.parseInt(numeric);
-                            break;
+                    ExprContext expr = offsetContext.expr();
+                    TerminalNode numeric2 = expr.NUMERIC();
+                    if (numeric2 != null) {
+                        String numeric = numeric2.toString();
+                        switch (index) {
+                            case 0:
+                                asmLine.offset_0 = Integer.parseInt(numeric);
+                                break;
+                            case 1:
+                                asmLine.offset_1 = Integer.parseInt(numeric);
+                                break;
+                            case 2:
+                                asmLine.offset_2 = Integer.parseInt(numeric);
+                                break;
+                        }
                     }
                 }
 
@@ -166,7 +191,7 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
         asmLine.asmInstruction = AsmInstruction.STRING;
 
         String val = ctx.getChild(1).toString();
-        asmLine.stringValue = val.substring(1, val.length()-1);
+        asmLine.stringValue = val.substring(1, val.length() - 1);
     }
 
     @Override
@@ -192,7 +217,8 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
             if (csv_numeric_list.getChild(i) instanceof Csv_numeric_listContext) {
                 recurseList((Csv_numeric_listContext) csv_numeric_list.getChild(i), list);
             }
-            if ((!csv_numeric_list.getChild(i).toString().equalsIgnoreCase(",")) && !(csv_numeric_list.getChild(i) instanceof Csv_numeric_listContext)) {
+            if ((!csv_numeric_list.getChild(i).toString().equalsIgnoreCase(","))
+                    && !(csv_numeric_list.getChild(i) instanceof Csv_numeric_listContext)) {
                 list.add(csv_numeric_list.getChild(i).toString());
             }
         }

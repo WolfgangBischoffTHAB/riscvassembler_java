@@ -62,17 +62,17 @@ params :
 param :
     expr
     |
-    offset OPENING_BRACKET expr CLOSING_BRACKET
-    |
-    modifier OPENING_BRACKET expr CLOSING_BRACKET ( OPENING_BRACKET expr CLOSING_BRACKET )?
-    ;
-
-modifier :
-    MODIFIER_HI | MODIFIER_LO | MODIFIER_PCREL_HI | MODIFIER_PCREL_LO
+    offset ( OPENING_BRACKET expr CLOSING_BRACKET )?
     ;
 
 offset :
     expr
+    |
+    modifier OPENING_BRACKET expr CLOSING_BRACKET
+    ;
+
+modifier :
+    MODIFIER_HI | MODIFIER_LO | MODIFIER_PCREL_HI | MODIFIER_PCREL_LO
     ;
 
 expr :

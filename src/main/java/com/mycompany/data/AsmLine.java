@@ -20,6 +20,10 @@ public class AsmLine {
     public Integer offset_1 = null;
     public Integer offset_2 = null;
 
+    public String offsetLabel_0 = null;
+    public String offsetLabel_1 = null;
+    public String offsetLabel_2 = null;
+
     public String identifier_0 = null;
     public String identifier_1 = null;
     public String identifier_2 = null;
@@ -79,15 +83,19 @@ public class AsmLine {
         if (modifier_0 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(Modifier.toString(modifier_0)).append("(");
-            if (identifier_0 != null) {
-                stringBuilder.append(identifier_0);
+            if (offsetLabel_0 != null) {
+                stringBuilder.append(offsetLabel_0);
             }
             stringBuilder.append(")");
+            if (register_0 != Register.REG_UNKNOWN) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_0));
+                stringBuilder.append(")");
+            }
         } else if (identifier_0 != null) {
-            stringBuilder.append(", ");
+            //stringBuilder.append(", ");
             stringBuilder.append(identifier_0);
-        }
-        if (offset_0 != null) {
+        } else if (offset_0 != null) {
             stringBuilder.append(offset_0).append("(");
             if (register_0 != Register.REG_UNKNOWN) {
                 stringBuilder.append(Register.toStringAbi(register_0));
@@ -106,22 +114,27 @@ public class AsmLine {
         if (modifier_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(Modifier.toString(modifier_1)).append("(");
-            if (identifier_1 != null) {
-                stringBuilder.append(identifier_1);
+            if (offsetLabel_1 != null) {
+                stringBuilder.append(offsetLabel_1);
             }
             stringBuilder.append(")");
+            if (register_1 != Register.REG_UNKNOWN) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_1));
+                stringBuilder.append(")");
+            }
         } else if (identifier_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(identifier_1);
-        }
-        if (offset_1 != null) {
+        } else if (offset_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offset_1).append("(");
             if (register_1 != Register.REG_UNKNOWN) {
                 stringBuilder.append(Register.toStringAbi(register_1));
             }
             stringBuilder.append(")");
-        } else {
+        }
+        else {
             if (register_1 != Register.REG_UNKNOWN) {
                 stringBuilder.append(", ");
                 stringBuilder.append(Register.toStringAbi(register_1));
@@ -135,15 +148,19 @@ public class AsmLine {
         if (modifier_2 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(Modifier.toString(modifier_2)).append("(");
-            if (identifier_2 != null) {
-                stringBuilder.append(identifier_2);
+            if (offsetLabel_2 != null) {
+                stringBuilder.append(offsetLabel_2);
             }
             stringBuilder.append(")");
+            if (register_2 != Register.REG_UNKNOWN) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_2));
+                stringBuilder.append(")");
+            }
         } else if (identifier_2 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(identifier_2);
-        }
-        if (offset_2 != null) {
+        } else if (offset_2 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offset_2).append("(");
             if (register_2 != Register.REG_UNKNOWN) {
