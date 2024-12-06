@@ -1,4 +1,2 @@
-#addi sp, sp, -12
-#add t1, t0, a0
-#addi a0, a0, -273
-sw s0, 0(sp)
+#uart:   .word   0x10000000, 1, 2, 3, 4
+        lui     a5, %hi(uart)

@@ -149,7 +149,76 @@ public enum Register {
         } else if (register.equalsIgnoreCase("S11")) {
             return REG_S11;
         }
-        throw new RuntimeException("Unknown instruction: \"" + register + "\"");
+
+        if (register.equalsIgnoreCase("x0")) {
+            return REG_ZERO;
+        } else if (register.equalsIgnoreCase("x1")) {
+            return REG_RA;
+        } else if (register.equalsIgnoreCase("x2")) {
+            return REG_SP;
+        } else if (register.equalsIgnoreCase("x3")) {
+            return REG_GP;
+        } else if (register.equalsIgnoreCase("x4")) {
+            return REG_TP;
+        } else if (register.equalsIgnoreCase("x5")) {
+            return REG_T0;
+        } else if (register.equalsIgnoreCase("x6")) {
+            return REG_T1;
+        } else if (register.equalsIgnoreCase("x7")) {
+            return REG_T2;
+        } else if (register.equalsIgnoreCase("x8")) {
+            return REG_T3;
+        } else if (register.equalsIgnoreCase("x9")) {
+            return REG_T4;
+        } else if (register.equalsIgnoreCase("x10")) {
+            return REG_T5;
+        } else if (register.equalsIgnoreCase("x11")) {
+            return REG_T6;
+        } else if (register.equalsIgnoreCase("x12")) {
+            return REG_FP;
+        } else if (register.equalsIgnoreCase("x13")) {
+            return REG_A0;
+        } else if (register.equalsIgnoreCase("x14")) {
+            return REG_A1;
+        } else if (register.equalsIgnoreCase("x15")) {
+            return REG_A2;
+        } else if (register.equalsIgnoreCase("x16")) {
+            return REG_A3;
+        } else if (register.equalsIgnoreCase("x17")) {
+            return REG_A4;
+        } else if (register.equalsIgnoreCase("x18")) {
+            return REG_A5;
+        } else if (register.equalsIgnoreCase("x19")) {
+            return REG_A6;
+        } else if (register.equalsIgnoreCase("x20")) {
+            return REG_A7;
+        } else if (register.equalsIgnoreCase("x21")) {
+            return REG_S0;
+        } else if (register.equalsIgnoreCase("x22")) {
+            return REG_S1;
+        } else if (register.equalsIgnoreCase("x23")) {
+            return REG_S2;
+        } else if (register.equalsIgnoreCase("x24")) {
+            return REG_S3;
+        } else if (register.equalsIgnoreCase("x25")) {
+            return REG_S4;
+        } else if (register.equalsIgnoreCase("x26")) {
+            return REG_S5;
+        } else if (register.equalsIgnoreCase("x27")) {
+            return REG_S6;
+        } else if (register.equalsIgnoreCase("x28")) {
+            return REG_S7;
+        } else if (register.equalsIgnoreCase("x29")) {
+            return REG_S8;
+        } else if (register.equalsIgnoreCase("x30")) {
+            return REG_S9;
+        } else if (register.equalsIgnoreCase("x31")) {
+            return REG_S10;
+        } else if (register.equalsIgnoreCase("x32")) {
+            return REG_S11;
+        }
+
+        throw new RuntimeException("Unknown register: \"" + register + "\"");
     }
 
     public static String toString(final Register register) {
