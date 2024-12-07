@@ -8,7 +8,7 @@ import com.mycompany.data.AsmLine;
 
 public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
-    protected void updateAddresses(List<AsmLine> asmLines) {
+    public static void updateAddresses(List<AsmLine> asmLines) {
 
         int address = 0;
         for (AsmLine asmLine : asmLines) {
@@ -56,7 +56,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         }
     }
 
-    protected void buildLabelTable(List<AsmLine> asmLines, Map<String, Long> map) {
+    public static void buildLabelTable(List<AsmLine> asmLines, Map<String, Long> map) {
 
         long address = 0;
         for (AsmLine asmLine : asmLines) {

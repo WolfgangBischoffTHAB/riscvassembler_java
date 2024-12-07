@@ -105,7 +105,8 @@ public class AsmLine {
         stringBuilder.append(Mnemonic.toString(mnemonic)).append(" ");
 
         if (numeric_0 != null) {
-            stringBuilder.append(String.format("0x%08X", numeric_0));
+            //stringBuilder.append(String.format("0x%08X", numeric_0.intValue()));
+            stringBuilder.append(String.format("0x%X", numeric_0.intValue()));
         }
         if (modifier_0 != null) {
             stringBuilder.append(", ");
@@ -138,7 +139,8 @@ public class AsmLine {
 
         if (numeric_1 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(String.format("0x%08X", numeric_1));
+            //stringBuilder.append(String.format("0x%08X", numeric_1.intValue()));
+            stringBuilder.append(String.format("0x%X", numeric_1.intValue()));
         }
         if (modifier_1 != null) {
             stringBuilder.append(", ");
@@ -175,7 +177,8 @@ public class AsmLine {
 
         if (numeric_2 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(String.format("0x%08X", numeric_2));
+            //stringBuilder.append(String.format("0x%08X", numeric_2.intValue()));
+            stringBuilder.append(String.format("0x%X", numeric_2.intValue()));
         }
         if (modifier_2 != null) {
             stringBuilder.append(", ");

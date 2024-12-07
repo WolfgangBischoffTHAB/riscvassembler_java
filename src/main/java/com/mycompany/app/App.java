@@ -23,6 +23,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.Register;
+import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
 import com.mycompany.pseudo.combine.LiCombiner;
@@ -157,14 +159,14 @@ public class App {
             }
         }
 
-        // DEBUG
-        for (Map.Entry<String, Object> mapEntry : equMap.entrySet()) {
-            System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
-        }
+        // // DEBUG
+        // for (Map.Entry<String, Object> mapEntry : equMap.entrySet()) {
+        //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+        // }
 
         for (AsmLine asmLine : asmLines) {
 
-            System.out.println(asmLine);
+            //System.out.println(asmLine);
 
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
                 continue;
@@ -312,6 +314,181 @@ public class App {
             System.out.println(asmLine);
         }
 
+        BaseOptimizer.updateAddresses(asmLines);
+
+        Map<String, Long> map = new HashMap<>();
+        BaseOptimizer.buildLabelTable(asmLines, map);
+
+
+
+
+        // TODO: resolve all modifiers
+
+        for (AsmLine asmLine : asmLines) {
+
+            if (asmLine.modifier_0 != null) {
+
+                long newValue = 0L;
+                String label = asmLine.offsetLabel_0;
+
+                Long value = map.get(label);
+
+                switch (asmLine.modifier_0) {
+
+                    case LO:
+                        newValue = (value >> 0) & 0xFFF;
+                        break;
+
+                    case HI:
+                        newValue = (value >> 12) & 0xFFFFF;
+                        break;
+
+                    default:
+                        throw new RuntimeException();
+                }
+
+                asmLine.offsetLabel_0 = null;
+                asmLine.modifier_0 = null;
+
+                if ((asmLine.register_0 == null) || (asmLine.register_0 == Register.REG_UNKNOWN)) {
+                    asmLine.numeric_0 = newValue;
+                } else {
+                    asmLine.offset_0 = newValue;
+                }
+            }
+
+            if (asmLine.modifier_1 != null) {
+
+                long newValue = 0L;
+                String label = asmLine.offsetLabel_1;
+
+                Long value = map.get(label);
+
+                switch (asmLine.modifier_1) {
+
+                    case LO:
+                        newValue = (value >> 0) & 0xFFF;
+                        break;
+
+                    case HI:
+                        newValue = (value >> 12) & 0xFFFFF;
+                        break;
+
+                    default:
+                        throw new RuntimeException();
+                }
+
+                asmLine.offsetLabel_1 = null;
+                asmLine.modifier_1 = null;
+
+                if ((asmLine.register_1 == null) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
+                    asmLine.numeric_1 = newValue;
+                } else {
+                    asmLine.offset_1 = newValue;
+                }
+            }
+
+            if (asmLine.modifier_2 != null) {
+
+                long newValue = 0L;
+                String label = asmLine.offsetLabel_2;
+
+                Long value = map.get(label);
+
+                switch (asmLine.modifier_2) {
+
+                    case LO:
+                        newValue = (value >> 0) & 0xFFF;
+                        break;
+
+                    case HI:
+                        newValue = (value >> 12) & 0xFFFFF;
+                        break;
+
+                    default:
+                        throw new RuntimeException();
+                }
+
+                asmLine.offsetLabel_2 = null;
+                asmLine.modifier_2 = null;
+
+                if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
+                    asmLine.numeric_2 = newValue;
+                } else {
+                    asmLine.offset_2 = newValue;
+                }
+            }
+        }
+
+        // TODO: resolve all labels
+
+        for (AsmLine asmLine : asmLines) {
+
+            if (asmLine.mnemonic == Mnemonic.I_BNE) {
+                System.out.println(asmLine);
+            }
+
+            if (asmLine.offsetLabel_0 != null) {
+                Long value = map.get(asmLine.offsetLabel_0);
+                if (value != null) {
+                    asmLine.numeric_0 = value - asmLine.address;
+                    asmLine.offsetLabel_0 = null;
+                }
+            }
+            if (asmLine.identifier_0 != null) {
+                Long value = map.get(asmLine.identifier_0);
+                if (value != null) {
+                    asmLine.numeric_0 = value - asmLine.address;
+                    asmLine.identifier_0 = null;
+                }
+            }
+
+            if (asmLine.offsetLabel_1 != null) {
+                Long value = map.get(asmLine.offsetLabel_1);
+                if (value != null) {
+                    asmLine.numeric_1 = value - asmLine.address;
+                    asmLine.offsetLabel_1 = null;
+                }
+            }
+            if (asmLine.identifier_1 != null) {
+                Long value = map.get(asmLine.identifier_1);
+                if (value != null) {
+                    asmLine.numeric_1 = value - asmLine.address;
+                    asmLine.identifier_1 = null;
+                }
+            }
+
+            if (asmLine.offsetLabel_2 != null) {
+                Long value = map.get(asmLine.offsetLabel_2);
+                if (value != null) {
+                    asmLine.numeric_2 = value - asmLine.address;
+                    asmLine.offsetLabel_2 = null;
+                }
+            }
+            if (asmLine.identifier_2 != null) {
+                Long value = map.get(asmLine.identifier_2);
+                if (value != null) {
+                    asmLine.numeric_2 = value - asmLine.address;
+                    asmLine.identifier_2 = null;
+                }
+            }
+
+        }
+
+        // DEBUG
+        System.out.println("\n\n\n");
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
+
+        // TODO encode everything that has a mnemonic
+
+        Encoder encoder = new Encoder();
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+
+            encoder.encode(asmLine);
+        }
     }
 
 }
