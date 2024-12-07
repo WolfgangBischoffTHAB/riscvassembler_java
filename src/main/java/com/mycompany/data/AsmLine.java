@@ -206,7 +206,7 @@ public class AsmLine {
         }
 
         if (pseudoInstructionAsmLine != null) {
-            stringBuilder.append(" --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);
+            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);
         }
 
         return stringBuilder.toString();

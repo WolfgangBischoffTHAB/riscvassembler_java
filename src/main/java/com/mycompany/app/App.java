@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import com.mycompany.data.AsmLine;
 import com.mycompany.optimize.CallOptimizer;
+import com.mycompany.optimize.LiOptimizer;
 import com.mycompany.pseudo.combine.LiCombiner;
 import com.mycompany.pseudo.resolve.CallResolver;
 import com.mycompany.pseudo.resolve.MvResolver;
@@ -136,10 +137,10 @@ public class App {
         MvResolver mvResolver = new MvResolver();
         mvResolver.modify(asmLines);
 
-        // DEBUG
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         //
         // Check for leftover pseudo instructions
@@ -167,13 +168,16 @@ public class App {
         //   throw an exception for now
         //
 
+        LiOptimizer liOptimizer = new LiOptimizer();
+        liOptimizer.modify(asmLines);
+
         CallOptimizer callOptimizer = new CallOptimizer();
         callOptimizer.modify(asmLines);
 
-        // DEBUG
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         // check
 
@@ -186,6 +190,11 @@ public class App {
             }
         }
         System.out.println("No unoptimized instructions found!");
+
+        // DEBUG
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
     }
 

@@ -30,7 +30,7 @@ public class CallResolver implements AsmInstructionListModifier {
                     continue;
                 }
 
-                System.out.println(asmLine);
+                //System.out.println(asmLine);
 
                 found = true;
                 foundAsmLine = asmLine;
