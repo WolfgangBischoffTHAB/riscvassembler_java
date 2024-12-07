@@ -17,13 +17,13 @@ public class CallOptimizer extends BaseOptimizer {
         while (!done) {
 
             // build label table
-            Map<String, Integer> map = new HashMap<>();
+            Map<String, Long> map = new HashMap<>();
             buildLabelTable(asmLines, map);
 
-            // DEBUG
-            for (Map.Entry<String, Integer> mapEntry : map.entrySet()) {
-                System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
-            }
+            // // DEBUG
+            // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
+            //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+            // }
 
             updateAddresses(asmLines);
 
@@ -117,7 +117,7 @@ public class CallOptimizer extends BaseOptimizer {
             // if arriving at the target label is possible only crossing real instructions
             // take the absolute value of the label and put it into the modifier.
 
-            int address = map.get(firstAsmLine.offsetLabel_1);
+            long address = map.get(firstAsmLine.offsetLabel_1);
             long highValue = 0;
             long lowValue = 0;
 
@@ -157,20 +157,52 @@ public class CallOptimizer extends BaseOptimizer {
             // if the modifier returns 0, the instruction can be optimized
             if (highValue == 0) {
 
+                // JAL only works with half word aligned values.
+                // If the offset is not half word aligned, generate a JALR
+                // instruction which jumps to any value we like
+
+                boolean twoByteAligned = true;
+                long delta = 0;
+                if (firstAsmLine.offsetLabel_1.equalsIgnoreCase("puts")) {
+                    delta = firstAsmLine.address - map.get(firstAsmLine.offsetLabel_1);
+                    System.out.println("delta: " + delta);
+
+                    twoByteAligned = (delta % 2) == 0;
+                }
+
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
 
                 AsmLine asmLine = new AsmLine();
-                asmLine.mnemonic = Mnemonic.I_JAL;
-                asmLine.register_0 = Register.REG_RA;
-                asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
+
+                if (twoByteAligned) {
+
+                    asmLine.mnemonic = Mnemonic.I_JAL;
+                    asmLine.register_0 = Register.REG_RA;
+                    asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
+
+                    callPseudoAsmLine.optimized = true;
+                    callPseudoAsmLine.pseudoInstructionChildren.clear();
+                    callPseudoAsmLine.pseudoInstructionChildren.add(asmLine);
+                    asmLine.pseudoInstructionAsmLine = callPseudoAsmLine;
+
+                } else {
+
+                    // JALR because relative offset would not be half word aligned
+
+                    asmLine.mnemonic = Mnemonic.I_JALR;
+                    asmLine.register_0 = Register.REG_RA;
+                    asmLine.offset_1 = map.get(firstAsmLine.offsetLabel_1);
+                    asmLine.register_1 = Register.REG_ZERO;
+
+                    callPseudoAsmLine.optimized = true;
+                    callPseudoAsmLine.pseudoInstructionChildren.clear();
+                    callPseudoAsmLine.pseudoInstructionChildren.add(asmLine);
+                    asmLine.pseudoInstructionAsmLine = callPseudoAsmLine;
+
+                }
 
                 asmLines.add(index, asmLine);
-
-                callPseudoAsmLine.optimized = true;
-                callPseudoAsmLine.pseudoInstructionChildren.clear();
-                callPseudoAsmLine.pseudoInstructionChildren.add(asmLine);
-                asmLine.pseudoInstructionAsmLine = callPseudoAsmLine;
 
             } else {
 

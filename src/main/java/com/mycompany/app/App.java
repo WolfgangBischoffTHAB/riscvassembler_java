@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.Mnemonic;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
 import com.mycompany.pseudo.combine.LiCombiner;
@@ -26,6 +27,8 @@ import com.mycompany.pseudo.resolve.BgtResolver;
 import com.mycompany.pseudo.resolve.BnezResolver;
 import com.mycompany.pseudo.resolve.CallResolver;
 import com.mycompany.pseudo.resolve.JResolver;
+import com.mycompany.pseudo.resolve.JrResolver;
+import com.mycompany.pseudo.resolve.LiResolver;
 import com.mycompany.pseudo.resolve.MvResolver;
 import com.mycompany.pseudo.resolve.NopResolver;
 
@@ -121,15 +124,31 @@ public class App {
         // Combine
         //
 
-        LiCombiner liCombiner = new LiCombiner();
-        liCombiner.modify(asmLines);
+        // LiCombiner liCombiner = new LiCombiner();
+        // liCombiner.modify(asmLines);
+
+        //  // DEBUG
+        //  System.out.println("\n\n\n");
+        //  for (AsmLine asmLine : asmLines) {
+        //      if (asmLine.mnemonic == Mnemonic.I_LI) {
+        //          System.out.println("Bug");
+        //      }
+        //      System.out.println(asmLine);
+        //  }
 
         // LaCombiner laCombiner = new LaCombiner();
         // laCombiner.modify(asmLines);
 
+
+
+
+
         //
         // Resolve - Replace pseudo instructions
         //
+
+        // LiResolver liResolver = new LiResolver();
+        // liResolver.modify(asmLines);
 
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines);
@@ -149,10 +168,18 @@ public class App {
         JResolver jResolver = new JResolver();
         jResolver.modify(asmLines);
 
+        JrResolver jrResolver = new JrResolver();
+        jrResolver.modify(asmLines);
+
         // DEBUG
         for (AsmLine asmLine : asmLines) {
             System.out.println(asmLine);
         }
+
+
+
+
+
 
         //
         // Check for leftover pseudo instructions
@@ -160,10 +187,20 @@ public class App {
 
         for (AsmLine asmLine : asmLines) {
             if (asmLine.mnemonic != null && asmLine.mnemonic.isPseudo()) {
-                throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
+                //throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
+                System.out.println("Pseudo detected: " + asmLine.mnemonic);
+                System.out.println("Pseudo detected: " + asmLine.mnemonic);
+                System.out.println("Pseudo detected: " + asmLine.mnemonic);
+                System.out.println("Pseudo detected: " + asmLine.mnemonic);
+                System.out.println("Pseudo detected: " + asmLine.mnemonic);
             }
         }
         System.out.println("No pseudo instructions left!");
+
+
+
+
+
 
         //
         // Optimization - resolve all pseudo instructions to the minimal amount
@@ -180,8 +217,18 @@ public class App {
         //   throw an exception for now
         //
 
-        LiOptimizer liOptimizer = new LiOptimizer();
-        liOptimizer.modify(asmLines);
+        // LiOptimizer liOptimizer = new LiOptimizer();
+        // liOptimizer.modify(asmLines);
+
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+
+        //     if (asmLine.mnemonic == Mnemonic.I_LI) {
+        //         System.out.println("Bug");
+        //     }
+        //     System.out.println(asmLine);
+        // }
 
         CallOptimizer callOptimizer = new CallOptimizer();
         callOptimizer.modify(asmLines);
@@ -206,6 +253,10 @@ public class App {
         // DEBUG
         System.out.println("\n\n\n");
         for (AsmLine asmLine : asmLines) {
+
+            // if (asmLine.mnemonic == Mnemonic.I_LI) {
+            //     System.out.println("Bug");
+            // }
             System.out.println(asmLine);
         }
 

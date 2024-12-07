@@ -40,7 +40,7 @@ public enum Mnemonic {
     I_LH(false),
     I_LB(false),
     I_LBU(false),
-    I_LI(false),
+    I_LI(true),
     I_LUI(false),
 
     I_MUL(false),

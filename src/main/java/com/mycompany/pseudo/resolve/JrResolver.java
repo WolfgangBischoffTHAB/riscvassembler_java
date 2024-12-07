@@ -7,24 +7,23 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Register;
 
-public class JResolver implements AsmInstructionListModifier {
+public class JrResolver  implements AsmInstructionListModifier {
 
     @Override
     public void modify(List<AsmLine> asmLines) {
 
         for (AsmLine asmLine : asmLines) {
 
-            if (asmLine.mnemonic != Mnemonic.I_J) {
+            if (asmLine.mnemonic != Mnemonic.I_JR) {
                 continue;
             }
 
-            asmLine.mnemonic = Mnemonic.I_JAL;
+            asmLine.mnemonic = Mnemonic.I_JALR;
+            asmLine.register_1 = asmLine.register_0;
             asmLine.register_0 = Register.REG_ZERO;
+            asmLine.numeric_2 = 0L;
 
-            asmLine.offset_0 = null;
-            asmLine.identifier_1 = asmLine.identifier_0;
-
-            asmLine.identifier_0 = null;
+            //System.out.println(asmLine);
         }
     }
 

@@ -17,7 +17,7 @@ public class LiOptimizer extends BaseOptimizer {
         while (!done) {
 
             // build label table
-            Map<String, Integer> map = new HashMap<>();
+            Map<String, Long> map = new HashMap<>();
             buildLabelTable(asmLines, map);
 
             updateAddresses(asmLines);
@@ -27,6 +27,11 @@ public class LiOptimizer extends BaseOptimizer {
             int index = 0;
             boolean found = false;
             for (AsmLine asmLine : asmLines) {
+
+                if (asmLine.mnemonic == Mnemonic.I_LI) {
+                    System.out.println("test");
+                }
+
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LI)
                         && (asmLine.pseudoInstructionAsmLine.optimized == false)) {
@@ -82,7 +87,7 @@ public class LiOptimizer extends BaseOptimizer {
             // if arriving at the target label is possible only crossing real instructions
             // take the absolute value of the label and put it into the modifier.
 
-            int address = map.get(firstAsmLine.offsetLabel_1);
+            long address = map.get(firstAsmLine.offsetLabel_1);
             long highValue = 0;
             long lowValue = 0;
 
