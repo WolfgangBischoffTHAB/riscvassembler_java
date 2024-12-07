@@ -1,82 +1,36 @@
-uart:
-        #.word   268435456
-        .word   0x10000000
-putchar:
-        addi    sp, sp, -32
-        sw      ra, 28(sp)
-        sw      s0, 24(sp)
-        addi    s0, sp, 32
-        mv      a5, a0
-        sb      a5, -17(s0)
-        nop
-.L2:
-        lui     a5, %hi(uart)
-        lw      a5, %lo(uart)(a5)
-        lui     a4, %hi(LSR.2)
-        lbu     a4, %lo(LSR.2)(a4)
-        add     a5, a5, a4
-        lbu     a5, 0(a5)
-        andi    a4, a5, 0xff
-        lui     a5, %hi(LSR_RI.1)
-        lbu     a5, %lo(LSR_RI.1)(a5)
-        and     a5, a4, a5
-        andi    a5, a5, 0xff
-        beq     a5, zero, .L2
-        lui     a5, %hi(uart)
-        lw      a5, %lo(uart)(a5)
-        lui     a4, %hi(THR.0)
-        lbu     a4, %lo(THR.0)(a4)
-        add     a4, a5, a4
-        lbu     a5, -17(s0)
-        sb      a5, 0(a4)
-        mv      a0, a5
-        lw      ra, 28(sp)
-        lw      s0, 24(sp)
-        addi    sp, sp, 32
-        jr      ra
-puts:
-        addi    sp, sp, -32
-        sw      ra, 28(sp)
-        sw      s0, 24(sp)
-        addi    s0, sp, 32
-        sw      a0, -20(s0)
-        j       .L5
-.L6:
-        lw      a5, -20(s0)
-        addi    a4, a5, 1
-        sw      a4, -20(s0)
-        lbu     a5, 0(a5)
-        mv      a0, a5
-        call    putchar
-.L5:
-        lw      a5, -20(s0)
-        lbu     a5, 0(a5)
-        bne     a5, zero, .L6
-        li      a0, 10
-        call    putchar
-        nop
-        lw      ra, 28(sp)
-        lw      s0, 24(sp)
-        addi    sp, sp, 32
-        jr      ra
-.LC0:
-        .string "Hello RISC-V"
-enter:
-        addi    sp, sp, -16
-        sw      ra, 12(sp)
-        sw      s0, 8(sp)
-        addi    s0, sp, 16
-        lui     a5, %hi(.LC0)
-        addi    a0, a5, %lo(.LC0)
-        call    puts
-        nop
-        lw      ra, 12(sp)
-        lw      s0, 8(sp)
-        addi    sp, sp, 16
-        jr      ra
-THR.0:
-        .byte   0
-LSR.2:
-        .byte   5
-LSR_RI.1:
-        .byte   64
+.data
+#.include "tela.data"		# inclui o .data com a imagem
+
+.text
+	li s0, 0xFF200604	    # seleciona frame 0
+	sw zero, 0(s0)
+
+	li s0, 0xFF000000	    # Frame0
+	li s1, 0xFF100000	    # Frame1
+	la t0, FORA		        # endereço da imagem
+	lw t1, 0(t0)		    # número de linhas
+	lw t2, 4(t0)		    # número de colunas
+	li t3, 0			    # contador
+	mul t4, t1, t2		    # numero total de pixels
+	addi t0, t0, 8		    # primeiro pixel da imagem
+LOOP: 	beq t3, t4, FORA		# Coloca a imagem no Frame0
+	lw t5, 0(t0)
+	sw t5, 0(s0)
+	not t5, t5		        # inverso da cor do pixel
+	sw t5, 0(s1)
+	addi t0, t0, 4
+	addi s0, s0, 4
+	addi s1, s1, 4
+	addi t3, t3, 1
+	j LOOP
+
+
+FORA:	li s0,0xFF200604	# Escolhe o Frame 0 ou 1
+	li t2,0			# inicio Frame 0
+
+LOOP3: 	  sw t2,0(s0)		# seleciona a Frame t2
+	  xori t2,t2,0x001	# escolhe a outra frame
+	  li a0,50		# pausa de 50m segundos
+	  li a7,32
+	  ecall
+	  j LOOP3
