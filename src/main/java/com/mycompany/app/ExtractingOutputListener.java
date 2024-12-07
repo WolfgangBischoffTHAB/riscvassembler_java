@@ -51,14 +51,31 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
             int index = 0;
             for (ParamContext paramContext : ctx.param()) {
 
-                ExprContext exprContext = paramContext.expr();
-
-                OffsetContext offset = paramContext.offset();
-                if (offset != null) {
+                OffsetContext offsetContext = paramContext.offset();
+                if (offsetContext != null) {
 
                     isOffset = true;
 
-                    ModifierContext modifier = offset.modifier();
+                    if (offsetContext != null) {
+                        ExprContext expr = offsetContext.expr();
+                        TerminalNode numeric2 = expr.NUMERIC();
+                        if (numeric2 != null) {
+                            String numeric = numeric2.toString();
+                            switch (index) {
+                                case 0:
+                                    asmLine.offset_0 = Integer.parseInt(numeric);
+                                    break;
+                                case 1:
+                                    asmLine.offset_1 = Integer.parseInt(numeric);
+                                    break;
+                                case 2:
+                                    asmLine.offset_2 = Integer.parseInt(numeric);
+                                    break;
+                            }
+                        }
+                    }
+
+                    ModifierContext modifier = offsetContext.modifier();
                     if (modifier != null) {
                         switch (index) {
                             case 0:
@@ -73,7 +90,7 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
                         }
                     }
 
-                    ExprContext offsetExprContext = offset.expr();
+                    ExprContext offsetExprContext = offsetContext.expr();
                     if (offsetExprContext != null) {
                         String offsetLabel = offsetExprContext.getChild(0).toString();
                         switch (index) {
@@ -90,103 +107,86 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
                     }
                 }
 
-                RegisterContext registerContext = exprContext.register();
-                if (registerContext != null) {
+                ExprContext exprContext = paramContext.expr();
+                if (exprContext != null) {
+                    RegisterContext registerContext = exprContext.register();
+                    if (registerContext != null) {
 
-                    isRegister = true;
+                        isRegister = true;
 
-                    switch (index) {
-                        case 0:
-                            asmLine.register_0 = Register.fromString(registerContext.getText());
-                            break;
-                        case 1:
-                            asmLine.register_1 = Register.fromString(registerContext.getText());
-                            break;
-                        case 2:
-                            asmLine.register_2 = Register.fromString(registerContext.getText());
-                            break;
-                    }
-                }
-
-                TerminalNode numericTerminalNode = exprContext.NUMERIC();
-                if (numericTerminalNode != null) {
-
-                    isNumeric = true;
-
-                    String numeric = numericTerminalNode.toString();
-                    if (numeric != null) {
                         switch (index) {
                             case 0:
-                                asmLine.numeric_0 = Long.parseLong(numeric);
+                                asmLine.register_0 = Register.fromString(registerContext.getText());
                                 break;
                             case 1:
-                                asmLine.numeric_1 = Long.parseLong(numeric);
+                                asmLine.register_1 = Register.fromString(registerContext.getText());
                                 break;
                             case 2:
-                                asmLine.numeric_2 = Long.parseLong(numeric);
+                                asmLine.register_2 = Register.fromString(registerContext.getText());
                                 break;
                         }
                     }
-                }
 
-                numericTerminalNode = exprContext.HEX_NUMERIC();
-                if (numericTerminalNode != null) {
+                    TerminalNode numericTerminalNode = exprContext.NUMERIC();
+                    if (numericTerminalNode != null) {
 
-                    isHexNumeric = true;
+                        isNumeric = true;
 
-                    String numeric = numericTerminalNode.toString();
-                    if (numeric.startsWith("0x")) {
-                        numeric = numeric.substring("0x".length());
-                    }
-                    if (numeric != null) {
-                        switch (index) {
-                            case 0:
-                                asmLine.numeric_0 = Long.parseLong(numeric, 16);
-                                break;
-                            case 1:
-                                asmLine.numeric_1 = Long.parseLong(numeric, 16);
-                                break;
-                            case 2:
-                                asmLine.numeric_2 = Long.parseLong(numeric, 16);
-                                break;
+                        String numeric = numericTerminalNode.toString();
+                        if (numeric != null) {
+                            switch (index) {
+                                case 0:
+                                    asmLine.numeric_0 = Long.parseLong(numeric);
+                                    break;
+                                case 1:
+                                    asmLine.numeric_1 = Long.parseLong(numeric);
+                                    break;
+                                case 2:
+                                    asmLine.numeric_2 = Long.parseLong(numeric);
+                                    break;
+                            }
                         }
                     }
-                }
 
-                TerminalNode stringLiteralTerminalNode = exprContext.IDENTIFIER();
-                if (stringLiteralTerminalNode != null) {
+                    numericTerminalNode = exprContext.HEX_NUMERIC();
+                    if (numericTerminalNode != null) {
 
-                    isStringLiteral = true;
+                        isHexNumeric = true;
 
-                    String identifier = stringLiteralTerminalNode.getText();
-                    switch (index) {
-                        case 0:
-                            asmLine.identifier_0 = identifier;
-                            break;
-                        case 1:
-                            asmLine.identifier_1 = identifier;
-                            break;
-                        case 2:
-                            asmLine.identifier_2 = identifier;
-                            break;
+                        String numeric = numericTerminalNode.toString();
+                        if (numeric.startsWith("0x")) {
+                            numeric = numeric.substring("0x".length());
+                        }
+                        if (numeric != null) {
+                            switch (index) {
+                                case 0:
+                                    asmLine.numeric_0 = Long.parseLong(numeric, 16);
+                                    break;
+                                case 1:
+                                    asmLine.numeric_1 = Long.parseLong(numeric, 16);
+                                    break;
+                                case 2:
+                                    asmLine.numeric_2 = Long.parseLong(numeric, 16);
+                                    break;
+                            }
+                        }
                     }
-                }
 
-                OffsetContext offsetContext = paramContext.offset();
-                if (offsetContext != null) {
-                    ExprContext expr = offsetContext.expr();
-                    TerminalNode numeric2 = expr.NUMERIC();
-                    if (numeric2 != null) {
-                        String numeric = numeric2.toString();
+                    TerminalNode stringLiteralTerminalNode = exprContext.IDENTIFIER();
+                    if (stringLiteralTerminalNode != null) {
+
+                        isStringLiteral = true;
+
+                        String identifier = stringLiteralTerminalNode.getText();
                         switch (index) {
                             case 0:
-                                asmLine.offset_0 = Integer.parseInt(numeric);
+                                asmLine.identifier_0 = identifier;
                                 break;
                             case 1:
-                                asmLine.offset_1 = Integer.parseInt(numeric);
+                                asmLine.identifier_1 = identifier;
                                 break;
                             case 2:
-                                asmLine.offset_2 = Integer.parseInt(numeric);
+                                asmLine.identifier_2 = identifier;
                                 break;
                         }
                     }

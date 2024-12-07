@@ -2,55 +2,75 @@ package com.mycompany.data;
 
 public enum Mnemonic {
 
-    I_ADD,
-    I_ADDI,
-    I_AND,
-    I_ANDI,
-    I_AUIPC,
+    I_ADD(false),
+    I_ADDI(false),
+    I_AND(false),
+    I_ANDI(false),
+    I_AUIPC(false),
 
-    I_BEQ,
-    I_BEQZ,
-    I_BGE,
-    I_BGT,
-    I_BLT,
-    I_BNE,
-    I_BNEZ,
+    I_BEQ(false),
+    I_BEQZ(true),
+    I_BGE(false),
+    I_BGEU(false),
+    I_BGEZ(true),
+    I_BGT(true),
+    I_BGTU(true),
+    I_BGTZ(true),
+    I_BLT(false),
+    I_BLTU(false),
+    I_BLTZ(true),
+    I_BLE(true),
+    I_BLEU(true),
+    I_BLEZ(true),
+    I_BNE(false),
+    I_BNEU(false),
+    I_BNEZ(true),
 
-    I_CALL,
-    I_ECALL,
+    I_CALL(true),
+    I_ECALL(false),
 
-    I_J,
-    I_JR,
-    I_JALR,
+    I_J(false),
+    I_JR(false),
+    I_JALR(false),
 
-    I_LA,
-    I_LD,
-    I_LW,
-    I_LH,
-    I_LB,
-    I_LBU,
-    I_LI,
-    I_LUI,
+    I_LA(false),
+    I_LD(false),
+    I_LW(false),
+    I_LH(false),
+    I_LB(false),
+    I_LBU(false),
+    I_LI(false),
+    I_LUI(false),
 
-    I_MUL,
-    I_MV,
+    I_MUL(false),
+    I_MV(true),
 
-    I_NOP,
-    I_NOT,
+    I_NOP(true),
+    I_NOT(false),
 
-    I_RET,
+    I_RET(false),
 
-    I_SRLI,
-    I_SLLI,
-    I_SUB,
-    I_SD,
-    I_SW,
-    I_SH,
-    I_SB,
+    I_SRLI(false),
+    I_SLLI(false),
+    I_SUB(false),
+    I_SD(false),
+    I_SW(false),
+    I_SH(false),
+    I_SB(false),
 
-    I_WFI,
+    I_WFI(false),
 
-    I_XORI;
+    I_XORI(false);
+
+    private boolean pseudo;
+
+	Mnemonic(final boolean pseudo) {
+		this.pseudo = pseudo;
+	}
+
+	public boolean isPseudo() {
+		return pseudo;
+	}
 
     public static Mnemonic fromString(final String mnemonic) {
 
@@ -153,46 +173,78 @@ public enum Mnemonic {
             case I_AUIPC:
                 return "auipc";
 
-            case I_BEQ:
+            // Note: BGT, BGTU, BLE, and BLEU can be synthesized by reversing the operands
+            //    to BLT, BLTU, BGE, and BGEU, respectively.
+            //
+            // https://docs.openhwgroup.org/projects/cva6-user-manual/01_cva6_user/RISCV_Instructions_RV32I.html
+
+            case I_BEQ:         // Branch Equal
                 return "beq";
-            case I_BEQZ:
+            // case I_BEQU:        // does not exist!
+            //     return "bequ";
+            case I_BEQZ:        // pseudo instruction (Branch if == zero)
                 return "beqz";
+
             case I_BGE:
                 return "bge";
-            case I_BGT:
-                return "bgt";
+            case I_BGEU:        // Branch Greater or Equal Unsigned
+                return "bgeu";
+            case I_BGEZ:        // pseudo instruction
+                return "bgez";
+
+            case I_BGT:         // pseudo instruction, synthesized via BLT!
+                 return "bgt";
+            case I_BGTU:        // pseudo instruction, synthesized by BLTU
+                return "bgtu";
+            case I_BGTZ:
+                return "bgtz";  // pseudo instruction
+
+            case I_BLE:         // pseudo instruction (synthesized by BGE)
+                return "ble";
+            case I_BLEU:        // pseudo instruction (synthesized by BGEU)
+                return "bleu";
+            case I_BLEZ:        // pseudo instruction
+                return "blez";
+
             case I_BLT:
                 return "blt";
+            case I_BLTU:        // Branch Less Than Unsigned
+                return "bltu";
+            case I_BLTZ:        // pseudo instruction
+                return "bltz";
+
             case I_BNE:
                 return "bne";
-            case I_BNEZ:
+            case I_BNEU:        // pseudo instruction
+                return "bneu";
+            case I_BNEZ:        // pseudo instruction
                 return "bnez";
 
-            case I_CALL:
+            case I_CALL:        // pseudo instruction
                 return "call";
             case I_ECALL:
                 return "ecall";
 
-            case I_J:
+            case I_J:           // pseudo instruction
                 return "j";
             case I_JR:
                 return "jr";
             case I_JALR:
                 return "jalr";
 
-            case I_LA:
+            case I_LA:          // pseudo instruction
                 return "la";
-            case I_LD:
+            case I_LD:          // pseudo instruction
                 return "ld";
-            case I_LW:
+            case I_LW:          // pseudo instruction
                 return "lw";
-            case I_LH:
+            case I_LH:          // pseudo instruction
                 return "lh";
-            case I_LB:
+            case I_LB:          // pseudo instruction
                 return "lb";
             case I_LBU:
                 return "lbu";
-            case I_LI:
+            case I_LI:          // pseudo instruction
                 return "li";
             case I_LUI:
                 return "lui";
@@ -207,7 +259,7 @@ public enum Mnemonic {
             case I_NOT:
                 return "not";
 
-            case I_RET:
+            case I_RET:         // pseudo instruction
                 return "ret";
 
             case I_SRLI:
@@ -216,13 +268,13 @@ public enum Mnemonic {
                 return "slli";
             case I_SUB:
                 return "sub";
-            case I_SD:
+            case I_SD:          // pseudo instruction
                 return "sd";
-            case I_SW:
+            case I_SW:          // pseudo instruction
                 return "sw";
-            case I_SH:
+            case I_SH:          // pseudo instruction
                 return "sh";
-            case I_SB:
+            case I_SB:          // pseudo instruction
                 return "sb";
 
             case I_WFI:

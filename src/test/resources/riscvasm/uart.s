@@ -2,6 +2,8 @@
 #
 # Compile with https://godbolt.org/ (SourceLanguage: C, TargetLanguage: RISC-V (32-bits) gcc (trunk))
 #
+# file: uart.s
+#
 #
 # typedef unsigned char uint8_t;
 #

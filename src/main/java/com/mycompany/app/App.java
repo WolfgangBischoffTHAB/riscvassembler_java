@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
+
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -17,6 +19,11 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import com.mycompany.data.AsmLine;
+import com.mycompany.optimize.CallOptimizer;
+import com.mycompany.pseudo.combine.LiCombiner;
+import com.mycompany.pseudo.resolve.CallResolver;
+import com.mycompany.pseudo.resolve.MvResolver;
+import com.mycompany.pseudo.resolve.NopResolver;
 
 import riscvasm.RISCVASMLexer;
 import riscvasm.RISCVASMParser;
@@ -101,36 +108,82 @@ public class App {
         // walk the tree created during the parse, trigger callbacks
         walker.walk(listener, root);
 
+        // // DEBUG
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
+
+        //
+        // Combine
+        //
+
+        LiCombiner liCombiner = new LiCombiner();
+        liCombiner.modify(asmLines);
+
+        // LaCombiner laCombiner = new LaCombiner();
+        // laCombiner.modify(asmLines);
+
+        //
+        // Resolve - Replace pseudo instructions
+        //
+
+        CallResolver callResolver = new CallResolver();
+        callResolver.modify(asmLines);
+
+        NopResolver nopResolver = new NopResolver();
+        nopResolver.modify(asmLines);
+
+        MvResolver mvResolver = new MvResolver();
+        mvResolver.modify(asmLines);
+
         // DEBUG
         for (AsmLine asmLine : asmLines) {
             System.out.println(asmLine);
         }
 
-        // //
-        // // Optimize
-        // //
+        //
+        // Check for leftover pseudo instructions
+        //
 
-        // if ((data_1->instruction == I_LUI) && (data_2->instruction == I_ADDI)) {
+        for (AsmLine asmLine : asmLines) {
+            if (asmLine.mnemonic != null && asmLine.mnemonic.isPseudo()) {
+                throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
+            }
+        }
+        System.out.println("No pseudo instructions left!");
 
-        //     printf("found optimization\n", i);
+        //
+        // Optimization - resolve all pseudo instructions to the minimal amount
+        // of instructions necessary
+        //
+        // - first assume maximum amount of instructions for each pseudo instruction
+        // - build a label table
+        // - check if modifiers %hi and %lo resolve to 0. If so check if the instructions
+        //   can be removed/optimized away
+        // - it is only possible to use a label if there is no unoptimized pseudo
+        //   instruction between the current instruction and the label! Only
+        //   offsets over true instructions make sense!
+        // - if the deletion of an instruction is exactly on the 12-bit boundary
+        //   throw an exception for now
+        //
 
-        //     uint32_t strlength = strlen(data_1->offset_1_expression->string_val);
+        CallOptimizer callOptimizer = new CallOptimizer();
+        callOptimizer.modify(asmLines);
 
-        //     // check if the symbol is the same
-        //     if (strncmp(data_1->offset_1_expression->string_val, data_2->offset_2_expression->string_val, strlength) == 0) {
 
-        //         reset_asm_line(data_1);
-        //         data_1->used = 1;
-        //         data_1->instruction = I_LI;
-        //         data_1->reg_rd = data_2->reg_rd;
 
-        //         data_1->offset_1_expression = data_2->offset_2_expression;
+        // check
 
-        //         // second line is erased
-        //         reset_asm_line(data_2);
-        //     }
+        for (AsmLine asmLine : asmLines) {
 
-        // }
+            if (asmLine.pseudoInstructionAsmLine != null) {
+                if (!asmLine.pseudoInstructionAsmLine.optimized) {
+                    throw new RuntimeException("Unoptimized instruction detected! " + asmLine.mnemonic);
+                }
+            }
+        }
+        System.out.println("No unoptimized instructions found!");
+
     }
 
 }

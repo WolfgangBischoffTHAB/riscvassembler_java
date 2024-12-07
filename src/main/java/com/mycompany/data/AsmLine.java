@@ -1,10 +1,13 @@
 package com.mycompany.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import riscvasm.RISCVASMParser.ExprContext;
 
 public class AsmLine {
+
+    public int address;
 
     public String label;
 
@@ -43,6 +46,11 @@ public class AsmLine {
     public ExprContext exprContext_0 = null;
     public ExprContext exprContext_1 = null;
     public ExprContext exprContext_2 = null;
+
+    public AsmLine pseudoInstructionAsmLine = null;
+    public List<AsmLine> pseudoInstructionChildren = new ArrayList<>();
+
+    public boolean optimized = false;
 
     public String toString() {
 
@@ -195,6 +203,10 @@ public class AsmLine {
                 stringBuilder.append(", ");
                 stringBuilder.append(Register.toStringAbi(register_2));
             }
+        }
+
+        if (pseudoInstructionAsmLine != null) {
+            stringBuilder.append(" --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);
         }
 
         return stringBuilder.toString();

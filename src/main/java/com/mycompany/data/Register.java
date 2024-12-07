@@ -4,42 +4,75 @@ public enum Register {
 
     REG_UNKNOWN,
 
+    /** x0 */
     REG_ZERO,
+    /** x1 */
     REG_RA,
+    /** x2 */
     REG_SP,
+    /** x3 */
     REG_GP,
+    /** x4 */
     REG_TP,
 
+    /** x5 */
     REG_T0,
+    /** x6 */
     REG_T1,
+    /** x7 */
     REG_T2,
+    /** x28 */
     REG_T3,
+    /** x29 */
     REG_T4,
+    /** x30 */
     REG_T5,
+    /** x31 */
     REG_T6,
 
+    /** x8 */
     REG_FP,
 
+    /** x10 */
     REG_A0,
+    /** x11 */
     REG_A1,
+    /** x12 */
     REG_A2,
+    /** x13 */
     REG_A3,
+    /** x14 */
     REG_A4,
+    /** x15 */
     REG_A5,
+    /** x16 */
     REG_A6,
+    /** x17 */
     REG_A7,
 
+    /** x8 */
     REG_S0,
+    /** x9 */
     REG_S1,
+    /** x18 */
     REG_S2,
+    /** x19 */
     REG_S3,
+    /** x20 */
     REG_S4,
+    /** x21 */
     REG_S5,
+    /** x22 */
     REG_S6,
+    /** x23 */
     REG_S7,
+    /** x24 */
     REG_S8,
+    /** x25 */
     REG_S9,
+    /** x26 */
     REG_S10,
+    /** x27 */
     REG_S11;
 
     // REG_ZERO : X '0' ; // 0, Hard-wired zero
