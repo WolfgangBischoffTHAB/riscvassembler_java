@@ -32,6 +32,11 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                             address += asmLine.stringValue.length();
                             break;
 
+                        case SECTION:
+                        case TEXT:
+                        case GLOBAL:
+                            break;
+
                         default:
                             throw new RuntimeException();
                     }
@@ -64,6 +69,11 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                         case STRING:
                             address += asmLine.stringValue.length();
+                            break;
+
+                        case SECTION:
+                        case TEXT:
+                        case GLOBAL:
                             break;
 
                         default:

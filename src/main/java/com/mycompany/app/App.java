@@ -22,7 +22,10 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
 import com.mycompany.pseudo.combine.LiCombiner;
+import com.mycompany.pseudo.resolve.BgtResolver;
+import com.mycompany.pseudo.resolve.BnezResolver;
 import com.mycompany.pseudo.resolve.CallResolver;
+import com.mycompany.pseudo.resolve.JResolver;
 import com.mycompany.pseudo.resolve.MvResolver;
 import com.mycompany.pseudo.resolve.NopResolver;
 
@@ -137,10 +140,19 @@ public class App {
         MvResolver mvResolver = new MvResolver();
         mvResolver.modify(asmLines);
 
-        // // DEBUG
-        // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
-        // }
+        BgtResolver bgtResolver = new BgtResolver();
+        bgtResolver.modify(asmLines);
+
+        BnezResolver bnezResolver = new BnezResolver();
+        bnezResolver.modify(asmLines);
+
+        JResolver jResolver = new JResolver();
+        jResolver.modify(asmLines);
+
+        // DEBUG
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         //
         // Check for leftover pseudo instructions
@@ -192,6 +204,7 @@ public class App {
         System.out.println("No unoptimized instructions found!");
 
         // DEBUG
+        System.out.println("\n\n\n");
         for (AsmLine asmLine : asmLines) {
             System.out.println(asmLine);
         }

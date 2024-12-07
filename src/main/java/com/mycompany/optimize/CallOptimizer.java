@@ -20,6 +20,11 @@ public class CallOptimizer extends BaseOptimizer {
             Map<String, Integer> map = new HashMap<>();
             buildLabelTable(asmLines, map);
 
+            // DEBUG
+            for (Map.Entry<String, Integer> mapEntry : map.entrySet()) {
+                System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+            }
+
             updateAddresses(asmLines);
 
             // find unoptimized call pseudo instruction
@@ -52,7 +57,6 @@ public class CallOptimizer extends BaseOptimizer {
                 direction = -1;
             } else {
                 direction = +1;
-                throw new RuntimeException();
             }
 
             if (direction == -1) {
@@ -64,13 +68,44 @@ public class CallOptimizer extends BaseOptimizer {
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
-                        throw new RuntimeException("Cannot optimize!");
+                        //throw new RuntimeException("Cannot optimize!");
+                        //currentAsmLine.pseudoInstructionAsmLine.optimized = true;
+                        currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
                     if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentAsmLine.label)) {
                         break;
                     }
                 }
+            }
+
+            if (direction == +1) {
+
+                // move downwards
+                for (int i = index + 1; i < asmLines.size(); i++) {
+
+                    AsmLine currentAsmLine = asmLines.get(i);
+
+                    if (currentAsmLine.pseudoInstructionAsmLine == firstAsmLine.pseudoInstructionAsmLine) {
+                        continue;
+                    }
+
+                    // for each instruction, check if it is a real instruction (not pseudo)
+                    if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
+                        //throw new RuntimeException("Cannot optimize!");
+                        //firstAsmLine.pseudoInstructionAsmLine.optimized = true;
+                        firstAsmLine.pseudoInstructionAsmLine.optimized = false;
+                    }
+
+                    if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentAsmLine.label)) {
+                        break;
+                    }
+                }
+            }
+
+
+            if (firstAsmLine.pseudoInstructionAsmLine.optimized == true) {
+                continue;
             }
 
             // // DEBUG
@@ -128,7 +163,7 @@ public class CallOptimizer extends BaseOptimizer {
                 AsmLine asmLine = new AsmLine();
                 asmLine.mnemonic = Mnemonic.I_JAL;
                 asmLine.register_0 = Register.REG_RA;
-                asmLine.numeric_1 = lowValue;
+                asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
 
                 asmLines.add(index, asmLine);
 

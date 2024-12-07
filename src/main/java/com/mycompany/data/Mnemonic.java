@@ -29,7 +29,7 @@ public enum Mnemonic {
     I_CALL(true),
     I_ECALL(false),
 
-    I_J(false),
+    I_J(true),
     I_JR(false),
     I_JALR(false),
     I_JAL(false),

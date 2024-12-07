@@ -1,6 +1,5 @@
-.globl argmax
+# file: argmax.s
 
-.text
 # =================================================================
 # FUNCTION: Given a int vector, return the index of the largest
 #	element. If there are multiple, return the one
@@ -14,6 +13,10 @@
 # If the length of the vector is less than 1,
 # this function exits with error code 7.
 # =================================================================
+
+    .globl argmax
+    .text
+
 argmax:                                                         # addr: 0
 
     addi sp, sp, -12                                            # addr: 4

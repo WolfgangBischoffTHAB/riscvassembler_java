@@ -73,11 +73,11 @@ public class LiOptimizer extends BaseOptimizer {
                 }
             }
 
-            // DEBUG
-            System.out.println("first: " + firstAsmLine);
-            System.out.println("Second: " + secondAsmLine);
-            System.out.println("Label: " + firstAsmLine.offsetLabel_1);
-            System.out.println("absolute address of label: " + map.get(firstAsmLine.offsetLabel_1));
+            // // DEBUG
+            // System.out.println("first: " + firstAsmLine);
+            // System.out.println("Second: " + secondAsmLine);
+            // System.out.println("Label: " + firstAsmLine.offsetLabel_1);
+            // System.out.println("absolute address of label: " + map.get(firstAsmLine.offsetLabel_1));
 
             // if arriving at the target label is possible only crossing real instructions
             // take the absolute value of the label and put it into the modifier.
@@ -114,8 +114,8 @@ public class LiOptimizer extends BaseOptimizer {
                     throw new RuntimeException();
             }
 
-            System.out.println("highValue: " + highValue);
-            System.out.println("lowValue: " + lowValue);
+            // System.out.println("highValue: " + highValue);
+            // System.out.println("lowValue: " + lowValue);
 
             // if the absolute label address is exactly 12-bit throw exception!
 
@@ -268,7 +268,6 @@ public class LiOptimizer extends BaseOptimizer {
                 // copy_asm_line(&asm_line_array[index + 1], &addiw);
 
             }
-
 
             // // if the modifier returns 0, the instruction can be optimized
             // if (highValue == 0) {
