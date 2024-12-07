@@ -32,6 +32,7 @@ public enum Mnemonic {
     I_J(false),
     I_JR(false),
     I_JALR(false),
+    I_JAL(false),
 
     I_LA(false),
     I_LD(false),
@@ -231,6 +232,8 @@ public enum Mnemonic {
                 return "jr";
             case I_JALR:
                 return "jalr";
+            case I_JAL:
+                return "jal";
 
             case I_LA:          // pseudo instruction
                 return "la";

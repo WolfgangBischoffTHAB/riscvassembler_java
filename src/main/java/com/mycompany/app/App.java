@@ -170,7 +170,10 @@ public class App {
         CallOptimizer callOptimizer = new CallOptimizer();
         callOptimizer.modify(asmLines);
 
-
+        // DEBUG
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         // check
 

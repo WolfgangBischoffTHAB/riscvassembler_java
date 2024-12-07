@@ -63,13 +63,13 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
                             String numeric = numeric2.toString();
                             switch (index) {
                                 case 0:
-                                    asmLine.offset_0 = Integer.parseInt(numeric);
+                                    asmLine.offset_0 = Long.parseLong(numeric);
                                     break;
                                 case 1:
-                                    asmLine.offset_1 = Integer.parseInt(numeric);
+                                    asmLine.offset_1 = Long.parseLong(numeric);
                                     break;
                                 case 2:
-                                    asmLine.offset_2 = Integer.parseInt(numeric);
+                                    asmLine.offset_2 = Long.parseLong(numeric);
                                     break;
                             }
                         }

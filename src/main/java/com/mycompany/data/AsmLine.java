@@ -21,9 +21,9 @@ public class AsmLine {
     public Long numeric_1 = null;
     public Long numeric_2 = null;
 
-    public Integer offset_0 = null;
-    public Integer offset_1 = null;
-    public Integer offset_2 = null;
+    public Long offset_0 = null;
+    public Long offset_1 = null;
+    public Long offset_2 = null;
 
     public String offsetLabel_0 = null;
     public String offsetLabel_1 = null;
