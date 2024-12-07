@@ -3,7 +3,9 @@ package com.mycompany.app;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.RuntimeErrorException;
 
@@ -18,6 +20,7 @@ import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.optimize.CallOptimizer;
@@ -140,6 +143,70 @@ public class App {
         // laCombiner.modify(asmLines);
 
 
+
+        //
+        // Build table of .equ
+        //
+
+        Map<String, Object> equMap = new HashMap<>();
+
+        for (AsmLine asmLine : asmLines) {
+            if (asmLine.asmInstruction == AsmInstruction.EQU) {
+                equMap.put(asmLine.identifier_0, asmLine.numeric_1);
+            }
+        }
+
+        // DEBUG
+        for (Map.Entry<String, Object> mapEntry : equMap.entrySet()) {
+            System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+        }
+
+        for (AsmLine asmLine : asmLines) {
+
+            System.out.println(asmLine);
+
+            if (asmLine.asmInstruction == AsmInstruction.EQU) {
+                continue;
+            }
+
+            if (asmLine.identifier_0 != null) {
+                Object value = equMap.get(asmLine.identifier_0);
+                //System.out.println(value);
+                if (value != null) {
+                    asmLine.identifier_0 = null;
+                    asmLine.numeric_0 = (Long) value;
+                }
+            }
+            if (asmLine.identifier_1 != null) {
+                Object value = equMap.get(asmLine.identifier_1);
+                //System.out.println(value);
+                if (value != null) {
+                    asmLine.identifier_1 = null;
+                    asmLine.numeric_1 = (Long) value;
+                }
+            }
+            if (asmLine.identifier_2 != null) {
+                Object value = equMap.get(asmLine.identifier_2);
+                //System.out.println(value);
+                if (value != null) {
+                    asmLine.identifier_2 = null;
+                    asmLine.numeric_2 = (Long) value;
+                }
+            }
+
+            if (asmLine.offsetLabel_0 != null) {
+                asmLine.offset_0 = (Long) equMap.get(asmLine.offsetLabel_0);
+                //asmLine.offsetLabel_0 = null;
+            }
+            if (asmLine.offsetLabel_1 != null) {
+                asmLine.offset_1 = (Long) equMap.get(asmLine.offsetLabel_1);
+                //asmLine.offsetLabel_1 = null;
+            }
+            if (asmLine.offsetLabel_2 != null) {
+                asmLine.offset_2 = (Long) equMap.get(asmLine.offsetLabel_2);
+                //asmLine.offsetLabel_2 = null;
+            }
+        }
 
 
 

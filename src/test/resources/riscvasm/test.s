@@ -1,36 +1,25 @@
-.data
-#.include "tela.data"		# inclui o .data com a imagem
+    .equ IO_BASE, 0x400000
+    .equ IO_LEDS, 4
 
-.text
-	li s0, 0xFF200604	    # seleciona frame 0
-	sw zero, 0(s0)
+    .section .text
 
-	li s0, 0xFF000000	    # Frame0
-	li s1, 0xFF100000	    # Frame1
-	la t0, FORA		        # endereço da imagem
-	lw t1, 0(t0)		    # número de linhas
-	lw t2, 4(t0)		    # número de colunas
-	li t3, 0			    # contador
-	mul t4, t1, t2		    # numero total de pixels
-	addi t0, t0, 8		    # primeiro pixel da imagem
-LOOP: 	beq t3, t4, FORA		# Coloca a imagem no Frame0
-	lw t5, 0(t0)
-	sw t5, 0(s0)
-	not t5, t5		        # inverso da cor do pixel
-	sw t5, 0(s1)
-	addi t0, t0, 4
-	addi s0, s0, 4
-	addi s1, s1, 4
-	addi t3, t3, 1
-	j LOOP
+    .globl start
 
-
-FORA:	li s0,0xFF200604	# Escolhe o Frame 0 ou 1
-	li t2,0			# inicio Frame 0
-
-LOOP3: 	  sw t2,0(s0)		# seleciona a Frame t2
-	  xori t2,t2,0x001	# escolhe a outra frame
-	  li a0,50		# pausa de 50m segundos
-	  li a7,32
-	  ecall
-	  j LOOP3
+start:                          #  0        # addr: 0
+    li   gp, IO_BASE            #  0 +8     # addr: 0
+    li   sp, 0x1800             #  8 +8     # addr: 4
+.L0:                            # 16        # addr: 8
+    li   t0, 5                  # 16 +8     # addr: 8
+    sw   t0, IO_LEDS(gp)        # 24 +4     # addr: 12
+    call wait                   # 28 +8     # addr: 16
+    li   t0, 10                 # 36 +8     # addr: 20
+    sw   t0, IO_LEDS(gp)        # 44 +4     # addr: 24
+    call wait                   # 48 +8     # addr: 28 (encoded to jal)
+    j    .L0                    # 56 +8     # addr: 32
+wait:                           # 64        # addr: 36
+    li   t0, 1                  # 64 +8     # addr: 36
+    slli t0, t0, 17             # 72 +4     # addr: 40
+.L1:                            # 76        # addr: 44
+    addi t0, t0, -1             # 76 +4     # addr: 44
+    bnez t0, .L1                # 80 +4     # addr: 48
+    ret                         # 84 +4     # addr: 52

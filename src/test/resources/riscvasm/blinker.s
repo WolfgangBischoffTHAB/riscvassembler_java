@@ -16,12 +16,12 @@
 # 4. Replace all pseudo instructions by real instruction asm_line objects
 # 5. Encode asm_line objects into 32 bit machine code
 
-.equ IO_BASE, 0x400000
-.equ IO_LEDS, 4
+    .equ IO_BASE, 0x400000
+    .equ IO_LEDS, 4
 
-.section .text
+    .section .text
 
-.globl start
+    .globl start
 
 start:                          #  0        # addr: 0
     li   gp, IO_BASE            #  0 +8     # addr: 0

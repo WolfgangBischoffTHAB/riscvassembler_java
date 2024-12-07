@@ -64,6 +64,11 @@ public class AsmLine {
             stringBuilder.append(AsmInstruction.toString(asmInstruction));
             switch (asmInstruction) {
 
+                case EQU:
+                    stringBuilder.append(" ").append(identifier_0).append(", ").append(numeric_1);
+                    //System.out.println(stringBuilder.toString());
+                    break;
+
                 case SECTION:
                 case GLOBAL:
                     stringBuilder.append(" ").append(stringValue);

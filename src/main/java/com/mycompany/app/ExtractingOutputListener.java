@@ -360,4 +360,27 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
         }
     }
 
+    @Override
+    public void exitEqu_assembler_instruction(RISCVASMParser.Equ_assembler_instructionContext ctx) {
+
+        asmLine.asmInstruction = AsmInstruction.EQU;
+
+        String identifier = ctx.IDENTIFIER().getText();
+        asmLine.identifier_0 = identifier;
+
+        ExprContext expr = ctx.expr();
+
+        if (expr.NUMERIC() != null) {
+            String numericAsString = expr.NUMERIC().getText();
+            asmLine.numeric_1 = Long.parseLong(numericAsString);
+        } else if (expr.HEX_NUMERIC() != null) {
+            String numericAsString = expr.HEX_NUMERIC().getText();
+
+            numericAsString = numericAsString.substring(2);
+            asmLine.numeric_1 = Long.parseLong(numericAsString,16);
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
 }

@@ -37,6 +37,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                             address += asmLine.stringValue.length() + 1; // +1 for zero termination
                             break;
 
+                        case EQU:
                         case DATA:
                         case SECTION:
                         case TEXT:
@@ -82,6 +83,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                             address += asmLine.stringValue.length() + 1; // +1 for zero termination
                             break;
 
+                        case EQU:
                         case DATA:
                         case SECTION:
                         case TEXT:
