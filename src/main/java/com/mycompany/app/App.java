@@ -61,7 +61,8 @@ public class App {
 
         String file = "src/test/resources/riscvasm/test.s";
 
-        // TODO: first step is always to let the preprocessor resolve .include instructions
+        // TODO: first step is always to let the preprocessor resolve .include
+        // instructions
         // Let the compiler run on the combined file!
 
         final CharStream charStream = CharStreams.fromFileName(file);
@@ -85,14 +86,16 @@ public class App {
             @Override
             public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, boolean exact,
                     BitSet ambigAlts, ATNConfigSet configs) {
-                //throw new UnsupportedOperationException("Unimplemented method 'reportAmbiguity'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'reportAmbiguity'");
             }
 
             @Override
             public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
                     BitSet conflictingAlts, ATNConfigSet configs) {
-                //System.out.println("startIndex: " + startIndex + " stopIndex: " + stopIndex);
-                //throw new UnsupportedOperationException("Unimplemented method 'reportAttemptingFullContext'");
+                // System.out.println("startIndex: " + startIndex + " stopIndex: " + stopIndex);
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'reportAttemptingFullContext'");
             }
 
             @Override
@@ -120,29 +123,27 @@ public class App {
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         //
         // Combine
         //
 
-        // LiCombiner liCombiner = new LiCombiner();
-        // liCombiner.modify(asmLines);
+        LiCombiner liCombiner = new LiCombiner();
+        liCombiner.modify(asmLines);
 
-        //  // DEBUG
-        //  System.out.println("\n\n\n");
-        //  for (AsmLine asmLine : asmLines) {
-        //      if (asmLine.mnemonic == Mnemonic.I_LI) {
-        //          System.out.println("Bug");
-        //      }
-        //      System.out.println(asmLine);
-        //  }
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        // if (asmLine.mnemonic == Mnemonic.I_LI) {
+        // System.out.println("Bug");
+        // }
+        // System.out.println(asmLine);
+        // }
 
         // LaCombiner laCombiner = new LaCombiner();
         // laCombiner.modify(asmLines);
-
-
 
         //
         // Build table of .equ
@@ -171,7 +172,6 @@ public class App {
 
             if (asmLine.identifier_0 != null) {
                 Object value = equMap.get(asmLine.identifier_0);
-                //System.out.println(value);
                 if (value != null) {
                     asmLine.identifier_0 = null;
                     asmLine.numeric_0 = (Long) value;
@@ -179,7 +179,6 @@ public class App {
             }
             if (asmLine.identifier_1 != null) {
                 Object value = equMap.get(asmLine.identifier_1);
-                //System.out.println(value);
                 if (value != null) {
                     asmLine.identifier_1 = null;
                     asmLine.numeric_1 = (Long) value;
@@ -187,7 +186,6 @@ public class App {
             }
             if (asmLine.identifier_2 != null) {
                 Object value = equMap.get(asmLine.identifier_2);
-                //System.out.println(value);
                 if (value != null) {
                     asmLine.identifier_2 = null;
                     asmLine.numeric_2 = (Long) value;
@@ -195,27 +193,28 @@ public class App {
             }
 
             if (asmLine.offsetLabel_0 != null) {
-                asmLine.offset_0 = (Long) equMap.get(asmLine.offsetLabel_0);
-                //asmLine.offsetLabel_0 = null;
+                if (equMap.containsKey(asmLine.offsetLabel_0)) {
+                    asmLine.offset_0 = (Long) equMap.get(asmLine.offsetLabel_0);
+                }
             }
             if (asmLine.offsetLabel_1 != null) {
-                asmLine.offset_1 = (Long) equMap.get(asmLine.offsetLabel_1);
-                //asmLine.offsetLabel_1 = null;
+                if (equMap.containsKey(asmLine.offsetLabel_1)) {
+                    asmLine.offset_1 = (Long) equMap.get(asmLine.offsetLabel_1);
+                }
             }
             if (asmLine.offsetLabel_2 != null) {
-                asmLine.offset_2 = (Long) equMap.get(asmLine.offsetLabel_2);
-                //asmLine.offsetLabel_2 = null;
+                if (equMap.containsKey(asmLine.offsetLabel_2)) {
+                    asmLine.offset_2 = (Long) equMap.get(asmLine.offsetLabel_2);
+                }
             }
         }
-
-
 
         //
         // Resolve - Replace pseudo instructions
         //
 
-        // LiResolver liResolver = new LiResolver();
-        // liResolver.modify(asmLines);
+        LiResolver liResolver = new LiResolver();
+        liResolver.modify(asmLines);
 
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines);
@@ -238,15 +237,10 @@ public class App {
         JrResolver jrResolver = new JrResolver();
         jrResolver.modify(asmLines);
 
-        // DEBUG
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
-
-
-
-
-
+        // // DEBUG
+        // for (AsmLine asmLine : asmLines) {
+        // System.out.println(asmLine);
+        // }
 
         //
         // Check for leftover pseudo instructions
@@ -254,7 +248,7 @@ public class App {
 
         for (AsmLine asmLine : asmLines) {
             if (asmLine.mnemonic != null && asmLine.mnemonic.isPseudo()) {
-                //throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
+                // throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
                 System.out.println("Pseudo detected: " + asmLine.mnemonic);
                 System.out.println("Pseudo detected: " + asmLine.mnemonic);
                 System.out.println("Pseudo detected: " + asmLine.mnemonic);
@@ -264,37 +258,33 @@ public class App {
         }
         System.out.println("No pseudo instructions left!");
 
-
-
-
-
-
         //
         // Optimization - resolve all pseudo instructions to the minimal amount
         // of instructions necessary
         //
         // - first assume maximum amount of instructions for each pseudo instruction
         // - build a label table
-        // - check if modifiers %hi and %lo resolve to 0. If so check if the instructions
-        //   can be removed/optimized away
+        // - check if modifiers %hi and %lo resolve to 0. If so check if the
+        // instructions
+        // can be removed/optimized away
         // - it is only possible to use a label if there is no unoptimized pseudo
-        //   instruction between the current instruction and the label! Only
-        //   offsets over true instructions make sense!
+        // instruction between the current instruction and the label! Only
+        // offsets over true instructions make sense!
         // - if the deletion of an instruction is exactly on the 12-bit boundary
-        //   throw an exception for now
+        // throw an exception for now
         //
 
-        // LiOptimizer liOptimizer = new LiOptimizer();
-        // liOptimizer.modify(asmLines);
+        LiOptimizer liOptimizer = new LiOptimizer();
+        liOptimizer.modify(asmLines);
 
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
 
-        //     if (asmLine.mnemonic == Mnemonic.I_LI) {
-        //         System.out.println("Bug");
-        //     }
-        //     System.out.println(asmLine);
+        // if (asmLine.mnemonic == Mnemonic.I_LI) {
+        // System.out.println("Bug");
+        // }
+        // System.out.println(asmLine);
         // }
 
         CallOptimizer callOptimizer = new CallOptimizer();
@@ -302,13 +292,12 @@ public class App {
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         // check
 
         for (AsmLine asmLine : asmLines) {
-
             if (asmLine.pseudoInstructionAsmLine != null) {
                 if (!asmLine.pseudoInstructionAsmLine.optimized) {
                     throw new RuntimeException("Unoptimized instruction detected! " + asmLine.mnemonic);
@@ -320,10 +309,6 @@ public class App {
         // DEBUG
         System.out.println("\n\n\n");
         for (AsmLine asmLine : asmLines) {
-
-            // if (asmLine.mnemonic == Mnemonic.I_LI) {
-            //     System.out.println("Bug");
-            // }
             System.out.println(asmLine);
         }
 
