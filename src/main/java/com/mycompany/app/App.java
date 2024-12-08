@@ -20,10 +20,12 @@ import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Register;
+import com.mycompany.encoder.Encoder;
 import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
@@ -481,13 +483,23 @@ public class App {
             System.out.println(asmLine);
         }
 
-        // TODO encode everything that has a mnemonic
+        // TODO encode everything that has a mnemonic or is a
+        // .dword, .word, .half, .byte, .string, .asciz, .ascii assembler instruction
 
         Encoder encoder = new Encoder();
+
+        // encoder.byteArrayOutStream.write(0x01);
+        // byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
+        // System.out.println(ByteArrayUtil.bytesToHex(byteArray));
+
         for (AsmLine asmLine : asmLines) {
+
             System.out.println(asmLine);
 
             encoder.encode(asmLine);
+
+            byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
+            System.out.println(ByteArrayUtil.bytesToHex(byteArray));
         }
     }
 

@@ -220,4 +220,17 @@ public class AsmLine {
         return stringBuilder.toString();
     }
 
+    public AsmLineType getAsmLineType() {
+
+        if ((mnemonic != null) && (mnemonic != Mnemonic.I_UNKNOWN) && (!mnemonic.isPseudo())) {
+            return AsmLineType.MNEMONIC;
+        }
+
+        if (asmInstruction != null) {
+            return AsmLineType.ASSEMBLER_INSTRUCTION;
+        }
+
+        return AsmLineType.UNKNOWN;
+    }
+
 }

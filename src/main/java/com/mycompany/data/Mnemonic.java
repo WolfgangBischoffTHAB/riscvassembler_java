@@ -62,7 +62,9 @@ public enum Mnemonic {
 
     I_WFI(false),
 
-    I_XORI(false);
+    I_XORI(false),
+
+    I_UNKNOWN(true);
 
     private boolean pseudo;
 

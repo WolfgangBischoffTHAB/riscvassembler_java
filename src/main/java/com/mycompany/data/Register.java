@@ -2,7 +2,7 @@ package com.mycompany.data;
 
 public enum Register {
 
-    REG_UNKNOWN,
+
 
     /** x0 */
     REG_ZERO,
@@ -21,17 +21,15 @@ public enum Register {
     REG_T1,
     /** x7 */
     REG_T2,
-    /** x28 */
-    REG_T3,
-    /** x29 */
-    REG_T4,
-    /** x30 */
-    REG_T5,
-    /** x31 */
-    REG_T6,
 
     /** x8 */
-    REG_FP,
+    REG_S0,
+    // /** x8 */
+    // REG_FP,
+
+    /** x9 */
+    REG_S1,
+
 
     /** x10 */
     REG_A0,
@@ -50,10 +48,7 @@ public enum Register {
     /** x17 */
     REG_A7,
 
-    /** x8 */
-    REG_S0,
-    /** x9 */
-    REG_S1,
+
     /** x18 */
     REG_S2,
     /** x19 */
@@ -73,7 +68,18 @@ public enum Register {
     /** x26 */
     REG_S10,
     /** x27 */
-    REG_S11;
+    REG_S11,
+
+    /** x28 */
+    REG_T3,
+    /** x29 */
+    REG_T4,
+    /** x30 */
+    REG_T5,
+    /** x31 */
+    REG_T6,
+
+    REG_UNKNOWN;
 
     // REG_ZERO : X '0' ; // 0, Hard-wired zero
     // REG_RA : X '1' ; // 1, Return address
@@ -141,7 +147,7 @@ public enum Register {
         } else if (register.equalsIgnoreCase("T6")) {
             return REG_T6;
         } else if (register.equalsIgnoreCase("FP")) {
-            return REG_FP;
+            return REG_SP;
         } else if (register.equalsIgnoreCase("A0")) {
             return REG_A0;
         } else if (register.equalsIgnoreCase("A1")) {
@@ -209,7 +215,7 @@ public enum Register {
         } else if (register.equalsIgnoreCase("x11")) {
             return REG_T6;
         } else if (register.equalsIgnoreCase("x12")) {
-            return REG_FP;
+            return REG_SP;
         } else if (register.equalsIgnoreCase("x13")) {
             return REG_A0;
         } else if (register.equalsIgnoreCase("x14")) {
@@ -273,8 +279,8 @@ public enum Register {
                 return "x6";
             case REG_T2:
                 return "x7";
-            case REG_FP:
-                return "x8";
+            // case REG_FP:
+            //     return "x8";
             case REG_S1:
                 return "x9";
             case REG_A0:
@@ -346,8 +352,8 @@ public enum Register {
                 return "t2";
             case REG_S0:
                 return "s0";
-            case REG_FP:
-                return "fp";
+            // case REG_FP:
+            //     return "fp";
             case REG_S1:
                 return "s1";
             case REG_A0:
