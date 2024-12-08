@@ -187,6 +187,10 @@ public class ByteArrayUtil {
 		return String.format("%02X", data);
 	}
 
+    public static String intToHexLowerCase(final int data) {
+		return String.format("%02x", data);
+	}
+
 	// /**
 	//  * Searches 'searchData' within 'data'.
 	//  *

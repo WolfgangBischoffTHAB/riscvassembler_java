@@ -1,6 +1,9 @@
 package com.mycompany.app;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -163,12 +166,12 @@ public class App {
 
         // // DEBUG
         // for (Map.Entry<String, Object> mapEntry : equMap.entrySet()) {
-        //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+        // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
         // }
 
         for (AsmLine asmLine : asmLines) {
 
-            //System.out.println(asmLine);
+            // System.out.println(asmLine);
 
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
                 continue;
@@ -320,9 +323,6 @@ public class App {
 
         Map<String, Long> map = new HashMap<>();
         BaseOptimizer.buildLabelTable(asmLines, map);
-
-
-
 
         // TODO: resolve all modifiers
 
@@ -488,18 +488,40 @@ public class App {
 
         Encoder encoder = new Encoder();
 
-        // encoder.byteArrayOutStream.write(0x01);
-        // byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
-        // System.out.println(ByteArrayUtil.bytesToHex(byteArray));
+        AsmLine errorAsmLine = null;
+        try {
+            for (AsmLine asmLine : asmLines) {
 
-        for (AsmLine asmLine : asmLines) {
+                errorAsmLine = asmLine;
 
-            System.out.println(asmLine);
+                System.out.println(asmLine);
+                encoder.encode(asmLine);
+            }
+        } catch (Exception e) {
+            System.out.println("Cannot encode: " + errorAsmLine);
+        }
 
-            encoder.encode(asmLine);
+        byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
 
-            byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
-            System.out.println(ByteArrayUtil.bytesToHex(byteArray));
+        // DEBUG
+        //System.out.println(ByteArrayUtil.bytesToHex(byteArray));
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
+
+        int data = 0;
+        int index = 0;
+        while ((data = (int)byteArrayInputStream.read()) != -1) {
+
+            // newline after four bytes
+            if (index == 4) {
+                System.out.println("");
+                index = 0;
+            }
+
+            // output byte
+            System.out.print(ByteArrayUtil.intToHexLowerCase(data));
+
+            index++;
         }
     }
 
