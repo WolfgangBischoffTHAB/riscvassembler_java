@@ -7,6 +7,7 @@ import java.util.Arrays;
 public class ByteArrayUtil {
 
 	public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    public static final char[] HEX_ARRAY_LOWERCASE = "0123456789abcdef".toCharArray();
 
 	private ByteArrayUtil() {
 		// no instances of this class
@@ -28,18 +29,22 @@ public class ByteArrayUtil {
 	}
 
 	public static String bytesToHex(final byte[] bytes) {
-		return bytesToHex(bytes, bytes.length);
+		return bytesToHex(bytes, bytes.length, HEX_ARRAY);
 	}
 
-	public static String bytesToHex(final byte[] bytes, final int length) {
+    public static String bytesToHexLowerCase(final byte[] bytes) {
+		return bytesToHex(bytes, bytes.length, HEX_ARRAY_LOWERCASE);
+	}
+
+	public static String bytesToHex(final byte[] bytes, final int length, char[] hex_array) {
 
 		final char[] hexChars = new char[bytes.length * 2];
 
 		final int stopCondition = Math.min(bytes.length, length);
 		for (int j = 0; j < stopCondition; j++) {
 			final int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-			hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+			hexChars[j * 2] = hex_array[v >>> 4];
+			hexChars[j * 2 + 1] = hex_array[v & 0x0F];
 		}
 
 		return new String(hexChars);

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import com.mycompany.pseudo.resolve.JrResolver;
 import com.mycompany.pseudo.resolve.LiResolver;
 import com.mycompany.pseudo.resolve.MvResolver;
 import com.mycompany.pseudo.resolve.NopResolver;
+import com.mycompany.pseudo.resolve.RetResolver;
 
 import riscvasm.RISCVASMLexer;
 import riscvasm.RISCVASMParser;
@@ -243,6 +245,9 @@ public class App {
 
         JrResolver jrResolver = new JrResolver();
         jrResolver.modify(asmLines);
+
+        RetResolver retResolver = new RetResolver();
+        retResolver.modify(asmLines);
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -509,20 +514,28 @@ public class App {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
 
         int data = 0;
-        int index = 0;
+        int container = 0;
+        int container_index = 0;
         while ((data = (int)byteArrayInputStream.read()) != -1) {
 
-            // newline after four bytes
-            if (index == 4) {
+            container <<= 8;
+            container += data;
+            container_index++;
+
+            if (container_index == 4) {
+
+                byte[] temp = ByteArrayUtil.intToFourByte(container, ByteOrder.LITTLE_ENDIAN);
+
+                System.out.print(ByteArrayUtil.bytesToHexLowerCase(temp));
                 System.out.println("");
-                index = 0;
+
+                container_index = 0;
+                container = 0;
             }
 
-            // output byte
-            System.out.print(ByteArrayUtil.intToHexLowerCase(data));
-
-            index++;
         }
+        System.out.println("");
+
     }
 
 }
