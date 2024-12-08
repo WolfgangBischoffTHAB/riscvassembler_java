@@ -11,9 +11,9 @@ public class MnemonicEncoder {
 
         switch (asmLine.mnemonic) {
 
-            // case I_AUIPC:
-            // encoded_asm_line = encode_auipc(byteArrayOutStream, asmLine);
-            // break;
+            case I_AUIPC:
+                encodeAUIPC(byteArrayOutStream, asmLine);
+                break;
 
             case I_ADD:
                 encodeADD(byteArrayOutStream, asmLine);
@@ -121,6 +121,17 @@ public class MnemonicEncoder {
             default:
                 throw new RuntimeException("Unknown mnemonic: " + asmLine);
         }
+    }
+
+    private void encodeAUIPC(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+
+        byte opcode = 0b0010111;
+
+        byte rd = (byte) asmLine.register_0.ordinal();
+        int imm = asmLine.numeric_1.shortValue();
+
+        int result = encodeUType(imm, rd, opcode);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
     }
 
     private void encodeADD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {

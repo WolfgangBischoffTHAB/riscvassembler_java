@@ -7,3 +7,14 @@
 # load the address of a symbol or label. The instruction can emit absolute or
 # relative addresses depending on the -fpic or -fno-pic assembler command line
 # options or an .options pic or .options nopic assembler directive.
+#
+# Format: la rd, symbol
+#
+# Resolved by:
+# auipc rd, symbol[31:12]
+# addi rd, rd, symbol[11:0]
+#
+# auipc rd, %hi(symbol)
+# addi rd, rd, %lo(symbol)
+
+la t0, test_2

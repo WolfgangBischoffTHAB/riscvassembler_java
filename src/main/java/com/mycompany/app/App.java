@@ -39,6 +39,7 @@ import com.mycompany.pseudo.resolve.BnezResolver;
 import com.mycompany.pseudo.resolve.CallResolver;
 import com.mycompany.pseudo.resolve.JResolver;
 import com.mycompany.pseudo.resolve.JrResolver;
+import com.mycompany.pseudo.resolve.LaResolver;
 import com.mycompany.pseudo.resolve.LiResolver;
 import com.mycompany.pseudo.resolve.MvResolver;
 import com.mycompany.pseudo.resolve.NopResolver;
@@ -171,6 +172,10 @@ public class App {
         // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
         // }
 
+        //
+        // replace all .equ values in instructions
+        //
+
         for (AsmLine asmLine : asmLines) {
 
             // System.out.println(asmLine);
@@ -224,6 +229,9 @@ public class App {
 
         LiResolver liResolver = new LiResolver();
         liResolver.modify(asmLines);
+
+        LaResolver laResolver = new LaResolver();
+        laResolver.modify(asmLines);
 
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines);

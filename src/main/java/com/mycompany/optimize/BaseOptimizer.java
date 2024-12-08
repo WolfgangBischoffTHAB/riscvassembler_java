@@ -61,38 +61,44 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         long address = 0;
         for (AsmLine asmLine : asmLines) {
 
-            if (asmLine.mnemonic == null) {
+            if (asmLine.mnemonic != null) {
 
-                if (asmLine.asmInstruction != null) {
-                    switch (asmLine.asmInstruction) {
+                if (asmLine.label != null) {
+                    map.put(asmLine.label, address);
+                }
 
-                        case BYTE:
-                            address += asmLine.csvList.size() * 1;
-                            break;
+                address += 4;
 
-                        case WORD:
-                            address += asmLine.csvList.size() * 4;
-                            break;
+            } else if (asmLine.asmInstruction != null) {
 
-                        // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
-                        // The GNU assembler (gas) recognizes three assembler directives for defining strings.
-                        // “.string” and “.asciz” both assemble string literals with null terminators (the same as C strings),
-                        // whereas “.ascii” assembles a string literal with no null terminator
-                        case ASCIZ:
-                        case STRING:
-                            address += asmLine.stringValue.length() + 1; // +1 for zero termination
-                            break;
+                switch (asmLine.asmInstruction) {
 
-                        case EQU:
-                        case DATA:
-                        case SECTION:
-                        case TEXT:
-                        case GLOBAL:
-                            break;
+                    case BYTE:
+                        address += asmLine.csvList.size() * 1;
+                        break;
 
-                        default:
-                            throw new RuntimeException();
-                    }
+                    case WORD:
+                        address += asmLine.csvList.size() * 4;
+                        break;
+
+                    // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
+                    // The GNU assembler (gas) recognizes three assembler directives for defining strings.
+                    // “.string” and “.asciz” both assemble string literals with null terminators (the same as C strings),
+                    // whereas “.ascii” assembles a string literal with no null terminator
+                    case ASCIZ:
+                    case STRING:
+                        address += asmLine.stringValue.length() + 1; // +1 for zero termination
+                        break;
+
+                    case EQU:
+                    case DATA:
+                    case SECTION:
+                    case TEXT:
+                    case GLOBAL:
+                        break;
+
+                    default:
+                        throw new RuntimeException();
                 }
 
                 if (asmLine.label != null) {
@@ -100,9 +106,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
 
                 continue;
-            }
 
-            address += 4;
+            } else {
+
+                if (asmLine.label != null) {
+                    map.put(asmLine.label, address);
+                }
+
+            }
         }
 
         // // DEBUG
