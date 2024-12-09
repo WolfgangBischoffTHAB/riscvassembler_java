@@ -140,6 +140,11 @@ public class App {
         // Combine
         //
 
+        // Do not use the LI combiner because the sample uart.s
+        // sample is also not combined by https://riscvasm.lucasteske.dev/#
+        // uart.s --> does not use combiner
+        // square_and_print.s --> uses combiner
+        //
         LiCombiner liCombiner = new LiCombiner();
         liCombiner.modify(asmLines);
 
@@ -224,7 +229,7 @@ public class App {
         }
 
         //
-        // Resolve - Replace pseudo instructions
+        // Resolve - Replace pseudo instructions by individual instructions
         //
 
         LiResolver liResolver = new LiResolver();
@@ -511,7 +516,8 @@ public class App {
                 encoder.encode(asmLine);
             }
         } catch (Exception e) {
-            System.out.println("Cannot encode: " + errorAsmLine);
+            System.out.println("Failure while encoding: " + errorAsmLine);
+            encoder.encode(errorAsmLine);
         }
 
         byte[] byteArray = encoder.byteArrayOutStream.toByteArray();

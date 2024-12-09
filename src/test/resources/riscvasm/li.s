@@ -32,3 +32,9 @@ li a0, 0xdeadbeef
 # Test 5: load a value where the lower 12 bits have the most significant bit set (negative value)
 # Test 5 may output an optimized lui, addi or lui, addiw sequence (see: https://stackoverflow.com/questions/76331514/riscv-li-instruction)
 #li   sp, 0x1800
+
+
+
+
+# lui     a0, %hi(.L.str)         # addr: 16
+# addi    a0, a0, %lo(.L.str)     # addr: 20

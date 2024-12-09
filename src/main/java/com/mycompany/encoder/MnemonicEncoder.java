@@ -37,9 +37,9 @@ public class MnemonicEncoder {
                 encodeANDI(byteArrayOutStream, asmLine);
                 break;
 
-            // case I_MUL:
-            // encoded_asm_line = encode_mul(byteArrayOutStream, asmLine);
-            // break;
+            case I_MUL:
+                encodeMUL(byteArrayOutStream, asmLine);
+                break;
 
             case I_BEQ:
                 encodeBEQ(byteArrayOutStream, asmLine);
@@ -193,6 +193,19 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+    }
+
+    private void encodeMUL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct7 = 0b0000001;
+        byte funct3 = 0b000;
+        byte opcode = 0b0110011;
+
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rs2 = (byte) asmLine.register_2.ordinal();
+        byte rd = (byte) asmLine.register_0.ordinal();
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
     }
 

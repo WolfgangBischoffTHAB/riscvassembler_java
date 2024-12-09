@@ -37,6 +37,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                             address += asmLine.stringValue.length() + 1; // +1 for zero termination
                             break;
 
+                        case FILE:
                         case EQU:
                         case DATA:
                         case SECTION:
@@ -45,7 +46,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                             break;
 
                         default:
-                            throw new RuntimeException();
+                            throw new RuntimeException("Unknown assembler instruction: " + asmLine.asmInstruction);
                     }
                 }
 
@@ -90,6 +91,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         address += asmLine.stringValue.length() + 1; // +1 for zero termination
                         break;
 
+                    case FILE:
                     case EQU:
                     case DATA:
                     case SECTION:
@@ -98,7 +100,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         break;
 
                     default:
-                        throw new RuntimeException();
+                        throw new RuntimeException("Unknown assembler instruction: " + asmLine.asmInstruction);
                 }
 
                 if (asmLine.label != null) {

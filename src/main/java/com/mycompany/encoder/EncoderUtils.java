@@ -21,4 +21,29 @@ public class EncoderUtils {
         byteArrayOutStream.write(0);
     }
 
+    public static void encodeStringResolveEscapedCharacters(ByteArrayOutputStream byteArrayOutStream,
+        String stringValue) {
+
+        boolean decode = false;
+        for (char data : stringValue.toCharArray()) {
+
+            if (data == '\\') {
+                decode = true;
+                continue;
+            }
+
+            if (data == 'n' && decode) {
+                byteArrayOutStream.write(0x0A);
+                decode = false;
+                continue;
+            } else if (decode) {
+                byteArrayOutStream.write('\\');
+                byteArrayOutStream.write(data);
+            } else {
+                byteArrayOutStream.write(data);
+            }
+        }
+        byteArrayOutStream.write(0);
+    }
+
 }

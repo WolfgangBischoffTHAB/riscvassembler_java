@@ -62,8 +62,8 @@ public class LiCombiner implements AsmInstructionListModifier {
                 if (data_1.offsetLabel_1.equalsIgnoreCase(data_2.offsetLabel_2)) {
 
                     // registers must match
-                    //if ((data_1.register_0 == data_2.register_0) && (data_2.register_0 == data_2.register_1)) {
-                    if (data_1.register_0 == data_2.register_1) {
+                    if ((data_1.register_0 == data_2.register_0) && (data_2.register_0 == data_2.register_1)) {
+                    //if (data_1.register_0 == data_2.register_1) {
 
                         //System.out.println("found lui addi combination!");
 

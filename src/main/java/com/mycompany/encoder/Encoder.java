@@ -25,7 +25,8 @@ public class Encoder {
                 break;
 
             default:
-                System.out.println("Not encoding: " + asmLine);
+                //System.out.println("Not encoding: " + asmLine);
+                break;
         }
     }
 

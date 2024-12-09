@@ -47,6 +47,8 @@ public class CallOptimizer extends BaseOptimizer {
                 continue;
             }
 
+            //callPseudoAsmLine.optimized = true;
+
             // start with first child instruction
             AsmLine firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
             AsmLine secondAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(1);
@@ -163,12 +165,14 @@ public class CallOptimizer extends BaseOptimizer {
 
                 boolean twoByteAligned = true;
                 long delta = 0;
-                if (firstAsmLine.offsetLabel_1.equalsIgnoreCase("puts")) {
+                //if (firstAsmLine.offsetLabel_1.equalsIgnoreCase("puts")) {
+
                     delta = firstAsmLine.address - map.get(firstAsmLine.offsetLabel_1);
-                    System.out.println("delta: " + delta);
+
+                    //System.out.println("delta: " + delta);
 
                     twoByteAligned = (delta % 2) == 0;
-                }
+                //}
 
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
