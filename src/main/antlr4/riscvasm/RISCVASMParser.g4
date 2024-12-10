@@ -205,6 +205,8 @@ assembler_instruction :
     |
     skip_assembler_instruction
     |
+    ascii_assembler_instruction
+    |
     asciz_assembler_instruction
     |
     string_assembler_instruction
@@ -278,6 +280,10 @@ file_assembler_instruction :
 
 skip_assembler_instruction :
     DOT_SKIP expr
+    ;
+
+ascii_assembler_instruction :
+    DOT_ASCII STRING_LITERAL
     ;
 
 asciz_assembler_instruction :

@@ -336,6 +336,8 @@ public class App {
         for (AsmLine asmLine : asmLines) {
             System.out.println(asmLine);
         }
+        System.out.println("");
+        System.out.println("");
 
         BaseOptimizer.updateAddresses(asmLines);
 
@@ -444,9 +446,9 @@ public class App {
 
         for (AsmLine asmLine : asmLines) {
 
-            if (asmLine.mnemonic == Mnemonic.I_BNE) {
-                System.out.println(asmLine);
-            }
+            // if (asmLine.mnemonic == Mnemonic.I_BNE) {
+            //     System.out.println(asmLine);
+            // }
 
             if (asmLine.offsetLabel_0 != null) {
                 Long value = map.get(asmLine.offsetLabel_0);
@@ -495,11 +497,11 @@ public class App {
 
         }
 
-        // DEBUG
-        System.out.println("\n\n\n");
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         // TODO encode everything that has a mnemonic or is a
         // .dword, .word, .half, .byte, .string, .asciz, .ascii assembler instruction
@@ -509,10 +511,8 @@ public class App {
         AsmLine errorAsmLine = null;
         try {
             for (AsmLine asmLine : asmLines) {
-
                 errorAsmLine = asmLine;
-
-                System.out.println(asmLine);
+                // System.out.println(asmLine);
                 encoder.encode(asmLine);
             }
         } catch (Exception e) {

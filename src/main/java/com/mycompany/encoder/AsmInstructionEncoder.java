@@ -18,6 +18,10 @@ public class AsmInstructionEncoder {
                 encodeWordAssemblerInstruction(byteArrayOutStream, asmLine);
                 break;
 
+            case ASCII:
+                encodeAsciiAssemblerInstruction(byteArrayOutStream, asmLine);
+                break;
+
             case ASCIZ:
             case STRING:
                 encodeStringAssemblerInstruction(byteArrayOutStream, asmLine);
@@ -25,6 +29,7 @@ public class AsmInstructionEncoder {
 
             case FILE:
             case TEXT:
+            case DATA:
             case GLOBAL:
             case SECTION:
             case EQU:
@@ -36,9 +41,14 @@ public class AsmInstructionEncoder {
         }
     }
 
-    private void encodeStringAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
-        //EncoderUtils.encodeString(byteArrayOutStream, asmLine.stringValue);
-        EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue);
+    private void encodeStringAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+            final AsmLine asmLine) {
+        EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, true);
+    }
+
+    private void encodeAsciiAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+            final AsmLine asmLine) {
+        EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
     }
 
     private void encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {

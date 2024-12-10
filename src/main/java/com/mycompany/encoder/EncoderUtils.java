@@ -22,7 +22,7 @@ public class EncoderUtils {
     }
 
     public static void encodeStringResolveEscapedCharacters(ByteArrayOutputStream byteArrayOutStream,
-        String stringValue) {
+            String stringValue, boolean zeroTerminate) {
 
         boolean decode = false;
         for (char data : stringValue.toCharArray()) {
@@ -43,7 +43,9 @@ public class EncoderUtils {
                 byteArrayOutStream.write(data);
             }
         }
-        byteArrayOutStream.write(0);
+        if (zeroTerminate) {
+            byteArrayOutStream.write(0);
+        }
     }
 
 }

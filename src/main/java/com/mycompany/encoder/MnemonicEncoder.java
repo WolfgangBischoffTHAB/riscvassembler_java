@@ -46,8 +46,8 @@ public class MnemonicEncoder {
                 break;
 
             case I_BNE:
-            encodeBNE(byteArrayOutStream, asmLine);
-            break;
+                encodeBNE(byteArrayOutStream, asmLine);
+                break;
 
             // case I_BGE:
             // encoded_asm_line = encode_bge(byteArrayOutStream, asmLine);
@@ -57,9 +57,9 @@ public class MnemonicEncoder {
             // encoded_asm_line = encode_blt(byteArrayOutStream, asmLine);
             // break;
 
-            // case I_ECALL:
-            // encoded_asm_line = encode_ecall(byteArrayOutStream, asmLine);
-            // break;
+            case I_ECALL:
+                encodeECALL(byteArrayOutStream, asmLine);
+                break;
 
             case I_JAL:
                 encodeJAL(byteArrayOutStream, asmLine);
@@ -221,12 +221,23 @@ public class MnemonicEncoder {
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
     }
 
+    private void encodeECALL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b000;
+        byte opcode = 0b1110011;
+
+        byte rs1 = (byte) Register.REG_ZERO.ordinal();
+        byte rs2 = (byte) Register.REG_ZERO.ordinal();
+        short imm = 0x00;
+
+        int result = encodeIType(imm, rs2, rs1, funct3, opcode);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+    }
+
     private void encodeBNE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b001;
         byte opcode = 0b1100011;
 
         byte rs1 = (byte) asmLine.register_0.ordinal();
-        ///byte rs2 = (byte) asmLine.register_2.ordinal();
         byte rs2 = (byte) asmLine.register_1.ordinal();
         short imm = asmLine.numeric_2.shortValue();
 

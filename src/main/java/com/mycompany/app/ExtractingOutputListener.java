@@ -268,6 +268,14 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
     }
 
     @Override
+    public void exitAscii_assembler_instruction(RISCVASMParser.Ascii_assembler_instructionContext ctx) {
+        asmLine.asmInstruction = AsmInstruction.ASCII;
+
+        String val = ctx.getChild(1).getText().toString();
+        asmLine.stringValue = val.substring(1, val.length() - 1);
+    }
+
+    @Override
     public void exitAsciz_assembler_instruction(RISCVASMParser.Asciz_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.ASCIZ;
 
@@ -377,7 +385,7 @@ public class ExtractingOutputListener extends RISCVASMParserBaseListener {
             String numericAsString = expr.HEX_NUMERIC().getText();
 
             numericAsString = numericAsString.substring(2);
-            asmLine.numeric_1 = Long.parseLong(numericAsString,16);
+            asmLine.numeric_1 = Long.parseLong(numericAsString, 16);
         } else {
             throw new RuntimeException();
         }

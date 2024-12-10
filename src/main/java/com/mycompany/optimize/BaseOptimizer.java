@@ -28,9 +28,15 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                             address += asmLine.csvList.size() * 4;
                             break;
 
+                        case ASCII:
+                            address += asmLine.stringValue.length() + 0; // +0 for no zero termination
+                            break;
+
                         // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
-                        // The GNU assembler (gas) recognizes three assembler directives for defining strings.
-                        // “.string” and “.asciz” both assemble string literals with null terminators (the same as C strings),
+                        // The GNU assembler (gas) recognizes three assembler directives for defining
+                        // strings.
+                        // “.string” and “.asciz” both assemble string literals with null terminators
+                        // (the same as C strings),
                         // whereas “.ascii” assembles a string literal with no null terminator
                         case ASCIZ:
                         case STRING:
@@ -82,9 +88,15 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         address += asmLine.csvList.size() * 4;
                         break;
 
+                    case ASCII:
+                        address += asmLine.stringValue.length() + 0; // +0 for no zero termination
+                        break;
+
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
-                    // The GNU assembler (gas) recognizes three assembler directives for defining strings.
-                    // “.string” and “.asciz” both assemble string literals with null terminators (the same as C strings),
+                    // The GNU assembler (gas) recognizes three assembler directives for defining
+                    // strings.
+                    // “.string” and “.asciz” both assemble string literals with null terminators
+                    // (the same as C strings),
                     // whereas “.ascii” assembles a string literal with no null terminator
                     case ASCIZ:
                     case STRING:
@@ -120,7 +132,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
         // // DEBUG
         // for (Map.Entry<String, Integer> mapEntry : map.entrySet()) {
-        //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+        // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
         // }
     }
 }

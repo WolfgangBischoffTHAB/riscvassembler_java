@@ -60,6 +60,7 @@ DOT_WORD : DOT W O R D ;
 DOT_DWORD : DOT D W O R D ;
 DOT_FILE : DOT F I L E ;
 DOT_RODATA : DOT R O D A T A ;
+DOT_ASCII : DOT A S C I I ; // ASCII string without zero termination
 DOT_ASCIZ : DOT A S C I Z ; // ASCII string with zero termination
 DOT_SKIP : DOT S K I P ;
 DOT_STRING : DOT S T R I N G ;

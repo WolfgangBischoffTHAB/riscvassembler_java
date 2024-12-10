@@ -17,6 +17,7 @@ public enum AsmInstruction {
     DWORD,
     FILE,
     SKIP,
+    ASCII,
     ASCIZ,
     STRING,
     OPTION;
@@ -54,6 +55,8 @@ public enum AsmInstruction {
                 return ".file";
             case SKIP:
                 return ".skip";
+            case ASCII:
+                return ".ascii";
             case ASCIZ:
                 return ".asciz";
             case STRING:
