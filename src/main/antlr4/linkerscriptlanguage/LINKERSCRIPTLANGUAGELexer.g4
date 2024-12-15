@@ -84,7 +84,7 @@ ADDR : 'ADDR' ;
 LOADADDR : 'LOADADDR' ;
 CONSTANT : 'CONSTANT' ;
 ABSOLUTE : 'ABSOLUTE' ;
-ALIGN_K : 'ALIGN_K' ;
+ALIGN_K : 'ALIGN' ; // seems to be correct
 DATA_SEGMENT_ALIGN : 'DATA_SEGMENT_ALIGN' ;
 DATA_SEGMENT_RELRO_END : 'DATA_SEGMENT_RELRO_END' ;
 DATA_SEGMENT_END : 'DATA_SEGMENT_END' ;
@@ -92,7 +92,7 @@ SEGMENT_START : 'SEGMENT_START' ;
 BLOCK : 'BLOCK' ;
 MAX_K : 'MAX_K' ;
 MIN_K : 'MIN_K' ;
-ASSERT_K : 'ASSERT_K' ;
+ASSERT_K : 'ASSERT' ; // https://community.nxp.com/t5/LPCXpresso-IDE/Linker-script-ASSERT-syntax-errors/m-p/581063
 ORIGIN : 'ORIGIN' ;
 LENGTH : 'LENGTH' ;
 LOG2CEIL : 'LOG2CEIL' ;
@@ -118,10 +118,10 @@ SORT_BY_ALIGNMENT : 'SORT_BY_ALIGNMENT' ;
 SORT_BY_INIT_PRIORITY : 'SORT_BY_INIT_PRIORITY' ;
 INPUT_SECTION_FLAGS : 'INPUT_SECTION_FLAGS' ;
 KEEP : 'KEEP' ;
-CREATE_OBJECT_SYMBOLS : 'CREATE_OBJECT_SYMBOLS' ;
+CREATE_OBJECT_SYMBOLS : 'CREATE_OBJECT_SYMBOLS' ; // https://sourceware.org/binutils/docs/ld/Output-Section-Keywords.html
 CONSTRUCTORS : 'CONSTRUCTORS' ;
 ASCIZ : 'ASCIZ' ;
-FILL : 'FILL' ;
+FILL : F I L L ; // https://mcuoneclipse.com/2014/06/23/filling-unused-memory-with-the-gnu-linker/
 LINKER_VERSION : 'LINKER_VERSION' ;
 INCLUDE : 'INCLUDE' ;
 QUAD : 'QUAD' ;
@@ -146,9 +146,7 @@ VERS_IDENTIFIER : 'VERS_IDENTIFIER' ;
 EXTERN : 'EXTERN' ;
 BIND : 'BIND' ;
 
-
-
-NAME : '.'? [a-zA-Z0-9]+ ;
+NAME : ( '.' [a-zA-Z0-9]* ) | [a-zA-Z0-9]+ ;
 
 INT : '0' 'x' [a-fA-F0-9]+ ;
 

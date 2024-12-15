@@ -16,7 +16,7 @@ program :
 //	|	INPUT_DEFSYM defsym_expr
 	;
 
-filename :  NAME
+filename : NAME
     ;
 
 script_file :
@@ -38,11 +38,11 @@ sections :
 	;
 
 sec_or_group_p1 :
-		section sec_or_group_p1
+	section sec_or_group_p1
 	//|
     //    statement_anywhere //sec_or_group_p1
 	|
-        section
+    section
     //|
     //    statement_anywhere
 	;
@@ -61,10 +61,12 @@ wildcard_name:
 //			{
 //			  $$ = $1;
 //			}
+    |
+    MULT
 	;
 
 wildcard_maybe_exclude:
-		wildcard_name
+	wildcard_name
 //			{
 //			  $$.name = $1;
 //			  $$.sorted = none;
@@ -72,7 +74,8 @@ wildcard_maybe_exclude:
 //			  $$.section_flag_list = NULL;
 //			  $$.reversed = false;
 //			}
-	|	EXCLUDE_FILE OPENING_BRACKET exclude_name_list CLOSING_BRACKET wildcard_name
+	|
+    EXCLUDE_FILE OPENING_BRACKET exclude_name_list CLOSING_BRACKET wildcard_name
 //			{
 //			  $$.name = $5;
 //			  $$.sorted = none;
@@ -82,9 +85,10 @@ wildcard_maybe_exclude:
 //			}
 	;
 
-wildcard_maybe_reverse:
-		wildcard_maybe_exclude
-	|	REVERSE OPENING_BRACKET wildcard_maybe_exclude CLOSING_BRACKET
+wildcard_maybe_reverse :
+	wildcard_maybe_exclude
+	|
+    REVERSE OPENING_BRACKET wildcard_maybe_exclude CLOSING_BRACKET
 //			{
 //			  $$ = $3;
 //			  $$.reversed = true;
@@ -92,9 +96,10 @@ wildcard_maybe_reverse:
 //			}
 	;
 
-filename_spec:
-		wildcard_maybe_reverse
-	|	SORT_BY_NAME OPENING_BRACKET wildcard_maybe_reverse CLOSING_BRACKET
+filename_spec :
+	wildcard_maybe_reverse
+	|
+    SORT_BY_NAME OPENING_BRACKET wildcard_maybe_reverse CLOSING_BRACKET
 //			{
 //			  $$ = $3;
 //			  $$.sorted = by_name;
@@ -114,8 +119,9 @@ filename_spec:
 	;
 
 section_name_spec:
-		wildcard_maybe_reverse
-	|	SORT_BY_NAME OPENING_BRACKET wildcard_maybe_reverse CLOSING_BRACKET
+	wildcard_maybe_reverse
+	|
+    SORT_BY_NAME OPENING_BRACKET wildcard_maybe_reverse CLOSING_BRACKET
 //			{
 //			  $$ = $3;
 //			  $$.sorted = by_name;
@@ -169,7 +175,8 @@ section_name_spec:
 //			}
 	;
 
-sect_flag_list:	NAME
+sect_flag_list :
+    NAME
 //			{
 //			  struct flag_info_list *n;
 //			  n = ((struct flag_info_list *) xmalloc (sizeof *n));
@@ -187,7 +194,8 @@ sect_flag_list:	NAME
 //			  n->next = NULL;
 //			  $$ = n;
 //			}
-	|	sect_flag_list AND NAME
+	|
+    sect_flag_list AND NAME
 //			{
 //			  struct flag_info_list *n;
 //			  n = ((struct flag_info_list *) xmalloc (sizeof *n));
@@ -207,7 +215,7 @@ sect_flag_list:	NAME
 //			}
 	;
 
-sect_flags:
+sect_flags :
 		INPUT_SECTION_FLAGS OPENING_BRACKET sect_flag_list CLOSING_BRACKET
 //			{
 //			  struct flag_info *n;
@@ -220,7 +228,7 @@ sect_flags:
 //			}
 	;
 
-exclude_name_list:
+exclude_name_list :
 		exclude_name_list wildcard_name
 //			{
 //			  struct name_list *tmp;
@@ -241,7 +249,7 @@ exclude_name_list:
 	;
 
 section_name_list:
-		section_name_list opt_comma? section_name_spec
+    section_name_list opt_comma? section_name_spec
 //			{
 //			  struct wildcard_list *tmp;
 //			  tmp = (struct wildcard_list *) xmalloc (sizeof *tmp);
@@ -250,7 +258,7 @@ section_name_list:
 //			  $$ = tmp;
 //			}
 	|
-		section_name_spec
+    section_name_spec
 //			{
 //			  struct wildcard_list *tmp;
 //			  tmp = (struct wildcard_list *) xmalloc (sizeof *tmp);
@@ -261,7 +269,7 @@ section_name_list:
 	;
 
 input_section_spec_no_keep :
-		NAME
+    NAME
 //			{
 //			  struct wildcard_spec tmp;
 //			  tmp.name = $1;
@@ -270,7 +278,8 @@ input_section_spec_no_keep :
 //			  tmp.section_flag_list = NULL;
 //			  lang_add_wild (&tmp, NULL, ldgram_had_keep);
 //			}
-	|	sect_flags NAME
+	|
+    sect_flags NAME
 //			{
 //			  struct wildcard_spec tmp;
 //			  tmp.name = $2;
@@ -279,11 +288,13 @@ input_section_spec_no_keep :
 //			  tmp.section_flag_list = $1;
 //			  lang_add_wild (&tmp, NULL, ldgram_had_keep);
 //			}
-	|	OPENING_RECTANGULAR_BRACKET section_name_list CLOSING_RECTANGULAR_BRACKET
+	|
+    OPENING_RECTANGULAR_BRACKET section_name_list CLOSING_RECTANGULAR_BRACKET
 //			{
 //			  lang_add_wild (NULL, $2, ldgram_had_keep);
 //			}
-	|	sect_flags OPENING_RECTANGULAR_BRACKET section_name_list CLOSING_RECTANGULAR_BRACKET
+	|
+    sect_flags OPENING_RECTANGULAR_BRACKET section_name_list CLOSING_RECTANGULAR_BRACKET
 //			{
 //			  struct wildcard_spec tmp;
 //			  tmp.name = NULL;
@@ -304,67 +315,80 @@ input_section_spec_no_keep :
 	;
 
 input_section_spec:
-		input_section_spec_no_keep
-	|	KEEP OPENING_BRACKET
+	input_section_spec_no_keep
+	|
+    KEEP OPENING_BRACKET
 //			{ ldgram_had_keep = true; }
 		input_section_spec_no_keep CLOSING_BRACKET
 //			{ ldgram_had_keep = false; }
 	;
 
-statement:
+statement :
 	SEMICOLON
-	| assignment separator
-	| CREATE_OBJECT_SYMBOLS
+	|
+    assignment separator
+	|
+    CREATE_OBJECT_SYMBOLS
 //		{
 //		  lang_add_attribute (lang_object_symbols_statement_enum);
 //		}
-	| CONSTRUCTORS
+	|
+    CONSTRUCTORS
 //		{
 //		  lang_add_attribute (lang_constructors_statement_enum);
 //		}
-	| SORT_BY_NAME OPENING_BRACKET CONSTRUCTORS CLOSING_BRACKET
+	|
+    SORT_BY_NAME OPENING_BRACKET CONSTRUCTORS CLOSING_BRACKET
 //		{
 //		  constructors_sorted = true;
 //		  lang_add_attribute (lang_constructors_statement_enum);
 //		}
-	| input_section_spec
-	| length OPENING_BRACKET mustbe_exp CLOSING_BRACKET
+	|
+    input_section_spec
+	|
+    length OPENING_BRACKET mustbe_exp CLOSING_BRACKET
 //		{
 //		  lang_add_data ((int) $1, $3);
 //		}
-	| ASCIZ NAME
+	|
+    ASCIZ NAME
 //		{
 //		  lang_add_string ($2);
 //		}
-	| FILL OPENING_BRACKET fill_exp CLOSING_BRACKET
+	|
+    FILL OPENING_BRACKET fill_exp CLOSING_BRACKET
 //		{
 //		  lang_add_fill ($3);
 //		}
-	| LINKER_VERSION
+	|
+    LINKER_VERSION
 //		{
 //		  lang_add_version_string ();
 //		}
-	| ASSERT_K
+	|
+    ASSERT_K
 //		{ ldlex_expression (); }
-	  OPENING_BRACKET exp COMMA NAME CLOSING_BRACKET separator
+	OPENING_BRACKET exp COMMA NAME CLOSING_BRACKET separator
 //		{
 //		  ldlex_popstate ();
 //		  lang_add_assignment (exp_assert ($4, $6));
 //		}
-	| INCLUDE filename
+	|
+    INCLUDE filename
 //		{
 //		  ldfile_open_command_file ($2);
 //		}
-	  statement_list_opt? END
+	statement_list_opt? END
 	;
 
-statement_list:
-		statement_list statement
-	|	statement
-	;
-
-statement_list_opt:
+statement_list_opt :
 	statement_list
+	;
+
+statement_list :
+    statement_list statement
+	|
+    statement
 	;
 
 length:
@@ -380,24 +404,26 @@ length:
 //			{ $$ = $1; }
 	;
 
-fill_exp:
+fill_exp :
 	mustbe_exp
 //		{
 //		  $$ = exp_get_fill ($1, 0, _("fill value"));
 //		}
 	;
 
-fill_opt:
-	  ASSIGN fill_exp
+fill_opt :
+	ASSIGN fill_exp
 //		{ $$ = $2; }
-	|	// { $$ = (fill_type *) 0; }
+//	|	// { $$ = (fill_type *) 0; }
 	;
 
 statement_anywhere :
-		ENTRY OPENING_BRACKET NAME CLOSING_BRACKET
+    ENTRY OPENING_BRACKET NAME CLOSING_BRACKET
 //		{ lang_add_entry ($3, false); }
-	|	assignment separator
-	|	ASSERT_K
+	|
+    assignment separator
+	|
+    ASSERT_K
 //        { ldlex_expression (); }
         OPENING_BRACKET exp COMMA NAME CLOSING_BRACKET
 //		{ ldlex_popstate ();
@@ -405,23 +431,31 @@ statement_anywhere :
 	;
 
 assign_op :
-		PLUSEQ
+	PLUSEQ
 //			{ $$ = PLUS; }
-	|	MINUSEQ
+	|
+    MINUSEQ
 //			{ $$ = MINUS; }
-	|	MULTEQ
+	|
+    MULTEQ
 //			{ $$ = '*'; }
-	|	DIVEQ
+	|
+    DIVEQ
 //			{ $$ = '/'; }
-	|	LSHIFTEQ
+	|
+    LSHIFTEQ
 //			{ $$ = LSHIFT; }
-	|	RSHIFTEQ
+	|
+    RSHIFTEQ
 //			{ $$ = RSHIFT; }
-	|	ANDEQ
+	|
+    ANDEQ
 //			{ $$ = AND; }
-	|	OREQ
+	|
+    OREQ
 //			{ $$ = '|'; }
-	|	XOREQ
+	|
+    XOREQ
 //			{ $$ = '^'; }
 	;
 
@@ -431,12 +465,13 @@ separator :
     COMMA
 	;
 
-assignment:
-		NAME ASSIGN mustbe_exp
+assignment :
+	NAME ASSIGN mustbe_exp
 //		{
 //		  lang_add_assignment (exp_assign ($1, $3, false));
 //		}
-	|	NAME assign_op mustbe_exp
+	|
+    NAME assign_op mustbe_exp
 //		{
 //		  lang_add_assignment (exp_assign ($1,
 //						   exp_binop ($2,
@@ -444,15 +479,18 @@ assignment:
 //									  $1),
 //							      $3), false));
 //		}
-	|	HIDDEN_ OPENING_BRACKET NAME ASSIGN mustbe_exp CLOSING_BRACKET
+	|
+    HIDDEN_ OPENING_BRACKET NAME ASSIGN mustbe_exp CLOSING_BRACKET
 //		{
 //		  lang_add_assignment (exp_assign ($3, $5, true));
 //		}
-	|	PROVIDE OPENING_BRACKET NAME ASSIGN mustbe_exp CLOSING_BRACKET
+	|
+    PROVIDE OPENING_BRACKET NAME ASSIGN mustbe_exp CLOSING_BRACKET
 //		{
 //		  lang_add_assignment (exp_provide ($3, $5, false));
 //		}
-	|	PROVIDE_HIDDEN OPENING_BRACKET NAME ASSIGN mustbe_exp CLOSING_BRACKET
+	|
+    PROVIDE_HIDDEN OPENING_BRACKET NAME ASSIGN mustbe_exp CLOSING_BRACKET
 //		{
 //		  lang_add_assignment (exp_provide ($3, $5, true));
 //		}
@@ -637,7 +675,8 @@ section :
 		statement_list_opt?
 		CLOSING_SQUIGGLY_BRACKET
 //			{ ldlex_popstate (); }
-///		memspec_opt? memspec_at_opt? phdr_opt? fill_opt?
+		memspec_opt?
+///     memspec_at_opt? phdr_opt? fill_opt?
 //			{
 //			  /* fill_opt may have switched the lexer into
 //			     expression state, and back again, but in
@@ -733,17 +772,17 @@ opt_exp_with_type
 	;
 
 opt_exp_without_type :
-		exp COLON		// { $$ = $1; }
+    exp COLON		// { $$ = $1; }
 	|
-        COLON		// { $$ = (etree_type *) NULL;  }
+    COLON		// { $$ = (etree_type *) NULL;  }
 	;
 
 opt_nocrossrefs :
-		NOCROSSREFS
+    NOCROSSREFS
 	;
 
 memspec_opt :
-		'>' NAME
+    '>' NAME
 	;
 
 phdr_opt :
@@ -790,9 +829,8 @@ overlay_section
 		opt_comma?
 	;
 
-phdrs
-    :
-		PHDRS OPENING_SQUIGGLY_BRACKET phdr_list CLOSING_SQUIGGLY_BRACKET
+phdrs :
+	PHDRS OPENING_SQUIGGLY_BRACKET phdr_list CLOSING_SQUIGGLY_BRACKET
 	;
 
 phdr_list :
@@ -801,8 +839,7 @@ phdr_list :
     phdr
 	;
 
-phdr
-    :
+phdr :
 		NAME // { ldlex_expression (); }
 		  phdr_type phdr_qualifiers // { ldlex_popstate (); }
 		  SEMICOLON
@@ -811,8 +848,7 @@ phdr
 //		}
 	;
 
-phdr_type
-    :
+phdr_type :
 		exp
 //		{
 //		  $$ = $1;
@@ -860,8 +896,7 @@ phdr_type
 //		}
 	;
 
-phdr_qualifiers
-    :
+phdr_qualifiers :
 		// empty
 //		{
 //		  memset (&$$, 0, sizeof (struct phdr_info));
