@@ -16,7 +16,8 @@ program :
 //	|	INPUT_DEFSYM defsym_expr
 	;
 
-filename : NAME
+filename :
+    NAME
     ;
 
 script_file :
@@ -30,7 +31,34 @@ ifile_list :
 	;
 
 ifile_p1 :
+    memory_specs
+    |
     sections
+    ;
+
+// https://sourceware.org/binutils/docs/ld/MEMORY.html
+memory_specs :
+    MEMORY OPENING_SQUIGGLY_BRACKET memory_spec+ CLOSING_SQUIGGLY_BRACKET
+    ;
+
+memory_spec :
+    NAME memory_spec_attributes? COLON memory_spec_origin COMMA memory_spec_length
+    ;
+
+memory_spec_attributes :
+    OPENING_BRACKET memory_spec_attribute+ CLOSING_BRACKET
+    ;
+
+memory_spec_attribute :
+    NAME
+    ;
+
+memory_spec_origin :
+    ORIGIN ASSIGN exp
+    ;
+
+memory_spec_length :
+    LENGTH ASSIGN exp
     ;
 
 sections :
@@ -56,7 +84,7 @@ sec_or_group_p1 :
 //		  lang_add_assignment (exp_assert ($4, $6)); }
 //	;
 
-wildcard_name:
+wildcard_name :
 		NAME
 //			{
 //			  $$ = $1;
@@ -65,7 +93,7 @@ wildcard_name:
     MULT
 	;
 
-wildcard_maybe_exclude:
+wildcard_maybe_exclude :
 	wildcard_name
 //			{
 //			  $$.name = $1;
@@ -118,7 +146,7 @@ filename_spec :
 //			}
 	;
 
-section_name_spec:
+section_name_spec :
 	wildcard_maybe_reverse
 	|
     SORT_BY_NAME OPENING_BRACKET wildcard_maybe_reverse CLOSING_BRACKET
@@ -248,7 +276,7 @@ exclude_name_list :
 //			}
 	;
 
-section_name_list:
+section_name_list :
     section_name_list opt_comma? section_name_spec
 //			{
 //			  struct wildcard_list *tmp;
@@ -314,7 +342,7 @@ input_section_spec_no_keep :
 //			}
 	;
 
-input_section_spec:
+input_section_spec :
 	input_section_spec_no_keep
 	|
     KEEP OPENING_BRACKET
@@ -391,7 +419,7 @@ statement_list :
     statement
 	;
 
-length:
+length :
 		QUAD
 //			{ $$ = $1; }
 	|	SQUAD
@@ -622,27 +650,27 @@ exp	:
 //			{ $$ = exp_unop (LOG2CEIL, $3); }
 	;
 
-memspec_at_opt:
+memspec_at_opt :
 		AT '>' NAME // { $$ = $3; }
 	//|	// { $$ = 0; }
 	;
 
-opt_at:
+opt_at :
 		AT OPENING_BRACKET exp CLOSING_BRACKET // { $$ = $3; }
 	//|	// { $$ = 0; }
 	;
 
-opt_align:
+opt_align :
 		ALIGN_K OPENING_BRACKET exp CLOSING_BRACKET // { $$ = $3; }
 	//|	// { $$ = 0; }
 	;
 
-opt_align_with_input:
+opt_align_with_input :
 		ALIGN_WITH_INPUT // { $$ = ALIGN_WITH_INPUT; }
 	//|	// { $$ = 0; }
 	;
 
-opt_subalign:
+opt_subalign :
 		SUBALIGN OPENING_BRACKET exp CLOSING_BRACKET // { $$ = $3; }
 	//|	// { $$ = 0; }
 	;
@@ -736,7 +764,7 @@ section :
 ///		sec_or_group_p1 END
 	;
 
-type:
+type :
 	   NOLOAD  // { sectype = noload_section; }
 	|  DSECT   // { sectype = noalloc_section; }
 	|  COPY    // { sectype = noalloc_section; }
@@ -747,16 +775,14 @@ type:
 	|  TYPE ASSIGN exp // { sectype = type_section; sectype_value = $3; }
     ;
 
-atype
-    :
+atype :
 		OPENING_BRACKET type CLOSING_BRACKET
 	|
 //        /* EMPTY */ { sectype = normal_section; }
 	|	OPENING_BRACKET CLOSING_BRACKET { sectype = normal_section; }
 	;
 
-opt_exp_with_type
-    :
+opt_exp_with_type :
 		exp atype COLON		// { $$ = $1; }
 	|
         atype COLON		// { $$ = (etree_type *)NULL;  }
@@ -805,8 +831,7 @@ phdr_opt :
 //		}
 	;
 
-overlay_section
-    :
+overlay_section :
 // TODO: REACTIVATE THIS!!!!        overlay_section
 		NAME
 //			{
@@ -922,8 +947,7 @@ phdr_qualifiers :
 //		}
 	;
 
-phdr_val
-    :
+phdr_val :
 		// empty
 //		{
 //		  $$ = NULL;
@@ -935,8 +959,7 @@ phdr_val
 //		}
 	;
 
-dynamic_list_file
-    :
+dynamic_list_file :
 //		{
 //		  ldlex_version_file ();
 //		  PUSH_ERROR (_("dynamic list"));
@@ -948,20 +971,17 @@ dynamic_list_file
 //		}
 	;
 
-dynamic_list_nodes
-    :
+dynamic_list_nodes :
 		dynamic_list_node
 	|
         dynamic_list_nodes dynamic_list_node
 	;
 
-dynamic_list_node
-    :
+dynamic_list_node :
 		OPENING_SQUIGGLY_BRACKET dynamic_list_tag CLOSING_SQUIGGLY_BRACKET SEMICOLON
 	;
 
-dynamic_list_tag
-    :
+dynamic_list_tag :
 		vers_defns SEMICOLON
 //		{
 //		  lang_append_dynamic_list (current_dynamic_list_p, $1);
@@ -970,8 +990,7 @@ dynamic_list_tag
 
 // This syntax is used within an external version script file.
 
-version_script_file
-    :
+version_script_file :
 //		{
 //		  ldlex_version_file ();
 //		  PUSH_ERROR (_("VERSION script"));
@@ -985,8 +1004,7 @@ version_script_file
 
 // This is used within a normal linker script file.
 
-version
-    :
+version :
 //		{
 //		  ldlex_version_script ();
 //		}
@@ -996,15 +1014,13 @@ version
 //		}
 	;
 
-vers_nodes
-    :
+vers_nodes :
 		vers_node
 	|
         vers_nodes vers_node
 	;
 
-vers_node
-    :
+vers_node :
 		OPENING_SQUIGGLY_BRACKET vers_tag CLOSING_SQUIGGLY_BRACKET SEMICOLON
 //		{
 //		  lang_register_vers_node (NULL, $2, NULL);
@@ -1019,8 +1035,7 @@ vers_node
 //		}
 	;
 
-verdep
-    :
+verdep :
 		VERS_TAG
 //		{
 //		  $$ = lang_add_vers_depend (NULL, $1);
@@ -1031,8 +1046,7 @@ verdep
 //		}
 	;
 
-vers_tag
-    :
+vers_tag :
 		// empty
 //		{
 //		  $$ = lang_new_vers_node (NULL, NULL);
@@ -1122,13 +1136,11 @@ vers_defns :
 //		}
 	;
 
-opt_semicolon
-    :
+opt_semicolon :
 		SEMICOLON
 	;
 
-section_ordering_script_file
-    :
+section_ordering_script_file :
 //		{
 //		  ldlex_script ();
 //		  PUSH_ERROR (_("section-ordering-file script"));
@@ -1140,8 +1152,7 @@ section_ordering_script_file
 //		}
 	;
 
-section_ordering_list
-    :
+section_ordering_list :
 		section_ordering_list section_order
 	|	section_ordering_list statement_anywhere
 	|   section_order

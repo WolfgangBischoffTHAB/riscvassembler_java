@@ -27,6 +27,10 @@ fragment X : [xX];
 fragment Y : [yY];
 fragment Z : [zZ];
 
+//MEMORY_SPEC_ATTRIBUTE_READ : 'r' ;
+//MEMORY_SPEC_ATTRIBUTE_WRITE : 'w' ;
+//MEMORY_SPEC_ATTRIBUTE_EXECUTE : 'x' ;
+
 OPENING_BRACKET : '(' ;
 CLOSING_BRACKET : ')' ;
 
@@ -38,9 +42,7 @@ CLOSING_RECTANGULAR_BRACKET : ']' ;
 
 SEMICOLON : ';' ;
 COMMA : ',' ;
-
 ASSIGN : '=' ;
-
 COLON : ':' ;
 
 AND : '&' ;
@@ -145,8 +147,10 @@ LOCAL : 'LOCAL' ;
 VERS_IDENTIFIER : 'VERS_IDENTIFIER' ;
 EXTERN : 'EXTERN' ;
 BIND : 'BIND' ;
+MEMORY: 'MEMORY' ;
 
-NAME : ( '.' [a-zA-Z0-9]* ) | [a-zA-Z0-9]+ ;
+
+NAME : ( '.' [a-zA-Z0-9]* ) | ( [_a-zA-Z0-9]+ ) ;
 
 INT : '0' 'x' [a-fA-F0-9]+ ;
 
