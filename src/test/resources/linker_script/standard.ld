@@ -1,6 +1,6 @@
 /* Thanks https://github.com/darklife/darkriscv */
 __heap_size    = 0x200;  /* required amount of heap */
- __stack_size  = 0x800;  /* required amount of stack */
+__stack_size   = 0x800;  /* required amount of stack */
 
 MEMORY
 {

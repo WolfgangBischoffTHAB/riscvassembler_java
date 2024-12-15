@@ -31,6 +31,8 @@ ifile_list :
 	;
 
 ifile_p1 :
+    statement_anywhere
+    |
     memory_specs
     |
     sections
@@ -74,15 +76,6 @@ sec_or_group_p1 :
     //|
     //    statement_anywhere
 	;
-
-//statement_anywhere:
-//		ENTRY OPENING_BRACKET NAME CLOSING_BRACKET
-//		{ lang_add_entry ($3, false); }
-//	|	assignment separator
-//	|	ASSERT_K  {ldlex_expression ();} OPENING_BRACKET exp COMMA NAME CLOSING_BRACKET
-//		{ ldlex_popstate ();
-//		  lang_add_assignment (exp_assert ($4, $6)); }
-//	;
 
 wildcard_name :
 		NAME

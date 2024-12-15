@@ -1,5 +1,13 @@
 lexer grammar LINKERSCRIPTLANGUAGELexer;
 
+LINE_COMMENT
+  : ( '/''/' ) ~[\r\n]* -> channel(HIDDEN)
+  ;
+
+BLOCK_COMMENT
+    : '/*' .*? '*/' -> skip
+    ;
+
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];
