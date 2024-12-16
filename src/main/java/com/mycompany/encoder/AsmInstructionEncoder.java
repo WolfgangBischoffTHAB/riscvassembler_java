@@ -6,26 +6,22 @@ import com.mycompany.data.AsmLine;
 
 public class AsmInstructionEncoder {
 
-    public void encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
 
         switch (asmLine.asmInstruction) {
 
             case BYTE:
-                encodeByteAssemblerInstruction(byteArrayOutStream, asmLine);
-                break;
+                return encodeByteAssemblerInstruction(byteArrayOutStream, asmLine);
 
             case WORD:
-                encodeWordAssemblerInstruction(byteArrayOutStream, asmLine);
-                break;
+                return encodeWordAssemblerInstruction(byteArrayOutStream, asmLine);
 
             case ASCII:
-                encodeAsciiAssemblerInstruction(byteArrayOutStream, asmLine);
-                break;
+                return encodeAsciiAssemblerInstruction(byteArrayOutStream, asmLine);
 
             case ASCIZ:
             case STRING:
-                encodeStringAssemblerInstruction(byteArrayOutStream, asmLine);
-                break;
+                return encodeStringAssemblerInstruction(byteArrayOutStream, asmLine);
 
             case FILE:
             case TEXT:
@@ -39,20 +35,23 @@ public class AsmInstructionEncoder {
             default:
                 throw new RuntimeException("Unknown assembler instruction: " + asmLine);
         }
+
+        return 0;
     }
 
-    private void encodeStringAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+    private int encodeStringAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine asmLine) {
-        EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, true);
+        return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, true);
     }
 
-    private void encodeAsciiAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+    private int encodeAsciiAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine asmLine) {
-        EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
+        return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
     }
 
-    private void encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    private int encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
 
+        int length = 0;
         for (String dataAsString : asmLine.csvList) {
 
             long data = 0L;
@@ -64,11 +63,15 @@ public class AsmInstructionEncoder {
             }
 
             EncoderUtils.convertToUint8_t(byteArrayOutStream, (int) data);
+            length++;
         }
+
+        return length;
     }
 
-    private void encodeWordAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    private int encodeWordAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
 
+        int length = 0;
         for (String dataAsString : asmLine.csvList) {
 
             long data = 0L;
@@ -80,7 +83,10 @@ public class AsmInstructionEncoder {
             }
 
             EncoderUtils.convertToUint32_t(byteArrayOutStream, (int) data);
+            length += 4;
         }
+
+        return length;
     }
 
 }

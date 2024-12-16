@@ -13,38 +13,38 @@ SECTIONS
 
     .text :
     {
-      *(.boot)
-      *(.text)
-      *(.text)
-      *(.rodata*)
+        *(.boot)
+        *(.text)
+        *(.text)
+        *(.rodata*)
     } > ROM
 
     .data :
     {
-      *(.sbss)
-      *(.data)
-      *(.bss)
-      *(.rela*)
-      *(COMMON)
+        *(.sbss)
+        *(.data)
+        *(.bss)
+        *(.rela*)
+        *(COMMON)
     } > RAM
 
     .heap :
     {
-      . = ALIGN(4);
-      PROVIDE ( end = . );
-      _sheap = .;
-      . = . + __heap_size;
-      . = ALIGN(4);
-      _eheap = .;
+        . = ALIGN(4);
+        PROVIDE ( end = . ); /* https://sourceware.org/binutils/docs/ld/PROVIDE.html */
+        _sheap = .;
+        . = . + __heap_size;
+        . = ALIGN(4);
+        _eheap = .;
     } > RAM
 
     .stack :
     {
-      . = ALIGN(4);
-      _estack = .;
-      . = . + __stack_size;
-      . = ALIGN(4);
-      _sstack = .;
+        . = ALIGN(4);
+        _estack = .;
+        . = . + __stack_size;
+        . = ALIGN(4);
+        _sstack = .;
     } > RAM
 
 }

@@ -1,4 +1,4 @@
-parser grammar LINKERSCRIPTLANGUAGELexer;
+parser grammar LINKERSCRIPTLANGUAGEParser;
 
 options {
     language = Java;
@@ -772,7 +772,9 @@ atype :
 		OPENING_BRACKET type CLOSING_BRACKET
 	|
 //        /* EMPTY */ { sectype = normal_section; }
-	|	OPENING_BRACKET CLOSING_BRACKET { sectype = normal_section; }
+	|
+    OPENING_BRACKET CLOSING_BRACKET
+    //{ sectype = normal_section; }
 	;
 
 opt_exp_with_type :

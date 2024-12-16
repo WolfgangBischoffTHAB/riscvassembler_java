@@ -1,6 +1,7 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Map;
 
 import com.mycompany.data.AsmLine;
 
@@ -12,21 +13,19 @@ public class Encoder {
 
     private MnemonicEncoder mnemonicEncoder = new MnemonicEncoder();
 
-    public void encode(final AsmLine asmLine) {
+    public long encode(final AsmLine asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) {
 
         switch (asmLine.getAsmLineType()) {
 
             case MNEMONIC:
-                mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine);
-                break;
+                return mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
 
             case ASSEMBLER_INSTRUCTION:
-                asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine);
-                break;
+                return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine);
 
             default:
                 //System.out.println("Not encoding: " + asmLine);
-                break;
+                return 0;
         }
     }
 

@@ -1,4 +1,6 @@
 #
+# File: hello_world.s
+#
 # Risc-V Assembler program to print "Hello World!"
 # to stdout.
 #
@@ -10,6 +12,8 @@
 
 # Setup the parameters to print hello world
 # and then call Linux to do it.
+
+.text
 
 _start: addi  a0, x0, 1      # 1 = StdOut
         la    a1, helloworld # load address of helloworld

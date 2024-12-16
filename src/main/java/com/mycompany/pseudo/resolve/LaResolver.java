@@ -6,7 +6,6 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
-import com.mycompany.data.Register;
 
 public class LaResolver implements AsmInstructionListModifier {
 
@@ -68,7 +67,12 @@ public class LaResolver implements AsmInstructionListModifier {
 
                 auipc.mnemonic = Mnemonic.I_AUIPC;
                 auipc.register_0 = foundAsmLine.register_0;
-                //auipc.numeric_1 = udata;
+
+                // TODO: resolve the label 'foundAsmLine.identifier_1' to its absolute address
+                // then perform the computations outlined in
+
+                //C:\Users\wolfg\dev\Java\riscvassembler_java\src\test\resources\riscvasm\la.s
+
                 auipc.offsetLabel_1 = foundAsmLine.identifier_1;
                 auipc.modifier_1 = Modifier.HI;
 
@@ -94,15 +98,11 @@ public class LaResolver implements AsmInstructionListModifier {
                 addi.offsetLabel_2 = foundAsmLine.identifier_1;
                 addi.modifier_2 = Modifier.LO;
 
-
-
-                // DEBUG
-                System.out.println("\n\n\n");
-                for (AsmLine asmLine : asmLines) {
-                    System.out.println(asmLine);
-                }
-
-
+                // // DEBUG
+                // System.out.println("\n\n\n");
+                // for (AsmLine asmLine : asmLines) {
+                //     System.out.println(asmLine);
+                // }
 
                 continue;
 

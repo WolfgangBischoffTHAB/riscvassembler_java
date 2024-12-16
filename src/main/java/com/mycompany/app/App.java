@@ -341,161 +341,20 @@ public class App {
 
         BaseOptimizer.updateAddresses(asmLines);
 
-        Map<String, Long> map = new HashMap<>();
-        BaseOptimizer.buildLabelTable(asmLines, map);
+        Map<String, Long> labelAddressMap = new HashMap<>();
+        BaseOptimizer.buildLabelTable(asmLines, labelAddressMap);
 
-        // TODO: resolve all modifiers
+        //
+        // resolve modifiers
+        //
 
-        for (AsmLine asmLine : asmLines) {
+        resolveModifiers(asmLines, labelAddressMap);
 
-            if (asmLine.modifier_0 != null) {
+        //
+        // resolve all labels
+        //
 
-                long newValue = 0L;
-                String label = asmLine.offsetLabel_0;
-
-                Long value = map.get(label);
-
-                switch (asmLine.modifier_0) {
-
-                    case LO:
-                        newValue = (value >> 0) & 0xFFF;
-                        break;
-
-                    case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
-                        break;
-
-                    default:
-                        throw new RuntimeException();
-                }
-
-                asmLine.offsetLabel_0 = null;
-                asmLine.modifier_0 = null;
-
-                if ((asmLine.register_0 == null) || (asmLine.register_0 == Register.REG_UNKNOWN)) {
-                    asmLine.numeric_0 = newValue;
-                } else {
-                    asmLine.offset_0 = newValue;
-                }
-            }
-
-            if (asmLine.modifier_1 != null) {
-
-                long newValue = 0L;
-                String label = asmLine.offsetLabel_1;
-
-                Long value = map.get(label);
-
-                switch (asmLine.modifier_1) {
-
-                    case LO:
-                        newValue = (value >> 0) & 0xFFF;
-                        break;
-
-                    case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
-                        break;
-
-                    default:
-                        throw new RuntimeException();
-                }
-
-                asmLine.offsetLabel_1 = null;
-                asmLine.modifier_1 = null;
-
-                if ((asmLine.register_1 == null) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
-                    asmLine.numeric_1 = newValue;
-                } else {
-                    asmLine.offset_1 = newValue;
-                }
-            }
-
-            if (asmLine.modifier_2 != null) {
-
-                long newValue = 0L;
-                String label = asmLine.offsetLabel_2;
-
-                Long value = map.get(label);
-
-                switch (asmLine.modifier_2) {
-
-                    case LO:
-                        newValue = (value >> 0) & 0xFFF;
-                        break;
-
-                    case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
-                        break;
-
-                    default:
-                        throw new RuntimeException();
-                }
-
-                asmLine.offsetLabel_2 = null;
-                asmLine.modifier_2 = null;
-
-                if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
-                    asmLine.numeric_2 = newValue;
-                } else {
-                    asmLine.offset_2 = newValue;
-                }
-            }
-        }
-
-        // TODO: resolve all labels
-
-        for (AsmLine asmLine : asmLines) {
-
-            // if (asmLine.mnemonic == Mnemonic.I_BNE) {
-            //     System.out.println(asmLine);
-            // }
-
-            if (asmLine.offsetLabel_0 != null) {
-                Long value = map.get(asmLine.offsetLabel_0);
-                if (value != null) {
-                    asmLine.numeric_0 = value - asmLine.address;
-                    asmLine.offsetLabel_0 = null;
-                }
-            }
-            if (asmLine.identifier_0 != null) {
-                Long value = map.get(asmLine.identifier_0);
-                if (value != null) {
-                    asmLine.numeric_0 = value - asmLine.address;
-                    asmLine.identifier_0 = null;
-                }
-            }
-
-            if (asmLine.offsetLabel_1 != null) {
-                Long value = map.get(asmLine.offsetLabel_1);
-                if (value != null) {
-                    asmLine.numeric_1 = value - asmLine.address;
-                    asmLine.offsetLabel_1 = null;
-                }
-            }
-            if (asmLine.identifier_1 != null) {
-                Long value = map.get(asmLine.identifier_1);
-                if (value != null) {
-                    asmLine.numeric_1 = value - asmLine.address;
-                    asmLine.identifier_1 = null;
-                }
-            }
-
-            if (asmLine.offsetLabel_2 != null) {
-                Long value = map.get(asmLine.offsetLabel_2);
-                if (value != null) {
-                    asmLine.numeric_2 = value - asmLine.address;
-                    asmLine.offsetLabel_2 = null;
-                }
-            }
-            if (asmLine.identifier_2 != null) {
-                Long value = map.get(asmLine.identifier_2);
-                if (value != null) {
-                    asmLine.numeric_2 = value - asmLine.address;
-                    asmLine.identifier_2 = null;
-                }
-            }
-
-        }
+        resolveLabels(asmLines, labelAddressMap);
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -508,16 +367,23 @@ public class App {
 
         Encoder encoder = new Encoder();
 
+        long currentAddress = 0;
+
         AsmLine errorAsmLine = null;
         try {
             for (AsmLine asmLine : asmLines) {
+
+                // save the line for later error output
                 errorAsmLine = asmLine;
+
+                // DEBUG
                 // System.out.println(asmLine);
-                encoder.encode(asmLine);
+
+                currentAddress += encoder.encode(asmLine, labelAddressMap, currentAddress);
             }
         } catch (Exception e) {
             System.out.println("Failure while encoding: " + errorAsmLine);
-            encoder.encode(errorAsmLine);
+            encoder.encode(errorAsmLine, labelAddressMap, currentAddress);
         }
 
         byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
@@ -550,6 +416,186 @@ public class App {
         }
         System.out.println("");
 
+    }
+
+    private static void resolveLabels(List<AsmLine> asmLines, Map<String, Long> labelAddressMap) {
+
+        for (AsmLine asmLine : asmLines) {
+
+            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
+                continue;
+            }
+            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
+                continue;
+            }
+
+            if (asmLine.offsetLabel_0 != null) {
+                Long value = labelAddressMap.get(asmLine.offsetLabel_0);
+                if (value != null) {
+                    asmLine.numeric_0 = value - asmLine.address;
+                    asmLine.offsetLabel_0 = null;
+                }
+            }
+            if (asmLine.identifier_0 != null) {
+                Long value = labelAddressMap.get(asmLine.identifier_0);
+                if (value != null) {
+                    asmLine.numeric_0 = value - asmLine.address;
+                    asmLine.identifier_0 = null;
+                }
+            }
+
+            if (asmLine.offsetLabel_1 != null) {
+                Long value = labelAddressMap.get(asmLine.offsetLabel_1);
+                if (value != null) {
+                    asmLine.numeric_1 = value - asmLine.address;
+                    asmLine.offsetLabel_1 = null;
+                }
+            }
+            if (asmLine.identifier_1 != null) {
+                Long value = labelAddressMap.get(asmLine.identifier_1);
+                if (value != null) {
+                    asmLine.numeric_1 = value - asmLine.address;
+                    asmLine.identifier_1 = null;
+                }
+            }
+
+            if (asmLine.offsetLabel_2 != null) {
+                Long value = labelAddressMap.get(asmLine.offsetLabel_2);
+                if (value != null) {
+                    asmLine.numeric_2 = value - asmLine.address;
+                    asmLine.offsetLabel_2 = null;
+                }
+            }
+            if (asmLine.identifier_2 != null) {
+                Long value = labelAddressMap.get(asmLine.identifier_2);
+                if (value != null) {
+                    asmLine.numeric_2 = value - asmLine.address;
+                    asmLine.identifier_2 = null;
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Resolve all modifiers
+     *
+     * @param asmLines
+     * @param map
+     */
+    private static void resolveModifiers(List<AsmLine> asmLines, Map<String, Long> map) {
+
+        for (AsmLine asmLine : asmLines) {
+
+            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
+                continue;
+            }
+            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
+                continue;
+            }
+
+            if (asmLine.modifier_0 != null) {
+
+                long newValue = 0L;
+                String label = asmLine.offsetLabel_0;
+
+                Long value = map.get(label);
+                // value = 0x10000L;
+
+                switch (asmLine.modifier_0) {
+
+                    case LO:
+                        newValue = (value >> 0) & 0xFFF;
+                        //newValue = -4;
+                        break;
+
+                    case HI:
+                        newValue = (value >> 12) & 0xFFFFF;
+                        //newValue = 16;
+                        break;
+
+                    default:
+                        throw new RuntimeException();
+                }
+
+                asmLine.offsetLabel_0 = null;
+                asmLine.modifier_0 = null;
+
+                if ((asmLine.register_0 == null) || (asmLine.register_0 == Register.REG_UNKNOWN)) {
+                    asmLine.numeric_0 = newValue;
+                } else {
+                    asmLine.offset_0 = newValue;
+                }
+            }
+
+            if (asmLine.modifier_1 != null) {
+
+                long newValue = 0L;
+                String label = asmLine.offsetLabel_1;
+
+                Long value = map.get(label);
+                //value = 0x10000L;
+
+                switch (asmLine.modifier_1) {
+
+                    case LO:
+                        newValue = (value >> 0) & 0xFFF;
+                        //newValue = -4;
+                        break;
+
+                    case HI:
+                        newValue = (value >> 12) & 0xFFFFF;
+                        //newValue = 16;
+                        break;
+
+                    default:
+                        throw new RuntimeException();
+                }
+
+                asmLine.offsetLabel_1 = null;
+                asmLine.modifier_1 = null;
+
+                if ((asmLine.register_1 == null) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
+                    asmLine.numeric_1 = newValue;
+                } else {
+                    asmLine.offset_1 = newValue;
+                }
+            }
+
+            if (asmLine.modifier_2 != null) {
+
+                long newValue = 0L;
+                String label = asmLine.offsetLabel_2;
+
+                Long value = map.get(label);
+                // value = 0x10000L;
+
+                switch (asmLine.modifier_2) {
+
+                    case LO:
+                        newValue = (value >> 0) & 0xFFF;
+                        //newValue = -4; // here (-4 = b 1111 1111 1100)
+                        break;
+
+                    case HI:
+                        newValue = (value >> 12) & 0xFFFFF;
+                        //newValue = 16;
+                        break;
+
+                    default:
+                        throw new RuntimeException();
+                }
+
+                asmLine.offsetLabel_2 = null;
+                asmLine.modifier_2 = null;
+
+                if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
+                    asmLine.numeric_2 = newValue;
+                } else {
+                    asmLine.offset_2 = newValue;
+                }
+            }
+        }
     }
 
 }
