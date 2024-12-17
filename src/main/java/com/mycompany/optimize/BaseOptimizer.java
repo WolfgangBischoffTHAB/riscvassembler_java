@@ -63,33 +63,34 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         }
     }
 
-    public static void buildLabelTable(List<AsmLine> asmLines, Map<String, Long> map) {
+    public static void buildLabelTable(final List<AsmLine> asmLines, final Map<String, Long> map) {
+/*
+        // long address = 0;
 
-        long address = 0;
         for (AsmLine asmLine : asmLines) {
 
             if (asmLine.mnemonic != null) {
 
                 if (asmLine.label != null) {
-                    map.put(asmLine.label, address);
+                    map.put(asmLine.label, asmLine.section.address);
                 }
 
-                address += 4;
+                asmLine.section.address += 4;
 
             } else if (asmLine.asmInstruction != null) {
 
                 switch (asmLine.asmInstruction) {
 
                     case BYTE:
-                        address += asmLine.csvList.size() * 1;
+                        asmLine.section.address += asmLine.csvList.size() * 1;
                         break;
 
                     case WORD:
-                        address += asmLine.csvList.size() * 4;
+                        asmLine.section.address += asmLine.csvList.size() * 4;
                         break;
 
                     case ASCII:
-                        address += asmLine.stringValue.length() + 0; // +0 for no zero termination
+                        asmLine.section.address += asmLine.stringValue.length() + 0; // +0 for no zero termination
                         break;
 
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -100,7 +101,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     // whereas “.ascii” assembles a string literal with no null terminator
                     case ASCIZ:
                     case STRING:
-                        address += asmLine.stringValue.length() + 1; // +1 for zero termination
+                        asmLine.section.address += asmLine.stringValue.length() + 1; // +1 for zero termination
                         break;
 
                     case FILE:
@@ -116,7 +117,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
 
                 if (asmLine.label != null) {
-                    map.put(asmLine.label, address);
+                    map.put(asmLine.label, asmLine.section.address);
                 }
 
                 continue;
@@ -124,7 +125,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             } else {
 
                 if (asmLine.label != null) {
-                    map.put(asmLine.label, address);
+                    map.put(asmLine.label, asmLine.section.address);
                 }
 
             }
@@ -134,5 +135,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         // for (Map.Entry<String, Integer> mapEntry : map.entrySet()) {
         // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
         // }
+
+         */
     }
 }

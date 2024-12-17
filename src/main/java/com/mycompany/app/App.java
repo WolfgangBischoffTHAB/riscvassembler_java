@@ -45,6 +45,9 @@ import com.mycompany.pseudo.resolve.MvResolver;
 import com.mycompany.pseudo.resolve.NopResolver;
 import com.mycompany.pseudo.resolve.RetResolver;
 
+import linkerscriptlanguage.LINKERSCRIPTLANGUAGELexer;
+import linkerscriptlanguage.LINKERSCRIPTLANGUAGEParser;
+import linkerscriptlanguage.LINKERSCRIPTLANGUAGEParser.ProgramContext;
 import riscvasm.RISCVASMLexer;
 import riscvasm.RISCVASMParser;
 import riscvasm.RISCVASMParser.Asm_fileContext;
@@ -67,25 +70,16 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
-        System.out.println("Lexing ...");
+        System.out.println("Parsing linker file ...");
 
-        String file = "src/test/resources/riscvasm/test.s";
-
-        // TODO: first step is always to let the preprocessor resolve .include
-        // instructions
-        // Let the compiler run on the combined file!
-
-        final CharStream charStream = CharStreams.fromFileName(file);
-
-        final RISCVASMLexer lexer = new RISCVASMLexer(charStream);
-
+        String linkerFile = "src/test/resources/linker_script/standard.ld";
+        final CharStream linkerCharStream = CharStreams.fromFileName(linkerFile);
+        final LINKERSCRIPTLANGUAGELexer linkerLexer = new LINKERSCRIPTLANGUAGELexer(linkerCharStream);
         // create a buffer of tokens pulled from the lexer
-        final CommonTokenStream tokens = new CommonTokenStream(lexer);
+        final CommonTokenStream linkerTokens = new CommonTokenStream(linkerLexer);
 
-        System.out.println("Parsing ...");
-
-        final RISCVASMParser parser = new RISCVASMParser(tokens);
-        parser.addErrorListener(new ANTLRErrorListener() {
+        final LINKERSCRIPTLANGUAGEParser linkerParser = new LINKERSCRIPTLANGUAGEParser(linkerTokens);
+        linkerParser.addErrorListener(new ANTLRErrorListener() {
 
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
@@ -117,19 +111,84 @@ public class App {
         });
 
         // parse
-        Asm_fileContext root = parser.asm_file();
+        ProgramContext linkerRoot = linkerParser.program();
+
+        System.out.println(linkerRoot);
+
+        // RawOutputListener listener = new RawOutputListener();
+        LINKERSCRIPTLANGUAGERawOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGERawOutputListener();
+
+        // create a generic parse tree walker that can trigger callbacks
+        final ParseTreeWalker linkerScriptWalker = new ParseTreeWalker();
+
+        // walk the tree created during the parse, trigger callbacks
+        linkerScriptWalker.walk(linkerScriptlistener, linkerRoot);
+
+        System.out.println("Parsing linker file done.");
+
+        System.out.println("Lexing ...");
+
+        String asmFile = "src/test/resources/riscvasm/test.s";
+
+        // TODO: first step is always to let the preprocessor resolve .include
+        // instructions
+        // Let the compiler run on the combined file!
+
+        final CharStream asmCharStream = CharStreams.fromFileName(asmFile);
+
+        final RISCVASMLexer asmLexer = new RISCVASMLexer(asmCharStream);
+
+        // create a buffer of tokens pulled from the lexer
+        final CommonTokenStream asmTokens = new CommonTokenStream(asmLexer);
+
+        System.out.println("Parsing ...");
+
+        final RISCVASMParser asmParser = new RISCVASMParser(asmTokens);
+        asmParser.addErrorListener(new ANTLRErrorListener() {
+
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                    int charPositionInLine, String msg, RecognitionException e) {
+                throw new UnsupportedOperationException("Unimplemented method 'syntaxError'");
+            }
+
+            @Override
+            public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, boolean exact,
+                    BitSet ambigAlts, ATNConfigSet configs) {
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'reportAmbiguity'");
+            }
+
+            @Override
+            public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+                    BitSet conflictingAlts, ATNConfigSet configs) {
+                // System.out.println("startIndex: " + startIndex + " stopIndex: " + stopIndex);
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'reportAttemptingFullContext'");
+            }
+
+            @Override
+            public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+                    int prediction, ATNConfigSet configs) {
+                throw new UnsupportedOperationException("Unimplemented method 'reportContextSensitivity'");
+            }
+
+        });
+
+        // parse
+        Asm_fileContext asmRoot = asmParser.asm_file();
 
         List<AsmLine> asmLines = new ArrayList<>();
 
         // RawOutputListener listener = new RawOutputListener();
-        ExtractingOutputListener listener = new ExtractingOutputListener();
-        listener.asmLines = asmLines;
+        RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
+        asmListener.asmLines = asmLines;
 
         // create a generic parse tree walker that can trigger callbacks
-        final ParseTreeWalker walker = new ParseTreeWalker();
+        final ParseTreeWalker asmWalker = new ParseTreeWalker();
 
         // walk the tree created during the parse, trigger callbacks
-        walker.walk(listener, root);
+        asmWalker.walk(asmListener, asmRoot);
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -272,7 +331,9 @@ public class App {
         //
 
         for (AsmLine asmLine : asmLines) {
+
             if (asmLine.mnemonic != null && asmLine.mnemonic.isPseudo()) {
+
                 // throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
                 System.out.println("Pseudo detected: " + asmLine.mnemonic);
                 System.out.println("Pseudo detected: " + asmLine.mnemonic);
@@ -418,6 +479,11 @@ public class App {
 
     }
 
+    /**
+     *
+     * @param asmLines
+     * @param labelAddressMap
+     */
     private static void resolveLabels(List<AsmLine> asmLines, Map<String, Long> labelAddressMap) {
 
         for (AsmLine asmLine : asmLines) {

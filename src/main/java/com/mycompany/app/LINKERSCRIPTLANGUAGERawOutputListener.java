@@ -3,9 +3,9 @@ package com.mycompany.app;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import riscvasm.RISCVASMParserBaseListener;
+import linkerscriptlanguage.LINKERSCRIPTLANGUAGEParserBaseListener;
 
-public class RawOutputListener extends RISCVASMParserBaseListener {
+public class LINKERSCRIPTLANGUAGERawOutputListener extends LINKERSCRIPTLANGUAGEParserBaseListener {
 
     private int indent;
 
@@ -43,4 +43,5 @@ public class RawOutputListener extends RISCVASMParserBaseListener {
             System.out.print("  ");
         }
     }
+
 }

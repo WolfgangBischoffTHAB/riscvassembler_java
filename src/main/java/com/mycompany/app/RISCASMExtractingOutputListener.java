@@ -20,7 +20,7 @@ import riscvasm.RISCVASMParser.ParamContext;
 import riscvasm.RISCVASMParser.RegisterContext;
 import riscvasm.RISCVASMParserBaseListener;
 
-public class ExtractingOutputListener extends RISCVASMParserBaseListener {
+public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener {
 
     public List<AsmLine> asmLines;
 
