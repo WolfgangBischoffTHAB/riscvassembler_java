@@ -3,16 +3,20 @@ package com.mycompany.app;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import linkerscriptlanguage.LINKERSCRIPTLANGUAGELexer;
+import linkerscriptlanguage.LINKERSCRIPTLANGUAGEParser;
 import linkerscriptlanguage.LINKERSCRIPTLANGUAGEParserBaseListener;
 
 public class LINKERSCRIPTLANGUAGERawOutputListener extends LINKERSCRIPTLANGUAGEParserBaseListener {
+
+    public LINKERSCRIPTLANGUAGEParser linkerParser;
 
     private int indent;
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
         printIndent();
-        System.out.println(ctx.getClass().getSimpleName() + " [" + ctx.getStart().getText() + "] " + ctx.hashCode());
+        System.out.println(ctx.getClass().getSimpleName() + " [" + ctx.getStart().getText() + "] " + ctx.hashCode() + " " + linkerParser.getRuleNames()[ctx.getRuleIndex()]);
         descend();
     }
 
@@ -25,7 +29,7 @@ public class LINKERSCRIPTLANGUAGERawOutputListener extends LINKERSCRIPTLANGUAGEP
     public void visitTerminal(TerminalNode node) {
         descend();
         printIndent();
-        System.out.println(node.getText());
+        System.out.println(node.getText() + " Type: " + LINKERSCRIPTLANGUAGELexer.VOCABULARY.getSymbolicName(node.getSymbol().getType()));
         // currentNode.setLabel("TERMINAL: " + node.getText());
         ascend();
     }

@@ -59,7 +59,7 @@ public class LiOptimizer extends BaseOptimizer {
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if (firstAsmLine.address > map.get(firstAsmLine.offsetLabel_1)) {
+            if (firstAsmLine.section.address > map.get(firstAsmLine.offsetLabel_1)) {
                 direction = -1;
             } else {
                 direction = +1;

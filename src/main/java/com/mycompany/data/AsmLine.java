@@ -7,7 +7,7 @@ import riscvasm.RISCVASMParser.ExprContext;
 
 public class AsmLine {
 
-    public int address;
+    public Section section;
 
     public String label;
 

@@ -13,7 +13,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         int address = 0;
         for (AsmLine asmLine : asmLines) {
 
-            asmLine.address = address;
+            asmLine.section.address = address;
 
             if (asmLine.mnemonic == null) {
 
@@ -64,7 +64,6 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
     }
 
     public static void buildLabelTable(final List<AsmLine> asmLines, final Map<String, Long> map) {
-/*
         // long address = 0;
 
         for (AsmLine asmLine : asmLines) {
@@ -135,7 +134,5 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         // for (Map.Entry<String, Integer> mapEntry : map.entrySet()) {
         // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
         // }
-
-         */
     }
 }

@@ -586,7 +586,8 @@ exp	:
 //			{ $$ = exp_binop (OROR , $1, $3); }
 	|	DEFINED OPENING_BRACKET NAME CLOSING_BRACKET
 //			{ $$ = exp_nameop (DEFINED, $3); }
-	|	INT
+	|	DEC_INT
+    |	HEX_INT
 //			{ $$ = exp_bigintop ($1.integer, $1.str); }
 	|	SIZEOF_HEADERS
 //			{ $$ = exp_nameop (SIZEOF_HEADERS,0); }

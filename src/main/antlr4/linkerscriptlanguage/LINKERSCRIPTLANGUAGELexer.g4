@@ -157,10 +157,10 @@ EXTERN : 'EXTERN' ;
 BIND : 'BIND' ;
 MEMORY: 'MEMORY' ;
 
+DEC_INT : [0-9]+ ;
+HEX_INT : '0' 'x' [a-fA-F0-9]+ ;
 
 NAME : ( '.' [a-zA-Z0-9]* ) | ( [_a-zA-Z0-9]+ ) ;
-
-INT : '0' 'x' [a-fA-F0-9]+ ;
 
 //WS : (' ' | '\r' | '\n' | '\t')+ -> channel(HIDDEN);
 WS: [ \t\r\n]+ -> skip ;

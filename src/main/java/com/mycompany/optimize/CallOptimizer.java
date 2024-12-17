@@ -55,7 +55,7 @@ public class CallOptimizer extends BaseOptimizer {
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if (firstAsmLine.address > map.get(firstAsmLine.offsetLabel_1)) {
+            if (firstAsmLine.section.address > map.get(firstAsmLine.offsetLabel_1)) {
                 direction = -1;
             } else {
                 direction = +1;
@@ -167,7 +167,7 @@ public class CallOptimizer extends BaseOptimizer {
                 long delta = 0;
                 //if (firstAsmLine.offsetLabel_1.equalsIgnoreCase("puts")) {
 
-                    delta = firstAsmLine.address - map.get(firstAsmLine.offsetLabel_1);
+                    delta = firstAsmLine.section.address - map.get(firstAsmLine.offsetLabel_1);
 
                     //System.out.println("delta: " + delta);
 

@@ -76,9 +76,9 @@ public class App {
         final CharStream linkerCharStream = CharStreams.fromFileName(linkerFile);
         final LINKERSCRIPTLANGUAGELexer linkerLexer = new LINKERSCRIPTLANGUAGELexer(linkerCharStream);
         // create a buffer of tokens pulled from the lexer
-        final CommonTokenStream linkerTokens = new CommonTokenStream(linkerLexer);
+        final CommonTokenStream linkerTokenStream = new CommonTokenStream(linkerLexer);
 
-        final LINKERSCRIPTLANGUAGEParser linkerParser = new LINKERSCRIPTLANGUAGEParser(linkerTokens);
+        final LINKERSCRIPTLANGUAGEParser linkerParser = new LINKERSCRIPTLANGUAGEParser(linkerTokenStream);
         linkerParser.addErrorListener(new ANTLRErrorListener() {
 
             @Override
@@ -113,10 +113,12 @@ public class App {
         // parse
         ProgramContext linkerRoot = linkerParser.program();
 
-        System.out.println(linkerRoot);
+        // System.out.println(linkerRoot);
 
-        // RawOutputListener listener = new RawOutputListener();
-        LINKERSCRIPTLANGUAGERawOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGERawOutputListener();
+        // LINKERSCRIPTLANGUAGERawOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGERawOutputListener();
+        // linkerScriptlistener.linkerParser = linkerParser;
+
+        LINKERSCRIPTLANGUAGEExtractingOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGEExtractingOutputListener();
 
         // create a generic parse tree walker that can trigger callbacks
         final ParseTreeWalker linkerScriptWalker = new ParseTreeWalker();
@@ -498,14 +500,14 @@ public class App {
             if (asmLine.offsetLabel_0 != null) {
                 Long value = labelAddressMap.get(asmLine.offsetLabel_0);
                 if (value != null) {
-                    asmLine.numeric_0 = value - asmLine.address;
+                    asmLine.numeric_0 = value - asmLine.section.address;
                     asmLine.offsetLabel_0 = null;
                 }
             }
             if (asmLine.identifier_0 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_0);
                 if (value != null) {
-                    asmLine.numeric_0 = value - asmLine.address;
+                    asmLine.numeric_0 = value - asmLine.section.address;
                     asmLine.identifier_0 = null;
                 }
             }
@@ -513,14 +515,14 @@ public class App {
             if (asmLine.offsetLabel_1 != null) {
                 Long value = labelAddressMap.get(asmLine.offsetLabel_1);
                 if (value != null) {
-                    asmLine.numeric_1 = value - asmLine.address;
+                    asmLine.numeric_1 = value - asmLine.section.address;
                     asmLine.offsetLabel_1 = null;
                 }
             }
             if (asmLine.identifier_1 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_1);
                 if (value != null) {
-                    asmLine.numeric_1 = value - asmLine.address;
+                    asmLine.numeric_1 = value - asmLine.section.address;
                     asmLine.identifier_1 = null;
                 }
             }
@@ -528,14 +530,14 @@ public class App {
             if (asmLine.offsetLabel_2 != null) {
                 Long value = labelAddressMap.get(asmLine.offsetLabel_2);
                 if (value != null) {
-                    asmLine.numeric_2 = value - asmLine.address;
+                    asmLine.numeric_2 = value - asmLine.section.address;
                     asmLine.offsetLabel_2 = null;
                 }
             }
             if (asmLine.identifier_2 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_2);
                 if (value != null) {
-                    asmLine.numeric_2 = value - asmLine.address;
+                    asmLine.numeric_2 = value - asmLine.section.address;
                     asmLine.identifier_2 = null;
                 }
             }
