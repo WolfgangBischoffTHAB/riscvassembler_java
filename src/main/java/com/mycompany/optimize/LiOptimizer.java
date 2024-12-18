@@ -49,17 +49,13 @@ public class LiOptimizer extends BaseOptimizer {
                 continue;
             }
 
-            //liPseudoAsmLine.optimized = true;
-/**/
             // start with first child instruction
             AsmLine firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
             AsmLine secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
-
-
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if (firstAsmLine.section.address > map.get(firstAsmLine.offsetLabel_1)) {
+            if ((firstAsmLine.section.address + firstAsmLine.offset) > map.get(firstAsmLine.offsetLabel_1)) {
                 direction = -1;
             } else {
                 direction = +1;
@@ -74,8 +70,6 @@ public class LiOptimizer extends BaseOptimizer {
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
-                        //throw new RuntimeException("Cannot optimize!");
-                        //currentAsmLine.pseudoInstructionAsmLine.optimized = true;
                         currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -98,8 +92,6 @@ public class LiOptimizer extends BaseOptimizer {
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
-                        //throw new RuntimeException("Cannot optimize!");
-                        //firstAsmLine.pseudoInstructionAsmLine.optimized = true;
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -166,10 +158,6 @@ public class LiOptimizer extends BaseOptimizer {
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
 
-                // byte rd = (byte) asmLine.register_0.ordinal();
-                // byte rs1 = (byte) asmLine.register_1.ordinal();
-                // short imm = asmLine.numeric_2.shortValue();
-
                 AsmLine asmLine = new AsmLine();
                 asmLine.mnemonic = Mnemonic.I_ADDI;
                 asmLine.register_0 = secondAsmLine.register_0;
@@ -187,46 +175,6 @@ public class LiOptimizer extends BaseOptimizer {
             } else {
                 throw new RuntimeException("Not implemented yet!");
             }
-            // else {
-
-            //     firstAsmLine.modifier_1 = null;
-            //     firstAsmLine.offsetLabel_1 = null;
-            //     firstAsmLine.numeric_1 = highValue;
-
-            //     // System.out.println("firstAsmLine: " + firstAsmLine);
-
-            //     secondAsmLine.modifier_2 = null;
-            //     secondAsmLine.offsetLabel_2 = null;
-            //     secondAsmLine.numeric_2 = highValue;
-
-            //     // System.out.println("secondAsmLine: " + secondAsmLine);
-
-            // }
-
-            //throw new RuntimeException("Apply the same algorithm as the call optimizer!");
-
-            /*
-            if ((firstAsmLine.numeric_1 == 0) && (secondAsmLine.numeric_2 == 0)) {
-                throw new RuntimeException();
-            }
-            if (firstAsmLine.numeric_1 == 0) {
-                System.out.println("");
-                liPseudoAsmLine.pseudoInstructionChildren.remove(0);
-                liPseudoAsmLine.optimized = true;
-                asmLines.remove(firstAsmLine);
-                firstAsmLine.pseudoInstructionAsmLine = null;
-            }
-            if (secondAsmLine.numeric_2 == 0) {
-                System.out.println("");
-                liPseudoAsmLine.pseudoInstructionChildren.remove(1);
-                liPseudoAsmLine.optimized = true;
-                asmLines.remove(secondAsmLine);
-                secondAsmLine.pseudoInstructionAsmLine = null;
-            }
-            if ((firstAsmLine.numeric_1 != 0) && (secondAsmLine.numeric_2 != 0)) {
-                liPseudoAsmLine.optimized = true;
-            }
-            */
 
         }
     }
