@@ -56,6 +56,7 @@ public class CallResolver implements AsmInstructionListModifier {
                 asmLines.add(index, auipc);
                 foundAsmLine.pseudoInstructionChildren.add(auipc);
                 auipc.pseudoInstructionAsmLine = foundAsmLine;
+                auipc.section = foundAsmLine.section;
                 index++;
 
                 auipc.mnemonic = Mnemonic.I_AUIPC;
@@ -75,6 +76,7 @@ public class CallResolver implements AsmInstructionListModifier {
                 asmLines.add(index, jalr);
                 foundAsmLine.pseudoInstructionChildren.add(jalr);
                 jalr.pseudoInstructionAsmLine = foundAsmLine;
+                jalr.section = foundAsmLine.section;
                 index++;
 
                 jalr.mnemonic = Mnemonic.I_JALR;

@@ -70,8 +70,6 @@ public class CallOptimizer extends BaseOptimizer {
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
-                        //throw new RuntimeException("Cannot optimize!");
-                        //currentAsmLine.pseudoInstructionAsmLine.optimized = true;
                         currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -94,8 +92,6 @@ public class CallOptimizer extends BaseOptimizer {
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
-                        //throw new RuntimeException("Cannot optimize!");
-                        //firstAsmLine.pseudoInstructionAsmLine.optimized = true;
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -165,19 +161,15 @@ public class CallOptimizer extends BaseOptimizer {
 
                 boolean twoByteAligned = true;
                 long delta = 0;
-                //if (firstAsmLine.offsetLabel_1.equalsIgnoreCase("puts")) {
 
-                    delta = firstAsmLine.section.address - map.get(firstAsmLine.offsetLabel_1);
-
-                    //System.out.println("delta: " + delta);
-
-                    twoByteAligned = (delta % 2) == 0;
-                //}
+                delta = (firstAsmLine.section.address + firstAsmLine.offset) - map.get(firstAsmLine.offsetLabel_1);
+                twoByteAligned = (delta % 2) == 0;
 
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
 
                 AsmLine asmLine = new AsmLine();
+                asmLine.section = firstAsmLine.section;
 
                 if (twoByteAligned) {
 
@@ -214,13 +206,9 @@ public class CallOptimizer extends BaseOptimizer {
                 firstAsmLine.offsetLabel_1 = null;
                 firstAsmLine.numeric_1 = highValue;
 
-                // System.out.println("firstAsmLine: " + firstAsmLine);
-
                 secondAsmLine.modifier_2 = null;
                 secondAsmLine.offsetLabel_2 = null;
                 secondAsmLine.numeric_2 = highValue;
-
-                // System.out.println("secondAsmLine: " + secondAsmLine);
 
             }
         }

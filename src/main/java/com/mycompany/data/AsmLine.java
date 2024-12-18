@@ -7,6 +7,7 @@ import riscvasm.RISCVASMParser.ExprContext;
 
 public class AsmLine {
 
+    public long offset;
     public Section section;
 
     public String label;

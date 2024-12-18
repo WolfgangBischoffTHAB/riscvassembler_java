@@ -1,7 +1,6 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.mycompany.data.AsmLine;
@@ -139,6 +138,8 @@ public class MnemonicEncoder {
             int imm = (int) (data_1 + data_2);
 
             int result = encodeUType(imm, rd, opcode);
+
+            System.out.println(asmLine + " -> " + result);
             EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         } else {
@@ -149,6 +150,7 @@ public class MnemonicEncoder {
             int imm = asmLine.numeric_1.shortValue();
 
             int result = encodeUType(imm, rd, opcode);
+            System.out.println(asmLine + " -> " + String.format("%08X", result));
             EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         }
@@ -167,6 +169,7 @@ public class MnemonicEncoder {
         byte rs2 = (byte) asmLine.register_2.ordinal();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -199,6 +202,8 @@ public class MnemonicEncoder {
             short imm = (short) data_1;
 
             int result = encodeIType(imm, rs1, funct3, rd, opcode);
+
+            System.out.println(asmLine + " -> " + result);
             EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         } else {
@@ -210,6 +215,7 @@ public class MnemonicEncoder {
             short imm = asmLine.numeric_2.shortValue();
 
             int result = encodeIType(imm, rs1, funct3, rd, opcode);
+            System.out.println(asmLine + " -> " + String.format("%08X", result));
             EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         }
@@ -226,6 +232,7 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -241,6 +248,7 @@ public class MnemonicEncoder {
         byte rd = (byte) asmLine.register_0.ordinal();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -255,6 +263,7 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -270,6 +279,7 @@ public class MnemonicEncoder {
         byte rd = (byte) asmLine.register_0.ordinal();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -284,6 +294,7 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -298,6 +309,7 @@ public class MnemonicEncoder {
         short imm = 0x00;
 
         int result = encodeIType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -312,6 +324,7 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -324,7 +337,7 @@ public class MnemonicEncoder {
         int imm = asmLine.numeric_1.intValue();
 
         int result = encodeJType(imm, rd, opcode);
-
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -344,6 +357,7 @@ public class MnemonicEncoder {
         }
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -355,6 +369,7 @@ public class MnemonicEncoder {
         int imm = asmLine.numeric_1.shortValue();
 
         int result = encodeUType(imm, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -369,6 +384,7 @@ public class MnemonicEncoder {
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -382,6 +398,7 @@ public class MnemonicEncoder {
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeSType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -396,6 +413,7 @@ public class MnemonicEncoder {
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -410,6 +428,7 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -423,6 +442,7 @@ public class MnemonicEncoder {
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeSType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
@@ -477,7 +497,6 @@ public class MnemonicEncoder {
                 ((rs2 & 0b11111) << (7 + 1 + 4 + 3 + 5)) |
                 ((imm_10_5 & 0b111111) << (7 + 1 + 4 + 3 + 5 + 5)) |
                 ((imm_12 & 0b1) << (7 + 1 + 4 + 3 + 5 + 5 + 6));
-
     }
 
     private int encodeUType(int imm, byte rd, byte opcode) {

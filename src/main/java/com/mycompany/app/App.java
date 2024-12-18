@@ -27,8 +27,10 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.MemorySpecifier;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Register;
+import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
 import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
@@ -118,7 +120,12 @@ public class App {
         // LINKERSCRIPTLANGUAGERawOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGERawOutputListener();
         // linkerScriptlistener.linkerParser = linkerParser;
 
+        Map<String, Section> sectionMap = new HashMap<>();
+        Map<String, MemorySpecifier> memorySpecifierMap = new HashMap<>();
+
         LINKERSCRIPTLANGUAGEExtractingOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGEExtractingOutputListener();
+        linkerScriptlistener.sectionMap = sectionMap;
+        linkerScriptlistener.memorySpecifierMap = memorySpecifierMap;
 
         // create a generic parse tree walker that can trigger callbacks
         final ParseTreeWalker linkerScriptWalker = new ParseTreeWalker();
@@ -127,6 +134,28 @@ public class App {
         linkerScriptWalker.walk(linkerScriptlistener, linkerRoot);
 
         System.out.println("Parsing linker file done.");
+
+
+
+        //
+        // Set address into sections
+        //
+
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+
+            MemorySpecifier memorySpecifier = memorySpecifierMap.get(entry.getValue().memspec);
+            entry.getValue().address = memorySpecifier.memorySpecOrigin;
+        }
+
+
+
+        //
+        // Set default section
+        //
+
+        Section currentSection = sectionMap.get(".text");
+
+
 
         System.out.println("Lexing ...");
 
@@ -183,8 +212,11 @@ public class App {
         List<AsmLine> asmLines = new ArrayList<>();
 
         // RawOutputListener listener = new RawOutputListener();
+
         RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
         asmListener.asmLines = asmLines;
+        asmListener.sectionMap = sectionMap;
+        asmListener.currentSection = currentSection;
 
         // create a generic parse tree walker that can trigger callbacks
         final ParseTreeWalker asmWalker = new ParseTreeWalker();
@@ -500,14 +532,14 @@ public class App {
             if (asmLine.offsetLabel_0 != null) {
                 Long value = labelAddressMap.get(asmLine.offsetLabel_0);
                 if (value != null) {
-                    asmLine.numeric_0 = value - asmLine.section.address;
+                    asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.offsetLabel_0 = null;
                 }
             }
             if (asmLine.identifier_0 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_0);
                 if (value != null) {
-                    asmLine.numeric_0 = value - asmLine.section.address;
+                    asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_0 = null;
                 }
             }
@@ -515,14 +547,14 @@ public class App {
             if (asmLine.offsetLabel_1 != null) {
                 Long value = labelAddressMap.get(asmLine.offsetLabel_1);
                 if (value != null) {
-                    asmLine.numeric_1 = value - asmLine.section.address;
+                    asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.offsetLabel_1 = null;
                 }
             }
             if (asmLine.identifier_1 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_1);
                 if (value != null) {
-                    asmLine.numeric_1 = value - asmLine.section.address;
+                    asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_1 = null;
                 }
             }
@@ -530,14 +562,14 @@ public class App {
             if (asmLine.offsetLabel_2 != null) {
                 Long value = labelAddressMap.get(asmLine.offsetLabel_2);
                 if (value != null) {
-                    asmLine.numeric_2 = value - asmLine.section.address;
+                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.offsetLabel_2 = null;
                 }
             }
             if (asmLine.identifier_2 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_2);
                 if (value != null) {
-                    asmLine.numeric_2 = value - asmLine.section.address;
+                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_2 = null;
                 }
             }

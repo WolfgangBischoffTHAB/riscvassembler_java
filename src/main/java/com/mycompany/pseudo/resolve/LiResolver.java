@@ -29,8 +29,6 @@ public class LiResolver implements AsmInstructionListModifier {
                     continue;
                 }
 
-                //System.out.println(asmLine);
-
                 found = true;
                 foundAsmLine = asmLine;
 
@@ -69,6 +67,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     asmLines.add(index, addi);
                     foundAsmLine.pseudoInstructionChildren.add(addi);
                     addi.pseudoInstructionAsmLine = foundAsmLine;
+                    addi.section = foundAsmLine.section;
                     index++;
 
                     addi.mnemonic = Mnemonic.I_ADDI;
@@ -116,6 +115,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     foundAsmLine.optimized = true;
                     foundAsmLine.pseudoInstructionChildren.add(lui);
                     lui.pseudoInstructionAsmLine = foundAsmLine;
+                    lui.section = foundAsmLine.section;
                     index++;
 
                     lui.mnemonic = Mnemonic.I_LUI;
@@ -158,6 +158,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     asmLines.add(index, lui);
                     foundAsmLine.pseudoInstructionChildren.add(lui);
                     lui.pseudoInstructionAsmLine = foundAsmLine;
+                    lui.section = foundAsmLine.section;
                     index++;
 
                     lui.mnemonic = Mnemonic.I_LUI;
@@ -176,6 +177,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     asmLines.add(index, addi);
                     foundAsmLine.pseudoInstructionChildren.add(addi);
                     addi.pseudoInstructionAsmLine = foundAsmLine;
+                    addi.section = foundAsmLine.section;
                     index++;
 
                     addi.mnemonic = Mnemonic.I_ADDIW;

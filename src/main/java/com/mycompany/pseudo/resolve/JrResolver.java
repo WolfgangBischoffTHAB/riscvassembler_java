@@ -22,8 +22,6 @@ public class JrResolver  implements AsmInstructionListModifier {
             asmLine.register_1 = asmLine.register_0;
             asmLine.register_0 = Register.REG_ZERO;
             asmLine.numeric_2 = 0L;
-
-            //System.out.println(asmLine);
         }
     }
 

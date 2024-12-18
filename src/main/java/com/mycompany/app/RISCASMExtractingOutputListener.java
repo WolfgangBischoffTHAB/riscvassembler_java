@@ -2,6 +2,7 @@ package com.mycompany.app;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -10,6 +11,7 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.Register;
+import com.mycompany.data.Section;
 
 import riscvasm.RISCVASMParser;
 import riscvasm.RISCVASMParser.Csv_numeric_listContext;
@@ -22,13 +24,20 @@ import riscvasm.RISCVASMParserBaseListener;
 
 public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener {
 
+    public Map<String, Section> sectionMap;
+
+    public Section currentSection;
+
     public List<AsmLine> asmLines;
 
     private AsmLine asmLine = new AsmLine();
 
     @Override
     public void exitAsm_line(RISCVASMParser.Asm_lineContext ctx) {
+
+        asmLine.section = currentSection;
         asmLines.add(asmLine);
+
         asmLine = new AsmLine();
     }
 
@@ -314,6 +323,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         String val = ctx.getChild(1).getText().toString();
         asmLine.stringValue = val;
+
+        currentSection = sectionMap.get(val);
     }
 
     @Override

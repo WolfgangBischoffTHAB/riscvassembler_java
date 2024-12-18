@@ -63,12 +63,10 @@ public class LiCombiner implements AsmInstructionListModifier {
 
                     // registers must match
                     if ((data_1.register_0 == data_2.register_0) && (data_2.register_0 == data_2.register_1)) {
-                    //if (data_1.register_0 == data_2.register_1) {
-
-                        //System.out.println("found lui addi combination!");
 
                         // attach pseudo instruction
                         AsmLine pseudoInstructionAsmLine = new AsmLine();
+                        pseudoInstructionAsmLine.section = data_1.section;
                         pseudoInstructionAsmLine.optimized = false;
                         pseudoInstructionAsmLine.mnemonic = Mnemonic.I_LI;
                         pseudoInstructionAsmLine.register_0 = data_2.register_0;
@@ -77,8 +75,6 @@ public class LiCombiner implements AsmInstructionListModifier {
                         pseudoInstructionAsmLine.pseudoInstructionChildren.add(data_1);
                         data_2.pseudoInstructionAsmLine = pseudoInstructionAsmLine;
                         pseudoInstructionAsmLine.pseudoInstructionChildren.add(data_2);
-
-                        //System.out.println(pseudoInstructionAsmLine);
                     }
 
                 }

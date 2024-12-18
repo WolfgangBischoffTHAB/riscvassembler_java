@@ -63,6 +63,7 @@ public class LaResolver implements AsmInstructionListModifier {
                 asmLines.add(index, auipc);
                 foundAsmLine.pseudoInstructionChildren.add(auipc);
                 auipc.pseudoInstructionAsmLine = foundAsmLine;
+                auipc.section = foundAsmLine.section;
                 index++;
 
                 auipc.mnemonic = Mnemonic.I_AUIPC;
@@ -88,6 +89,7 @@ public class LaResolver implements AsmInstructionListModifier {
                 asmLines.add(index, addi);
                 foundAsmLine.pseudoInstructionChildren.add(addi);
                 addi.pseudoInstructionAsmLine = foundAsmLine;
+                addi.section = foundAsmLine.section;
                 index++;
 
                 addi.mnemonic = Mnemonic.I_ADDI;

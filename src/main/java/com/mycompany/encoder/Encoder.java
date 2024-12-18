@@ -18,7 +18,9 @@ public class Encoder {
         switch (asmLine.getAsmLineType()) {
 
             case MNEMONIC:
-                return mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
+                int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
+                //System.out.println(asmLine + " -> " + length);
+                return length;
 
             case ASSEMBLER_INSTRUCTION:
                 return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine);
