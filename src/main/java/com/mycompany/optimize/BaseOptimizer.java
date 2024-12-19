@@ -128,6 +128,9 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             } else {
 
                 if (asmLine.label != null) {
+                    if (asmLine.section == null) {
+                        System.out.println("bug");
+                    }
                     map.put(asmLine.label, asmLine.section.address + asmLine.offset);
                 }
 

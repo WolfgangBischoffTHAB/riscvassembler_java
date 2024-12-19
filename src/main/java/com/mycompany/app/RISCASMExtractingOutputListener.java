@@ -203,9 +203,9 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                 if (!isOffset && !isRegister && !isNumeric && !isHexNumeric && !isStringLiteral) {
 
-                    ExprContext lhs = (ExprContext) exprContext.getChild(0);
-                    String operator = exprContext.getChild(1).getText();
-                    ExprContext rhs = (ExprContext) exprContext.getChild(2);
+                    // ExprContext lhs = (ExprContext) exprContext.getChild(0);
+                    // String operator = exprContext.getChild(1).getText();
+                    // ExprContext rhs = (ExprContext) exprContext.getChild(2);
 
                     switch (index) {
                         case 0:
@@ -237,6 +237,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitLabel(RISCVASMParser.LabelContext ctx) {
         asmLine.label = ctx.getText().toString();
+        asmLine.section = currentSection;
     }
 
     @Override
@@ -293,14 +294,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     }
 
     @Override
-    public void exitSection_text_assembler_instruction(RISCVASMParser.Section_text_assembler_instructionContext ctx) {
-        asmLine.asmInstruction = AsmInstruction.SECTION;
-
-        String val = ctx.getChild(1).getText().toString();
-        asmLine.stringValue = val;
-    }
-
-    @Override
     public void exitData_assembler_instruction(RISCVASMParser.Data_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.DATA;
     }
@@ -316,6 +309,18 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     }
 
     @Override
+    public void exitSection_text_assembler_instruction(RISCVASMParser.Section_text_assembler_instructionContext ctx) {
+        asmLine.asmInstruction = AsmInstruction.SECTION;
+
+        String val = ctx.getChild(1).getText().toString();
+        asmLine.stringValue = val;
+
+        enableTargetSection(val);
+
+        asmLine.section = currentSection;
+    }
+
+    @Override
     public void exitSection_rodata_assembler_instruction(
             RISCVASMParser.Section_rodata_assembler_instructionContext ctx) {
 
@@ -324,7 +329,27 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         String val = ctx.getChild(1).getText().toString();
         asmLine.stringValue = val;
 
-        currentSection = sectionMap.get(val);
+        enableTargetSection(val);
+
+        asmLine.section = currentSection;
+    }
+
+    /**
+     * Look for the source section inside the target section and make
+     * the target section current.
+     * Sections (source and target) have to be defined inside the linker script!
+     *
+     * @param inputSectionName name of the input section to convert into a
+     * target section! (linker script has to match!)
+     */
+    private void enableTargetSection(String inputSectionName) {
+        for (Map.Entry<String, Section> targetSectionEntry : sectionMap.entrySet()) {
+            Section targetSection = targetSectionEntry.getValue();
+            if (targetSection.inputSections.contains(inputSectionName)) {
+                currentSection = targetSection;
+                break;
+            }
+        }
     }
 
     @Override
@@ -390,15 +415,21 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         ExprContext expr = ctx.expr();
 
         if (expr.NUMERIC() != null) {
+
             String numericAsString = expr.NUMERIC().getText();
             asmLine.numeric_1 = Long.parseLong(numericAsString);
+
         } else if (expr.HEX_NUMERIC() != null) {
+
             String numericAsString = expr.HEX_NUMERIC().getText();
 
             numericAsString = numericAsString.substring(2);
             asmLine.numeric_1 = Long.parseLong(numericAsString, 16);
+
         } else {
+
             throw new RuntimeException();
+
         }
     }
 
