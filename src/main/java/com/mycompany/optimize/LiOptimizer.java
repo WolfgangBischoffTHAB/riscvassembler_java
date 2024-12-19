@@ -8,25 +8,26 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.Register;
+import com.mycompany.data.Section;
 
 public class LiOptimizer extends BaseOptimizer {
 
     @Override
-    public void modify(List<AsmLine> asmLines) {
+    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
 
             // build label table
             Map<String, Long> map = new HashMap<>();
-            buildLabelTable(asmLines, map);
+            buildLabelTable(asmLines, map, sectionMap);
 
             // // DEBUG
             // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
             //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
             // }
 
-            updateAddresses(asmLines);
+            updateAddresses(asmLines, sectionMap);
 
             // find unoptimized li pseudo instruction
             AsmLine liPseudoAsmLine = null;

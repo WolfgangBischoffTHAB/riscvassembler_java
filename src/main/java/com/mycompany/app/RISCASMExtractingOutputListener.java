@@ -251,6 +251,12 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitText_assembler_instruction(RISCVASMParser.Text_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.TEXT;
+        String val = ".text";
+        asmLine.stringValue = val;
+
+        currentSection = enableTargetSection(val);
+
+        asmLine.section = currentSection;
     }
 
     @Override
@@ -296,6 +302,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitData_assembler_instruction(RISCVASMParser.Data_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.DATA;
+
+        String val = ".data";
+        // asmLine.stringValue = val;
+
+        currentSection = enableTargetSection(val);
+
+        asmLine.section = currentSection;
     }
 
     @Override

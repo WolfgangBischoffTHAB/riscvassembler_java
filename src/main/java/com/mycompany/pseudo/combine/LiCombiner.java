@@ -1,10 +1,12 @@
 package com.mycompany.pseudo.combine;
 
 import java.util.List;
+import java.util.Map;
 
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.Section;
 
 /**
  * One possible optimization is to recombine a combination of lui and addi
@@ -41,7 +43,7 @@ import com.mycompany.data.Mnemonic;
 public class LiCombiner implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines) {
+    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
 
         AsmLine data_1 = null;
         AsmLine data_2 = null;

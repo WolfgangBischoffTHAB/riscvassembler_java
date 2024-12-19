@@ -1,17 +1,13 @@
 package com.mycompany.app;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.management.RuntimeErrorException;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStream;
@@ -239,7 +235,7 @@ public class App {
         // square_and_print.s --> uses combiner
         //
         LiCombiner liCombiner = new LiCombiner();
-        liCombiner.modify(asmLines);
+        liCombiner.modify(asmLines, sectionMap);
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -326,34 +322,34 @@ public class App {
         //
 
         LiResolver liResolver = new LiResolver();
-        liResolver.modify(asmLines);
+        liResolver.modify(asmLines, sectionMap);
 
         LaResolver laResolver = new LaResolver();
-        laResolver.modify(asmLines);
+        laResolver.modify(asmLines, sectionMap);
 
         CallResolver callResolver = new CallResolver();
-        callResolver.modify(asmLines);
+        callResolver.modify(asmLines, sectionMap);
 
         NopResolver nopResolver = new NopResolver();
-        nopResolver.modify(asmLines);
+        nopResolver.modify(asmLines, sectionMap);
 
         MvResolver mvResolver = new MvResolver();
-        mvResolver.modify(asmLines);
+        mvResolver.modify(asmLines, sectionMap);
 
         BgtResolver bgtResolver = new BgtResolver();
-        bgtResolver.modify(asmLines);
+        bgtResolver.modify(asmLines, sectionMap);
 
         BnezResolver bnezResolver = new BnezResolver();
-        bnezResolver.modify(asmLines);
+        bnezResolver.modify(asmLines, sectionMap);
 
         JResolver jResolver = new JResolver();
-        jResolver.modify(asmLines);
+        jResolver.modify(asmLines, sectionMap);
 
         JrResolver jrResolver = new JrResolver();
-        jrResolver.modify(asmLines);
+        jrResolver.modify(asmLines, sectionMap);
 
         RetResolver retResolver = new RetResolver();
-        retResolver.modify(asmLines);
+        retResolver.modify(asmLines, sectionMap);
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -395,7 +391,7 @@ public class App {
         //
 
         LiOptimizer liOptimizer = new LiOptimizer();
-        liOptimizer.modify(asmLines);
+        liOptimizer.modify(asmLines, sectionMap);
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -408,7 +404,7 @@ public class App {
         // }
 
         CallOptimizer callOptimizer = new CallOptimizer();
-        callOptimizer.modify(asmLines);
+        callOptimizer.modify(asmLines, sectionMap);
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -434,10 +430,22 @@ public class App {
         System.out.println("");
         System.out.println("");
 
-        BaseOptimizer.updateAddresses(asmLines);
+        BaseOptimizer.updateAddresses(asmLines, sectionMap);
+
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         Map<String, Long> labelAddressMap = new HashMap<>();
-        BaseOptimizer.buildLabelTable(asmLines, labelAddressMap);
+        BaseOptimizer.buildLabelTable(asmLines, labelAddressMap, sectionMap);
+
+        // DEBUG
+        System.out.println("\n\n\n");
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         //
         // resolve modifiers
@@ -449,6 +457,12 @@ public class App {
         // resolve all labels
         //
 
+        // DEBUG
+        System.out.println("\n\n\n");
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
+
         resolveLabels(asmLines, labelAddressMap);
 
         // // DEBUG
@@ -457,7 +471,7 @@ public class App {
         //     System.out.println(asmLine);
         // }
 
-        // TODO encode everything that has a mnemonic or is a
+        // encode everything that has a mnemonic or is a
         // .dword, .word, .half, .byte, .string, .asciz, .ascii assembler instruction
 
         Encoder encoder = new Encoder();
@@ -473,6 +487,9 @@ public class App {
 
                 // DEBUG
                 // System.out.println(asmLine);
+                if (asmLine.label != null) {
+                    System.out.println(asmLine.label);
+                }
 
                 currentAddress += encoder.encode(asmLine, labelAddressMap, currentAddress);
             }
@@ -521,6 +538,10 @@ public class App {
     private static void resolveLabels(List<AsmLine> asmLines, Map<String, Long> labelAddressMap) {
 
         for (AsmLine asmLine : asmLines) {
+
+            if (asmLine.mnemonic == Mnemonic.I_BNE) {
+                System.out.println("stest");
+            }
 
             if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
                 continue;

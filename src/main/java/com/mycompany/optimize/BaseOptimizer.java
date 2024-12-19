@@ -6,10 +6,11 @@ import java.util.Map;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.Section;
 
 public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
-    public static void updateAddresses(List<AsmLine> asmLines) {
+    public static void updateAddresses(final List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
 
         int address = 0;
 
@@ -69,21 +70,27 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         }
     }
 
-    public static void buildLabelTable(final List<AsmLine> asmLines, final Map<String, Long> map) {
+    public static void buildLabelTable(final List<AsmLine> asmLines,
+        final Map<String, Long> labelAddressMap, final Map<String, Section> sectionMap) {
 
-        int offset = 0;
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+            entry.getValue().currentOffset = 0;
+        }
 
         for (AsmLine asmLine : asmLines) {
 
+            Section section = sectionMap.get(asmLine.section.name);
+
+            long offset = section.currentOffset;
             asmLine.offset = offset;
 
             if (asmLine.mnemonic != null) {
 
                 if (asmLine.label != null) {
-                    map.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
                 }
 
-                offset += 4;
+                section.currentOffset += 4;
 
             } else if (asmLine.asmInstruction != null) {
 
@@ -129,8 +136,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
 
                 if (asmLine.label != null) {
-                    map.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
                 }
+
+                section.currentOffset = offset;
 
                 continue;
 
@@ -140,7 +149,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     if (asmLine.section == null) {
                         System.out.println("bug");
                     }
-                    map.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
                 }
 
             }
@@ -148,7 +157,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
         // DEBUG
         System.out.println("*************************************************");
-        for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
+        for (Map.Entry<String, Long> mapEntry : labelAddressMap.entrySet()) {
             System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
         }
         System.out.println("-------------------------------------------------");

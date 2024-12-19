@@ -6,6 +6,8 @@ import java.util.List;
 public class Section {
 
     public long address;
+    public long currentOffset;
+
     public String name;
     public String memspec;
     public List<String> inputSections = new ArrayList<>();

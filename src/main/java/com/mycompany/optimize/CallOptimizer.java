@@ -7,25 +7,26 @@ import java.util.Map;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Register;
+import com.mycompany.data.Section;
 
 public class CallOptimizer extends BaseOptimizer {
 
     @Override
-    public void modify(List<AsmLine> asmLines) {
+    public void modify(final List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
 
             // build label table
-            Map<String, Long> map = new HashMap<>();
-            buildLabelTable(asmLines, map);
+            Map<String, Long> labelTableMap = new HashMap<>();
+            buildLabelTable(asmLines, labelTableMap, sectionMap);
 
             // // DEBUG
             // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
             //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
             // }
 
-            updateAddresses(asmLines);
+            updateAddresses(asmLines, sectionMap);
 
             // find unoptimized call pseudo instruction
             AsmLine callPseudoAsmLine = null;
@@ -55,7 +56,7 @@ public class CallOptimizer extends BaseOptimizer {
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if ((firstAsmLine.section.address + firstAsmLine.offset) > map.get(firstAsmLine.offsetLabel_1)) {
+            if ((firstAsmLine.section.address + firstAsmLine.offset) > labelTableMap.get(firstAsmLine.offsetLabel_1)) {
                 direction = -1;
             } else {
                 direction = +1;
@@ -115,7 +116,7 @@ public class CallOptimizer extends BaseOptimizer {
             // if arriving at the target label is possible only crossing real instructions
             // take the absolute value of the label and put it into the modifier.
 
-            long address = map.get(firstAsmLine.offsetLabel_1);
+            long address = labelTableMap.get(firstAsmLine.offsetLabel_1);
             long highValue = 0;
             long lowValue = 0;
 
@@ -162,7 +163,7 @@ public class CallOptimizer extends BaseOptimizer {
                 boolean twoByteAligned = true;
                 long delta = 0;
 
-                delta = (firstAsmLine.section.address + firstAsmLine.offset) - map.get(firstAsmLine.offsetLabel_1);
+                delta = (firstAsmLine.section.address + firstAsmLine.offset) - labelTableMap.get(firstAsmLine.offsetLabel_1);
                 twoByteAligned = (delta % 2) == 0;
 
                 asmLines.remove(firstAsmLine);
@@ -188,7 +189,7 @@ public class CallOptimizer extends BaseOptimizer {
 
                     asmLine.mnemonic = Mnemonic.I_JALR;
                     asmLine.register_0 = Register.REG_RA;
-                    asmLine.offset_1 = map.get(firstAsmLine.offsetLabel_1);
+                    asmLine.offset_1 = labelTableMap.get(firstAsmLine.offsetLabel_1);
                     asmLine.register_1 = Register.REG_ZERO;
 
                     callPseudoAsmLine.optimized = true;

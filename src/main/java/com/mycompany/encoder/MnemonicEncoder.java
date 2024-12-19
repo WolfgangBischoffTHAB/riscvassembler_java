@@ -195,7 +195,7 @@ public class MnemonicEncoder {
 
             long data_1 = ((value - (currentAddress - 4)) & 0xfff);
 
-            System.out.println(data_1);
+            //System.out.println(data_1);
 
             byte funct3 = 0b000;
             byte opcode = 0b0010011;

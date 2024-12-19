@@ -57,6 +57,8 @@ public class AsmLine {
 
         StringBuilder stringBuilder = new StringBuilder();
 
+        stringBuilder.append("[").append(offset).append("] ");
+
         if (label != null) {
             stringBuilder.append(label).append(": ");
         }

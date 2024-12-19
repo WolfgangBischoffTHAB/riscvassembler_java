@@ -1,16 +1,18 @@
 package com.mycompany.pseudo.resolve;
 
 import java.util.List;
+import java.util.Map;
 
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Register;
+import com.mycompany.data.Section;
 
 public class MvResolver implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines) {
+    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
 
         for (AsmLine asmLine : asmLines) {
 

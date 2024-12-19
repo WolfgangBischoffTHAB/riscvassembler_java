@@ -19,14 +19,12 @@ public class Encoder {
 
             case MNEMONIC:
                 int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
-                //System.out.println(asmLine + " -> " + length);
                 return length;
 
             case ASSEMBLER_INSTRUCTION:
                 return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine);
 
             default:
-                //System.out.println("Not encoding: " + asmLine);
                 return 0;
         }
     }
