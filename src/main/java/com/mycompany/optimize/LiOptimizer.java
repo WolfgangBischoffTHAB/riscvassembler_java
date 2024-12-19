@@ -165,6 +165,7 @@ public class LiOptimizer extends BaseOptimizer {
                 asmLine.register_1 = Register.REG_ZERO;
                 asmLine.modifier_2 = Modifier.LO;
                 asmLine.offsetLabel_2 = secondAsmLine.offsetLabel_2;
+                asmLine.section = liPseudoAsmLine.section;
 
                 firstAsmLine.pseudoInstructionAsmLine.optimized = true;
                 firstAsmLine.pseudoInstructionAsmLine.pseudoInstructionChildren.clear();
