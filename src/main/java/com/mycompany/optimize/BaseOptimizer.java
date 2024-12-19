@@ -3,6 +3,7 @@ package com.mycompany.optimize;
 import java.util.List;
 import java.util.Map;
 
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 
@@ -20,6 +21,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 if (asmLine.asmInstruction != null) {
                     switch (asmLine.asmInstruction) {
+
+                        case SPACE:
+                            address += NumberParseUtil.parseLong(asmLine.csvList.get(0)) * 1;
+                            break;
 
                         case BYTE:
                             address += asmLine.csvList.size() * 1;
@@ -83,6 +88,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             } else if (asmLine.asmInstruction != null) {
 
                 switch (asmLine.asmInstruction) {
+
+                    case SPACE:
+                        offset += NumberParseUtil.parseLong(asmLine.csvList.get(0)) * 1;
+                        break;
 
                     case BYTE:
                         offset += asmLine.csvList.size() * 1;

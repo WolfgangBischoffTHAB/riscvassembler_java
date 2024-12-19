@@ -174,10 +174,12 @@ assembler_instruction :
     equ_assembler_instruction
     |
     extern_assembler_instruction
+//    |
+//    section_text_assembler_instruction
+//    |
+//    section_rodata_assembler_instruction
     |
-    section_text_assembler_instruction
-    |
-    section_rodata_assembler_instruction
+    section_definition_assembler_instruction
     |
     globl_assembler_instruction
     |
@@ -222,12 +224,16 @@ extern_assembler_instruction :
     DOT_EXTERN IDENTIFIER
     ;
 
-section_text_assembler_instruction :
-    DOT_SECTION DOT_TEXT
-    ;
+//section_text_assembler_instruction :
+//    DOT_SECTION DOT_TEXT
+//    ;
 
-section_rodata_assembler_instruction :
-    DOT_SECTION DOT_RODATA
+//section_rodata_assembler_instruction :
+//    DOT_SECTION DOT_RODATA
+//    ;
+
+section_definition_assembler_instruction :
+    DOT_SECTION ( IDENTIFIER | DOT_RODATA |  DOT_TEXT )
     ;
 
 globl_assembler_instruction :

@@ -2,6 +2,7 @@ package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
 
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 
 public class AsmInstructionEncoder {
@@ -9,6 +10,9 @@ public class AsmInstructionEncoder {
     public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
 
         switch (asmLine.asmInstruction) {
+
+            case SPACE:
+                return encodeSpaceAssemblerInstruction(byteArrayOutStream, asmLine);
 
             case BYTE:
                 return encodeByteAssemblerInstruction(byteArrayOutStream, asmLine);
@@ -49,19 +53,22 @@ public class AsmInstructionEncoder {
         return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
     }
 
+    private int encodeSpaceAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+
+        String sizeAsString = asmLine.csvList.get(0);
+        long sizeInBytes = NumberParseUtil.parseLong(sizeAsString);
+        int length = (int) sizeInBytes;
+        byte space[] = new byte[length];
+        byteArrayOutStream.writeBytes(space);
+
+        return length;
+    }
+
     private int encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {
-
-            long data = 0L;
-            if (dataAsString.startsWith("0x")) {
-                dataAsString = dataAsString.substring(2);
-                data = Long.parseLong(dataAsString, 16);
-            } else {
-                data = Long.parseLong(dataAsString, 10);
-            }
-
+            long data = NumberParseUtil.parseLong(dataAsString);
             EncoderUtils.convertToUint8_t(byteArrayOutStream, (int) data);
             length++;
         }

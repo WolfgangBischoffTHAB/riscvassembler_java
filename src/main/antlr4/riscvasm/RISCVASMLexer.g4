@@ -205,7 +205,7 @@ CLOSING_BRACKET : ')' ;
 NUMERIC : '-'? [0-9]+ ;
 HEX_NUMERIC : '0' 'x' [a-fA-F0-9]+ ;
 
-IDENTIFIER : (('@')?('.')?('_')*[_0-9a-zA-Z]*[a-zA-Z]+)(('.')?('_')*[_0-9a-zA-Z]+)* ;
+IDENTIFIER : (('@')?DOT?('_')*[_0-9a-zA-Z]*[a-zA-Z]+)(DOT?('_')*[_0-9a-zA-Z]+)* ;
 
 WS : [ \t\r]+ -> skip ;
 

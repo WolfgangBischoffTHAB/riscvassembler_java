@@ -308,6 +308,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         asmLine.csvList = list;
     }
 
+    /*
     @Override
     public void exitSection_text_assembler_instruction(RISCVASMParser.Section_text_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.SECTION;
@@ -333,6 +334,22 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         asmLine.section = currentSection;
     }
+    */
+
+    @Override
+    public void exitSection_definition_assembler_instruction(
+            RISCVASMParser.Section_definition_assembler_instructionContext ctx) {
+
+        asmLine.asmInstruction = AsmInstruction.SECTION;
+
+        String val = ctx.getChild(1).getText().toString();
+        asmLine.stringValue = val;
+
+        currentSection = enableTargetSection(val);
+
+        asmLine.section = currentSection;
+    }
+
 
     /**
      * Look for the source section inside the target section and make
@@ -342,14 +359,17 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
      * @param inputSectionName name of the input section to convert into a
      * target section! (linker script has to match!)
      */
-    private void enableTargetSection(String inputSectionName) {
+    private Section enableTargetSection(String inputSectionName) {
+
+
         for (Map.Entry<String, Section> targetSectionEntry : sectionMap.entrySet()) {
             Section targetSection = targetSectionEntry.getValue();
             if (targetSection.inputSections.contains(inputSectionName)) {
-                currentSection = targetSection;
-                break;
+                return targetSection;
             }
         }
+
+        throw new RuntimeException("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
     }
 
     @Override

@@ -63,9 +63,8 @@ public class MnemonicEncoder {
             case I_LUI:
                 return encodeLUI(byteArrayOutStream, asmLine);
 
-            // case I_LB:
-            // encoded_asm_line = encode_lb(byteArrayOutStream, asmLine);
-            // break;
+            case I_LB:
+                return encodeLB(byteArrayOutStream, asmLine);
 
             case I_LBU:
                 return encodeLBU(byteArrayOutStream, asmLine);
@@ -181,7 +180,10 @@ public class MnemonicEncoder {
 
         if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
 
-            final String label = asmLine.offsetLabel_1;
+            String label = asmLine.offsetLabel_1;
+            if (label == null) {
+                label = asmLine.offsetLabel_2;
+            }
 
             Long value = labelAddressMap.get(label);
             // value = 0x10000L;
@@ -369,6 +371,21 @@ public class MnemonicEncoder {
         int imm = asmLine.numeric_1.shortValue();
 
         int result = encodeUType(imm, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeLB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b000;
+        byte opcode = 0b0000011;
+
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.ordinal();
+        short imm = asmLine.offset_1.shortValue();
+
+        int result = encodeIType(imm, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
