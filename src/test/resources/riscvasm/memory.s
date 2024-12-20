@@ -20,16 +20,16 @@ main:
         bne t3, t4, failure     # 36  -- bne x28, x29, 88
         lw t5, -4(t0)           # 40
         bne t5, t1, failure     # 44
-#        li t1, 0xFF00F007       # 48
-        li t1, 0xFF             # 48
+        li t1, 0xFF00F007       # 48
+#        li t1, 0xFF             # 48
                                 # 52
         sw t1, 0(t0)            # 56
         lb t2, 0(t0)            # 60
         li t3, 7                # 64
         bne t2, t3, failure     # 68
         lb t2, 1(t0)            # 72
-#        li t3, 0xFFFFFFF0       # 76
-        li t3, 0xFF             # 76
+        li t3, 0xFFFFFFF0       # 76
+#        li t3, 0xFF             # 76
                                 # 80
         bne t2, t3, failure     # 84
         lbu t2, 1(t0)           # 88
