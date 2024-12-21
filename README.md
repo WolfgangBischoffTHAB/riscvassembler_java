@@ -54,6 +54,8 @@ Options: https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html
 Cheatsheet / Quickstart:
 
 ```
+cd riscvassembler_java/src/test/resources/riscvasm
+rm a.out intermediate.o disassembly.txt listing.lst
 ~/Downloads/riscv/bin/riscv32-unknown-elf-as -mabi=ilp32 -march=rv32i -misa-spec=2.2 -ahls -o intermediate.o test.s > listing.lst
 ~/Downloads/riscv/bin/riscv32-unknown-elf-ld --no-relax --no-check-uleb128 --verbose -T ../linker_script/standard.ld intermediate.o -o a.out
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objdump -D -S a.out > disassembly.txt
