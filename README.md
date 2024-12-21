@@ -89,10 +89,10 @@ The linker is allowed to apply actions to the code that will actually change
 the assembly instructions that are placed into the binary!
 
 At this point of the development of my own assembler, optimizations
-are not part of the picture just yet. Therefore if the GNU linker optmizies
-the output, I cannot compare my assemblers output to the GNU toolchain output 
-any more because instructions are removed or added and addresses changes.
-Addresses are encoded into instructions in assembly so the entire output is
+are not part of the picture just yet. Therefore if the GNU linker optimizes
+the output, I cannot compare my assembler's output to the GNU toolchain output 
+any more because instructions are removed or added and therefore addresses change.
+Addresses are encoded into instructions in RISCV assembly so the entire output is
 not comparable any more!
 
 I want to disable any optimizations if possible to be able to compare the outputs
@@ -103,10 +103,10 @@ use the --no-relax --no-check-uleb128 flags.
 
 In a random attempt for turning off optimizations I added these flags without 
 really knowing what they do but after adding those flags, the source code that 
-the linker outputs remained unchanged!
+the linker outputs remained unoptmized which is exactly what I was hoping for!
 
-The linker will now use the assemblers code and only replace addresses in code
-but not throw away instructions!
+The linker will now use the assembler's code and only replace addresses in code
+but not throw away instructions. (As far as I can tell. More tests are necessary!)
 
 Now lets use the linker so it resolves the relocation entries that the assembler
 has inserted into the elf formatted object file.
