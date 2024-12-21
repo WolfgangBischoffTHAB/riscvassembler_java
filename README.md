@@ -1,5 +1,6 @@
 # riscvassembler_java
-riscvassembler in java
+
+riscvassembler written in Java
 
 ## RISCV GNU Toolchain
 
@@ -17,8 +18,13 @@ https://ripes.me/ (encodes to 32 bit machine code. It seems that Ripes version: 
 
 ## Assembling using the RISCV gnu toolchain
 
-Assumption downloaded .tar.gz from https://github.com/riscv-collab/riscv-gnu-toolchain
-and extracted it to your user's Downloads folder.
+Assumption: You have downloaded the riscv32-elf-ubuntu-22.04-gcc-nightly-2024.12.16-nightly.tar.xz file
+from https://github.com/riscv-collab/riscv-gnu-toolchain
+and extracted it to your user's Downloads folder. A riscv folder has been created by extracting the 
+archive and this riscv folder now contains the 32 bit elf toolchain for linux.
+
+For Windows, maybe this precompiled version will work: https://gnutoolchains.com/risc-v/
+I have never tested it!
 
 Options: https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html
 
@@ -51,16 +57,29 @@ See.: https://stackoverflow.com/questions/78741255/risc-v-i-dont-understand-what
 
 The linker is allowed to apply actions to the code that will actually change
 the assembly instructions that are placed into the binary!
-Because at this point of the development of my own assembler, optimizations
-are not part of the picture just yet, I want to disable any optimizations if possible.
+
+At this point of the development of my own assembler, optimizations
+are not part of the picture just yet. Therefore if the GNU linker optmizies
+the output, I cannot compare my assemblers output to the GNU toolchain output 
+any more because instructions are removed or added and addresses changes.
+Addresses are encoded into instructions in assembly so the entire output is
+not comparable any more!
+
+I want to disable any optimizations if possible to be able to compare the outputs
+of my own assembler to the output of the riscv GNU toolchain.
+
 One flag to prevent the linker from removing zero loads into registers, is to
-use the --no-relax --no-check-uleb128 flags. In a random search for turning off
-optimizations I added these flags without really knowing what they do but after
-adding those flags, the source code that the linker outputs remained unchanged!
+use the --no-relax --no-check-uleb128 flags. 
+
+In a random attempt for turning off optimizations I added these flags without 
+really knowing what they do but after adding those flags, the source code that 
+the linker outputs remained unchanged!
+
 The linker will now use the assemblers code and only replace addresses in code
 but not throw away instructions!
 
-Now lets use the linker so it resolves the relocation entries.
+Now lets use the linker so it resolves the relocation entries that the assembler
+has inserted into the elf formatted object file.
 
 ```
 ~/Downloads/riscv/bin/riscv32-unknown-elf-ld -help
@@ -80,12 +99,11 @@ Now lets use the linker so it resolves the relocation entries.
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objdump -D -S a.out > disassembly.txt
 ```
 
-
-
-
-
+The disassembly listing should now contain the original sourcecode with addresses
+and pseudo instructions resolved!
 
 The GNU GCC (C/C++ compiler) can also be used to translate assembly to machine code.
+(Not tested yet!)
 
 ```
 riscv32-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostartfiles -O3 -x c -Wl,-T,/work/test5.x -o test.o test.c
