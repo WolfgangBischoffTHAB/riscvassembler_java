@@ -75,6 +75,10 @@ There is also the old a.out format.
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy -O srec intermediate.o a.srec
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy -O ihex intermediate.o a.hex
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy -O binary intermediate.o a.binary
+
+~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy --only-section .text* -O binary a.out hex_test.txt
+xxd hex_test.txt
+xxd -u -plain -cols 4 -groupsize 4 hex_test.txt
 ```
 
 ```

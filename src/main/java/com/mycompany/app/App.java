@@ -66,6 +66,8 @@ import riscvasm.RISCVASMParser.Asm_fileContext;
  */
 public class App {
 
+    public static final boolean USE_CALL_OPTIMIZER = false;
+
     public static void main(String[] args) throws IOException {
 
         System.out.println("Parsing linker file ...");
@@ -113,7 +115,8 @@ public class App {
 
         // System.out.println(linkerRoot);
 
-        // LINKERSCRIPTLANGUAGERawOutputListener linkerScriptlistener = new LINKERSCRIPTLANGUAGERawOutputListener();
+        // LINKERSCRIPTLANGUAGERawOutputListener linkerScriptlistener = new
+        // LINKERSCRIPTLANGUAGERawOutputListener();
         // linkerScriptlistener.linkerParser = linkerParser;
 
         Map<String, Section> sectionMap = new HashMap<>();
@@ -131,8 +134,6 @@ public class App {
 
         System.out.println("Parsing linker file done.");
 
-
-
         //
         // Set address into sections
         //
@@ -143,15 +144,11 @@ public class App {
             entry.getValue().address = memorySpecifier.memorySpecOrigin;
         }
 
-
-
         //
         // Set default section
         //
 
         Section currentSection = sectionMap.get(".text");
-
-
 
         System.out.println("Lexing ...");
 
@@ -330,6 +327,12 @@ public class App {
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines, sectionMap);
 
+        // DEBUG
+        System.out.println("\n\n\n");
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
+
         NopResolver nopResolver = new NopResolver();
         nopResolver.modify(asmLines, sectionMap);
 
@@ -393,18 +396,16 @@ public class App {
         LiOptimizer liOptimizer = new LiOptimizer();
         liOptimizer.modify(asmLines, sectionMap);
 
-        // // DEBUG
-        // System.out.println("\n\n\n");
-        // for (AsmLine asmLine : asmLines) {
+        // DEBUG
+        System.out.println("\n\n\n");
+        for (AsmLine asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
-        // if (asmLine.mnemonic == Mnemonic.I_LI) {
-        // System.out.println("Bug");
-        // }
-        // System.out.println(asmLine);
-        // }
-
-        CallOptimizer callOptimizer = new CallOptimizer();
-        callOptimizer.modify(asmLines, sectionMap);
+        if (USE_CALL_OPTIMIZER) {
+            CallOptimizer callOptimizer = new CallOptimizer();
+            callOptimizer.modify(asmLines, sectionMap);
+        }
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -435,7 +436,7 @@ public class App {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         Map<String, Long> labelAddressMap = new HashMap<>();
@@ -468,7 +469,7 @@ public class App {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         // encode everything that has a mnemonic or is a
@@ -501,27 +502,25 @@ public class App {
         byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
 
         // DEBUG
-        //System.out.println(ByteArrayUtil.bytesToHex(byteArray));
+        // System.out.println(ByteArrayUtil.bytesToHex(byteArray));
 
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
 
         int data = 0;
         int container = 0;
         int container_index = 0;
-        while ((data = (int)byteArrayInputStream.read()) != -1) {
+        while ((data = (int) byteArrayInputStream.read()) != -1) {
 
             container <<= 8;
             container += data;
-
-            //container >>= 8;
-            //container += (data << 24);
 
             container_index++;
 
             if (container_index == 4) {
 
-                //byte[] temp = ByteArrayUtil.intToFourByte(container, ByteOrder.LITTLE_ENDIAN);
-                byte[] temp = ByteArrayUtil.intToFourByte(container, ByteOrder.BIG_ENDIAN);
+                // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+                ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+                byte[] temp = ByteArrayUtil.intToFourByte(container, byteOrder);
 
                 System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));
                 System.out.println("");
@@ -548,10 +547,14 @@ public class App {
                 System.out.println("stest");
             }
 
-            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
+            if ((asmLine.pseudoInstructionAsmLine != null)
+                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
+                    && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
                 continue;
             }
-            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
+            if ((asmLine.pseudoInstructionAsmLine != null)
+                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
+                    && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
                 continue;
             }
 
@@ -613,10 +616,14 @@ public class App {
 
         for (AsmLine asmLine : asmLines) {
 
-            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
+            if ((asmLine.pseudoInstructionAsmLine != null)
+                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
+                    && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
                 continue;
             }
-            if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA) && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
+            if ((asmLine.pseudoInstructionAsmLine != null)
+                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
+                    && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
                 continue;
             }
 
@@ -626,18 +633,20 @@ public class App {
                 String label = asmLine.offsetLabel_0;
 
                 Long value = map.get(label);
-                // value = 0x10000L;
+
+                // special case for JALR: labels are resolved relative
+                if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                    value = value - (asmLine.offset - 4);
+                }
 
                 switch (asmLine.modifier_0) {
 
                     case LO:
                         newValue = (value >> 0) & 0xFFF;
-                        //newValue = -4;
                         break;
 
                     case HI:
                         newValue = (value >> 12) & 0xFFFFF;
-                        //newValue = 16;
                         break;
 
                     default:
@@ -660,18 +669,20 @@ public class App {
                 String label = asmLine.offsetLabel_1;
 
                 Long value = map.get(label);
-                //value = 0x10000L;
+
+                // special case for JALR: labels are resolved relative
+                if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                    value = value - (asmLine.offset - 4);
+                }
 
                 switch (asmLine.modifier_1) {
 
                     case LO:
                         newValue = (value >> 0) & 0xFFF;
-                        //newValue = -4;
                         break;
 
                     case HI:
                         newValue = (value >> 12) & 0xFFFFF;
-                        //newValue = 16;
                         break;
 
                     default:
@@ -694,18 +705,20 @@ public class App {
                 String label = asmLine.offsetLabel_2;
 
                 Long value = map.get(label);
-                // value = 0x10000L;
+
+                // special case for JALR: labels are resolved relative
+                if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                    value = value - (asmLine.offset - 4);
+                }
 
                 switch (asmLine.modifier_2) {
 
                     case LO:
                         newValue = (value >> 0) & 0xFFF;
-                        //newValue = -4; // here (-4 = b 1111 1111 1100)
                         break;
 
                     case HI:
                         newValue = (value >> 12) & 0xFFFFF;
-                        //newValue = 16;
                         break;
 
                     default:
@@ -714,6 +727,8 @@ public class App {
 
                 asmLine.offsetLabel_2 = null;
                 asmLine.modifier_2 = null;
+
+                
 
                 if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
                     asmLine.numeric_2 = newValue;

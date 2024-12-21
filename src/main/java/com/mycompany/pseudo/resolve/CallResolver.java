@@ -3,6 +3,7 @@ package com.mycompany.pseudo.resolve;
 import java.util.List;
 import java.util.Map;
 
+import com.mycompany.app.App;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -13,7 +14,7 @@ import com.mycompany.data.Section;
 public class CallResolver implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap /* , final Map<String, Long> labelMap*/) {
 
         boolean done = false;
         while (!done) {
@@ -48,7 +49,10 @@ public class CallResolver implements AsmInstructionListModifier {
 
                 asmLines.remove(foundAsmLine);
 
-                foundAsmLine.optimized = false;
+                foundAsmLine.optimized = true;
+                if (App.USE_CALL_OPTIMIZER) {
+                    foundAsmLine.optimized = false;
+                }
 
                 //
                 // auipc
@@ -62,7 +66,8 @@ public class CallResolver implements AsmInstructionListModifier {
                 index++;
 
                 auipc.mnemonic = Mnemonic.I_AUIPC;
-                auipc.register_0 = Register.REG_T1;
+                //auipc.register_0 = Register.REG_T1;
+                auipc.register_0 = Register.REG_RA;
                 auipc.modifier_1 = Modifier.HI;
                 auipc.offsetLabel_1 = foundAsmLine.identifier_0;
 
@@ -83,7 +88,8 @@ public class CallResolver implements AsmInstructionListModifier {
 
                 jalr.mnemonic = Mnemonic.I_JALR;
                 jalr.register_0 = Register.REG_RA;
-                jalr.register_1 = Register.REG_T1;
+                //jalr.register_1 = Register.REG_T1;
+                jalr.register_1 = Register.REG_RA;
                 jalr.modifier_2 = Modifier.LO;
                 jalr.offsetLabel_2 = foundAsmLine.identifier_0;
 
