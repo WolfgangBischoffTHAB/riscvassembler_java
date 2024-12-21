@@ -59,6 +59,20 @@ rm a.out intermediate.o disassembly.txt listing.lst
 ~/Downloads/riscv/bin/riscv32-unknown-elf-as -mabi=ilp32 -march=rv32i -misa-spec=2.2 -ahls -o intermediate.o test.s > listing.lst
 ~/Downloads/riscv/bin/riscv32-unknown-elf-ld --no-relax --no-check-uleb128 --verbose -T ../linker_script/standard.ld intermediate.o -o a.out
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objdump -D -S a.out > disassembly.txt
+~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy --only-section .text* -O binary a.out hex_test.txt
+xxd -u -plain -cols 4 -groupsize 4 hex_test.txt
+```
+
+readelf cheatsheet:
+
+output relocations if any exist
+``` 
+readelf --relocs a.out
+```
+
+output sections
+```
+readelf --sections a.out
 ```
 
 On linux, current versions of the gnu as assembler create object files in the elf file format.
@@ -77,7 +91,6 @@ There is also the old a.out format.
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy -O binary intermediate.o a.binary
 
 ~/Downloads/riscv/bin/riscv32-unknown-elf-objcopy --only-section .text* -O binary a.out hex_test.txt
-xxd hex_test.txt
 xxd -u -plain -cols 4 -groupsize 4 hex_test.txt
 ```
 

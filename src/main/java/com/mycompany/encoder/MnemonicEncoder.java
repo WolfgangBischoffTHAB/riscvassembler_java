@@ -23,10 +23,10 @@ public class MnemonicEncoder {
             case I_ADDI:
                 return encodeADDI(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
 
-            // // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
-            // extension RV64I is enabled !!!
-            case I_ADDIW:
-                return encodeADDIW(byteArrayOutStream, asmLine);
+            // // // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
+            // // extension RV64I is enabled !!!
+            // case I_ADDIW:
+            //     return encodeADDIW(byteArrayOutStream, asmLine);
 
             case I_AND:
                 return encodeAND(byteArrayOutStream, asmLine);
@@ -186,14 +186,23 @@ public class MnemonicEncoder {
             }
 
             Long value = labelAddressMap.get(label);
-            // value = 0x10000L;
 
-            // Computation for addi:
-            //
-            // data_1 = ((label - .) & 0xfff)
-            // ((0x10000-4) & 0xfff) = b 1111 1111 1100 = -4
+            long data_1 = 0L;
+            boolean use_formula = false;
+            if (use_formula) {
+                // Computation for addi:
+                //
+                // data_1 = ((label - .) & 0xfff)
+                // ((0x10000-4) & 0xfff) = b 1111 1111 1100 = -4
 
-            long data_1 = ((value - (currentAddress - 4)) & 0xfff);
+                data_1 = ((value - (currentAddress - 4)) & 0xfff);
+            } else {
+
+                // this works for the file memory.s on the GNU 32 bit elf toolchain
+                // I do not know why the code above was used! Maybe 64 bit or a special
+                // example file?!?
+                data_1 = value & 0xfff;
+            }
 
             //System.out.println(data_1);
 
@@ -225,20 +234,20 @@ public class MnemonicEncoder {
         return 4;
     }
 
-    private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
-        byte funct3 = 0b000;
-        byte opcode = 0b0011011;
+    // private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    //     byte funct3 = 0b000;
+    //     byte opcode = 0b0011011;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 =  (byte) asmLine.register_1.ordinal();
-        short imm = asmLine.numeric_2.shortValue();
+    //     byte rd = (byte) asmLine.register_0.ordinal();
+    //     byte rs1 =  (byte) asmLine.register_1.ordinal();
+    //     short imm = asmLine.numeric_2.shortValue();
 
-        int result = encodeIType(imm, rs1, funct3, rd, opcode);
-        System.out.println(asmLine + " -> " + String.format("%08X", result));
-        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+    //     int result = encodeIType(imm, rs1, funct3, rd, opcode);
+    //     System.out.println(asmLine + " -> " + String.format("%08X", result));
+    //     EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
-        return 4;
-    }
+    //     return 4;
+    // }
 
     private int encodeAND(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct7 = 0b0000000;

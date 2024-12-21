@@ -12,3 +12,27 @@ li t1, 0xFF00F007
 # 00f3031b
 # 00c31313
 # 00730313
+
+
+#
+# GNU riscv elf 32 bit toolchain encodes (li t1, 0xFF00F007) to
+#
+# 37F300FF
+# 13037300
+#
+
+
+#
+# GNU riscv elf 32 bit toolchain encodes (li t3, 0xFFFFFFF0) to
+#
+# 130E00FF  --   FF000E13  -- addi x28, x0, -16 # addi performs sign extension before loading the value into x28
+#                                               # ADDI adds the sign-extended value 12 bit immediate to the register rs1
+#
+# My assembler encodes (li t3, 0xFFFFFFF0) to
+#
+# 37010000  -- lui x2, 0           <---- This needs to be optimized away
+# 1B0E01FF  -- addiw x28, x2, -16  <---- This needs to be a RV32I instruction not a 64 bit instruction
+#                                        Also, the register x2 has to be replaced by x0
+#
+# -16 is 0xFFFFFFF0
+#

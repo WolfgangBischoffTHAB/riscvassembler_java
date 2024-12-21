@@ -150,25 +150,35 @@ public class LiResolver implements AsmInstructionListModifier {
                     // 12 bits with zeros.
                     //
 
+                    foundAsmLine.optimized = true;
+
                     //
                     // lui
                     //
 
-                    foundAsmLine.optimized = true;
+                    
 
-                    AsmLine lui = new AsmLine();
-                    asmLines.add(index, lui);
-                    foundAsmLine.pseudoInstructionChildren.add(lui);
-                    lui.pseudoInstructionAsmLine = foundAsmLine;
-                    lui.section = foundAsmLine.section;
-                    index++;
+                    if (twelve_bit_sign_extended > 0) {
 
-                    lui.mnemonic = Mnemonic.I_LUI;
-                    lui.register_0 = Register.REG_SP;
-                    lui.numeric_1 = udata;
+                        AsmLine lui = new AsmLine();
+                        asmLines.add(index, lui);
+                        foundAsmLine.pseudoInstructionChildren.add(lui);
+                        lui.pseudoInstructionAsmLine = foundAsmLine;
+                        lui.section = foundAsmLine.section;
+                        index++;
 
-                    if (foundAsmLine.label != null) {
-                        lui.label = foundAsmLine.label;
+                        lui.mnemonic = Mnemonic.I_LUI;
+
+                        // why do we select this REG_SP register?
+                        //lui.register_0 = Register.REG_SP;
+
+                        lui.register_0 = Register.REG_ZERO;
+
+                        lui.numeric_1 = udata;
+
+                        if (foundAsmLine.label != null) {
+                            lui.label = foundAsmLine.label;
+                        }
                     }
 
                     //
@@ -182,9 +192,14 @@ public class LiResolver implements AsmInstructionListModifier {
                     addi.section = foundAsmLine.section;
                     index++;
 
-                    addi.mnemonic = Mnemonic.I_ADDIW;
+                    addi.mnemonic = Mnemonic.I_ADDI;
                     addi.register_0 = foundAsmLine.register_0;
-                    addi.register_1 = Register.REG_SP;
+                    
+                    // why do we select this REG_SP register?
+                    //addi.register_1 = Register.REG_SP;
+
+                    addi.register_1 = Register.REG_ZERO;
+
                     addi.numeric_2 = sign_extend_12_bit_to_int32_t(lower_part);
 
                 }

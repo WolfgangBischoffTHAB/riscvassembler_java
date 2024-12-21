@@ -531,7 +531,6 @@ public class App {
 
         }
         System.out.println("");
-
     }
 
     /**
@@ -544,17 +543,19 @@ public class App {
         for (AsmLine asmLine : asmLines) {
 
             if (asmLine.mnemonic == Mnemonic.I_BNE) {
-                System.out.println("stest");
+                System.out.println("test");
             }
 
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
                     && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
+                // the final resolution is done in MnemonicEncoder.encodeAUIPC()
                 continue;
             }
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
                     && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
+                // the final resolution is done in MnemonicEncoder.encodeADDI()
                 continue;
             }
 
@@ -598,7 +599,7 @@ public class App {
             if (asmLine.identifier_2 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_2);
                 if (value != null) {
-                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
+                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset + 0);
                     asmLine.identifier_2 = null;
                 }
             }
@@ -619,11 +620,13 @@ public class App {
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
                     && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
+                // the resolution is done in MnemonicEncoder.encodeAUIPC()
                 continue;
             }
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
                     && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
+                // the resolution is done in MnemonicEncoder.encodeADDI()
                 continue;
             }
 
@@ -710,6 +713,9 @@ public class App {
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
                     value = value - (asmLine.offset - 4);
                 }
+                // if (asmLine.mnemonic == Mnemonic.I_BNE) {
+                //     value = value - (asmLine.offset - 4);
+                // }
 
                 switch (asmLine.modifier_2) {
 
@@ -727,8 +733,6 @@ public class App {
 
                 asmLine.offsetLabel_2 = null;
                 asmLine.modifier_2 = null;
-
-                
 
                 if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
                     asmLine.numeric_2 = newValue;

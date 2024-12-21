@@ -4,7 +4,7 @@ public enum Mnemonic {
 
     I_ADD(false),
     I_ADDI(false),
-    I_ADDIW(false),
+    // I_ADDIW(false), // This is 64 bits!!!
     I_AND(false),
     I_ANDI(false),
     I_AUIPC(false),
@@ -82,9 +82,11 @@ public enum Mnemonic {
             return I_ADD;
         } else if (mnemonic.equalsIgnoreCase("ADDI")) {
             return I_ADDI;
-        } else if (mnemonic.equalsIgnoreCase("ADDIW")) {
-            return I_ADDIW;
-        } else if (mnemonic.equalsIgnoreCase("AND")) {
+        } 
+        // else if (mnemonic.equalsIgnoreCase("ADDIW")) {
+        //     return I_ADDIW;
+        // } 
+        else if (mnemonic.equalsIgnoreCase("AND")) {
             return I_AND;
         } else if (mnemonic.equalsIgnoreCase("ANDI")) {
             return I_ANDI;
@@ -172,8 +174,8 @@ public enum Mnemonic {
                 return "add";
             case I_ADDI:
                 return "addi";
-            case I_ADDIW:
-                return "addiw";
+            // case I_ADDIW:
+            //     return "addiw";
             case I_AND:
                 return "and";
             case I_ANDI:
