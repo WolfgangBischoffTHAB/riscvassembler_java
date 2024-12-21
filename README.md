@@ -6,7 +6,30 @@ riscvassembler written in Java
 
 https://github.com/riscv-collab/riscv-gnu-toolchain
 
-## Online RISCV assembler
+## Online RISCV assemblers
+
+NOTE: Watch out when using online assemblers! Online assemblers are preconfigured
+and do not allow you to fine tune parameters. 
+
+For example there is no way to tell the toolchain to output 32 bit or 64 bit code
+using a instruction in your source file! Instead, the toolchain itself is compiled
+to output either 32 or 64 bit code!
+
+Since 32 or 64 bit code has drastic impact on the machine code that is produced
+(see: https://stackoverflow.com/questions/79295083/why-encode-riscv-pseudoinstruction-li-to-four-instructions-instead-of-two)
+Make sure that you use an online assembler that is preconfigured exactly matching
+your requirements.
+
+If you cannot find an online assembler that is configured to suit your requirements,
+go ahead and download one of the precompiled GNU RISCV toolchains from https://github.com/riscv-collab/riscv-gnu-toolchain instead. Using the toolchain, you have fine grained control over what code is generated.
+
+The downside of the GNU toolchain is that it is not easily available on windows and you
+would have to use Linux which is the exact reason why online assembler are attractive to
+windows users that want to do some quick experiments.
+
+Here is a list of online assemblers and encoders:
+
+https://luplab.gitlab.io/rvcodecjs/
 
 https://rizwan3d.github.io/SharpRISCV
 
