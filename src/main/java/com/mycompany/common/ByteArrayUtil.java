@@ -36,6 +36,10 @@ public class ByteArrayUtil {
 		return bytesToHex(bytes, bytes.length, HEX_ARRAY_LOWERCASE);
 	}
 
+	public static String bytesToHexUpperCase(final byte[] bytes) {
+		return bytesToHex(bytes, bytes.length, HEX_ARRAY);
+	}
+
 	public static String bytesToHex(final byte[] bytes, final int length, char[] hex_array) {
 
 		final char[] hexChars = new char[bytes.length * 2];

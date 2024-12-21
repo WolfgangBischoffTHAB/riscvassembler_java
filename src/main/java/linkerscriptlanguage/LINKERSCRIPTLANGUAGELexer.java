@@ -1,4 +1,4 @@
-// Generated from linkerscriptlanguage\LINKERSCRIPTLANGUAGELexer.g4 by ANTLR 4.9.1
+// Generated from linkerscriptlanguage/LINKERSCRIPTLANGUAGELexer.g4 by ANTLR 4.9.1
 package linkerscriptlanguage;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

@@ -512,13 +512,18 @@ public class App {
 
             container <<= 8;
             container += data;
+
+            //container >>= 8;
+            //container += (data << 24);
+
             container_index++;
 
             if (container_index == 4) {
 
-                byte[] temp = ByteArrayUtil.intToFourByte(container, ByteOrder.LITTLE_ENDIAN);
+                //byte[] temp = ByteArrayUtil.intToFourByte(container, ByteOrder.LITTLE_ENDIAN);
+                byte[] temp = ByteArrayUtil.intToFourByte(container, ByteOrder.BIG_ENDIAN);
 
-                System.out.print(ByteArrayUtil.bytesToHexLowerCase(temp));
+                System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));
                 System.out.println("");
 
                 container_index = 0;
