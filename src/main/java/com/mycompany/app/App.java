@@ -487,12 +487,15 @@ public class App {
                 errorAsmLine = asmLine;
 
                 // DEBUG
-                // System.out.println(asmLine);
-                if (asmLine.label != null) {
-                    System.out.println(asmLine.label);
-                }
+                System.out.println(asmLine);
+                // if (asmLine.label != null) {
+                //     System.out.println(asmLine.label);
+                // }
 
-                currentAddress += encoder.encode(asmLine, labelAddressMap, currentAddress);
+                //currentAddress += encoder.encode(asmLine, labelAddressMap, currentAddress);
+
+                currentAddress = asmLine.section.address;
+                asmLine.section.address += encoder.encode(asmLine, labelAddressMap, asmLine.section.address);
             }
         } catch (Exception e) {
             System.out.println("Failure while encoding: " + errorAsmLine);

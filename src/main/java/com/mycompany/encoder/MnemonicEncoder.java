@@ -200,15 +200,21 @@ public class MnemonicEncoder {
             Long value = labelAddressMap.get(label);
 
             long data_1 = 0L;
-            boolean use_formula = false;
+
+            //boolean use_formula = false; // works for memory.s
+            boolean use_formula = true; // works for hello_world.s
             if (use_formula) {
+
                 // Computation for addi:
                 //
                 // data_1 = ((label - .) & 0xfff)
                 // ((0x10000-4) & 0xfff) = b 1111 1111 1100 = -4
 
                 data_1 = ((value - (currentAddress - 4)) & 0xfff);
+
             } else {
+
+                // This code fails for hello_world.s
 
                 // this works for the file memory.s on the GNU 32 bit elf toolchain
                 // I do not know why the code above was used! Maybe 64 bit or a special

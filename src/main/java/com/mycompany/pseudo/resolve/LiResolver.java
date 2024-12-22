@@ -177,9 +177,6 @@ public class LiResolver implements AsmInstructionListModifier {
 
                         lui.mnemonic = Mnemonic.I_LUI;
 
-                        // why do we select this REG_SP register?
-                        //lui.register_0 = Register.REG_SP;
-
                         lui.register_0 = tempRegister;
 
                         lui.numeric_1 = udata;
@@ -208,9 +205,6 @@ public class LiResolver implements AsmInstructionListModifier {
                     addi.mnemonic = Mnemonic.I_ADDI;
                     addi.register_0 = foundAsmLine.register_0;
                     
-                    // why do we select this REG_SP register?
-                    //addi.register_1 = Register.REG_SP;
-
                     addi.register_1 = tempRegister;
 
                     addi.numeric_2 = sign_extend_12_bit_to_int32_t(lower_part);

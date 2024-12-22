@@ -4,6 +4,7 @@ riscvassembler written in Java
 
 ## Testsuite
 
+```
 src/test/resources/riscvasm/examples/argmax.s
 src/test/resources/riscvasm/examples/blinker.s
 src/test/resources/riscvasm/examples/memory.s
@@ -12,11 +13,14 @@ src/test/resources/riscvasm/examples/modifiers.s
 src/test/resources/riscvasm/examples/hello_world.s // fails! la is resolved differently
 
 src/test/resources/riscvasm/examples/function.s // GNU riscv elf 32 bit does not know ld sd instructions because double word is 64 bit
+```
 
 next steps:
 fix:
+```
 src/test/resources/riscvasm/examples/hello_world.s
-src/test/resources/riscvasm/instructions/li_wierd_encoding_5.s 
+src/test/resources/riscvasm/instructions/li_wierd_encoding_5.s
+```
 
 copy the source code from the samples above into src/test/resources/riscvasm/test.s.
 Run App.java and also run the Makefile src/test/resources/riscvasm/Makefile
