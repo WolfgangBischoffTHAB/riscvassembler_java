@@ -28,12 +28,4 @@ public class Encoder {
                 return 0;
         }
     }
-
-
-
-
-
-
-
-
 }

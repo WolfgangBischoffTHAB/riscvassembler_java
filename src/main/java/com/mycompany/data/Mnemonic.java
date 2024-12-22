@@ -36,7 +36,7 @@ public enum Mnemonic {
     I_JAL(false),
 
     I_LA(false),
-    I_LD(false),
+    // I_LD(false), // This is 64 bits!!!
     I_LW(false),
     I_LH(false),
     I_LB(false),
@@ -55,7 +55,7 @@ public enum Mnemonic {
     I_SRLI(false),
     I_SLLI(false),
     I_SUB(false),
-    I_SD(false),
+    // I_SD(false), // This is 64 bits!!!
     I_SW(false),
     I_SH(false),
     I_SB(false),
@@ -120,9 +120,11 @@ public enum Mnemonic {
             return I_JALR;
         } else if (mnemonic.equalsIgnoreCase("LA")) {
             return I_LA;
-        } else if (mnemonic.equalsIgnoreCase("LD")) {
-            return I_LD;
-        } else if (mnemonic.equalsIgnoreCase("LW")) {
+        } 
+        // else if (mnemonic.equalsIgnoreCase("LD")) { // 64 bits!!!
+        //     return I_LD;
+        // } 
+        else if (mnemonic.equalsIgnoreCase("LW")) {
             return I_LW;
         } else if (mnemonic.equalsIgnoreCase("LH")) {
             return I_LH;
@@ -150,9 +152,11 @@ public enum Mnemonic {
             return I_SLLI;
         } else if (mnemonic.equalsIgnoreCase("SUB")) {
             return I_SUB;
-        } else if (mnemonic.equalsIgnoreCase("SD")) {
-            return I_SD;
-        } else if (mnemonic.equalsIgnoreCase("SW")) {
+        } 
+        // else if (mnemonic.equalsIgnoreCase("SD")) { // 64 bits !!!
+        //     return I_SD;
+        // }
+        else if (mnemonic.equalsIgnoreCase("SW")) {
             return I_SW;
         } else if (mnemonic.equalsIgnoreCase("SH")) {
             return I_SH;
@@ -174,7 +178,7 @@ public enum Mnemonic {
                 return "add";
             case I_ADDI:
                 return "addi";
-            // case I_ADDIW:
+            // case I_ADDIW: // This is 64 bits!
             //     return "addiw";
             case I_AND:
                 return "and";
@@ -246,8 +250,10 @@ public enum Mnemonic {
 
             case I_LA:          // pseudo instruction
                 return "la";
-            case I_LD:          // pseudo instruction
-                return "ld";
+
+            // // This is 64 bits!
+            // case I_LD:          // pseudo instruction
+            //     return "ld";
             case I_LW:          // pseudo instruction
                 return "lw";
             case I_LH:          // pseudo instruction
@@ -280,8 +286,9 @@ public enum Mnemonic {
                 return "slli";
             case I_SUB:
                 return "sub";
-            case I_SD:          // pseudo instruction
-                return "sd";
+            // // This is 64 bits!
+            // case I_SD:          // pseudo instruction
+            //     return "sd";
             case I_SW:          // pseudo instruction
                 return "sw";
             case I_SH:          // pseudo instruction

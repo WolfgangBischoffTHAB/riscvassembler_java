@@ -156,9 +156,17 @@ public class LiResolver implements AsmInstructionListModifier {
                     // lui
                     //
 
+                    Register tempRegister = foundAsmLine.register_0;
                     
+                    // since ADDI automatically performs sign extension, there is no
+                    // need for a LUI instruction that performs sign extension manually
+                    // by filling the upper part of the register with FFFFF. The LUI
+                    // can be optimized away
 
-                    if (twelve_bit_sign_extended > 0) {
+                    //if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) <= 2048)) { // works for blinker.s
+                    
+                    //if (twelve_bit_sign_extended > 0) { // works for memory.s
+                    if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) >= 2048)) {
 
                         AsmLine lui = new AsmLine();
                         asmLines.add(index, lui);
@@ -172,13 +180,18 @@ public class LiResolver implements AsmInstructionListModifier {
                         // why do we select this REG_SP register?
                         //lui.register_0 = Register.REG_SP;
 
-                        lui.register_0 = Register.REG_ZERO;
+                        lui.register_0 = tempRegister;
 
                         lui.numeric_1 = udata;
 
                         if (foundAsmLine.label != null) {
                             lui.label = foundAsmLine.label;
                         }
+
+                    } else {
+
+                        tempRegister = Register.REG_ZERO;
+
                     }
 
                     //
@@ -198,7 +211,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     // why do we select this REG_SP register?
                     //addi.register_1 = Register.REG_SP;
 
-                    addi.register_1 = Register.REG_ZERO;
+                    addi.register_1 = tempRegister;
 
                     addi.numeric_2 = sign_extend_12_bit_to_int32_t(lower_part);
 

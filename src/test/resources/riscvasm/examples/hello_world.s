@@ -13,7 +13,7 @@
 # Setup the parameters to print hello world
 # and then call Linux to do it.
 
-.text
+        .text
 
 _start: addi  a0, x0, 1      # 1 = StdOut
         la    a1, helloworld # load address of helloworld
@@ -28,5 +28,5 @@ _start: addi  a0, x0, 1      # 1 = StdOut
         addi    a7, x0, 93  # Service command code 93 terminates
         ecall               # Call linux to terminate the program
 
-.data
+        .data
 helloworld:      .ascii "Hello World!\n"

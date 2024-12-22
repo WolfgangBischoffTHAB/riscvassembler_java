@@ -17,10 +17,14 @@ li t1, 0xFF00F007
 #
 # GNU riscv elf 32 bit toolchain encodes (li t1, 0xFF00F007) to
 #
-# 37F300FF
-# 13037300
+# 37F300FF -- FF00F337 -- lui x6, -4081
+# 13037300 -- 00730313 -- addi x6, x6, 7
 #
 
+#
+# 37F000FF -- FF00F037 -- lui x0, -4081
+# 13037000 -- 00700313 -- addi x6, x0, 7
+#
 
 #
 # GNU riscv elf 32 bit toolchain encodes (li t3, 0xFFFFFFF0) to

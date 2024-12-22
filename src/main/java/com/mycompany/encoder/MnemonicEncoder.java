@@ -9,8 +9,10 @@ import com.mycompany.data.Register;
 
 public class MnemonicEncoder {
 
+    private static final boolean USE_64_BIT = false;
+
     public int encodeMnemonic(final ByteArrayOutputStream byteArrayOutStream,
-        final AsmLine asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) {
+            final AsmLine asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) {
 
         switch (asmLine.mnemonic) {
 
@@ -23,9 +25,12 @@ public class MnemonicEncoder {
             case I_ADDI:
                 return encodeADDI(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
 
-            // // // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
+            // // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
             // // extension RV64I is enabled !!!
             // case I_ADDIW:
+            //     if (!USE_64_BIT) {
+            //         throw new RuntimeException("64 bit not supported!");
+            //     }
             //     return encodeADDIW(byteArrayOutStream, asmLine);
 
             case I_AND:
@@ -47,9 +52,8 @@ public class MnemonicEncoder {
             // encoded_asm_line = encode_bge(byteArrayOutStream, asmLine);
             // break;
 
-            // case I_BLT:
-            // encoded_asm_line = encode_blt(byteArrayOutStream, asmLine);
-            // break;
+            case I_BLT:
+                return encodeBLT(byteArrayOutStream, asmLine);
 
             case I_ECALL:
                 return encodeECALL(byteArrayOutStream, asmLine);
@@ -76,9 +80,12 @@ public class MnemonicEncoder {
             case I_LW:
                 return encodeLW(byteArrayOutStream, asmLine);
 
+            // // THIS IS 64 BIT !!!
             // case I_LD:
-            // encoded_asm_line = encode_ld(byteArrayOutStream, asmLine);
-            // break;
+            //     if (!USE_64_BIT) {
+            //         throw new RuntimeException("64 bit not supported!");
+            //     }
+            //     return encodeLD(byteArrayOutStream, asmLine);
 
             // case I_SRLI:
             // encoded_asm_line = encode_srli(byteArrayOutStream, asmLine);
@@ -87,9 +94,12 @@ public class MnemonicEncoder {
             case I_SLLI:
                 return encodeSLLI(byteArrayOutStream, asmLine);
 
+            // // THIS IS 64 BIT !!!
             // case I_SD:
-            // encoded_asm_line = encode_sd(byteArrayOutStream, asmLine);
-            // break;
+            //     if (!USE_64_BIT) {
+            //         throw new RuntimeException("64 bit not supported!");
+            //     }
+            //     return encodeSD(byteArrayOutStream, asmLine);
 
             case I_SW:
                 return encodeSW(byteArrayOutStream, asmLine);
@@ -108,15 +118,16 @@ public class MnemonicEncoder {
     }
 
     private int encodeAUIPC(final ByteArrayOutputStream byteArrayOutStream,
-        final AsmLine asmLine, final Map<String, Long> labelAddressMap,
-        final long currentAddress) {
+            final AsmLine asmLine, final Map<String, Long> labelAddressMap,
+            final long currentAddress) {
 
-        if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
+        if ((asmLine.pseudoInstructionAsmLine != null)
+                && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
 
             final String label = asmLine.offsetLabel_1;
 
             long value = labelAddressMap.get(label);
-            //value = 0x10000L;
+            // value = 0x10000L;
 
             // Computation for auipc:
             //
@@ -175,10 +186,11 @@ public class MnemonicEncoder {
     }
 
     private int encodeADDI(final ByteArrayOutputStream byteArrayOutStream,
-        final AsmLine asmLine, final Map<String, Long> labelAddressMap,
-        final long currentAddress) {
+            final AsmLine asmLine, final Map<String, Long> labelAddressMap,
+            final long currentAddress) {
 
-        if ((asmLine.pseudoInstructionAsmLine != null) && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
+        if ((asmLine.pseudoInstructionAsmLine != null)
+                && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
 
             String label = asmLine.offsetLabel_1;
             if (label == null) {
@@ -204,7 +216,7 @@ public class MnemonicEncoder {
                 data_1 = value & 0xfff;
             }
 
-            //System.out.println(data_1);
+            // System.out.println(data_1);
 
             byte funct3 = 0b000;
             byte opcode = 0b0010011;
@@ -234,20 +246,21 @@ public class MnemonicEncoder {
         return 4;
     }
 
-    // private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
-    //     byte funct3 = 0b000;
-    //     byte opcode = 0b0011011;
+    /** This is 64 bit */
+    private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b000;
+        byte opcode = 0b0011011;
 
-    //     byte rd = (byte) asmLine.register_0.ordinal();
-    //     byte rs1 =  (byte) asmLine.register_1.ordinal();
-    //     short imm = asmLine.numeric_2.shortValue();
+        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        short imm = asmLine.numeric_2.shortValue();
 
-    //     int result = encodeIType(imm, rs1, funct3, rd, opcode);
-    //     System.out.println(asmLine + " -> " + String.format("%08X", result));
-    //     EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+        int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
-    //     return 4;
-    // }
+        return 4;
+    }
 
     private int encodeAND(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct7 = 0b0000000;
@@ -301,8 +314,13 @@ public class MnemonicEncoder {
         byte opcode = 0b1100011;
 
         byte rs1 = (byte) asmLine.register_0.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
+        byte rs2 = (byte) asmLine.register_1.ordinal();
+        // byte rs2 = (byte) asmLine.register_2.ordinal();
         short imm = asmLine.numeric_2.shortValue();
+
+        if ((asmLine.register_0 == Register.REG_UNKNOWN) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
+            throw new RuntimeException("Register is unknown!");
+        }
 
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -328,6 +346,21 @@ public class MnemonicEncoder {
 
     private int encodeBNE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b001;
+        byte opcode = 0b1100011;
+
+        byte rs1 = (byte) asmLine.register_0.ordinal();
+        byte rs2 = (byte) asmLine.register_1.ordinal();
+        short imm = asmLine.numeric_2.shortValue();
+
+        int result = encodeBType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeBLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b100;
         byte opcode = 0b1100011;
 
         byte rs1 = (byte) asmLine.register_0.ordinal();
@@ -445,6 +478,28 @@ public class MnemonicEncoder {
         return 4;
     }
 
+    /**
+     * THIS IS 64 BIT!!!
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     */
+    private int encodeLD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b011;
+        byte opcode = 0b0000011;
+
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.ordinal();
+        short imm = asmLine.offset_1.shortValue();
+
+        int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     private int encodeSLLI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b001;
         byte opcode = 0b0010011;
@@ -454,6 +509,20 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeSD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b011;
+        byte opcode = 0b0100011;
+        byte rs2 = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        short imm = asmLine.offset_1.shortValue();
+
+        int result = encodeSType(imm, rs2, rs1, funct3, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 

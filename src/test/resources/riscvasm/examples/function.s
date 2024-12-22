@@ -3,6 +3,10 @@
 #
 # File: function.s
 
+#
+# THIS IS 64 BIT CODE!
+#
+
 my_function:
     # Prologue
     addi    sp, sp, -32

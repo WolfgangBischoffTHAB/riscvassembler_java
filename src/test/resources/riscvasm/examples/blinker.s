@@ -16,6 +16,8 @@
 # 4. Replace all pseudo instructions by real instruction asm_line objects
 # 5. Encode asm_line objects into 32 bit machine code
 
+# File: blinker.s
+
     .equ IO_BASE, 0x400000
     .equ IO_LEDS, 4
 
