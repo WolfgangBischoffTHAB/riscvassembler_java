@@ -53,6 +53,9 @@ public class AsmLine {
 
     public boolean optimized = false;
 
+    public AsmLine prev;
+    public AsmLine next;
+
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();

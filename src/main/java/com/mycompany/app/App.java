@@ -24,14 +24,14 @@ import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.MemorySpecifier;
-import com.mycompany.data.Mnemonic;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
 import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
 import com.mycompany.pseudo.combine.LiCombiner;
+import com.mycompany.pseudo.resolve.BeqzResolver;
+import com.mycompany.pseudo.resolve.BgezResolver;
 import com.mycompany.pseudo.resolve.BgtResolver;
 import com.mycompany.pseudo.resolve.BnezResolver;
 import com.mycompany.pseudo.resolve.CallResolver;
@@ -347,6 +347,12 @@ public class App {
 
         BnezResolver bnezResolver = new BnezResolver();
         bnezResolver.modify(asmLines, sectionMap);
+        
+        BeqzResolver beqzResolver = new BeqzResolver();
+        beqzResolver.modify(asmLines, sectionMap);
+
+        BgezResolver bgezResolver = new BgezResolver();
+        bgezResolver.modify(asmLines, sectionMap);
 
         JResolver jResolver = new JResolver();
         jResolver.modify(asmLines, sectionMap);
@@ -464,7 +470,7 @@ public class App {
         // resolve modifiers
         //
 
-        resolveModifiers(asmLines, labelAddressMap);
+        BaseOptimizer.resolveModifiers(asmLines, labelAddressMap);
 
         //
         // resolve all labels
@@ -476,7 +482,7 @@ public class App {
         //     System.out.println(asmLine);
         // }
 
-        resolveLabels(asmLines, labelAddressMap);
+        BaseOptimizer.resolveLabels(asmLines, labelAddressMap);
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -484,8 +490,10 @@ public class App {
         // System.out.println(asmLine);
         // }
 
+        //
         // encode everything that has a mnemonic or is a
         // .dword, .word, .half, .byte, .string, .asciz, .ascii assembler instruction
+        //
 
         Encoder encoder = new Encoder();
 
@@ -513,6 +521,11 @@ public class App {
             System.out.println("Failure while encoding: " + errorAsmLine);
             encoder.encode(errorAsmLine, labelAddressMap, currentAddress);
         }
+
+        //
+        // Produce output for easy comparison with GNU riscv 32 bit elf toolchain or 
+        // online assemblers
+        //
 
         byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
 
@@ -547,231 +560,4 @@ public class App {
         }
         System.out.println("");
     }
-
-    /**
-     *
-     * @param asmLines
-     * @param labelAddressMap
-     */
-    private static void resolveLabels(List<AsmLine> asmLines, Map<String, Long> labelAddressMap) {
-
-        for (AsmLine asmLine : asmLines) {
-
-            // if (asmLine.mnemonic == Mnemonic.I_BNE) {
-            //     System.out.println("test");
-            // }
-
-            if (asmLine.asmInstruction != null) {
-                continue;
-            }
-
-            if ((asmLine.pseudoInstructionAsmLine != null)
-                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
-                    && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
-                // the final resolution is done in MnemonicEncoder.encodeAUIPC()
-                continue;
-            }
-            if ((asmLine.pseudoInstructionAsmLine != null)
-                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
-                    && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
-                // the final resolution is done in MnemonicEncoder.encodeADDI()
-                continue;
-            }
-
-            // if (asmLine.offsetLabel_0 != null) {
-            //     Long value = labelAddressMap.get(asmLine.offsetLabel_0);
-            //     if (value != null) {
-            //         asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
-            //         asmLine.offsetLabel_0 = null;
-            //     } else {
-            //         throw new RuntimeException("(A) Unknown label: \"" + asmLine.offsetLabel_0 + "\"");
-            //     }
-            // }
-            if (asmLine.identifier_0 != null) {
-                Long value = labelAddressMap.get(asmLine.identifier_0);
-                if (value != null) {
-                    asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
-                    asmLine.identifier_0 = null;
-                } else {
-                    throw new RuntimeException("(B) Unknown label: \"" + asmLine.identifier_0 + "\"");
-                }
-            }
-
-            // if (asmLine.offsetLabel_1 != null) {
-            //     Long value = labelAddressMap.get(asmLine.offsetLabel_1);
-            //     if (value != null) {
-            //         asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
-            //         asmLine.offsetLabel_1 = null;
-            //     } else {
-            //         throw new RuntimeException("(C) Unknown label: \"" + asmLine.offsetLabel_1 + "\"");
-            //     }
-            // }
-            if (asmLine.identifier_1 != null) {
-                Long value = labelAddressMap.get(asmLine.identifier_1);
-                if (value != null) {
-                    asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
-                    asmLine.identifier_1 = null;
-                } else {
-                    throw new RuntimeException("(D) Unknown label: \"" + asmLine.identifier_1 + "\"");
-                }
-            }
-
-            // if (asmLine.offsetLabel_2 != null) {
-            //     Long value = labelAddressMap.get(asmLine.offsetLabel_2);
-            //     if (value != null) {
-            //         asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
-            //         asmLine.offsetLabel_2 = null;
-            //     } else {
-            //         throw new RuntimeException("(E) Unknown label: \"" + asmLine.offsetLabel_2 + "\"");
-            //     }
-            // }
-            if (asmLine.identifier_2 != null) {
-                Long value = labelAddressMap.get(asmLine.identifier_2);
-                if (value != null) {
-                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset + 0);
-                    asmLine.identifier_2 = null;
-                } else {
-                    throw new RuntimeException("(F) Unknown label: \"" + asmLine.identifier_2 + "\"");
-                }
-            }
-
-        }
-    }
-
-    /**
-     * Resolve all modifiers
-     *
-     * @param asmLines
-     * @param map
-     */
-    private static void resolveModifiers(List<AsmLine> asmLines, Map<String, Long> map) {
-
-        for (AsmLine asmLine : asmLines) {
-
-            if ((asmLine.pseudoInstructionAsmLine != null)
-                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
-                    && (asmLine.mnemonic == Mnemonic.I_AUIPC)) {
-                // the resolution is done in MnemonicEncoder.encodeAUIPC()
-                continue;
-            }
-            if ((asmLine.pseudoInstructionAsmLine != null)
-                    && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
-                    && (asmLine.mnemonic == Mnemonic.I_ADDI)) {
-                // the resolution is done in MnemonicEncoder.encodeADDI()
-                continue;
-            }
-
-            if (asmLine.modifier_0 != null) {
-
-                long newValue = 0L;
-                String label = asmLine.offsetLabel_0;
-
-                Long value = map.get(label);
-
-                // special case for JALR: labels are resolved relative
-                if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - 4);
-                }
-
-                switch (asmLine.modifier_0) {
-
-                    case LO:
-                        newValue = (value >> 0) & 0xFFF;
-                        break;
-
-                    case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
-                        break;
-
-                    default:
-                        throw new RuntimeException();
-                }
-
-                asmLine.offsetLabel_0 = null;
-                asmLine.modifier_0 = null;
-
-                if ((asmLine.register_0 == null) || (asmLine.register_0 == Register.REG_UNKNOWN)) {
-                    asmLine.numeric_0 = newValue;
-                } else {
-                    asmLine.offset_0 = newValue;
-                }
-            }
-
-            if (asmLine.modifier_1 != null) {
-
-                long newValue = 0L;
-                String label = asmLine.offsetLabel_1;
-
-                Long value = map.get(label);
-
-                // special case for JALR: labels are resolved relative
-                if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - 4);
-                }
-
-                switch (asmLine.modifier_1) {
-
-                    case LO:
-                        newValue = (value >> 0) & 0xFFF;
-                        break;
-
-                    case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
-                        break;
-
-                    default:
-                        throw new RuntimeException();
-                }
-
-                asmLine.offsetLabel_1 = null;
-                asmLine.modifier_1 = null;
-
-                if ((asmLine.register_1 == null) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
-                    asmLine.numeric_1 = newValue;
-                } else {
-                    asmLine.offset_1 = newValue;
-                }
-            }
-
-            if (asmLine.modifier_2 != null) {
-
-                long newValue = 0L;
-                String label = asmLine.offsetLabel_2;
-
-                Long value = map.get(label);
-
-                // special case for JALR: labels are resolved relative
-                if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - 4);
-                }
-                // if (asmLine.mnemonic == Mnemonic.I_BNE) {
-                //     value = value - (asmLine.offset - 4);
-                // }
-
-                switch (asmLine.modifier_2) {
-
-                    case LO:
-                        newValue = (value >> 0) & 0xFFF;
-                        break;
-
-                    case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
-                        break;
-
-                    default:
-                        throw new RuntimeException();
-                }
-
-                asmLine.offsetLabel_2 = null;
-                asmLine.modifier_2 = null;
-
-                if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
-                    asmLine.numeric_2 = newValue;
-                } else {
-                    asmLine.offset_2 = newValue;
-                }
-            }
-        }
-    }
-
 }

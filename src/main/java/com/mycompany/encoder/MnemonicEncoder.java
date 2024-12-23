@@ -48,9 +48,8 @@ public class MnemonicEncoder {
             case I_BNE:
                 return encodeBNE(byteArrayOutStream, asmLine);
 
-            // case I_BGE:
-            // encoded_asm_line = encode_bge(byteArrayOutStream, asmLine);
-            // break;
+            case I_BGE:
+                return encodeBGE(byteArrayOutStream, asmLine);
 
             case I_BLT:
                 return encodeBLT(byteArrayOutStream, asmLine);
@@ -352,6 +351,21 @@ public class MnemonicEncoder {
 
     private int encodeBNE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b001;
+        byte opcode = 0b1100011;
+
+        byte rs1 = (byte) asmLine.register_0.ordinal();
+        byte rs2 = (byte) asmLine.register_1.ordinal();
+        short imm = asmLine.numeric_2.shortValue();
+
+        int result = encodeBType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeBGE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct3 = 0b101;
         byte opcode = 0b1100011;
 
         byte rs1 = (byte) asmLine.register_0.ordinal();

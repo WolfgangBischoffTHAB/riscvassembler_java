@@ -16,8 +16,14 @@ src/test/resources/riscvasm/examples/function.s // GNU riscv elf 32 bit does not
 ```
 
 next steps:
+
 Implement the I_BLE instruction!
+
 fix src/test/resources/riscvasm/examples/tohex.s it seems as if .rodata is not processed correctly
+fix src/test/resources/riscvasm/examples/arrayindex.s it seems as if .rodata is not processed correctly
+
+https://marz.utk.edu/my-courses/cosc230/book/example-risc-v-assembly-programs/
+
 src/test/resources/riscvasm/examples/arrayindex.s
 Implement src/test/resources/riscvasm/examples/string_copy.s which has the infimous b and f labels!
 Implement this shit: https://www.chibialiens.com/riscv/simplesamples.php
