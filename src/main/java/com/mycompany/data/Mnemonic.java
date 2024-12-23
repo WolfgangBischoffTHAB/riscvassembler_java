@@ -52,6 +52,7 @@ public enum Mnemonic {
 
     I_RET(false),
 
+    I_SRAI(false),
     I_SRLI(false),
     I_SLLI(false),
     I_SUB(false),
@@ -146,6 +147,8 @@ public enum Mnemonic {
             return I_NOT;
         } else if (mnemonic.equalsIgnoreCase("RET")) {
             return I_RET;
+        } else if (mnemonic.equalsIgnoreCase("SRAI")) {
+            return I_SRAI;
         } else if (mnemonic.equalsIgnoreCase("SRLI")) {
             return I_SRLI;
         } else if (mnemonic.equalsIgnoreCase("SLLI")) {
@@ -280,6 +283,8 @@ public enum Mnemonic {
             case I_RET:         // pseudo instruction
                 return "ret";
 
+            case I_SRAI:
+                return "srai";
             case I_SRLI:
                 return "srli";
             case I_SLLI:

@@ -104,6 +104,7 @@ I_NOT : N O T ;
 
 I_RET : R E T ;
 
+I_SRAI : S R A I ;
 I_SRLI : S R L I ;
 I_SLLI : S L L I ;
 I_SUB : S U B ;

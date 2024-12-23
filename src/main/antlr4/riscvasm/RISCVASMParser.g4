@@ -45,7 +45,7 @@ mnemonic :
     I_MUL | I_MV |
     I_NOP | I_NOT |
     I_RET |
-    I_SRLI | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
+    I_SRAI | I_SRLI | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
     I_WFI |
     I_XORI
     ;

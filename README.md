@@ -22,6 +22,10 @@ Implement the I_BLE instruction!
 fix src/test/resources/riscvasm/examples/tohex.s it seems as if .rodata is not processed correctly
 fix src/test/resources/riscvasm/examples/arrayindex.s it seems as if .rodata is not processed correctly
 
+implement src/test/resources/riscvasm/examples/string_reverse.s
+implement srai, slli, srli
+
+implement all examples in here:
 https://marz.utk.edu/my-courses/cosc230/book/example-risc-v-assembly-programs/
 
 src/test/resources/riscvasm/examples/arrayindex.s
