@@ -10,6 +10,15 @@ import com.mycompany.data.Section;
 
 public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
+    /**
+     * Iterates over all asm lines and updates the offset variable in the 
+     * AsmLine objects. Usefull after pseudo instructions have been resolved
+     * to one or more real instructions and as a result, the addresses of all 
+     * following lines have changed.
+     * 
+     * @param asmLines
+     * @param sectionMap
+     */
     public static void updateAddresses(final List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
 
         int address = 0;
@@ -155,6 +164,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             }
         }
 
+        //outputLabelAddressMap(labelAddressMap);
+    }
+
+    public static void outputLabelAddressMap(final Map<String, Long> labelAddressMap) {
         // DEBUG
         System.out.println("*************************************************");
         for (Map.Entry<String, Long> mapEntry : labelAddressMap.entrySet()) {

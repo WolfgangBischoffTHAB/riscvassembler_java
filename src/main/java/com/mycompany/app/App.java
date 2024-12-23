@@ -269,7 +269,7 @@ public class App {
 
         for (AsmLine asmLine : asmLines) {
 
-            // System.out.println(asmLine);
+            System.out.println(asmLine);
 
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
                 continue;
@@ -300,16 +300,19 @@ public class App {
             if (asmLine.offsetLabel_0 != null) {
                 if (equMap.containsKey(asmLine.offsetLabel_0)) {
                     asmLine.offset_0 = (Long) equMap.get(asmLine.offsetLabel_0);
+                    asmLine.offsetLabel_0 = null;
                 }
             }
             if (asmLine.offsetLabel_1 != null) {
                 if (equMap.containsKey(asmLine.offsetLabel_1)) {
                     asmLine.offset_1 = (Long) equMap.get(asmLine.offsetLabel_1);
+                    asmLine.offsetLabel_1 = null;
                 }
             }
             if (asmLine.offsetLabel_2 != null) {
                 if (equMap.containsKey(asmLine.offsetLabel_2)) {
                     asmLine.offset_2 = (Long) equMap.get(asmLine.offsetLabel_2);
+                    asmLine.offsetLabel_2 = null;
                 }
             }
         }
@@ -327,11 +330,11 @@ public class App {
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines, sectionMap);
 
-        // DEBUG
-        System.out.println("\n\n\n");
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         NopResolver nopResolver = new NopResolver();
         nopResolver.modify(asmLines, sectionMap);
@@ -363,19 +366,23 @@ public class App {
         // Check for leftover pseudo instructions
         //
 
+        boolean leftoverPseudoInstructionsFound = false;
         for (AsmLine asmLine : asmLines) {
-
             if (asmLine.mnemonic != null && asmLine.mnemonic.isPseudo()) {
-
                 // throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
-                System.out.println("Pseudo detected: " + asmLine.mnemonic);
-                System.out.println("Pseudo detected: " + asmLine.mnemonic);
-                System.out.println("Pseudo detected: " + asmLine.mnemonic);
-                System.out.println("Pseudo detected: " + asmLine.mnemonic);
-                System.out.println("Pseudo detected: " + asmLine.mnemonic);
+                System.out.println("ERROR! Leftover pseudo instruction detected: " + asmLine.mnemonic);
+                System.out.println("ERROR! Leftover pseudo instruction detected: " + asmLine.mnemonic);
+                System.out.println("ERROR! Leftover pseudo instruction detected: " + asmLine.mnemonic);
+                System.out.println("ERROR! Leftover pseudo instruction detected: " + asmLine.mnemonic);
+                System.out.println("ERROR! Leftover pseudo instruction detected: " + asmLine.mnemonic);
+
+                leftoverPseudoInstructionsFound = true;
             }
         }
-        System.out.println("No pseudo instructions left!");
+
+        if (!leftoverPseudoInstructionsFound) {
+            System.out.println("No pseudo instructions left!");
+        }
 
         //
         // Optimization - resolve all pseudo instructions to the minimal amount
@@ -396,11 +403,11 @@ public class App {
         LiOptimizer liOptimizer = new LiOptimizer();
         liOptimizer.modify(asmLines, sectionMap);
 
-        // DEBUG
-        System.out.println("\n\n\n");
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         if (USE_CALL_OPTIMIZER) {
             CallOptimizer callOptimizer = new CallOptimizer();
@@ -412,7 +419,9 @@ public class App {
         // System.out.println(asmLine);
         // }
 
-        // check
+        //
+        // Check for unoptimized instructions
+        //
 
         for (AsmLine asmLine : asmLines) {
             if (asmLine.pseudoInstructionAsmLine != null) {
@@ -423,13 +432,13 @@ public class App {
         }
         System.out.println("No unoptimized instructions found!");
 
-        // DEBUG
-        System.out.println("\n\n\n");
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
-        System.out.println("");
-        System.out.println("");
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
+        // System.out.println("");
+        // System.out.println("");
 
         BaseOptimizer.updateAddresses(asmLines, sectionMap);
 
@@ -443,10 +452,13 @@ public class App {
         BaseOptimizer.buildLabelTable(asmLines, labelAddressMap, sectionMap);
 
         // DEBUG
-        System.out.println("\n\n\n");
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // BaseOptimizer.outputLabelAddressMap(labelAddressMap);
+
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         //
         // resolve modifiers
@@ -458,11 +470,11 @@ public class App {
         // resolve all labels
         //
 
-        // DEBUG
-        System.out.println("\n\n\n");
-        for (AsmLine asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // System.out.println("\n\n\n");
+        // for (AsmLine asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         resolveLabels(asmLines, labelAddressMap);
 
@@ -487,10 +499,10 @@ public class App {
                 errorAsmLine = asmLine;
 
                 // DEBUG
-                System.out.println(asmLine);
-                // if (asmLine.label != null) {
-                //     System.out.println(asmLine.label);
-                // }
+                //System.out.println(asmLine);
+                if (asmLine.label != null) {
+                    System.out.println("Label: " + asmLine.label);
+                }
 
                 //currentAddress += encoder.encode(asmLine, labelAddressMap, currentAddress);
 
@@ -545,8 +557,12 @@ public class App {
 
         for (AsmLine asmLine : asmLines) {
 
-            if (asmLine.mnemonic == Mnemonic.I_BNE) {
-                System.out.println("test");
+            // if (asmLine.mnemonic == Mnemonic.I_BNE) {
+            //     System.out.println("test");
+            // }
+
+            if (asmLine.asmInstruction != null) {
+                continue;
             }
 
             if ((asmLine.pseudoInstructionAsmLine != null)
@@ -562,48 +578,60 @@ public class App {
                 continue;
             }
 
-            if (asmLine.offsetLabel_0 != null) {
-                Long value = labelAddressMap.get(asmLine.offsetLabel_0);
-                if (value != null) {
-                    asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
-                    asmLine.offsetLabel_0 = null;
-                }
-            }
+            // if (asmLine.offsetLabel_0 != null) {
+            //     Long value = labelAddressMap.get(asmLine.offsetLabel_0);
+            //     if (value != null) {
+            //         asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
+            //         asmLine.offsetLabel_0 = null;
+            //     } else {
+            //         throw new RuntimeException("(A) Unknown label: \"" + asmLine.offsetLabel_0 + "\"");
+            //     }
+            // }
             if (asmLine.identifier_0 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_0);
                 if (value != null) {
                     asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_0 = null;
+                } else {
+                    throw new RuntimeException("(B) Unknown label: \"" + asmLine.identifier_0 + "\"");
                 }
             }
 
-            if (asmLine.offsetLabel_1 != null) {
-                Long value = labelAddressMap.get(asmLine.offsetLabel_1);
-                if (value != null) {
-                    asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
-                    asmLine.offsetLabel_1 = null;
-                }
-            }
+            // if (asmLine.offsetLabel_1 != null) {
+            //     Long value = labelAddressMap.get(asmLine.offsetLabel_1);
+            //     if (value != null) {
+            //         asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
+            //         asmLine.offsetLabel_1 = null;
+            //     } else {
+            //         throw new RuntimeException("(C) Unknown label: \"" + asmLine.offsetLabel_1 + "\"");
+            //     }
+            // }
             if (asmLine.identifier_1 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_1);
                 if (value != null) {
                     asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_1 = null;
+                } else {
+                    throw new RuntimeException("(D) Unknown label: \"" + asmLine.identifier_1 + "\"");
                 }
             }
 
-            if (asmLine.offsetLabel_2 != null) {
-                Long value = labelAddressMap.get(asmLine.offsetLabel_2);
-                if (value != null) {
-                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
-                    asmLine.offsetLabel_2 = null;
-                }
-            }
+            // if (asmLine.offsetLabel_2 != null) {
+            //     Long value = labelAddressMap.get(asmLine.offsetLabel_2);
+            //     if (value != null) {
+            //         asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
+            //         asmLine.offsetLabel_2 = null;
+            //     } else {
+            //         throw new RuntimeException("(E) Unknown label: \"" + asmLine.offsetLabel_2 + "\"");
+            //     }
+            // }
             if (asmLine.identifier_2 != null) {
                 Long value = labelAddressMap.get(asmLine.identifier_2);
                 if (value != null) {
                     asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset + 0);
                     asmLine.identifier_2 = null;
+                } else {
+                    throw new RuntimeException("(F) Unknown label: \"" + asmLine.identifier_2 + "\"");
                 }
             }
 

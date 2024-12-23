@@ -1,3 +1,14 @@
+# source: https://www.reddit.com/r/asm/comments/mz73lk/examples_of_riscv_assembly_programs/?rdt=49314
+#
+# void stringcopy(char *dst, const char *src) {
+#    int i;
+#    char c;
+#    do {
+#        c = *src++;
+#        *dst++ = c;
+#    } while (c != '\0');
+# }
+
 .section .text
 .global stringcopy
 stringcopy:

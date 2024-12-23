@@ -37,7 +37,7 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
         if (expContext.getChildCount() == 1) {
 
             String variableName = ctx.NAME().toString();
-            System.out.print(variableName + " = ");
+            // System.out.print(variableName + " = ");
 
             ParseTree parseTree = expContext.getChild(i);
             TerminalNodeImpl terminalNodeImpl = (TerminalNodeImpl) parseTree;
@@ -45,15 +45,15 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
             switch (terminalNodeImpl.getSymbol().getType()) {
 
                 case LINKERSCRIPTLANGUAGELexer.NAME:
-                    System.out.println("name: " + terminalNodeImpl.getText());
+                    // System.out.println("name: " + terminalNodeImpl.getText());
                     break;
 
                 case LINKERSCRIPTLANGUAGELexer.DEC_INT:
-                    System.out.println("dec int: " + terminalNodeImpl.getText());
+                    // System.out.println("dec int: " + terminalNodeImpl.getText());
                     break;
 
                 case LINKERSCRIPTLANGUAGELexer.HEX_INT:
-                    System.out.println("hex int: " + terminalNodeImpl.getText());
+                    // System.out.println("hex int: " + terminalNodeImpl.getText());
                     break;
 
                 default:
@@ -114,10 +114,10 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
             }
         }
 
-        System.out.println("MemorySpec Name: " + memorySpecName);
-        System.out.println("MemorySpec Attributes: " + memorySpecAttributes);
-        System.out.println("MemorySpec Origin: " + memorySpecOrigin);
-        System.out.println("MemorySpec Length: " + memorySpecLength);
+        // System.out.println("MemorySpec Name: " + memorySpecName);
+        // System.out.println("MemorySpec Attributes: " + memorySpecAttributes);
+        // System.out.println("MemorySpec Origin: " + memorySpecOrigin);
+        // System.out.println("MemorySpec Length: " + memorySpecLength);
 
         MemorySpecifier memorySpecifier = new MemorySpecifier();
         memorySpecifier.memorySpecName = memorySpecName;

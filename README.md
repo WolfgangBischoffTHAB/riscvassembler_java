@@ -10,15 +10,23 @@ src/test/resources/riscvasm/examples/blinker.s
 src/test/resources/riscvasm/examples/memory.s
 src/test/resources/riscvasm/examples/uart.s
 src/test/resources/riscvasm/examples/modifiers.s
-src/test/resources/riscvasm/examples/hello_world.s // fails! la is resolved differently
+src/test/resources/riscvasm/examples/hello_world.s
 
 src/test/resources/riscvasm/examples/function.s // GNU riscv elf 32 bit does not know ld sd instructions because double word is 64 bit
 ```
 
 next steps:
+Implement the I_BLE instruction!
+fix src/test/resources/riscvasm/examples/tohex.s it seems as if .rodata is not processed correctly
+src/test/resources/riscvasm/examples/arrayindex.s
+Implement src/test/resources/riscvasm/examples/string_copy.s which has the infimous b and f labels!
+Implement this shit: https://www.chibialiens.com/riscv/simplesamples.php
+https://www.chibialiens.com/riscv/
+https://www.riscfive.com/2022/10/27/risc-v-example-assembly-programs/
+maybe implement the extensions that contains the mul instruction, which is m or zmmul
+
 fix:
 ```
-src/test/resources/riscvasm/examples/hello_world.s
 src/test/resources/riscvasm/instructions/li_wierd_encoding_5.s
 ```
 
