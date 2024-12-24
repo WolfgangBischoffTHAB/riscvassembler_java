@@ -49,9 +49,9 @@
 .equ MusicAddress,       0xFF200188
 
 
-.equ IrDA_CTRL, 		0xFF20 0500	
-.equ IrDA_RX, 		0xFF20 0504
-.equ IrDA_TX,		0xFF20 0508
+.equ IrDA_CTRL, 		0xFF200500	
+.equ IrDA_RX, 		0xFF200504
+.equ IrDA_TX,		0xFF200508
 
 .equ STOPWATCH,		0xFF200510
 
@@ -167,39 +167,42 @@ Instr:  		.string "Instr: "
 
 	csrwi ucause,1		# caso ocorra dropdown vai gerar exce��o de instru��o inv�lida
 
-exceptionHandling:	addi 	sp, sp, -8 	# salva 2 registradores utilizados para comparar ucause
-	sw 	t0, 0(sp)
-	sw 	s10, 4(sp)
+exceptionHandling:	
+	addi 	sp, sp, -8 	# salva 2 registradores utilizados para comparar ucause
+	sw 		t0, 0(sp)
+	sw 		s10, 4(sp)
 
-	csrr	s10,ucause     # le o ucause e salva em s10
+	csrr	s10, ucause     # le o ucause e salva em s10
 	
-	li 	t0, 8
+	li 		t0, 8
 	bne 	t0, s10, errorExceptions  	# N�o � ecall - nem precisa arrumar a pilha!
 
-	lw 	t0, 0(sp)			# � ecall
-    	lw 	s10, 4(sp)  			# recupera registradores usados
-    	addi 	sp, sp, 8			
-	j 	ecallException
+	lw 		t0, 0(sp)			# � ecall
+    lw 		s10, 4(sp)  			# recupera registradores usados
+    addi 	sp, sp, 8			
+	j 		ecallException
 	
 ######################################################
 ###############   Exce��es de Erros   ################
 ######################################################
 
-errorExceptions: csrr 	s11, utval      # le o utval da exce��o e salva em s11	
+errorExceptions: 
+	csrr 	s11, utval      # le o utval da exce��o e salva em s11	
 	addi 	a0, zero, 0xc0 		## printa tela de azul
 	addi 	a1, zero, 0
 	addi 	a7, zero, 148
 	jal 	clsCLS
 	
 #  Instruction address misaligned 	
-End_Cause0:	li 	t0, 0
-		bne 	t0, s10, End_Cause1
-		la 	a0, Cause0
-		li 	a1, 0
-		li 	a2, 1
-		li 	a3, 0x0000c0ff
-		jal	printString
-		j	End_uepc
+End_Cause0:	
+	li 	t0, 0
+	bne 	t0, s10, End_Cause1
+	la 	a0, Cause0
+	li 	a1, 0
+	li 	a2, 1
+	li 	a3, 0x0000c0ff
+	jal	printString
+	j	End_uepc
 	
 # Instruction access fault 
 End_Cause1:	li 	t0, 1
@@ -312,7 +315,8 @@ End_uepc: 	la 	a0, PC 		# Imprime o pc em que a exce��o ocorreu
 ######################################################
 #############   exce��o de ECALL   ###################
 ######################################################
-ecallException:   addi    sp, sp, -264              # Salva todos os registradores na pilha
+ecallException:   
+	addi    sp, sp, -264              # Salva todos os registradores na pilha
     sw     x1,    0(sp)
     sw     x2,    4(sp)
     sw     x3,    8(sp)
@@ -488,65 +492,85 @@ ecallException:   addi    sp, sp, -264              # Salva todos os registrador
 
 
 	## end execution ##
-	goToExit:   	DE1(goToExitDE2)	# se for a DE1 pula
-		li 	a7, 10			# chama o ecall normal do Rars
+	goToExit:
+#		DE1(goToExitDE2)	# se for a DE1 pula
+		li 		a7, 10			# chama o ecall normal do Rars
 		ecall				# exit ecall
 			
-	goToExitDE2:	j 	goToExitDE2		# trava o processador : N�o tem sistema operacional!
+	goToExitDE2:	
+		j 		goToExitDE2		# trava o processador : N�o tem sistema operacional!
 
-	goToPrintInt:	jal     printInt               	# chama printInt
+	goToPrintInt:	
+#		jal     printInt               	# chama printInt
 		j       endEcall
 
-	goToPrintString: jal     printString           	# chama printString
+	goToPrintString: 
+#		jal     printString           	# chama printString
 		j       endEcall
 
-	goToPrintChar:	jal     printChar		# chama printChar
+	goToPrintChar:	
+#		jal     printChar		# chama printChar
 		j       endEcall
 
-	goToPrintFloat:	jal     printFloat		# chama printFloat
+	goToPrintFloat:	
+#		jal     printFloat		# chama printFloat
 		j       endEcall
 
-	goToReadChar:	jal     readChar              	# chama readChar
+	goToReadChar:	
+#		jal     readChar              	# chama readChar
 		j       endEcall
 
-	goToReadInt:   	jal     readInt                 # chama readInt
+	goToReadInt:   	
+#		jal     readInt                 # chama readInt
 		j       endEcall
 
-	goToReadString:	jal     readString              # chama readString
+	goToReadString:	
+#		jal     readString              # chama readString
 		j       endEcall
 
-	goToReadFloat:	jal     readFloat               # chama readFloat
+	goToReadFloat:	
+#		jal     readFloat               # chama readFloat
 		j       endEcall
 
-	goToPrintHex:	jal     printHex                # chama printHex
+	goToPrintHex:	
+#		jal     printHex                # chama printHex
 		j       endEcall
 		
-	goToMidiOut:	jal     midiOut                 # chama MIDIout
+	goToMidiOut:	
+#		jal     midiOut                 # chama MIDIout
 		j       endEcall
 
-	goToMidiOutSync: jal     midiOutSync   		# chama MIDIoutSync
+	goToMidiOutSync: 
+#		jal     midiOutSync   		# chama MIDIoutSync
 		j       endEcall
 
-	goToTime:	jal     Time                    # chama time
+	goToTime:	
+#		jal     Time                    # chama time
 		j       endEcall
 
-	goToSleep:	jal     sleep                  	# chama sleep
+	goToSleep:	
+#		jal     sleep                  	# chama sleep
 		j       endEcall
 
-	goToRandom:	jal     random                 	# chama random
+	goToRandom:	
+#		jal     random                 	# chama random
 		j       endEcall
 
-	goToCLS:	jal     clsCLS                 	# chama CLS
+	goToCLS:	
+#		jal     clsCLS                 	# chama CLS
 		j       endEcall
 
-	goToBRES:	jal     BRESENHAM               # chama BRESENHAM
+	goToBRES:	
+#		jal     BRESENHAM               # chama BRESENHAM
 		j       endEcall    	
 		
- 	goToFDIV:	jal	FDIVISOR 	              # chama Leitura do divisor de frequencias
+ 	goToFDIV:	
+#		jal		FDIVISOR 	              # chama Leitura do divisor de frequencias
 		j       endEcall    
   		    				    		    				    		    		
-	goToPrintIntUnsigned: jal   printIntUnsigned	# chama Print Unsigned Int
-		j	endEcall  		
+	goToPrintIntUnsigned: 
+#		jal   	printIntUnsigned	# chama Print Unsigned Int
+		j		endEcall  		
 
 
 endEcall:  	lw	x1,   0(sp)  # recupera QUASE todos os registradores na pilha
@@ -617,7 +641,8 @@ endEcall:  	lw	x1,   0(sp)  # recupera QUASE todos os registradores na pilha
 
 		csrr 	tp, uepc 	# le o valor de EPC salvo no registrador uepc (reg 65)
 		addi 	tp, tp, 4	# soma 4 para obter a instrucao seguinte ao ecall
-		csrw 	tp, uepc	# coloca no registrador uepc
+#		csrw 	tp, uepc	# coloca no registrador uepc
+		csrw	0x01, 0x01
 		uret			# retorna PC=uepc
 
 
@@ -631,43 +656,48 @@ endEcall:  	lw	x1,   0(sp)  # recupera QUASE todos os registradores na pilha
 #  a3    =    cor                           #
 #############################################
 
-#printInt:	addi 	sp, sp, -4			# Aloca espaco
-#		sw 	ra, 0(sp)			# salva ra
-#		la 	t0, TempBuffer			# carrega o Endereco do Buffer da String
+#printInt:	
+#		addi 	sp, sp, -4			# Aloca espaco
+#		sw 		ra, 0(sp)			# salva ra
+#		la 		t0, TempBuffer			# carrega o Endereco do Buffer da String
 #		
 #		bge 	a0, zero, ehposprintInt		# Se eh positvo
-#		li 	t1, '-'				# carrega o sinal -
-#		sb 	t1, 0(t0)			# coloca no buffer
+#		li 		t1, '-'				# carrega o sinal -
+#		sb 		t1, 0(t0)			# coloca no buffer
 #		addi 	t0, t0, 1			# incrementa endereco do buffer
 #		sub 	a0, zero, a0			# torna o numero positivo
 #		
-#ehposprintInt:  li 	t2, 10				# carrega numero 10
-#		li 	t1, 0				# carrega numero de digitos com 0
+#ehposprintInt:  
+#		li 		t2, 10				# carrega numero 10
+#		li 		t1, 0				# carrega numero de digitos com 0
 #		
 #loop1printInt:	
 #		div 	t4, a0, t2			# divide por 10 (quociente)
 #		rem 	t3, a0, t2			# resto
 #		addi 	sp, sp, -4			# aloca espaco na pilha
-#		sw 	t3, 0(sp)			# coloca resto na pilha
-#		mv 	a0, t4				# atualiza o numero com o quociente
+#		sw 		t3, 0(sp)			# coloca resto na pilha
+#		mv 		a0, t4				# atualiza o numero com o quociente
 #		addi 	t1, t1, 1			# incrementa o contador de digitos
 #		bne 	a0, zero, loop1printInt		# verifica se o numero eh zero
 #				
-#loop2printInt:	lw 	t2, 0(sp)			# le digito da pilha
+#loop2printInt:	
+#		lw 		t2, 0(sp)			# le digito da pilha
 #		addi 	sp, sp, 4			# libera espaco
 #		addi 	t2, t2, 48			# converte o digito para ascii
-#		sb 	t2, 0(t0)			# coloca caractere no buffer
+#		sb 		t2, 0(t0)			# coloca caractere no buffer
 #		addi 	t0, t0, 1			# incrementa endereco do buffer
 #		addi 	t1, t1, -1			# decrementa contador de digitos
 #		bne 	t1, zero, loop2printInt		# eh o ultimo?
-#		sb 	zero, 0(t0)			# insere \NULL na string
+#		sb 		zero, 0(t0)			# insere \NULL na string
 #		
-#		la 	a0, TempBuffer			# Endereco do buffer da srting
+#		la 		a0, TempBuffer			# Endereco do buffer da srting
 #		jal 	printString			# chama o print string
 #				
 #		lw 	ra, 0(sp)			# recupera a
 #		addi 	sp, sp, 4			# libera espaco
-#fimprintInt:	ret					# retorna
+#
+#fimprintInt:	
+#		ret					# retorna
 		
 
 
@@ -728,7 +758,8 @@ loopprintString:lb	a0, 0(s0)                 	# le em a0 o caracter a ser impres
 
     		beq     a0, zero, fimloopprintString	# string ASCIIZ termina com NULL
 
-    		jal     printChar       		# imprime char
+# removed by wbi
+#    		jal     printChar       		# imprime char
     		
 		addi    a1, a1, 8                 	# incrementa a coluna
 		li 	t6, 313		
@@ -1019,7 +1050,7 @@ fimreadString: 	sb 	zero, 0(a0)			# grava NULL no buffer
 #
 #################################################################################################
 midiOut:
-	DE1(midiOutDE2)
+#	DE1(midiOutDE2)
 	
 	li a7,31		# Chama o ecall normal
 	ecall
@@ -1080,7 +1111,7 @@ fimmidiOut:    		ret
 #
 #################################################################################################
 midiOutSync:
-	DE1(midiOutSyncDE2)
+#	DE1(midiOutSyncDE2)
 	
 	li a7,33		# Chama o ecall normal
 	ecall
@@ -1506,7 +1537,8 @@ naotemPontoreadFloat:						# nao tem '.' s2 = local do 'e' ou \0 da string
 #  a0    =    TimerLOW                 	   #
 #  a1    =    TimerHIGH	                   #
 ############################################
-Time:  DE1(timeDE2)
+Time:  
+#	DE1(timeDE2)
 
 	li 	a7,30				# Chama o ecall do Rars
 	ecall
@@ -1524,7 +1556,8 @@ fimTime: 	ret				# retorna
 #  Sleep                            	   #
 #  a0    =    Tempo em ms             	   #
 ############################################
-sleep:  DE1(sleepDE2)
+sleep:  
+#	DE1(sleepDE2)
 
 	li 	a7, 32				# Chama o ecall do Rars
 	ecall			
@@ -1546,7 +1579,8 @@ fimSleep: 	ret				# retorna
 #  a0    =    numero randomico        	   #
 ############################################
 
-random:	 DE1(randomDE2)
+random:	 
+#	DE1(randomDE2)
 
 	li 	a7,41			# Chama o ecall do Rars
 	ecall	

@@ -11,9 +11,10 @@ gameOverString: 	.string "GAME OVER"
 
 .text
 
-la tp,exceptionHandling	# carrega em tp o endere�o base das rotinas do sistema ECALL
-csrw tp,utvec 		# seta utvec para o endere�o tp
-csrsi ustatus,1 	# seta o bit de habilita��o de interrup��o em ustatus (reg 0)
+la tp, exceptionHandling	# carrega em tp o endere�o base das rotinas do sistema ECALL
+#csrw tp, utvec 		# seta utvec para o endere�o tp
+csrw 0x01, 0x01
+csrsi ustatus, 1 	# seta o bit de habilita��o de interrup��o em ustatus (reg 0)
 
 IniciaJogo:
 
@@ -28,20 +29,20 @@ li s11, 0x00000064
 
 
 iniciaCobra:
-la s4, cobra 		#endereco do vetor cobra
-li t0, 3 		#tamanho inicial
-sw t0, 0(s4)		#guarda tamanho inicial da cobra no vetor
-li t0, 0x0014000F 	#local inicial da cabeca
-sw t0, 4(s4)		#coloca a cabeca no vetor
+la s4, cobra 		# endereco do vetor cobra
+li t0, 3 			# tamanho inicial
+sw t0, 0(s4)		# guarda tamanho inicial da cobra no vetor
+li t0, 0x0014000F 	# local inicial da cabeca
+sw t0, 4(s4)		# coloca a cabeca no vetor
 li t0, 0x0015000F
-sw t0, 8(s4)		#coloca a cabeca no vetor
+sw t0, 8(s4)		# coloca a cabeca no vetor
 li t0, 0x0016000F
-sw t0, 12(s4)		#coloca a cabeca no vetor
+sw t0, 12(s4)		# coloca a cabeca no vetor
 
 jal PrintHomeImg
 li s6, 3000
 jal Sleep
-li t3, 0		# Frame 1
+li t3, 0			# Frame 1
 li t4, 0xFF200604
 jal KEY1
 sw t3, (t4)
@@ -50,7 +51,7 @@ jal ScoreImg
 jal PrintSpeedImg
 jal DesenhaCobra
 jal Frutinha
-addi s5, a0, 0 # Coordenada da fruta
+addi s5, a0, 0 		# Coordenada da fruta
 
 li s6, 250 #Tempo
 li a3, 2 #tamanho da cobra
