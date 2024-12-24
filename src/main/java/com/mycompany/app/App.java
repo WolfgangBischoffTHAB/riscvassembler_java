@@ -33,6 +33,7 @@ import com.mycompany.pseudo.combine.LiCombiner;
 import com.mycompany.pseudo.resolve.BeqzResolver;
 import com.mycompany.pseudo.resolve.BgezResolver;
 import com.mycompany.pseudo.resolve.BgtResolver;
+import com.mycompany.pseudo.resolve.BleResolver;
 import com.mycompany.pseudo.resolve.BnezResolver;
 import com.mycompany.pseudo.resolve.CallResolver;
 import com.mycompany.pseudo.resolve.JResolver;
@@ -341,6 +342,9 @@ public class App {
 
         MvResolver mvResolver = new MvResolver();
         mvResolver.modify(asmLines, sectionMap);
+
+        BleResolver bleResolver = new BleResolver();
+        bleResolver.modify(asmLines, sectionMap);
 
         BgtResolver bgtResolver = new BgtResolver();
         bgtResolver.modify(asmLines, sectionMap);

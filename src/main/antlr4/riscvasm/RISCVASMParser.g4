@@ -38,7 +38,7 @@ label :
 
 mnemonic :
     I_ADDI | I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
-    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLT | I_BNE | I_BNEZ |
+    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLE | I_BLT | I_BNE | I_BNEZ |
     I_CALL | I_ECALL |
     I_J | I_JR | I_JALR |
     I_LA | I_LD | I_LW | I_LH | I_LB | I_LBU | I_LI | I_LUI |
