@@ -1,6 +1,8 @@
 package com.mycompany.app;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import com.mycompany.encoder.Encoder;
 import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
+import com.mycompany.preprocessing.IncludePreprocessor;
 import com.mycompany.pseudo.combine.LiCombiner;
 import com.mycompany.pseudo.resolve.BeqzResolver;
 import com.mycompany.pseudo.resolve.BgezResolver;
@@ -70,6 +73,16 @@ public class App {
     public static final boolean USE_CALL_OPTIMIZER = false;
 
     public static void main(String[] args) throws IOException {
+
+        String outputFile = "src/test/resources/riscvasm/preprocessed.s";
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile))) {
+            String inputFile = "src/test/resources/projects/snake/Main.asm";
+            
+            IncludePreprocessor includePreprocessor = new IncludePreprocessor();
+            includePreprocessor.preprocess(inputFile, bufferedWriter);
+            
+            bufferedWriter.flush();
+        }
 
         System.out.println("Parsing linker file ...");
 
