@@ -28,3 +28,12 @@ target/
 src/main/java/riscvasm
 src/main/java/RISCVASMLexer.tokens
 src/main/java/RISCVASMParser.tokens
+src/main/java/LINKERSCRIPTLANGUAGELexer.tokens
+src/main/java/LINKERSCRIPTLANGUAGEParser.tokens
+src/test/resources/projects/snake/
+src/test/resources/riscvasm/a.out
+src/test/resources/riscvasm/a.srec
+src/test/resources/riscvasm/disassembly.txt
+src/test/resources/riscvasm/hex_test.txt
+src/test/resources/riscvasm/intermediate.o
+src/test/resources/riscvasm/listing.lst
