@@ -37,9 +37,9 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitAsm_line(RISCVASMParser.Asm_lineContext ctx) {
 
-        asmLine.section = currentSection;
-        asmLines.add(asmLine);
         asmLine.sourceLine = sourceLine;
+        asmLine.section = currentSection;
+        asmLines.add(asmLine);        
 
         asmLine = new AsmLine();
         sourceLine++;
