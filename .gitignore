@@ -25,6 +25,7 @@ replay_pid*
 
 # Maven files
 target/
+build/
 src/main/java/riscvasm
 src/main/java/RISCVASMLexer.tokens
 src/main/java/RISCVASMParser.tokens

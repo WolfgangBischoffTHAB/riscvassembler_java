@@ -3,7 +3,7 @@ package com.mycompany.pseudo.resolve;
 import java.util.List;
 import java.util.Map;
 
-import com.mycompany.app.App;
+import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -50,7 +50,7 @@ public class CallResolver implements AsmInstructionListModifier {
                 asmLines.remove(foundAsmLine);
 
                 foundAsmLine.optimized = true;
-                if (App.USE_CALL_OPTIMIZER) {
+                if (RiscVAssembler.USE_CALL_OPTIMIZER) {
                     foundAsmLine.optimized = false;
                 }
 

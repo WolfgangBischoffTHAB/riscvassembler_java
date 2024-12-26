@@ -5,7 +5,7 @@ __stack_size   = 0x800;  /* required amount of stack */
 MEMORY
 {
     ROM (rwx) : ORIGIN = 0x00000000, LENGTH = 0x10000
-    RAM (rwx) : ORIGIN = 0x00010000, LENGTH = 0x08000
+    RAM (rwx) : ORIGIN = 0x00010000, LENGTH = 0x20000
 }
 
 SECTIONS
