@@ -193,11 +193,15 @@ public class ByteArrayUtil {
 	 * @return
 	 */
 	public static String intToHex(final int data) {
-		return String.format("%02X", data);
+		return intToHex("%02X", data);
 	}
 
     public static String intToHexLowerCase(final int data) {
-		return String.format("%02x", data);
+		return intToHex("%02x", data);
+	}
+
+	public static String intToHex(final String format, final int data) {
+		return String.format(format, data);
 	}
 
 	// /**
@@ -250,5 +254,15 @@ public class ByteArrayUtil {
 
 		return byteBuffer.getInt();
 	}
+
+    public static int fourByteToInt(final byte a, final byte b, final byte c, final byte d, final ByteOrder byteOrder) {
+		byte[] data = new byte[4];
+		data[0] = a;
+		data[1] = b;
+		data[2] = c;
+		data[3] = d;
+
+		return fourByteToInt(data, byteOrder);
+    }
 
 }

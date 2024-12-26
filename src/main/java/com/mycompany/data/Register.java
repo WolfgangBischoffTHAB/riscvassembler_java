@@ -2,8 +2,6 @@ package com.mycompany.data;
 
 public enum Register {
 
-
-
     /** x0 */
     REG_ZERO,
     /** x1 */
@@ -119,6 +117,80 @@ public enum Register {
     // REG_T4 : X '2' '9' ; // 29, Temporary
     // REG_T5 : X '3' '0' ; // 30, Temporary
     // REG_T6 : X '3' '1' ; // 31, Temporary
+
+    public static Register fromInt(final int data) {
+
+        switch (data) {
+
+            case 0x00:
+                return REG_ZERO;
+            case 0x01:
+                return REG_RA;
+            case 0x02:
+                return REG_SP;
+            case 0x03:
+                return REG_GP;
+            case 0x04:
+                return REG_TP;
+            case 0x05:
+                return REG_T0;
+            case 0x06:
+                return REG_T1;
+            case 0x07:
+                return REG_T2;
+            case 0x08:
+                return REG_S0;
+            case 0x09:
+                return REG_S1;
+            case 0x0A:
+                return REG_A0;
+            case 0x0B:
+                return REG_A1;
+            case 0x0C:
+                return REG_A2;
+            case 0x0D:
+                return REG_A3;
+            case 0x0E:
+                return REG_A4;
+            case 0x0F:
+                return REG_A5;
+            case 0x10:
+                return REG_A6;
+            case 0x11:
+                return REG_A7;
+            case 0x12:
+                return REG_S2;
+            case 0x13:
+                return REG_S3;
+            case 0x14:
+                return REG_S4;
+            case 0x15:
+                return REG_S5;
+            case 0x16:
+                return REG_S6;
+            case 0x17:
+                return REG_S7;
+            case 0x18:
+                return REG_S8;
+            case 0x19:
+                return REG_S9;
+            case 0x1A:
+                return REG_S10;
+            case 0x1B:
+                return REG_S11;
+            case 0x1C:
+                return REG_T3;
+            case 0x1D:
+                return REG_T4;
+            case 0x1E:
+                return REG_T5;
+            case 0x1F:
+                return REG_T6;
+
+            default:
+                throw new RuntimeException("Unknown register: \"" + data + "\"");
+        }
+    }
 
     public static Register fromString(final String register) {
 

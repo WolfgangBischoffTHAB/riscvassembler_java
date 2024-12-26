@@ -54,7 +54,7 @@ public class RiscVAssembler {
 
     public List<AsmLine> asmLines = new ArrayList<>();
 
-    public void assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
+    public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
         asmLines = new ArrayList<>();
         
@@ -412,7 +412,8 @@ public class RiscVAssembler {
 
         AsmLine errorAsmLine = null;
         try {
-            for (AsmLine asmLine : asmLines) {
+
+            for (final AsmLine asmLine : asmLines) {
 
                 // save the line for later error output
                 errorAsmLine = asmLine;
@@ -428,6 +429,7 @@ public class RiscVAssembler {
                 currentAddress = asmLine.section.address;
                 asmLine.section.address += encoder.encode(asmLine, labelAddressMap, asmLine.section.address);
             }
+
         } catch (Exception e) {
             System.out.println("Failure while encoding: " + errorAsmLine);
             encoder.encode(errorAsmLine, labelAddressMap, currentAddress);
@@ -439,6 +441,19 @@ public class RiscVAssembler {
         //
 
         byte[] byteArray = encoder.byteArrayOutStream.toByteArray();
+
+        //
+        // DEBUG output the byte array to the console
+        //
+
+        // //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        // outputHexMachineCode(byteArray, byteOrder);
+
+        return byteArray;
+    }
+
+    public void outputHexMachineCode(final byte[] byteArray, final ByteOrder byteOrder) {
 
         // DEBUG
         // System.out.println(ByteArrayUtil.bytesToHex(byteArray));
@@ -457,8 +472,7 @@ public class RiscVAssembler {
 
             if (container_index == 4) {
 
-                // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-                ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+                
                 byte[] temp = ByteArrayUtil.intToFourByte(container, byteOrder);
 
                 System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));

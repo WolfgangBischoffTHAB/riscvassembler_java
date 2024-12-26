@@ -4,12 +4,14 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.mycompany.assembler.RiscVAssembler;
+import com.mycompany.cpu.CPU;
 import com.mycompany.data.Section;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;
@@ -64,7 +66,23 @@ public class App {
         String asmInputFile = "build/preprocessed.s";
 
         RiscVAssembler riscVAssembler = new RiscVAssembler();
-        riscVAssembler.assemble(sectionMap, asmInputFile);
+        byte[] machineCode = riscVAssembler.assemble(sectionMap, asmInputFile);
+
+        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        riscVAssembler.outputHexMachineCode(machineCode, byteOrder);
+
+        //
+        // CPU
+        //
+
+        CPU cpu = new CPU();
+        cpu.pc = 0;
+        cpu.memory = machineCode;
+
+        cpu.step();
+        cpu.step();
+        cpu.step();
 
         System.out.println("done");
     }
