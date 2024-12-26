@@ -7,6 +7,8 @@ import riscvasm.RISCVASMParser.ExprContext;
 
 public class AsmLine {
 
+    public int sourceLine = -1;
+
     public long offset;
     public Section section;
 
@@ -59,6 +61,8 @@ public class AsmLine {
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("SourceLine: ").append(sourceLine).append(" ");
 
         stringBuilder.append("[").append(offset).append("] ");
 
