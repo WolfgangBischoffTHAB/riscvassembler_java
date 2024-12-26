@@ -47,6 +47,7 @@ public class App {
 
         //String inputFile = "src/test/resources/projects/snake/Main.asm";
         String inputFile = "src/test/resources/riscvasm/test.s";
+        
         String outputFile = "build/preprocessed.s";
 
         preprocess(inputFile, outputFile);

@@ -39,10 +39,10 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         asmLine.section = currentSection;
         asmLines.add(asmLine);
+        asmLine.sourceLine = sourceLine;
 
         asmLine = new AsmLine();
         sourceLine++;
-        asmLine.sourceLine = sourceLine;
     }
 
     @Override
