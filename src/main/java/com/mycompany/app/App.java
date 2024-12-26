@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.CPU;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;
@@ -80,9 +81,12 @@ public class App {
         cpu.pc = 0;
         cpu.memory = machineCode;
 
-        cpu.step();
-        cpu.step();
-        cpu.step();
+        cpu.registerFile[Register.REG_A1.ordinal()] = 1;
+        cpu.registerFile[Register.REG_A2.ordinal()] = 5;
+
+        for (int i = 0; i < 100; i++) {
+            cpu.step();
+        }
 
         System.out.println("done");
     }

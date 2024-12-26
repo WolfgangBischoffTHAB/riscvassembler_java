@@ -155,7 +155,7 @@ output sections
 readelf --sections a.out
 ```
 
-On linux, current versions of the gnu as assembler create object files in the elf file format.
+On linux, current versions of the GNU as assembler create object files in the elf file format.
 For cross compilation PE or MachO could be created.
 There is also the old a.out format.
 
