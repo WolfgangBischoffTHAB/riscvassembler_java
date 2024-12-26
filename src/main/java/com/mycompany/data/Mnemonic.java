@@ -41,6 +41,7 @@ public enum Mnemonic {
     I_LH(false),
     I_LB(false),
     I_LBU(false),
+    I_LBW(false),
     I_LI(true),
     I_LUI(false),
 
@@ -52,10 +53,17 @@ public enum Mnemonic {
 
     I_RET(false),
 
+    I_SRA(false),
     I_SRAI(false),
+    I_SRL(false),
     I_SRLI(false),
     I_SLLI(false),
+    I_SLTI(false),
+    I_SLTIU(false),
     I_SUB(false),
+    I_SLL(false),
+    I_SLT(false),
+    I_SLTU(false),
     // I_SD(false), // This is 64 bits!!!
     I_SW(false),
     I_SH(false),
@@ -63,6 +71,9 @@ public enum Mnemonic {
 
     I_WFI(false),
 
+    I_OR(false),
+    I_ORI(false),
+    I_XOR(false),
     I_XORI(false),
 
     I_UNKNOWN(true);

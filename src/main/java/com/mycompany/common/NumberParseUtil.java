@@ -18,4 +18,18 @@ public class NumberParseUtil {
         return Long.parseLong(tempData, base);
     }
 
+    public static long sign_extend_12_bit_to_int32_t(long value) {
+        long unpacked = value & 0xFFF;
+        long extended = (unpacked ^ 0x800) - 0x800;
+
+        return extended;
+    }
+
+    public static long sign_extend_20_bit_to_int32_t(long value) {
+        long unpacked = value & 0xFFFFF;
+        long extended = (unpacked ^ 0x80000) - 0x80000;
+
+        return extended;
+    }
+
 }

@@ -3,6 +3,7 @@ package com.mycompany.pseudo.resolve;
 import java.util.List;
 import java.util.Map;
 
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -140,7 +141,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     // the 20 bit part is incremented by 1, (then shifted left by 12 bits to get (data_2))
                     //data_1 = data_1 + 1;
 
-                    long twelve_bit_sign_extended = sign_extend_12_bit_to_int32_t(value);
+                    long twelve_bit_sign_extended = NumberParseUtil.sign_extend_12_bit_to_int32_t(value);
                     long udata = value - twelve_bit_sign_extended;
                     udata = udata >> 12;
 
@@ -207,7 +208,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     
                     addi.register_1 = tempRegister;
 
-                    addi.numeric_2 = sign_extend_12_bit_to_int32_t(lower_part);
+                    addi.numeric_2 = NumberParseUtil.sign_extend_12_bit_to_int32_t(lower_part);
 
                 }
 
@@ -218,13 +219,6 @@ public class LiResolver implements AsmInstructionListModifier {
 
         }
 
-    }
-
-    private long sign_extend_12_bit_to_int32_t(long value) {
-        long unpacked = value & 0xFFF;
-        long extended = (unpacked ^ 0x800) - 0x800;
-
-        return extended;
     }
 
 }
