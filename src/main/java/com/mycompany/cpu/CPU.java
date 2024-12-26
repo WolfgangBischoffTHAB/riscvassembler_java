@@ -62,7 +62,7 @@ public class CPU {
                 // if(rs1 >= rs2) pc += imm
                 System.out.println("bge");
                 if (registerFile[asmLine.register_0.ordinal()] >= registerFile[asmLine.register_1.ordinal()]) {
-                    pc = asmLine.numeric_2.intValue();
+                    pc += asmLine.numeric_2.intValue();
                 } else {
                     pc += 4;
                 }
