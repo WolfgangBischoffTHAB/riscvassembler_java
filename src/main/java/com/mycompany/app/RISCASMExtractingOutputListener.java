@@ -34,6 +34,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     private int sourceLine = 1;
 
+    public Section dummySection;
+
     @Override
     public void exitAsm_line(RISCVASMParser.Asm_lineContext ctx) {
 
@@ -367,7 +369,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         asmLine.section = currentSection;
     }
 
-
     /**
      * Look for the source section inside the target section and make
      * the target section current.
@@ -378,7 +379,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
      */
     private Section enableTargetSection(String inputSectionName) {
 
-
         for (Map.Entry<String, Section> targetSectionEntry : sectionMap.entrySet()) {
             Section targetSection = targetSectionEntry.getValue();
             if (targetSection.inputSections.contains(inputSectionName)) {
@@ -386,7 +386,10 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
             }
         }
 
-        throw new RuntimeException("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
+        //throw new RuntimeException("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
+        System.out.println("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
+        
+        return dummySection;
     }
 
     @Override

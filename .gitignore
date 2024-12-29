@@ -40,3 +40,5 @@ src/test/resources/riscvasm/intermediate.o
 src/test/resources/riscvasm/listing.lst
 src/test/resources/riscvasm/test.s
 src/test/resources/riscvasm/preprocessed.s
+src/test/resources/riscvasm/c_code/*.o
+src/test/resources/riscvasm/c_code/*.s

@@ -90,8 +90,12 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
         for (AsmLine asmLine : asmLines) {
 
-            Section section = sectionMap.get(asmLine.section.name);
+            // if (asmLine.section == null) {
+            //     System.out.println("");
+            // }
 
+            // convert section name to offset
+            Section section = sectionMap.get(asmLine.section.name);
             long offset = section.currentOffset;
             asmLine.offset = offset;
 

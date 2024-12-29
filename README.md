@@ -143,6 +143,15 @@ rm a.out intermediate.o disassembly.txt listing.lst
 xxd -u -plain -cols 4 -groupsize 4 hex_test.txt
 ```
 
+GCC C-Language Cheatsheet:
+
+You cannot include stdio.h when using rv32i since stdio.h uses the float datatype.
+
+```
+cd riscvassembler_java/src/test/resources/riscvasm/c_code
+~/Downloads/riscv/bin/riscv32-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostartfiles -O0 -c -S main.c
+```
+
 readelf cheatsheet:
 
 output relocations if any exist
@@ -233,7 +242,10 @@ The GNU GCC (C/C++ compiler) can also be used to translate assembly to machine c
 (Not tested yet!)
 
 ```
-riscv32-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostartfiles -O3 -x c -Wl,-T,/work/test5.x -o test.o test.c
+cd riscvassembler_java/src/test/resources/riscvasm/c_code
+~/Downloads/riscv/bin/riscv32-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostartfiles -O0 -c -S main.c
+~/Downloads/riscv/bin/riscv32-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostartfiles -O3 -x c -o main.o main.c
+~/Downloads/riscv/bin/riscv32-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostartfiles -O3 -x c -Wl,-T,/work/main.x -o main.o main.c
 riscv64-unknown-elf-gcc -I /usr/riscv64-linux-gnu/include -nostdlib hello.S -o hello
 ```
 

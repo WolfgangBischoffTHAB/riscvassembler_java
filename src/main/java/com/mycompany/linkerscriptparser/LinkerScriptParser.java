@@ -90,13 +90,20 @@ public class LinkerScriptParser {
         linkerScriptWalker.walk(linkerScriptlistener, linkerScriptRootNode);
 
         //
-        // Set address into sections
+        // set address into sections
         //
 
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
 
             MemorySpecifier memorySpecifier = memorySpecifierMap.get(entry.getValue().memspec);
-            entry.getValue().address = memorySpecifier.memorySpecOrigin;
+            if (memorySpecifier == null) {
+                // the GCC compiler adds a funny line: .section	.note.GNU-stack,"",@progbits
+                // The section .note.GNU-stack is not defined
+                // To not break the code, the address is set to zero artificially
+                entry.getValue().address = 0L;
+            } else {
+                entry.getValue().address = memorySpecifier.memorySpecOrigin;
+            }
         }
 
         System.out.println("Parsing linker file done.");

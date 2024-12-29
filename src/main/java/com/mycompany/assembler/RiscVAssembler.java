@@ -54,6 +54,8 @@ public class RiscVAssembler {
 
     public List<AsmLine> asmLines = new ArrayList<>();
 
+    public RISCASMExtractingOutputListener asmListener;
+
     public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
         asmLines = new ArrayList<>();
@@ -112,7 +114,7 @@ public class RiscVAssembler {
 
         // RawOutputListener listener = new RawOutputListener();
 
-        RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
+        //RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
         asmListener.asmLines = asmLines;
         asmListener.sectionMap = sectionMap;
         asmListener.currentSection = currentSection;

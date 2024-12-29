@@ -35,12 +35,23 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
-        // create build folder
-        Files.createDirectories(Paths.get("build"));
+        //
+        // global variables
+        // 
+
+        // the GCC compiler adds a funny line: .section	.note.GNU-stack,"",@progbits
+        // The section .note.GNU-stack is not defined
+        // To not break the code, a dummy section is inserted which is used as a catch-all
+        // for all sections that are not defined
+        Section dummySection = new Section();
+        dummySection.name = "dummy-section";
 
         //
         // preprocess
         //
+
+        // create build folder
+        Files.createDirectories(Paths.get("build"));
 
         // the first step is always to let the preprocessor resolve .include
         // instructions. Let the compiler run on the combined file in a second step!
@@ -57,6 +68,7 @@ public class App {
         //
 
         Map<String, Section> sectionMap = new HashMap<>();
+        sectionMap.put(dummySection.name, dummySection);
 
         LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
         linkerScriptParser.parseLinkerScript(sectionMap);
@@ -67,16 +79,27 @@ public class App {
 
         String asmInputFile = "build/preprocessed.s";
 
+        RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
+        asmListener.dummySection = dummySection;
+
         RiscVAssembler riscVAssembler = new RiscVAssembler();
+        riscVAssembler.asmListener = asmListener;
         byte[] machineCode = riscVAssembler.assemble(sectionMap, asmInputFile);
 
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         riscVAssembler.outputHexMachineCode(machineCode, byteOrder);
 
         //
-        // CPU
+        // emulate
         //
+
+        //emulate(machineCode);
+
+        System.out.println("done");
+    }
+
+    private static void emulate(byte[] machineCode) {
 
         CPU cpu = new CPU();
         cpu.pc = 0;
@@ -88,8 +111,6 @@ public class App {
         for (int i = 0; i < 100; i++) {
             cpu.step();
         }
-
-        System.out.println("done");
     }
 
     private static void preprocess(final String inputFile, final String outputFile) throws FileNotFoundException, IOException {

@@ -44,6 +44,8 @@ MODIFIER_LO : '%' L O ;
 MODIFIER_PCREL_HI : '%' P C R E L '_' H I ;
 MODIFIER_PCREL_LO : '%' P C R E L '_' L O ;
 
+DOT_ATTRIBUTE : DOT A T T R I B U T E ;
+DOT_ALIGN : DOT A L I G N ;
 DOT_EQU : DOT E Q U ;
 DOT_EXTERN : DOT E X T E R N ;
 DOT_SECTION : DOT S E C T I O N ;
@@ -65,6 +67,8 @@ DOT_ASCIZ : DOT A S C I Z ; // ASCII string with zero termination
 DOT_SKIP : DOT S K I P ;
 DOT_STRING : DOT S T R I N G ;
 DOT_OPTION : DOT O P T I O N ;
+DOT_SIZE : DOT S I Z E ;
+DOT_IDENT : DOT I D E N T ;
 
 I_ADD : A D D ;
 I_ADDI : A D D I ;
@@ -197,6 +201,7 @@ REG_T6 : X '3' '1' ; // 31, Temporary
 
 ASTERISK : '*' ;
 PLUS : '+' ;
+MINUS : '-' ;
 PERCENT : '%' ;
 DOT : '.' ;
 COLON : ':' ;

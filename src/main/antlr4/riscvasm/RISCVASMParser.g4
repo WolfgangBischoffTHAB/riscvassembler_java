@@ -78,6 +78,8 @@ modifier :
 expr :
     expr PLUS expr
     |
+    expr MINUS expr
+    |
     expr ASTERISK expr
     |
     OPENING_BRACKET expr CLOSING_BRACKET
@@ -89,6 +91,8 @@ expr :
     IDENTIFIER
     |
     STRING_LITERAL
+    |
+    DOT
     ;
 
 register :
@@ -171,6 +175,10 @@ register :
     ;
 
 assembler_instruction :
+    attribute_assembler_instruction
+    |
+    align_assembler_instruction
+    |
     equ_assembler_instruction
     |
     extern_assembler_instruction
@@ -214,6 +222,18 @@ assembler_instruction :
     string_assembler_instruction
     |
     option_assembler_instruction
+    |
+    size_assembler_instruction
+    |
+    ident_assembler_instruction
+    ;
+
+attribute_assembler_instruction :
+    DOT_ATTRIBUTE IDENTIFIER COMMA expr
+    ;
+
+align_assembler_instruction :
+    DOT_ALIGN expr
     ;
 
 equ_assembler_instruction :
@@ -302,6 +322,14 @@ string_assembler_instruction :
 
 option_assembler_instruction :
     DOT_OPTION IDENTIFIER
+    ;
+
+size_assembler_instruction :
+    DOT_SIZE expr COMMA expr
+    ;
+
+ident_assembler_instruction :
+    DOT_IDENT STRING_LITERAL
     ;
 
 csv_identifier_list :
