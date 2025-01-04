@@ -90,6 +90,7 @@ I_ECALL : E C A L L ;
 
 I_J : J ;
 I_JR : J R ;
+I_JAL : J A L ;
 I_JALR : J A L R ;
 
 I_LA : L A ;
@@ -107,8 +108,11 @@ I_MV : M V ;
 I_NOP : N O P ;
 I_NOT : N O T ;
 
+I_OR : O R ;
+
 I_RET : R E T ;
 
+I_SLT : S L T ;
 I_SRAI : S R A I ;
 I_SRLI : S R L I ;
 I_SLLI : S L L I ;

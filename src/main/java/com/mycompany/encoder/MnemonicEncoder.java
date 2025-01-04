@@ -86,6 +86,9 @@ public class MnemonicEncoder {
             //     }
             //     return encodeLD(byteArrayOutStream, asmLine);
 
+            case I_OR:
+                return encodeOR(byteArrayOutStream, asmLine);
+
             case I_SRAI:
                 return encodeSRAI(byteArrayOutStream, asmLine);
 
@@ -94,6 +97,9 @@ public class MnemonicEncoder {
 
             case I_SLLI:
                 return encodeSLLI(byteArrayOutStream, asmLine);
+
+            case I_SLT:
+                return encodeSLT(byteArrayOutStream, asmLine);
 
             // // THIS IS 64 BIT !!!
             // case I_SD:
@@ -519,9 +525,25 @@ public class MnemonicEncoder {
         return 4;
     }
 
+    private int encodeOR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct7 = 0b0000000;
+        byte funct3 = 0b110;
+        byte opcode = 0b0110011;
+
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rs2 = (byte) asmLine.register_2.ordinal();
+        byte rd = (byte) asmLine.register_0.ordinal();
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     /**
      * THIS IS 64 BIT!!!
-     * 
+     *
      * @param byteArrayOutStream
      * @param asmLine
      * @return
@@ -580,6 +602,22 @@ public class MnemonicEncoder {
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeSLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+        byte funct7 = 0b0000000;
+        byte funct3 = 0b010;
+        byte opcode = 0b0110011;
+
+        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rs2 = (byte) asmLine.register_2.ordinal();
+        byte rd = (byte) asmLine.register_0.ordinal();
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 

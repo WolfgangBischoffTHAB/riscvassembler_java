@@ -37,7 +37,7 @@ public class App {
 
         //
         // global variables
-        // 
+        //
 
         // the GCC compiler adds a funny line: .section	.note.GNU-stack,"",@progbits
         // The section .note.GNU-stack is not defined
@@ -57,8 +57,10 @@ public class App {
         // instructions. Let the compiler run on the combined file in a second step!
 
         //String inputFile = "src/test/resources/projects/snake/Main.asm";
-        String inputFile = "src/test/resources/riscvasm/test.s";
-        
+        //String inputFile = "src/test/resources/riscvasm/test.s";
+        String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+
         String outputFile = "build/preprocessed.s";
 
         preprocess(inputFile, outputFile);
@@ -86,8 +88,8 @@ public class App {
         riscVAssembler.asmListener = asmListener;
         byte[] machineCode = riscVAssembler.assemble(sectionMap, asmInputFile);
 
-        //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         riscVAssembler.outputHexMachineCode(machineCode, byteOrder);
 
         //
@@ -114,14 +116,14 @@ public class App {
     }
 
     private static void preprocess(final String inputFile, final String outputFile) throws FileNotFoundException, IOException {
-        
+
         System.out.println("Precprocessing input file ...");
 
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile))) {
-            
+
             IncludePreprocessor includePreprocessor = new IncludePreprocessor();
             includePreprocessor.preprocess(inputFile, bufferedWriter);
-            
+
             bufferedWriter.flush();
         }
 

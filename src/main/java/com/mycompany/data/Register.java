@@ -279,55 +279,53 @@ public enum Register {
         } else if (register.equalsIgnoreCase("x7")) {
             return REG_T2;
         } else if (register.equalsIgnoreCase("x8")) {
-            return REG_T3;
-        } else if (register.equalsIgnoreCase("x9")) {
-            return REG_T4;
-        } else if (register.equalsIgnoreCase("x10")) {
-            return REG_T5;
-        } else if (register.equalsIgnoreCase("x11")) {
-            return REG_T6;
-        } else if (register.equalsIgnoreCase("x12")) {
-            return REG_SP;
-        } else if (register.equalsIgnoreCase("x13")) {
-            return REG_A0;
-        } else if (register.equalsIgnoreCase("x14")) {
-            return REG_A1;
-        } else if (register.equalsIgnoreCase("x15")) {
-            return REG_A2;
-        } else if (register.equalsIgnoreCase("x16")) {
-            return REG_A3;
-        } else if (register.equalsIgnoreCase("x17")) {
-            return REG_A4;
-        } else if (register.equalsIgnoreCase("x18")) {
-            return REG_A5;
-        } else if (register.equalsIgnoreCase("x19")) {
-            return REG_A6;
-        } else if (register.equalsIgnoreCase("x20")) {
-            return REG_A7;
-        } else if (register.equalsIgnoreCase("x21")) {
             return REG_S0;
-        } else if (register.equalsIgnoreCase("x22")) {
+        } else if (register.equalsIgnoreCase("x9")) {
             return REG_S1;
-        } else if (register.equalsIgnoreCase("x23")) {
+        } else if (register.equalsIgnoreCase("x10")) {
+            return REG_A0;
+        } else if (register.equalsIgnoreCase("x11")) {
+            return REG_A1;
+        } else if (register.equalsIgnoreCase("x12")) {
+            return REG_A2;
+        } else if (register.equalsIgnoreCase("x13")) {
+            return REG_A3;
+        } else if (register.equalsIgnoreCase("x14")) {
+            return REG_A4;
+        } else if (register.equalsIgnoreCase("x15")) {
+            return REG_A5;
+        } else if (register.equalsIgnoreCase("x16")) {
+            return REG_A6;
+        } else if (register.equalsIgnoreCase("x17")) {
+            return REG_A7;
+        } else if (register.equalsIgnoreCase("x18")) {
             return REG_S2;
-        } else if (register.equalsIgnoreCase("x24")) {
+        } else if (register.equalsIgnoreCase("x19")) {
             return REG_S3;
-        } else if (register.equalsIgnoreCase("x25")) {
+        } else if (register.equalsIgnoreCase("x20")) {
             return REG_S4;
-        } else if (register.equalsIgnoreCase("x26")) {
+        } else if (register.equalsIgnoreCase("x21")) {
             return REG_S5;
-        } else if (register.equalsIgnoreCase("x27")) {
+        } else if (register.equalsIgnoreCase("x22")) {
             return REG_S6;
-        } else if (register.equalsIgnoreCase("x28")) {
+        } else if (register.equalsIgnoreCase("x23")) {
             return REG_S7;
-        } else if (register.equalsIgnoreCase("x29")) {
+        } else if (register.equalsIgnoreCase("x24")) {
             return REG_S8;
-        } else if (register.equalsIgnoreCase("x30")) {
+        } else if (register.equalsIgnoreCase("x25")) {
             return REG_S9;
-        } else if (register.equalsIgnoreCase("x31")) {
+        } else if (register.equalsIgnoreCase("x26")) {
             return REG_S10;
-        } else if (register.equalsIgnoreCase("x32")) {
+        } else if (register.equalsIgnoreCase("x27")) {
             return REG_S11;
+        } else if (register.equalsIgnoreCase("x28")) {
+            return REG_T3;
+        } else if (register.equalsIgnoreCase("x29")) {
+            return REG_T4;
+        } else if (register.equalsIgnoreCase("x30")) {
+            return REG_T5;
+        } else if (register.equalsIgnoreCase("x31")) {
+            return REG_T6;
         }
 
         throw new RuntimeException("Unknown register: \"" + register + "\"");

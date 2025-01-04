@@ -51,6 +51,9 @@ public enum Mnemonic {
     I_NOP(true),
     I_NOT(false),
 
+    I_OR(false),
+    I_ORI(false),
+
     I_RET(false),
 
     I_SRA(false),
@@ -71,8 +74,6 @@ public enum Mnemonic {
 
     I_WFI(false),
 
-    I_OR(false),
-    I_ORI(false),
     I_XOR(false),
     I_XORI(false),
 
@@ -94,10 +95,10 @@ public enum Mnemonic {
             return I_ADD;
         } else if (mnemonic.equalsIgnoreCase("ADDI")) {
             return I_ADDI;
-        } 
+        }
         // else if (mnemonic.equalsIgnoreCase("ADDIW")) {
         //     return I_ADDIW;
-        // } 
+        // }
         else if (mnemonic.equalsIgnoreCase("AND")) {
             return I_AND;
         } else if (mnemonic.equalsIgnoreCase("ANDI")) {
@@ -132,12 +133,14 @@ public enum Mnemonic {
             return I_JR;
         } else if (mnemonic.equalsIgnoreCase("JALR")) {
             return I_JALR;
+        } else if (mnemonic.equalsIgnoreCase("JAL")) {
+            return I_JAL;
         } else if (mnemonic.equalsIgnoreCase("LA")) {
             return I_LA;
-        } 
+        }
         // else if (mnemonic.equalsIgnoreCase("LD")) { // 64 bits!!!
         //     return I_LD;
-        // } 
+        // }
         else if (mnemonic.equalsIgnoreCase("LW")) {
             return I_LW;
         } else if (mnemonic.equalsIgnoreCase("LH")) {
@@ -158,6 +161,10 @@ public enum Mnemonic {
             return I_NOP;
         } else if (mnemonic.equalsIgnoreCase("NOT")) {
             return I_NOT;
+        } else if (mnemonic.equalsIgnoreCase("OR")) {
+            return I_OR;
+        } else if (mnemonic.equalsIgnoreCase("ORI")) {
+            return I_ORI;
         } else if (mnemonic.equalsIgnoreCase("RET")) {
             return I_RET;
         } else if (mnemonic.equalsIgnoreCase("SRAI")) {
@@ -168,7 +175,7 @@ public enum Mnemonic {
             return I_SLLI;
         } else if (mnemonic.equalsIgnoreCase("SUB")) {
             return I_SUB;
-        } 
+        }
         // else if (mnemonic.equalsIgnoreCase("SD")) { // 64 bits !!!
         //     return I_SD;
         // }
@@ -178,6 +185,8 @@ public enum Mnemonic {
             return I_SH;
         } else if (mnemonic.equalsIgnoreCase("SB")) {
             return I_SB;
+        } else if (mnemonic.equalsIgnoreCase("SLT")) {
+            return I_SLT;
         } else if (mnemonic.equalsIgnoreCase("WFI")) {
             return I_WFI;
         } else if (mnemonic.equalsIgnoreCase("XORI")) {
@@ -293,6 +302,11 @@ public enum Mnemonic {
             case I_NOT:
                 return "not";
 
+            case I_OR:
+                return "or";
+            case I_ORI:
+                return "ori";
+
             case I_RET:         // pseudo instruction
                 return "ret";
 
@@ -313,6 +327,8 @@ public enum Mnemonic {
                 return "sh";
             case I_SB:          // pseudo instruction
                 return "sb";
+            case I_SLT:         // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
+                return "slt";
 
             case I_WFI:
                 return "wfi";
