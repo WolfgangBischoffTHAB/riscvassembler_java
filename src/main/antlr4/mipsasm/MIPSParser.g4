@@ -1,11 +1,11 @@
 // $antlr-format alignTrailingComments true, columnLimit 150, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments false, useTab false
 // $antlr-format allowShortRulesOnASingleLine false, allowShortBlocksOnASingleLine true, alignSemicolons hanging, alignColons hanging
 
-parser grammar RISCVASMParser;
+parser grammar MIPSParser;
 
 options {
     language = Java;
-    tokenVocab = RISCVASMLexer;
+    tokenVocab = MIPSLexer;
 }
 
 asm_file :
@@ -37,7 +37,7 @@ label :
     ;
 
 mnemonic :
-    I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
+    I_ADD | I_ADDI | I_ADDIU | I_AND | I_ANDI | I_AUIPC |
     I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLE | I_BLT | I_BNE | I_BNEZ |
     I_CALL | I_ECALL |
     I_J | I_JR | I_JAL | I_JALR |
@@ -46,7 +46,7 @@ mnemonic :
     I_NOP | I_NOT |
     I_OR |
     I_RET |
-    I_SLT | I_SRAI | I_SRLI | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
+    I_SLT | I_SRAI | I_SRLI | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB | I_SYSCALL |
     I_WFI |
     I_XORI
     ;
@@ -98,10 +98,16 @@ expr :
 
 register :
     REG_ZERO_ABI |
-    REG_RA_ABI |
-    REG_SP_ABI |
-    REG_GP_ABI |
-    REG_TP_ABI |
+
+    REG_AT_ABI |
+
+    REG_V0_ABI |
+    REG_V1_ABI |
+
+    REG_A0_ABI |
+    REG_A1_ABI |
+    REG_A2_ABI |
+    REG_A3_ABI |
 
     REG_T0_ABI |
     REG_T1_ABI |
@@ -110,17 +116,7 @@ register :
     REG_T4_ABI |
     REG_T5_ABI |
     REG_T6_ABI |
-
-    REG_FP_ABI |
-
-    REG_A0_ABI |
-    REG_A1_ABI |
-    REG_A2_ABI |
-    REG_A3_ABI |
-    REG_A4_ABI |
-    REG_A5_ABI |
-    REG_A6_ABI |
-    REG_A7_ABI |
+    REG_T7_ABI |
 
     REG_S0_ABI |
     REG_S1_ABI |
@@ -130,49 +126,17 @@ register :
     REG_S5_ABI |
     REG_S6_ABI |
     REG_S7_ABI |
-    REG_S8_ABI |
-    REG_S9_ABI |
-    REG_S10_ABI |
-    REG_S11_ABI |
 
-    REG_ZERO |
-    REG_RA |
-    REG_SP |
-    REG_GP |
-    REG_TP |
+    REG_T8_ABI |
+    REG_T9_ABI |
 
-    REG_T0 |
-    REG_T1 |
-    REG_T2 |
+    REG_K0_ABI |
+    REG_K1_ABI |
 
-    REG_S0 |
-    REG_S1 |
-
-    REG_A0 |
-    REG_A1 |
-
-    REG_A2 |
-    REG_A3 |
-    REG_A4 |
-    REG_A5 |
-    REG_A6 |
-    REG_A7 |
-
-    REG_S2 |
-    REG_S3 |
-    REG_S4 |
-    REG_S5 |
-    REG_S6 |
-    REG_S7 |
-    REG_S8 |
-    REG_S9 |
-    REG_S10 |
-    REG_S11 |
-
-    REG_T3 |
-    REG_T4 |
-    REG_T5 |
-    REG_T6
+    REG_GP_ABI |
+    REG_SP_ABI |
+    REG_FP_ABI |
+    REG_RA_ABI
     ;
 
 assembler_instruction :
@@ -219,6 +183,8 @@ assembler_instruction :
     ascii_assembler_instruction
     |
     asciz_assembler_instruction
+    |
+    asciiz_assembler_instruction
     |
     string_assembler_instruction
     |
@@ -315,6 +281,10 @@ ascii_assembler_instruction :
 
 asciz_assembler_instruction :
     DOT_ASCIZ STRING_LITERAL
+    ;
+
+asciiz_assembler_instruction :
+    DOT_ASCIIZ STRING_LITERAL
     ;
 
 string_assembler_instruction :

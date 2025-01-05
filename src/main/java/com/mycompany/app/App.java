@@ -36,6 +36,76 @@ public class App {
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
 
     public static void main(String[] args) throws IOException {
+        mainRISCV(args);
+    }
+
+    public static void mainMIPS(String[] args) throws IOException {
+
+        //
+        // global variables
+        //
+
+        // the GCC compiler adds a funny line: .section	.note.GNU-stack,"",@progbits
+        // The section .note.GNU-stack is not defined
+        // To not break the code, a dummy section is inserted which is used as a catch-all
+        // for all sections that are not defined
+        Section dummySection = new Section();
+        dummySection.name = "dummy-section";
+
+        //
+        // preprocess
+        //
+
+        // create build folder
+        Files.createDirectories(Paths.get("build"));
+
+        // the first step is always to let the preprocessor resolve .include
+        // instructions. Let the compiler run on the combined file in a second step!
+
+        String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
+
+        String outputFile = INTERMEDIATE_FILE;
+
+        preprocess(inputFile, outputFile);
+
+        //
+        // linker script
+        //
+
+        Map<String, Section> sectionMap = new HashMap<>();
+        sectionMap.put(dummySection.name, dummySection);
+
+        LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
+        linkerScriptParser.parseLinkerScript(sectionMap);
+
+        //
+        // assemble
+        //
+
+        String asmInputFile = INTERMEDIATE_FILE;
+
+        // the extractor assembles AsmLineS by visiting the antlr4 AST
+        MIPSASMExtractingOutputListener asmListener = new MIPSASMExtractingOutputListener();
+        asmListener.dummySection = dummySection;
+
+        // the raw listener just prints the AST to the console
+        // RawOutputListener listener = new RawOutputListener();
+
+        // //
+        // // assemble to machine code
+        // //
+
+        // RiscVAssembler riscVAssembler = new RiscVAssembler();
+        // riscVAssembler.asmListener = asmListener;
+        // byte[] machineCode = riscVAssembler.assemble(sectionMap, asmInputFile);
+
+        // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        // riscVAssembler.outputHexMachineCode(machineCode, byteOrder);
+
+    }
+
+    public static void mainRISCV(String[] args) throws IOException {
 
         //
         // global variables
@@ -88,7 +158,7 @@ public class App {
         RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
         asmListener.dummySection = dummySection;
 
-        // the raw listener just printst the AST to the console
+        // the raw listener just prints the AST to the console
         // RawOutputListener listener = new RawOutputListener();
 
         //
