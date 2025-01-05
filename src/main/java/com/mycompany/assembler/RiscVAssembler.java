@@ -59,7 +59,7 @@ public class RiscVAssembler {
     public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
         asmLines = new ArrayList<>();
-        
+
         //
         // Set default section
         //
@@ -112,9 +112,7 @@ public class RiscVAssembler {
         // parse
         Asm_fileContext asmRoot = asmParser.asm_file();
 
-        // RawOutputListener listener = new RawOutputListener();
-
-        //RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
+        // set up the visitor
         asmListener.asmLines = asmLines;
         asmListener.sectionMap = sectionMap;
         asmListener.currentSection = currentSection;
@@ -258,7 +256,7 @@ public class RiscVAssembler {
 
         BnezResolver bnezResolver = new BnezResolver();
         bnezResolver.modify(asmLines, sectionMap);
-        
+
         BeqzResolver beqzResolver = new BeqzResolver();
         beqzResolver.modify(asmLines, sectionMap);
 
@@ -438,7 +436,7 @@ public class RiscVAssembler {
         }
 
         //
-        // Produce output for easy comparison with GNU riscv 32 bit elf toolchain or 
+        // Produce output for easy comparison with GNU riscv 32 bit elf toolchain or
         // online assemblers
         //
 
@@ -474,7 +472,7 @@ public class RiscVAssembler {
 
             if (container_index == 4) {
 
-                
+
                 byte[] temp = ByteArrayUtil.intToFourByte(container, byteOrder);
 
                 System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));
@@ -487,5 +485,5 @@ public class RiscVAssembler {
         }
         System.out.println("");
     }
-    
+
 }

@@ -6,6 +6,10 @@ public class NumberParseUtil {
 		// no instances of this class
 	}
 
+    public static long parseHexToLong(final String data) {
+        return parseLong(data);
+    }
+
     public static long parseLong(final String data) {
 
         String tempData = data;

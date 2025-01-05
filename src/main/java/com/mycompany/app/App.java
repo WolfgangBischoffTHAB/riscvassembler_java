@@ -33,6 +33,8 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
+    private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
+
     public static void main(String[] args) throws IOException {
 
         //
@@ -60,8 +62,9 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/test.s";
         String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
         //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
 
-        String outputFile = "build/preprocessed.s";
+        String outputFile = INTERMEDIATE_FILE;
 
         preprocess(inputFile, outputFile);
 
@@ -79,10 +82,18 @@ public class App {
         // assemble
         //
 
-        String asmInputFile = "build/preprocessed.s";
+        String asmInputFile = INTERMEDIATE_FILE;
 
+        // the extractor assembles AsmLineS by visiting the antlr4 AST
         RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
         asmListener.dummySection = dummySection;
+
+        // the raw listener just printst the AST to the console
+        // RawOutputListener listener = new RawOutputListener();
+
+        //
+        // assemble to machine code
+        //
 
         RiscVAssembler riscVAssembler = new RiscVAssembler();
         riscVAssembler.asmListener = asmListener;
@@ -96,7 +107,7 @@ public class App {
         // emulate
         //
 
-        //emulate(machineCode);
+        emulate(machineCode);
 
         System.out.println("done");
     }

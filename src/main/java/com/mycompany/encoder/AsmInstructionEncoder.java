@@ -80,15 +80,7 @@ public class AsmInstructionEncoder {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {
-
-            long data = 0L;
-            if (dataAsString.startsWith("0x")) {
-                dataAsString = dataAsString.substring(2);
-                data = Long.parseLong(dataAsString, 16);
-            } else {
-                data = Long.parseLong(dataAsString, 10);
-            }
-
+            long data = NumberParseUtil.parseLong(dataAsString);
             EncoderUtils.convertToUint32_t(byteArrayOutStream, (int) data);
             length += 4;
         }

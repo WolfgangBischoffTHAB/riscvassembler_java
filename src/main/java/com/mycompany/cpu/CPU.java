@@ -28,14 +28,21 @@ public class CPU {
 
         System.out.println(asmLine);
 
+        if (asmLine.mnemonic == null) {
+            System.out.println(asmLine);
+        }
+
         // https://projectf.io/posts/riscv-cheat-sheet/
+        // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
 
         switch (asmLine.mnemonic) {
 
             case I_LUI:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_AUIPC:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_JAL:
@@ -53,10 +60,20 @@ public class CPU {
                 break;
 
             case I_BEQ:
+                // Take the branch if registers rs1 and rs2 are equal.
+                // if (x[rs1] == x[rs2]) pc += sext(offset)
+                System.out.println("beq");
+                if (registerFile[asmLine.register_0.ordinal()] == registerFile[asmLine.register_1.ordinal()]) {
+                    pc += asmLine.numeric_2.intValue();
+                } else {
+                    pc += 4;
+                }
                 break;
             case I_BNE:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_BLT:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_BGE:
                 // if(rs1 >= rs2) pc += imm
@@ -68,27 +85,40 @@ public class CPU {
                 }
                 break;
             case I_BLTU:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_BGEU:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_LB:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LH:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LW:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LBU:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LBW:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
-            
+
             case I_SB:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SH:
+            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SW:
-                break;
+                System.out.println("sw : " + asmLine);
+                // Store 32-bit, values from the low bits of register rs2 to memory.
+                // sw rs2,offset(rs1)
+                // M[x[rs1] + sext(offset)] = x[rs2][31:0]
+                throw new RuntimeException("Not implemented yet!");
             case I_ADDI:
                 // rd = rs1 + imm
                 System.out.println("addi");
@@ -97,22 +127,30 @@ public class CPU {
                 break;
 
             case I_SLTI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SLTIU:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_XORI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_ORI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_ANDI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SLLI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SRLI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SRAI:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
-            
+
             case I_ADD:
                 System.out.println("add");
                 registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] + registerFile[asmLine.register_2.ordinal()];
@@ -120,23 +158,55 @@ public class CPU {
                 break;
 
             case I_SUB:
+                // Subtracts the register rs2 from rs1 and stores the result
+                // in rd. Arithmetic overflow is ignored and the result is
+                // simply the low XLEN bits of the result.
+                // sub rd,rs1,rs2
+                // x[rd] = x[rs1] - x[rs2]
+                System.out.println("sub");
+                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] - registerFile[asmLine.register_2.ordinal()];
+                pc += 4;
                 break;
             case I_SLL:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SLT:
+                // Place the value 1 in register rd if register rs1 is less
+                // than register rs2 when both are treated as signed numbers,
+                // else 0 is written to rd.
+                // slt rd, rs1, rs2
+                // x[rd] = x[rs1] <s x[rs2]
+                if (registerFile[asmLine.register_1.ordinal()] < registerFile[asmLine.register_2.ordinal()]) {
+                    registerFile[asmLine.register_0.ordinal()] = 1;
+                } else {
+                    registerFile[asmLine.register_0.ordinal()] = 0;
+                }
+                pc += 4;
                 break;
             case I_SLTU:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_XOR:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SRL:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SRA:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_OR:
+                System.out.println("or");
+                // Performs bitwise OR on registers rs1 and rs2 and place the result in rd
+                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] | registerFile[asmLine.register_2.ordinal()];
+                pc += 4;
                 break;
             case I_AND:
+                System.out.println("and");
+                // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
+                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] & registerFile[asmLine.register_2.ordinal()];
+                pc += 4;
                 break;
             // case I_FENCE:
             //     break;
@@ -144,6 +214,7 @@ public class CPU {
             //     break;
 
             case I_ECALL:
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             // case I_EBREAK:
             //     break;
@@ -164,7 +235,7 @@ public class CPU {
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
         }
 
-        
+
     }
-    
+
 }

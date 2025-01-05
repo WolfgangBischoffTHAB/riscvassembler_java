@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -22,6 +23,11 @@ import riscvasm.RISCVASMParser.ParamContext;
 import riscvasm.RISCVASMParser.RegisterContext;
 import riscvasm.RISCVASMParserBaseListener;
 
+/**
+ * Listener for AST traversal visitor pattern.
+ * This listener assembles AsmLineS from all informations it
+ * finds inside the AST while visiting.
+ */
 public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener {
 
     public Map<String, Section> sectionMap;
@@ -41,7 +47,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         asmLine.sourceLine = sourceLine;
         asmLine.section = currentSection;
-        asmLines.add(asmLine);        
+        asmLines.add(asmLine);
 
         asmLine = new AsmLine();
         sourceLine++;
@@ -78,13 +84,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                             String numeric = numeric2.toString();
                             switch (index) {
                                 case 0:
-                                    asmLine.offset_0 = Long.parseLong(numeric);
+                                    asmLine.offset_0 = NumberParseUtil.parseLong(numeric);
                                     break;
                                 case 1:
-                                    asmLine.offset_1 = Long.parseLong(numeric);
+                                    asmLine.offset_1 = NumberParseUtil.parseLong(numeric);
                                     break;
                                 case 2:
-                                    asmLine.offset_2 = Long.parseLong(numeric);
+                                    asmLine.offset_2 = NumberParseUtil.parseLong(numeric);
                                     break;
                             }
                         }
@@ -107,23 +113,51 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                     ExprContext offsetExprContext = offsetContext.expr();
                     if (offsetExprContext != null) {
-                        String offsetLabel = offsetExprContext.getChild(0).toString();
-                        switch (index) {
-                            case 0:
-                                asmLine.offsetLabel_0 = offsetLabel;
-                                break;
-                            case 1:
-                                asmLine.offsetLabel_1 = offsetLabel;
-                                break;
-                            case 2:
-                                asmLine.offsetLabel_2 = offsetLabel;
-                                break;
+
+                        String offset = offsetExprContext.getChild(0).toString();
+
+                        TerminalNode numericTerminalNode = offsetExprContext.NUMERIC();
+                        TerminalNode hexNumericTerminalNode = offsetExprContext.HEX_NUMERIC();
+                        if (numericTerminalNode != null || hexNumericTerminalNode != null) {
+
+                            Long data = NumberParseUtil.parseLong(offset);
+
+                            // Do I need this ?
+                            isHexNumeric = true;
+
+                            switch (index) {
+                                case 0:
+                                    asmLine.offset_0 = data;
+                                    break;
+                                case 1:
+                                    asmLine.offset_1 = data;
+                                    break;
+                                case 2:
+                                    asmLine.offset_2 = data;
+                                    break;
+                            }
+
+                        } else {
+
+                            switch (index) {
+                                case 0:
+                                    asmLine.offsetLabel_0 = offset;
+                                    break;
+                                case 1:
+                                    asmLine.offsetLabel_1 = offset;
+                                    break;
+                                case 2:
+                                    asmLine.offsetLabel_2 = offset;
+                                    break;
+                            }
+
                         }
                     }
                 }
 
                 ExprContext exprContext = paramContext.expr();
                 if (exprContext != null) {
+
                     RegisterContext registerContext = exprContext.register();
                     if (registerContext != null) {
 
@@ -151,13 +185,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                         if (numeric != null) {
                             switch (index) {
                                 case 0:
-                                    asmLine.numeric_0 = Long.parseLong(numeric);
+                                    asmLine.numeric_0 = NumberParseUtil.parseLong(numeric);
                                     break;
                                 case 1:
-                                    asmLine.numeric_1 = Long.parseLong(numeric);
+                                    asmLine.numeric_1 = NumberParseUtil.parseLong(numeric);
                                     break;
                                 case 2:
-                                    asmLine.numeric_2 = Long.parseLong(numeric);
+                                    asmLine.numeric_2 = NumberParseUtil.parseLong(numeric);
                                     break;
                             }
                         }
@@ -169,19 +203,19 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                         isHexNumeric = true;
 
                         String numeric = numericTerminalNode.toString();
-                        if (numeric.startsWith("0x")) {
-                            numeric = numeric.substring("0x".length());
-                        }
+                        long value = NumberParseUtil.parseLong(numeric);
+
+
                         if (numeric != null) {
                             switch (index) {
                                 case 0:
-                                    asmLine.numeric_0 = Long.parseLong(numeric, 16);
+                                    asmLine.numeric_0 = value;
                                     break;
                                 case 1:
-                                    asmLine.numeric_1 = Long.parseLong(numeric, 16);
+                                    asmLine.numeric_1 = value;
                                     break;
                                 case 2:
-                                    asmLine.numeric_2 = Long.parseLong(numeric, 16);
+                                    asmLine.numeric_2 = value;
                                     break;
                             }
                         }
@@ -209,6 +243,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                 if (!isOffset && !isRegister && !isNumeric && !isHexNumeric && !isStringLiteral) {
 
+                    // DEBUG
                     // ExprContext lhs = (ExprContext) exprContext.getChild(0);
                     // String operator = exprContext.getChild(1).getText();
                     // ExprContext rhs = (ExprContext) exprContext.getChild(2);
@@ -388,7 +423,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         //throw new RuntimeException("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
         System.out.println("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
-        
+
         return dummySection;
     }
 
