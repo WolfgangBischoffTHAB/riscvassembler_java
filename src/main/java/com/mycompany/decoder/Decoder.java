@@ -9,8 +9,9 @@ public class Decoder {
 
     private static final int R_TYPE = 0b0110011;
 
-    private static final int I_TYPE = 0b1100111;
+    private static final int I_TYPE_1 = 0b1100111;
     private static final int I_TYPE_2 = 0b0010011;
+    private static final int I_TYPE_3 = 0b0000011;
 
     private static final int S_TYPE = 0b0100011;
 
@@ -86,18 +87,7 @@ public class Decoder {
                 decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                 break;
 
-            case I_TYPE_2:
-                switch (funct3) {
-                    case 0b000:
-                        asmLine.mnemonic = Mnemonic.I_ADDI;
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown funct3: " + funct3);
-                }
-                decodeIType(asmLine, funct3, funct7, rd, rs1, imm_11_0);
-                break;
-
-            case I_TYPE:
+            case I_TYPE_1:
                 switch (funct3) {
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_JALR;
@@ -105,7 +95,30 @@ public class Decoder {
                     default:
                         throw new RuntimeException("Unknown funct3: " + funct3);
                 }
-                decodeIType(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                break;
+
+            case I_TYPE_2:
+                switch (funct3) {
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_ADDI;
+                        break;
+
+                    default:
+                        throw new RuntimeException("Unknown funct3: " + funct3);
+                }
+                decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                break;
+
+            case I_TYPE_3:
+                switch (funct3) {
+                    case 0b010:
+                        asmLine.mnemonic = Mnemonic.I_LW;
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown funct3: " + funct3);
+                }
+                decodeIType_3(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
 
             case S_TYPE:
@@ -158,16 +171,39 @@ public class Decoder {
                 break;
 
             default:
-                throw new RuntimeException("Instruction Type!");
+                throw new RuntimeException("Unknown Instruction Type!");
         }
 
         return asmLine;
     }
 
-    private static void decodeIType(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+    private static void decodeIType_1(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
         asmLine.register_0 = Register.fromInt(rd);
         asmLine.register_1 = Register.fromInt(rs1);
         asmLine.numeric_2 = (long) imm;
+    }
+
+    private static void decodeIType_2(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+        asmLine.register_0 = Register.fromInt(rd);
+        asmLine.register_1 = Register.fromInt(rs1);
+        asmLine.numeric_2 = (long) imm;
+    }
+
+    /**
+     * I think I_TYPE type_3 means, that the immediate is an offset
+     * to register 1
+     *
+     * @param asmLine
+     * @param funct3
+     * @param funct7
+     * @param rd
+     * @param rs1
+     * @param imm
+     */
+    private static void decodeIType_3(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+        asmLine.register_0 = Register.fromInt(rd);
+        asmLine.register_1 = Register.fromInt(rs1);
+        asmLine.offset_1 = (long) imm;
     }
 
     private static void decodeSType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {

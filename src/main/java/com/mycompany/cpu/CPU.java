@@ -30,6 +30,7 @@ public class CPU {
 
         if (asmLine.mnemonic == null) {
             System.out.println(asmLine);
+            throw new RuntimeException("Decoding instruction without mnemonic!");
         }
 
         // https://projectf.io/posts/riscv-cheat-sheet/
@@ -38,11 +39,11 @@ public class CPU {
         switch (asmLine.mnemonic) {
 
             case I_LUI:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_AUIPC:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_JAL:
@@ -70,10 +71,10 @@ public class CPU {
                 }
                 break;
             case I_BNE:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_BLT:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_BGE:
                 // if(rs1 >= rs2) pc += imm
@@ -85,33 +86,36 @@ public class CPU {
                 }
                 break;
             case I_BLTU:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_BGEU:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_LB:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LH:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LW:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                System.out.println(asmLine);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                throw new RuntimeException("Not implemented yet!");
+                //pc += 4;
+                //break;
             case I_LBU:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_LBW:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
 
             case I_SB:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SH:
-            System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
             case I_SW:
                 System.out.println("sw : " + asmLine);
@@ -119,9 +123,11 @@ public class CPU {
                 // sw rs2,offset(rs1)
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
                 throw new RuntimeException("Not implemented yet!");
+                //pc += 4;
+                //break;
             case I_ADDI:
                 // rd = rs1 + imm
-                System.out.println("addi");
+                System.out.println("addi: " + asmLine);
                 registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] + asmLine.numeric_2.intValue();
                 pc += 4;
                 break;
