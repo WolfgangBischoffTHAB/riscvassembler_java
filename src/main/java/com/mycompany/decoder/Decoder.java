@@ -3,6 +3,7 @@ package com.mycompany.decoder;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 
 public class Decoder {
@@ -178,14 +179,14 @@ public class Decoder {
     }
 
     private static void decodeIType_1(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
-        asmLine.register_0 = Register.fromInt(rd);
-        asmLine.register_1 = Register.fromInt(rs1);
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.numeric_2 = (long) imm;
     }
 
     private static void decodeIType_2(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
-        asmLine.register_0 = Register.fromInt(rd);
-        asmLine.register_1 = Register.fromInt(rs1);
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.numeric_2 = (long) imm;
     }
 
@@ -201,31 +202,31 @@ public class Decoder {
      * @param imm
      */
     private static void decodeIType_3(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
-        asmLine.register_0 = Register.fromInt(rd);
-        asmLine.register_1 = Register.fromInt(rs1);
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.offset_1 = (long) imm;
     }
 
     private static void decodeSType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {
-        asmLine.register_0 = Register.fromInt(rs2);
-        asmLine.register_1 = Register.fromInt(rs1);
+        asmLine.register_0 = RISCVRegister.fromInt(rs2);
+        asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.offset_1 = (long) imm;
     }
 
     private static void decodeRType(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int rs2) {
-        asmLine.register_0 = Register.fromInt(rd);
-        asmLine.register_1 = Register.fromInt(rs1);
-        asmLine.register_2 = Register.fromInt(rs2);
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.register_1 = RISCVRegister.fromInt(rs1);
+        asmLine.register_2 = RISCVRegister.fromInt(rs2);
     }
 
     private static void decodeBType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {
-        asmLine.register_0 = Register.fromInt(rs1);
-        asmLine.register_1 = Register.fromInt(rs2);
+        asmLine.register_0 = RISCVRegister.fromInt(rs1);
+        asmLine.register_1 = RISCVRegister.fromInt(rs2);
         asmLine.numeric_2 = (long) imm;
     }
 
     private static void decodeJType(AsmLine asmLine, int rd, int imm) {
-        asmLine.register_0 = Register.fromInt(rd);
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.numeric_1 = (long) imm;
     }
 

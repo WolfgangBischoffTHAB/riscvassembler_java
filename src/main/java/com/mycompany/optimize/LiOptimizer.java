@@ -7,13 +7,14 @@ import java.util.Map;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class LiOptimizer extends BaseOptimizer {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
@@ -30,7 +31,7 @@ public class LiOptimizer extends BaseOptimizer {
             updateAddresses(asmLines, sectionMap);
 
             // find unoptimized li pseudo instruction
-            AsmLine liPseudoAsmLine = null;
+            AsmLine<?> liPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
             for (AsmLine asmLine : asmLines) {
@@ -51,8 +52,8 @@ public class LiOptimizer extends BaseOptimizer {
             }
 
             // start with first child instruction
-            AsmLine firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
-            AsmLine secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
+            AsmLine<?> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
+            AsmLine<?> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
@@ -162,7 +163,7 @@ public class LiOptimizer extends BaseOptimizer {
                 AsmLine asmLine = new AsmLine();
                 asmLine.mnemonic = Mnemonic.I_ADDI;
                 asmLine.register_0 = secondAsmLine.register_0;
-                asmLine.register_1 = Register.REG_ZERO;
+                asmLine.register_1 = RISCVRegister.REG_ZERO;
                 asmLine.modifier_2 = Modifier.LO;
                 asmLine.offsetLabel_2 = secondAsmLine.offsetLabel_2;
                 asmLine.section = liPseudoAsmLine.section;

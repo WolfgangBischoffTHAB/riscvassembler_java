@@ -1,4 +1,4 @@
-package com.mycompany.app;
+package com.mycompany.visitor;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;

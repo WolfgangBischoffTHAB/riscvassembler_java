@@ -1,4 +1,4 @@
-package com.mycompany.app;
+package com.mycompany.visitor;
 
 import java.util.Map;
 

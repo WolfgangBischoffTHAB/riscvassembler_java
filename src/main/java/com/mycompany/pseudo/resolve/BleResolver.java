@@ -13,7 +13,7 @@ import com.mycompany.data.Section;
 public class BleResolver implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         for (AsmLine asmLine : asmLines) {
 

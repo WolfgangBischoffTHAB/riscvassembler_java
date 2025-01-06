@@ -5,7 +5,7 @@ import java.util.List;
 
 import riscvasm.RISCVASMParser.ExprContext;
 
-public class AsmLine {
+public class AsmLine<T extends Register> {
 
     public int sourceLine = -1;
 
@@ -16,9 +16,9 @@ public class AsmLine {
 
     public Mnemonic mnemonic;
 
-    public Register register_0 = Register.REG_UNKNOWN;
-    public Register register_1 = Register.REG_UNKNOWN;
-    public Register register_2 = Register.REG_UNKNOWN;
+    public T register_0;
+    public T register_1;
+    public T register_2;
 
     public Long numeric_0 = null;
     public Long numeric_1 = null;
@@ -46,9 +46,9 @@ public class AsmLine {
 
     public String stringValue;
 
-    public ExprContext exprContext_0 = null;
-    public ExprContext exprContext_1 = null;
-    public ExprContext exprContext_2 = null;
+    // public ExprContext exprContext_0 = null;
+    // public ExprContext exprContext_1 = null;
+    // public ExprContext exprContext_2 = null;
 
     public AsmLine pseudoInstructionAsmLine = null;
     public List<AsmLine> pseudoInstructionChildren = new ArrayList<>();
@@ -125,7 +125,7 @@ public class AsmLine {
                 stringBuilder.append(offsetLabel_0);
             }
             stringBuilder.append(")");
-            if (register_0 != Register.REG_UNKNOWN) {
+            if (register_0 != null) {
                 stringBuilder.append("(");
                 stringBuilder.append(Register.toStringAbi(register_0));
                 stringBuilder.append(")");
@@ -134,15 +134,17 @@ public class AsmLine {
             stringBuilder.append(identifier_0);
         } else if (offset_0 != null) {
             stringBuilder.append(offset_0).append("(");
-            if (register_0 != Register.REG_UNKNOWN) {
+            if (register_0 != null) {
                 stringBuilder.append(Register.toStringAbi(register_0));
             }
             stringBuilder.append(")");
-        } else if (exprContext_0 != null) {
-            // TODO: evaluate the tree
-            stringBuilder.append(exprContext_0.toStringTree());
-        } else {
-            if (register_0 != Register.REG_UNKNOWN) {
+        }
+        // else if (exprContext_0 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(exprContext_0.toStringTree());
+        // }
+        else {
+            if (register_0 != null) {
                 stringBuilder.append(Register.toStringAbi(register_0));
             }
         }
@@ -159,7 +161,7 @@ public class AsmLine {
                 stringBuilder.append(offsetLabel_1);
             }
             stringBuilder.append(")");
-            if (register_1 != Register.REG_UNKNOWN) {
+            if (register_1 != null) {
                 stringBuilder.append("(");
                 stringBuilder.append(Register.toStringAbi(register_1));
                 stringBuilder.append(")");
@@ -170,16 +172,18 @@ public class AsmLine {
         } else if (offset_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offset_1).append("(");
-            if (register_1 != Register.REG_UNKNOWN) {
+            if (register_1 != null) {
                 stringBuilder.append(Register.toStringAbi(register_1));
             }
             stringBuilder.append(")");
-        } else if (exprContext_1 != null) {
-            // TODO: evaluate the tree
-            stringBuilder.append(", ");
-            stringBuilder.append(exprContext_1.toStringTree());
-        } else {
-            if (register_1 != Register.REG_UNKNOWN) {
+        }
+        // else if (exprContext_1 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(", ");
+        //     stringBuilder.append(exprContext_1.toStringTree());
+        // }
+        else {
+            if (register_1 != null) {
                 stringBuilder.append(", ");
                 stringBuilder.append(Register.toStringAbi(register_1));
             }
@@ -197,7 +201,7 @@ public class AsmLine {
                 stringBuilder.append(offsetLabel_2);
             }
             stringBuilder.append(")");
-            if (register_2 != Register.REG_UNKNOWN) {
+            if (register_2 != null) {
                 stringBuilder.append("(");
                 stringBuilder.append(Register.toStringAbi(register_2));
                 stringBuilder.append(")");
@@ -208,16 +212,18 @@ public class AsmLine {
         } else if (offset_2 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offset_2).append("(");
-            if (register_2 != Register.REG_UNKNOWN) {
+            if (register_2 != null) {
                 stringBuilder.append(Register.toStringAbi(register_2));
             }
             stringBuilder.append(")");
-        } else if (exprContext_2 != null) {
-            // TODO: evaluate the tree
-            stringBuilder.append(", ");
-            stringBuilder.append(exprContext_2.toStringTree());
-        } else {
-            if (register_2 != Register.REG_UNKNOWN) {
+        }
+        // else if (exprContext_2 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(", ");
+        //     stringBuilder.append(exprContext_2.toStringTree());
+        // }
+        else {
+            if (register_2 != null) {
                 stringBuilder.append(", ");
                 stringBuilder.append(Register.toStringAbi(register_2));
             }

@@ -16,9 +16,9 @@ import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import com.mycompany.app.LINKERSCRIPTLANGUAGEExtractingOutputListener;
 import com.mycompany.data.MemorySpecifier;
 import com.mycompany.data.Section;
+import com.mycompany.visitor.LINKERSCRIPTLANGUAGEExtractingOutputListener;
 
 import linkerscriptlanguage.LINKERSCRIPTLANGUAGELexer;
 import linkerscriptlanguage.LINKERSCRIPTLANGUAGEParser;
@@ -108,5 +108,5 @@ public class LinkerScriptParser {
 
         System.out.println("Parsing linker file done.");
     }
-    
+
 }

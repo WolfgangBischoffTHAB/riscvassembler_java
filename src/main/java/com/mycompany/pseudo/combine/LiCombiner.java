@@ -43,7 +43,7 @@ import com.mycompany.data.Section;
 public class LiCombiner implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         AsmLine data_1 = null;
         AsmLine data_2 = null;

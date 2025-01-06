@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
-import com.mycompany.data.Register;
+import com.mycompany.data.RISCVRegister;
 
 public class MnemonicEncoder {
 
@@ -154,7 +154,7 @@ public class MnemonicEncoder {
 
             byte opcode = 0b0010111;
 
-            byte rd = (byte) asmLine.register_0.ordinal();
+            byte rd = (byte) asmLine.register_0.getIndex();
             int imm = (int) (data_1 + data_2);
 
             int result = encodeUType(imm, rd, opcode);
@@ -166,7 +166,7 @@ public class MnemonicEncoder {
 
             byte opcode = 0b0010111;
 
-            byte rd = (byte) asmLine.register_0.ordinal();
+            byte rd = (byte) asmLine.register_0.getIndex();
             int imm = asmLine.numeric_1.shortValue();
 
             int result = encodeUType(imm, rd, opcode);
@@ -184,9 +184,9 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b0110011;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -236,8 +236,8 @@ public class MnemonicEncoder {
 
             byte funct3 = 0b000;
             byte opcode = 0b0010011;
-            byte rd = (byte) asmLine.register_0.ordinal();
-            byte rs1 = (byte) asmLine.register_1.ordinal();
+            byte rd = (byte) asmLine.register_0.getIndex();
+            byte rs1 = (byte) asmLine.register_1.getIndex();
             short imm = (short) data_1;
 
             int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -249,8 +249,8 @@ public class MnemonicEncoder {
 
             byte funct3 = 0b000;
             byte opcode = 0b0010011;
-            byte rd = (byte) asmLine.register_0.ordinal();
-            byte rs1 = (byte) asmLine.register_1.ordinal();
+            byte rd = (byte) asmLine.register_0.getIndex();
+            byte rs1 = (byte) asmLine.register_1.getIndex();
             short imm = asmLine.numeric_2.shortValue();
 
             int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -267,8 +267,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b0011011;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -283,9 +283,9 @@ public class MnemonicEncoder {
         byte funct3 = 0b111;
         byte opcode = 0b0110011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -298,8 +298,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b111;
         byte opcode = 0b0010011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -314,9 +314,9 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b0110011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -330,9 +330,9 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b0110011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -345,12 +345,11 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b1100011;
 
-        byte rs1 = (byte) asmLine.register_0.ordinal();
-        byte rs2 = (byte) asmLine.register_1.ordinal();
-        // byte rs2 = (byte) asmLine.register_2.ordinal();
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rs2 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
-        if ((asmLine.register_0 == Register.REG_UNKNOWN) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
+        if ((asmLine.register_0 == null) || (asmLine.register_1 == null)) {
             throw new RuntimeException("Register is unknown!");
         }
 
@@ -365,8 +364,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b1110011;
 
-        byte rs1 = (byte) Register.REG_ZERO.ordinal();
-        byte rs2 = (byte) Register.REG_ZERO.ordinal();
+        byte rs1 = (byte) RISCVRegister.REG_ZERO.ordinal();
+        byte rs2 = (byte) RISCVRegister.REG_ZERO.ordinal();
         short imm = 0x00;
 
         int result = encodeIType(imm, rs2, rs1, funct3, opcode);
@@ -380,8 +379,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b001;
         byte opcode = 0b1100011;
 
-        byte rs1 = (byte) asmLine.register_0.ordinal();
-        byte rs2 = (byte) asmLine.register_1.ordinal();
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rs2 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
@@ -395,8 +394,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b101;
         byte opcode = 0b1100011;
 
-        byte rs1 = (byte) asmLine.register_0.ordinal();
-        byte rs2 = (byte) asmLine.register_1.ordinal();
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rs2 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
@@ -410,8 +409,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b100;
         byte opcode = 0b1100011;
 
-        byte rs1 = (byte) asmLine.register_0.ordinal();
-        byte rs2 = (byte) asmLine.register_1.ordinal();
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rs2 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
@@ -424,7 +423,7 @@ public class MnemonicEncoder {
     private int encodeJAL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte opcode = 0b1101111;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
         int imm = asmLine.numeric_1.intValue();
 
         int result = encodeJType(imm, rd, opcode);
@@ -438,8 +437,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b1100111;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = 0;
         if (asmLine.numeric_2 != null) {
             imm = asmLine.numeric_2.shortValue();
@@ -456,7 +455,7 @@ public class MnemonicEncoder {
 
     private int encodeLUI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte opcode = 0b0110111;
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
         int imm = asmLine.numeric_1.shortValue();
 
         int result = encodeUType(imm, rd, opcode);
@@ -470,8 +469,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b0000011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -485,8 +484,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b100;
         byte opcode = 0b0000011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -499,8 +498,8 @@ public class MnemonicEncoder {
     private int encodeSB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b000;
         byte opcode = 0b0100011;
-        byte rs2 = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rs2 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeSType(imm, rs2, rs1, funct3, opcode);
@@ -514,8 +513,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b010;
         byte opcode = 0b0000011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -530,9 +529,9 @@ public class MnemonicEncoder {
         byte funct3 = 0b110;
         byte opcode = 0b0110011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -552,8 +551,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b011;
         byte opcode = 0b0000011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -567,8 +566,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b101;
         byte opcode = 0b0010011;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = (short)(((short) 0b010000000000) + ((short) asmLine.numeric_2.shortValue()));
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -582,8 +581,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b101;
         byte opcode = 0b0010011;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = (short)(((short) 0b000000000000) + ((short) asmLine.numeric_2.shortValue()));
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -597,8 +596,8 @@ public class MnemonicEncoder {
         byte funct3 = 0b001;
         byte opcode = 0b0010011;
 
-        byte rd = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
@@ -613,9 +612,9 @@ public class MnemonicEncoder {
         byte funct3 = 0b010;
         byte opcode = 0b0110011;
 
-        byte rs1 = (byte) asmLine.register_1.ordinal();
-        byte rs2 = (byte) asmLine.register_2.ordinal();
-        byte rd = (byte) asmLine.register_0.ordinal();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
 
         int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -627,8 +626,8 @@ public class MnemonicEncoder {
     private int encodeSD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b011;
         byte opcode = 0b0100011;
-        byte rs2 = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rs2 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeSType(imm, rs2, rs1, funct3, opcode);
@@ -641,8 +640,8 @@ public class MnemonicEncoder {
     private int encodeSW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
         byte funct3 = 0b010;
         byte opcode = 0b0100011;
-        byte rs2 = (byte) asmLine.register_0.ordinal();
-        byte rs1 = (byte) asmLine.register_1.ordinal();
+        byte rs2 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeSType(imm, rs2, rs1, funct3, opcode);

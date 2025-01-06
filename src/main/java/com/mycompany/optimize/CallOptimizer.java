@@ -6,13 +6,14 @@ import java.util.Map;
 
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class CallOptimizer extends BaseOptimizer {
 
     @Override
-    public void modify(final List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(final List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
@@ -29,7 +30,7 @@ public class CallOptimizer extends BaseOptimizer {
             updateAddresses(asmLines, sectionMap);
 
             // find unoptimized call pseudo instruction
-            AsmLine callPseudoAsmLine = null;
+            AsmLine<?> callPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
             for (AsmLine asmLine : asmLines) {
@@ -47,8 +48,6 @@ public class CallOptimizer extends BaseOptimizer {
                 done = true;
                 continue;
             }
-
-            //callPseudoAsmLine.optimized = true;
 
             // start with first child instruction
             AsmLine firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
@@ -175,7 +174,7 @@ public class CallOptimizer extends BaseOptimizer {
                 if (twoByteAligned) {
 
                     asmLine.mnemonic = Mnemonic.I_JAL;
-                    asmLine.register_0 = Register.REG_RA;
+                    asmLine.register_0 = RISCVRegister.REG_RA;
                     asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
 
                     callPseudoAsmLine.optimized = true;
@@ -188,9 +187,9 @@ public class CallOptimizer extends BaseOptimizer {
                     // JALR because relative offset would not be half word aligned
 
                     asmLine.mnemonic = Mnemonic.I_JALR;
-                    asmLine.register_0 = Register.REG_RA;
+                    asmLine.register_0 = RISCVRegister.REG_RA;
                     asmLine.offset_1 = labelTableMap.get(firstAsmLine.offsetLabel_1);
-                    asmLine.register_1 = Register.REG_ZERO;
+                    asmLine.register_1 = RISCVRegister.REG_ZERO;
 
                     callPseudoAsmLine.optimized = true;
                     callPseudoAsmLine.pseudoInstructionChildren.clear();

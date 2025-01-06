@@ -53,7 +53,7 @@ public class AsmInstructionEncoder {
         return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
     }
 
-    private int encodeSpaceAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    private int encodeSpaceAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
 
         String sizeAsString = asmLine.csvList.get(0);
         long sizeInBytes = NumberParseUtil.parseLong(sizeAsString);
@@ -64,7 +64,7 @@ public class AsmInstructionEncoder {
         return length;
     }
 
-    private int encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    private int encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {
@@ -76,7 +76,7 @@ public class AsmInstructionEncoder {
         return length;
     }
 
-    private int encodeWordAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    private int encodeWordAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {

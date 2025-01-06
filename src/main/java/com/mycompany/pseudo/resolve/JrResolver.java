@@ -6,13 +6,14 @@ import java.util.Map;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class JrResolver  implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         for (AsmLine asmLine : asmLines) {
 
@@ -22,7 +23,7 @@ public class JrResolver  implements AsmInstructionListModifier {
 
             asmLine.mnemonic = Mnemonic.I_JALR;
             asmLine.register_1 = asmLine.register_0;
-            asmLine.register_0 = Register.REG_ZERO;
+            asmLine.register_0 = RISCVRegister.REG_ZERO;
             asmLine.numeric_2 = 0L;
         }
     }

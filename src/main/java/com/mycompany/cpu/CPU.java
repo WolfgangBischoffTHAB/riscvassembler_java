@@ -49,22 +49,22 @@ public class CPU {
             case I_JAL:
                 // rd = pc+4; pc += imm
                 System.out.println("jal");
-                registerFile[asmLine.register_0.ordinal()] = pc + 4;
+                registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 pc += (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
                 break;
 
             case I_JALR:
                 // rd = pc+4; pc = rs1+imm
                 System.out.println("jalr");
-                registerFile[asmLine.register_0.ordinal()] = pc + 4;
-                pc = registerFile[asmLine.register_1.ordinal()] + asmLine.numeric_2.intValue();
+                registerFile[asmLine.register_0.getIndex()] = pc + 4;
+                pc = registerFile[asmLine.register_1.getIndex()] + asmLine.numeric_2.intValue();
                 break;
 
             case I_BEQ:
                 // Take the branch if registers rs1 and rs2 are equal.
                 // if (x[rs1] == x[rs2]) pc += sext(offset)
                 System.out.println("beq");
-                if (registerFile[asmLine.register_0.ordinal()] == registerFile[asmLine.register_1.ordinal()]) {
+                if (registerFile[asmLine.register_0.getIndex()] == registerFile[asmLine.register_1.getIndex()]) {
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     pc += 4;
@@ -79,7 +79,7 @@ public class CPU {
             case I_BGE:
                 // if(rs1 >= rs2) pc += imm
                 System.out.println("bge");
-                if (registerFile[asmLine.register_0.ordinal()] >= registerFile[asmLine.register_1.ordinal()]) {
+                if (registerFile[asmLine.register_0.getIndex()] >= registerFile[asmLine.register_1.getIndex()]) {
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     pc += 4;
@@ -128,7 +128,7 @@ public class CPU {
             case I_ADDI:
                 // rd = rs1 + imm
                 System.out.println("addi: " + asmLine);
-                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] + asmLine.numeric_2.intValue();
+                registerFile[asmLine.register_0.getIndex()] = registerFile[asmLine.register_1.getIndex()] + asmLine.numeric_2.intValue();
                 pc += 4;
                 break;
 
@@ -159,7 +159,7 @@ public class CPU {
 
             case I_ADD:
                 System.out.println("add");
-                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] + registerFile[asmLine.register_2.ordinal()];
+                registerFile[asmLine.register_0.getIndex()] = registerFile[asmLine.register_1.getIndex()] + registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
 
@@ -170,7 +170,7 @@ public class CPU {
                 // sub rd,rs1,rs2
                 // x[rd] = x[rs1] - x[rs2]
                 System.out.println("sub");
-                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] - registerFile[asmLine.register_2.ordinal()];
+                registerFile[asmLine.register_0.getIndex()] = registerFile[asmLine.register_1.getIndex()] - registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
             case I_SLL:
@@ -182,10 +182,10 @@ public class CPU {
                 // else 0 is written to rd.
                 // slt rd, rs1, rs2
                 // x[rd] = x[rs1] <s x[rs2]
-                if (registerFile[asmLine.register_1.ordinal()] < registerFile[asmLine.register_2.ordinal()]) {
-                    registerFile[asmLine.register_0.ordinal()] = 1;
+                if (registerFile[asmLine.register_1.getIndex()] < registerFile[asmLine.register_2.getIndex()]) {
+                    registerFile[asmLine.register_0.getIndex()] = 1;
                 } else {
-                    registerFile[asmLine.register_0.ordinal()] = 0;
+                    registerFile[asmLine.register_0.getIndex()] = 0;
                 }
                 pc += 4;
                 break;
@@ -205,13 +205,13 @@ public class CPU {
             case I_OR:
                 System.out.println("or");
                 // Performs bitwise OR on registers rs1 and rs2 and place the result in rd
-                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] | registerFile[asmLine.register_2.ordinal()];
+                registerFile[asmLine.register_0.getIndex()] = registerFile[asmLine.register_1.getIndex()] | registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
             case I_AND:
                 System.out.println("and");
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
-                registerFile[asmLine.register_0.ordinal()] = registerFile[asmLine.register_1.ordinal()] & registerFile[asmLine.register_2.ordinal()];
+                registerFile[asmLine.register_0.getIndex()] = registerFile[asmLine.register_1.getIndex()] & registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
             // case I_FENCE:

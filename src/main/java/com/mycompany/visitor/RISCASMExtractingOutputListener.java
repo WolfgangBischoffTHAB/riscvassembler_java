@@ -1,4 +1,4 @@
-package com.mycompany.app;
+package com.mycompany.visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
@@ -34,7 +35,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     public Section currentSection;
 
-    public List<AsmLine> asmLines;
+    public List<AsmLine<?>> asmLines;
 
     private AsmLine asmLine = new AsmLine();
 
@@ -165,13 +166,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                         switch (index) {
                             case 0:
-                                asmLine.register_0 = Register.fromString(registerContext.getText());
+                                asmLine.register_0 = RISCVRegister.fromString(registerContext.getText());
                                 break;
                             case 1:
-                                asmLine.register_1 = Register.fromString(registerContext.getText());
+                                asmLine.register_1 = RISCVRegister.fromString(registerContext.getText());
                                 break;
                             case 2:
-                                asmLine.register_2 = Register.fromString(registerContext.getText());
+                                asmLine.register_2 = RISCVRegister.fromString(registerContext.getText());
                                 break;
                         }
                     }
@@ -204,7 +205,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                         String numeric = numericTerminalNode.toString();
                         long value = NumberParseUtil.parseLong(numeric);
-
 
                         if (numeric != null) {
                             switch (index) {
@@ -250,13 +250,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                     switch (index) {
                         case 0:
-                            asmLine.exprContext_0 = exprContext;
+                            //asmLine.exprContext_0 = exprContext;
                             break;
                         case 1:
-                            asmLine.exprContext_1 = exprContext;
+                            //asmLine.exprContext_1 = exprContext;
                             break;
                         case 2:
-                            asmLine.exprContext_2 = exprContext;
+                            //asmLine.exprContext_2 = exprContext;
                             break;
                     }
                 }
@@ -345,7 +345,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         asmLine.asmInstruction = AsmInstruction.DATA;
 
         String val = ".data";
-        // asmLine.stringValue = val;
 
         currentSection = enableTargetSection(val);
 
@@ -361,34 +360,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         recurseList(csv_numeric_list, list);
         asmLine.csvList = list;
     }
-
-    /*
-    @Override
-    public void exitSection_text_assembler_instruction(RISCVASMParser.Section_text_assembler_instructionContext ctx) {
-        asmLine.asmInstruction = AsmInstruction.SECTION;
-
-        String val = ctx.getChild(1).getText().toString();
-        asmLine.stringValue = val;
-
-        enableTargetSection(val);
-
-        asmLine.section = currentSection;
-    }
-
-    @Override
-    public void exitSection_rodata_assembler_instruction(
-            RISCVASMParser.Section_rodata_assembler_instructionContext ctx) {
-
-        asmLine.asmInstruction = AsmInstruction.SECTION;
-
-        String val = ctx.getChild(1).getText().toString();
-        asmLine.stringValue = val;
-
-        enableTargetSection(val);
-
-        asmLine.section = currentSection;
-    }
-    */
 
     @Override
     public void exitSection_definition_assembler_instruction(

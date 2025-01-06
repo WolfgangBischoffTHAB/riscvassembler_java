@@ -26,7 +26,7 @@ li $v0, 1
 
 # The system call looks at what is in $v0
 # and $a0, and knows to print what is in $a0
-syscall
+#syscall
 
 # Now we want to print Hello World
 # So we load the (address of the) string into $a0.
@@ -40,7 +40,7 @@ li $v0, 4
 
 # And just like before syscall looks at
 # $v0 and $a0 and knows to print the string
-syscall
+#syscall
 
 # Nicely end the program
 li $v0, 0

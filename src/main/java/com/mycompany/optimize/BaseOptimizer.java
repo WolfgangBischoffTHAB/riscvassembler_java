@@ -7,25 +7,26 @@ import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
     /**
-     * Iterates over all asm lines and updates the offset variable in the 
+     * Iterates over all asm lines and updates the offset variable in the
      * AsmLine objects. Usefull after pseudo instructions have been resolved
-     * to one or more real instructions and as a result, the addresses of all 
+     * to one or more real instructions and as a result, the addresses of all
      * following lines have changed.
-     * 
+     *
      * @param asmLines
      * @param sectionMap
      */
-    public static void updateAddresses(final List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public static void updateAddresses(final List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         int address = 0;
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<?> asmLine : asmLines) {
 
             asmLine.offset = address;
 
@@ -81,18 +82,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         }
     }
 
-    public static void buildLabelTable(final List<AsmLine> asmLines,
+    public static void buildLabelTable(final List<AsmLine<?>> asmLines,
         final Map<String, Long> labelAddressMap, final Map<String, Section> sectionMap) {
 
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
             entry.getValue().currentOffset = 0;
         }
 
-        for (AsmLine asmLine : asmLines) {
-
-            // if (asmLine.section == null) {
-            //     System.out.println("");
-            // }
+        for (AsmLine<?> asmLine : asmLines) {
 
             // convert section name to offset
             Section section = sectionMap.get(asmLine.section.name);
@@ -192,7 +189,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      * @param asmLines
      * @param labelAddressMap
      */
-    public static void resolveLabels(List<AsmLine> asmLines, Map<String, Long> labelAddressMap) {
+    public static void resolveLabels(List<AsmLine<?>> asmLines, Map<String, Long> labelAddressMap) {
 
         AsmLine prev = null;
         for (AsmLine asmLine : asmLines) {
@@ -260,7 +257,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         System.out.println("found");
                         asmLine.numeric_0 = offset;
                     }
-                    
+
                 } else if (asmLine.identifier_0.endsWith("f")) {
 
                     AsmLine tempAsmLine = asmLine;
@@ -277,7 +274,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         System.out.println("found");
                         asmLine.numeric_0 = offset;
                     }
-                    
+
                 } else {
 
                     throw new RuntimeException("(F) Unknown label: \"" + asmLine.identifier_1 + "\"");
@@ -318,7 +315,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         System.out.println("found");
                         asmLine.numeric_1 = offset;
                     }
-                    
+
                 } else if (asmLine.identifier_1.endsWith("f")) {
 
                     AsmLine tempAsmLine = asmLine;
@@ -335,7 +332,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         System.out.println("found");
                         asmLine.numeric_1 = offset;
                     }
-                    
+
                 } else {
 
                     throw new RuntimeException("(F) Unknown label: \"" + asmLine.identifier_1 + "\"");
@@ -379,7 +376,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         System.out.println("found");
                         asmLine.numeric_2 = offset;
                     }
-                    
+
                 } else if (asmLine.identifier_2.endsWith("f")) {
 
                     AsmLine tempAsmLine = asmLine;
@@ -396,7 +393,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                         System.out.println("found");
                         asmLine.numeric_2 = offset;
                     }
-                    
+
                 } else {
 
                     throw new RuntimeException("(F) Unknown label: \"" + asmLine.identifier_2 + "\"");
@@ -404,7 +401,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
             }
 
-            
+
 
         }
     }
@@ -415,7 +412,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      * @param asmLines
      * @param map
      */
-    public static void resolveModifiers(List<AsmLine> asmLines, Map<String, Long> map) {
+    public static void resolveModifiers(List<AsmLine<?>> asmLines, Map<String, Long> map) {
 
         for (AsmLine asmLine : asmLines) {
 
@@ -461,7 +458,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 asmLine.offsetLabel_0 = null;
                 asmLine.modifier_0 = null;
 
-                if ((asmLine.register_0 == null) || (asmLine.register_0 == Register.REG_UNKNOWN)) {
+                if ((asmLine.register_0 == null) || (asmLine.register_0 == RISCVRegister.REG_UNKNOWN)) {
                     asmLine.numeric_0 = newValue;
                 } else {
                     asmLine.offset_0 = newValue;
@@ -497,7 +494,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 asmLine.offsetLabel_1 = null;
                 asmLine.modifier_1 = null;
 
-                if ((asmLine.register_1 == null) || (asmLine.register_1 == Register.REG_UNKNOWN)) {
+                if ((asmLine.register_1 == null) || (asmLine.register_1 == RISCVRegister.REG_UNKNOWN)) {
                     asmLine.numeric_1 = newValue;
                 } else {
                     asmLine.offset_1 = newValue;
@@ -536,7 +533,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 asmLine.offsetLabel_2 = null;
                 asmLine.modifier_2 = null;
 
-                if ((asmLine.register_2 == null) || (asmLine.register_2 == Register.REG_UNKNOWN)) {
+                if ((asmLine.register_2 == null) || (asmLine.register_2 == RISCVRegister.REG_UNKNOWN)) {
                     asmLine.numeric_2 = newValue;
                 } else {
                     asmLine.offset_2 = newValue;

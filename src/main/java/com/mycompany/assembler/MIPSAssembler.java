@@ -14,29 +14,29 @@ import org.antlr.v4.runtime.TokenSource;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
-import com.mycompany.encoder.RISCVEncoder;
-import com.mycompany.visitor.RISCASMExtractingOutputListener;
+import com.mycompany.encoder.MIPSEncoder;
+import com.mycompany.visitor.MIPSASMExtractingOutputListener;
 
-import riscvasm.RISCVASMLexer;
-import riscvasm.RISCVASMParser;
+import mipsasm.MIPSLexer;
+import mipsasm.MIPSParser;
 
-public class RiscVAssembler extends BaseAssembler {
+public class MIPSAssembler extends BaseAssembler {
 
     private CharStream asmCharStream;
 
-    private RISCVASMLexer lexer;
+    private MIPSLexer lexer;
 
-    private RISCVASMParser parser;
+    private MIPSParser parser;
 
-    private RISCVEncoder encoder = new RISCVEncoder();
+    private MIPSEncoder encoder = new MIPSEncoder();
 
-    public RiscVAssembler(Map<String, Section> sectionMap, Section dummySection) {
+    public MIPSAssembler(Map<String, Section> sectionMap, Section dummySection) {
 
         currentSection = sectionMap.get(".text");
 
         // set up the visitor
         // the extractor assembles AsmLineS by visiting the antlr4 AST
-        RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
+        MIPSASMExtractingOutputListener asmListener = new MIPSASMExtractingOutputListener();
         asmListener.dummySection = dummySection;
         asmListener.asmLines = asmLines;
         asmListener.sectionMap = sectionMap;
@@ -49,7 +49,7 @@ public class RiscVAssembler extends BaseAssembler {
     public TokenSource getLexer(String asmInputFile) throws IOException {
 
         asmCharStream = CharStreams.fromFileName(asmInputFile);
-        lexer = new RISCVASMLexer(asmCharStream);
+        lexer = new MIPSLexer(asmCharStream);
 
         return lexer;
     }
@@ -57,7 +57,7 @@ public class RiscVAssembler extends BaseAssembler {
     @Override
     public Parser getParser(CommonTokenStream asmTokens) {
 
-        parser = new RISCVASMParser(asmTokens);
+        parser = new MIPSParser(asmTokens);
 
         return parser;
     }

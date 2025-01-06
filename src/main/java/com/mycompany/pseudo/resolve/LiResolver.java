@@ -7,13 +7,14 @@ import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class LiResolver implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
@@ -75,7 +76,7 @@ public class LiResolver implements AsmInstructionListModifier {
 
                     addi.mnemonic = Mnemonic.I_ADDI;
                     addi.register_0 = foundAsmLine.register_0;
-                    addi.register_1 = Register.REG_ZERO;
+                    addi.register_1 = RISCVRegister.REG_ZERO;
                     addi.numeric_2 = 0L;
 
                 } else if (!upper_part_used && lower_part_used) {
@@ -91,7 +92,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     foundAsmLine.optimized = true;
 
                     foundAsmLine.mnemonic = Mnemonic.I_ADDI;
-                    foundAsmLine.register_1 = Register.REG_ZERO;
+                    foundAsmLine.register_1 = RISCVRegister.REG_ZERO;
 
                     foundAsmLine.numeric_2 = foundAsmLine.numeric_1;
                     foundAsmLine.numeric_1 = null;
@@ -122,7 +123,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     index++;
 
                     lui.mnemonic = Mnemonic.I_LUI;
-                    lui.register_0 = Register.REG_GP;
+                    lui.register_0 = RISCVRegister.REG_GP;
                     lui.numeric_1 = upper_part;
 
                     if (foundAsmLine.label != null) {
@@ -158,14 +159,14 @@ public class LiResolver implements AsmInstructionListModifier {
                     //
 
                     Register tempRegister = foundAsmLine.register_0;
-                    
+
                     // since ADDI automatically performs sign extension, there is no
                     // need for a LUI instruction that performs sign extension manually
                     // by filling the upper part of the register with FFFFF. The LUI
                     // can be optimized away
 
                     //if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) <= 2048)) { // works for blinker.s
-                    
+
                     //if (twelve_bit_sign_extended > 0) { // works for memory.s
                     if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) >= 2048)) {
 
@@ -188,7 +189,7 @@ public class LiResolver implements AsmInstructionListModifier {
 
                     } else {
 
-                        tempRegister = Register.REG_ZERO;
+                        tempRegister = RISCVRegister.REG_ZERO;
 
                     }
 
@@ -205,7 +206,7 @@ public class LiResolver implements AsmInstructionListModifier {
 
                     addi.mnemonic = Mnemonic.I_ADDI;
                     addi.register_0 = foundAsmLine.register_0;
-                    
+
                     addi.register_1 = tempRegister;
 
                     addi.numeric_2 = NumberParseUtil.sign_extend_12_bit_to_int32_t(lower_part);

@@ -8,13 +8,14 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class CallResolver implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine> asmLines, final Map<String, Section> sectionMap /* , final Map<String, Long> labelMap*/) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap /* , final Map<String, Long> labelMap*/) {
 
         boolean done = false;
         while (!done) {
@@ -66,8 +67,7 @@ public class CallResolver implements AsmInstructionListModifier {
                 index++;
 
                 auipc.mnemonic = Mnemonic.I_AUIPC;
-                //auipc.register_0 = Register.REG_T1;
-                auipc.register_0 = Register.REG_RA;
+                auipc.register_0 = RISCVRegister.REG_RA;
                 auipc.modifier_1 = Modifier.HI;
                 auipc.offsetLabel_1 = foundAsmLine.identifier_0;
 
@@ -87,9 +87,8 @@ public class CallResolver implements AsmInstructionListModifier {
                 index++;
 
                 jalr.mnemonic = Mnemonic.I_JALR;
-                jalr.register_0 = Register.REG_RA;
-                //jalr.register_1 = Register.REG_T1;
-                jalr.register_1 = Register.REG_RA;
+                jalr.register_0 = RISCVRegister.REG_RA;
+                jalr.register_1 = RISCVRegister.REG_RA;
                 jalr.modifier_2 = Modifier.LO;
                 jalr.offsetLabel_2 = foundAsmLine.identifier_0;
 
