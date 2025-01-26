@@ -1,6 +1,6 @@
 # Comments
 
-A semicolo (;) starts a single line comment
+A semicolon (;) starts a single line comment
 
 # Registers
 

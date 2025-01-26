@@ -1,11 +1,11 @@
 // $antlr-format alignTrailingComments true, columnLimit 150, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments false, useTab false
 // $antlr-format allowShortRulesOnASingleLine false, allowShortBlocksOnASingleLine true, alignSemicolons hanging, alignColons hanging
 
-parser grammar 6502Parser;
+parser grammar ASM6502Parser;
 
 options {
     language = Java;
-    tokenVocab = 6502Lexer;
+    tokenVocab = ASM6502Lexer;
 }
 
 asm_file :
@@ -27,8 +27,8 @@ asm_line :
         mnemonic params
         |
         assembler_instruction
-        |
-        numeric_constant_definition
+//        |
+//        numeric_constant_definition
     )?
     ;
 

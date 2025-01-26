@@ -37,26 +37,34 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
-        // args = new String[1];
-        // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        // // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
-        // // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
-        // // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
-        // // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
-        // // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
-        // //String inputFile = "src/test/resources/projects/snake/Main.asm";
-        // //String inputFile = "src/test/resources/riscvasm/test.s";
-        // //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
-        // //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
-        // //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        // args[0] = inputFile;
-        // mainRISCV(args);
+        //
+        // RISC V
+        //
 
         args = new String[1];
-        //String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
-        String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
+        String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
+        //String inputFile = "src/test/resources/projects/snake/Main.asm";
+        //String inputFile = "src/test/resources/riscvasm/test.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         args[0] = inputFile;
-        mainMIPS(args);
+        mainRISCV(args);
+
+        //
+        // MIPS
+        //
+
+        // args = new String[1];
+        // //String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
+        // String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
+        // args[0] = inputFile;
+        // mainMIPS(args);
     }
 
     public static void mainMIPS(String[] args) throws IOException {
@@ -200,6 +208,8 @@ public class App {
         cpu.pc = 0;
         cpu.memory = machineCode;
 
+        // preload values into registers
+        //
         // cpu.registerFile[Register.REG_A1.ordinal()] = 1;
         // cpu.registerFile[Register.REG_A2.ordinal()] = 5;
 
