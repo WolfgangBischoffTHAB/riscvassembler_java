@@ -19,6 +19,7 @@ public enum AsmInstruction {
     SKIP,
     ASCII,
     ASCIZ,
+    ASCIIZ,
     STRING,
     OPTION;
 
@@ -59,6 +60,8 @@ public enum AsmInstruction {
                 return ".ascii";
             case ASCIZ:
                 return ".asciz";
+            case ASCIIZ:
+                return ".asciiz";
             case STRING:
                 return ".string";
             case OPTION:

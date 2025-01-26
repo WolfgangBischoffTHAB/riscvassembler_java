@@ -7,11 +7,11 @@ import com.mycompany.data.AsmLine;
 
 public class RISCVEncoder implements Encoder{
 
-    public ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
+    private ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
 
     private AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
 
-    private MnemonicEncoder mnemonicEncoder = new MnemonicEncoder();
+    private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
 
     public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) {
 

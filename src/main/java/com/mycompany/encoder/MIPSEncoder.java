@@ -7,16 +7,32 @@ import com.mycompany.data.AsmLine;
 
 public class MIPSEncoder implements Encoder {
 
+    private ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
+
+    private AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
+
+    private MnemonicEncoder mnemonicEncoder = new MIPSMnemonicEncoder();
+
     @Override
     public long encode(AsmLine<?> asmLine, Map<String, Long> labelAddressMap, long currentAddress) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'encode'");
+
+        switch (asmLine.getAsmLineType()) {
+
+            case MNEMONIC:
+                int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
+                return length;
+
+            case ASSEMBLER_INSTRUCTION:
+                return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine);
+
+            default:
+                return 0;
+        }
     }
 
     @Override
     public ByteArrayOutputStream getByteArrayOutStream() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getByteArrayOutStream'");
+        return byteArrayOutStream;
     }
 
 }

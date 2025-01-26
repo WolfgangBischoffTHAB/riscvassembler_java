@@ -24,6 +24,7 @@ public class AsmInstructionEncoder {
                 return encodeAsciiAssemblerInstruction(byteArrayOutStream, asmLine);
 
             case ASCIZ:
+            case ASCIIZ:
             case STRING:
                 return encodeStringAssemblerInstruction(byteArrayOutStream, asmLine);
 
@@ -33,6 +34,7 @@ public class AsmInstructionEncoder {
             case GLOBAL:
             case SECTION:
             case EQU:
+                System.out.println("Assembler Instruction is not implemented yet! " + asmLine);
                 // nop
                 break;
 

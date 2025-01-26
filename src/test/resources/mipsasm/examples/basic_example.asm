@@ -8,9 +8,11 @@ str:  .asciiz "\nHello World!\n"
 .globl main
 
 main:
+
 # Do the addition
 # For this, we first need to put the values
 # to add into registers ($t0 and $t1)
+
 # You can change the 30 below to another value
 li $t0, 30
 # You can change the 20 below to another value
@@ -26,7 +28,7 @@ li $v0, 1
 
 # The system call looks at what is in $v0
 # and $a0, and knows to print what is in $a0
-#syscall
+syscall
 
 # Now we want to print Hello World
 # So we load the (address of the) string into $a0.
@@ -40,7 +42,7 @@ li $v0, 4
 
 # And just like before syscall looks at
 # $v0 and $a0 and knows to print the string
-#syscall
+syscall
 
 # Nicely end the program
 li $v0, 0

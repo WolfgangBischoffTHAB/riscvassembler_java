@@ -36,8 +36,27 @@ public class App {
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
 
     public static void main(String[] args) throws IOException {
-        mainRISCV(args);
-        //mainMIPS(args);
+
+        // args = new String[1];
+        // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
+        // // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+        // // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
+        // // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
+        // // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
+        // // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
+        // //String inputFile = "src/test/resources/projects/snake/Main.asm";
+        // //String inputFile = "src/test/resources/riscvasm/test.s";
+        // //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
+        // //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        // //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        // args[0] = inputFile;
+        // mainRISCV(args);
+
+        args = new String[1];
+        //String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
+        String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
+        args[0] = inputFile;
+        mainMIPS(args);
     }
 
     public static void mainMIPS(String[] args) throws IOException {
@@ -63,10 +82,8 @@ public class App {
         // the first step is always to let the preprocessor resolve .include
         // instructions. Let the compiler run on the combined file in a second step!
 
-        String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
-
+        String inputFile = args[0];
         String outputFile = INTERMEDIATE_FILE;
-
         preprocess(inputFile, outputFile);
 
         //
@@ -125,21 +142,8 @@ public class App {
         // the first step is always to let the preprocessor resolve .include
         // instructions. Let the compiler run on the combined file in a second step!
 
-        String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
-
-        //String inputFile = "src/test/resources/projects/snake/Main.asm";
-        //String inputFile = "src/test/resources/riscvasm/test.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
-        //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
-        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-
+        String inputFile = args[0];
         String outputFile = INTERMEDIATE_FILE;
-
         preprocess(inputFile, outputFile);
 
         //
