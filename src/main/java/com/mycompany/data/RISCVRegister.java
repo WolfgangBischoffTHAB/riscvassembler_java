@@ -406,14 +406,23 @@ public enum RISCVRegister implements Register {
 
     public static String toStringAbi(final RISCVRegister register) {
         switch (register) {
+
+            /** x0 */
             case REG_ZERO:
                 return "zero";
+
+            /** x1 */
             case REG_RA:
                 return "ra";
+
+            /** x2 */
             case REG_SP:
                 return "sp";
+
+            /** x3 */
             case REG_GP:
                 return "gp";
+
             case REG_TP:
                 return "tp";
             case REG_T0:

@@ -13,6 +13,9 @@ import java.util.Map;
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.CPU;
+import com.mycompany.cpu.PipelinedCPU;
+import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;
@@ -42,7 +45,8 @@ public class App {
         //
 
         args = new String[1];
-        String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
+        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
         // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
         // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
@@ -204,14 +208,27 @@ public class App {
 
     private static void emulate(byte[] machineCode) {
 
-        CPU cpu = new CPU();
+        //CPU cpu = new CPU();
+        PipelinedCPU cpu = new PipelinedCPU();
         cpu.pc = 0;
         cpu.memory = machineCode;
 
         // preload values into registers
         //
-        // cpu.registerFile[Register.REG_A1.ordinal()] = 1;
-        // cpu.registerFile[Register.REG_A2.ordinal()] = 5;
+        cpu.registerFile[RISCVRegister.REG_SP.ordinal()] = 5;
+        cpu.registerFile[RISCVRegister.REG_GP.ordinal()] = 10;
+
+        // //
+        // // single cycle processor
+        // //
+
+        // for (int i = 0; i < 100; i++) {
+        //     cpu.step();
+        // }
+
+        //
+        // pipelined processor
+        //
 
         for (int i = 0; i < 100; i++) {
             cpu.step();
