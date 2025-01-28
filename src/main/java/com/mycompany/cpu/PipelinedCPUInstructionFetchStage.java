@@ -23,4 +23,12 @@ public class PipelinedCPUInstructionFetchStage {
         return instruction;
     }
 
+    public void step_write(int pc, byte[] memory) {
+        // nop
+    }
+
+    public int step_read(int pc, byte[] memory) {
+        return step(pc, memory);
+    }
+
 }

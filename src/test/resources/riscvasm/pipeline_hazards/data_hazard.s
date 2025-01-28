@@ -6,6 +6,14 @@
 add x1, x2, x3
 sub x4, x1, x5
 
+# Assumption: registers are preloaded
+# x2 = 5
+# x3 = 10
+#
+# The two writebacks are:
+# x1 = 15
+# x4 = 15
+
 # The problem is that the sub instruction reads from the same register x1 that
 # the first instruction writes into. The read happens in the instruction
 # decode (ID) stage and the write back happens in the write back (WB) stage.

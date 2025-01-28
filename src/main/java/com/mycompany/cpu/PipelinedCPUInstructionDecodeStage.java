@@ -21,23 +21,33 @@ public class PipelinedCPUInstructionDecodeStage {
             throw new RuntimeException("Decoding instruction without mnemonic!");
         }
 
-        // TODO: check for data hazard
-        if (de_ex.asm_line != null) {
-            if (de_ex.asm_line.register_0 == asmLine.register_1) {
+        // check for data hazard
+        if (de_ex.asmLine != null) {
+            if (de_ex.asmLine.register_0 == asmLine.register_1) {
 
                 System.out.println("Hazard with rd <-> rs1");
 
                 // forward value
                 de_ex.forwarded = true;
-                de_ex.rd_value = cpu.registerFile[de_ex.asm_line.register_0.getIndex()];
+
+                // the value is already written into the forwarded_rd_value right in the EX stage
+                // de_ex.forwarded_rd_value = cpu.registerFile[de_ex.asmLine.register_0.getIndex()];
 
             }
-            if (de_ex.asm_line.register_0 == asmLine.register_2) {
+            if (de_ex.asmLine.register_0 == asmLine.register_2) {
                 System.out.println("Hazard with rd <-> rs2");
             }
         }
 
         return asmLine;
+    }
+
+    public void step_write(PipelinedCPU pipelinedCPU, int instruction, DE_EX de_ex) {
+        // nop
+    }
+
+    public AsmLine step_read(PipelinedCPU pipelinedCPU, int instruction, DE_EX de_ex) {
+        return step(pipelinedCPU, instruction, de_ex);
     }
 
 }

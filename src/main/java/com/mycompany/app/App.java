@@ -230,7 +230,9 @@ public class App {
         // pipelined processor
         //
 
-        for (int i = 0; i < 100; i++) {
+        int lastCycle = 8;
+
+        for (int i = 0; i < lastCycle; i++) {
             cpu.step();
         }
     }

@@ -1,0 +1,20 @@
+package com.mycompany.cpu;
+
+public class PipelinedCPUInstructionWriteBackStage {
+
+    public void step_write(final PipelinedCPU cpu, final MEM_WB mem_wb) {
+
+        if (mem_wb.asmLine == null) {
+            return;
+        }
+
+        // ALU add, sub operation
+        cpu.registerFile[mem_wb.asmLine.register_0.getIndex()] = mem_wb.value;
+
+        System.out.println("WRITE_BACK: " + mem_wb.asmLine.register_0 + " <= " + mem_wb.value);
+
+        mem_wb.asmLine = null;
+        mem_wb.value = 0;
+    }
+
+}
