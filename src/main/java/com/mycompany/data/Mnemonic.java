@@ -135,7 +135,7 @@ public enum Mnemonic {
             return I_JALR;
         } else if (mnemonic.equalsIgnoreCase("JAL")) {
             return I_JAL;
-        } else if (mnemonic.equalsIgnoreCase("LA")) {
+        } else if (mnemonic.equalsIgnoreCase("LA")) { // load address pseudo instruction
             return I_LA;
         }
         // else if (mnemonic.equalsIgnoreCase("LD")) { // 64 bits!!!
@@ -189,6 +189,8 @@ public enum Mnemonic {
             return I_SLT;
         } else if (mnemonic.equalsIgnoreCase("WFI")) {
             return I_WFI;
+        } else if (mnemonic.equalsIgnoreCase("XOR")) {
+            return I_XOR;
         } else if (mnemonic.equalsIgnoreCase("XORI")) {
             return I_XORI;
         }
@@ -333,6 +335,8 @@ public enum Mnemonic {
             case I_WFI:
                 return "wfi";
 
+            case I_XOR:
+                return "xor";
             case I_XORI:
                 return "xori";
 

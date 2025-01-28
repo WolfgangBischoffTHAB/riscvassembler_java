@@ -48,7 +48,7 @@ mnemonic :
     I_RET |
     I_SLT | I_SRAI | I_SRLI | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
     I_WFI |
-    I_XORI
+    I_XOR | I_XORI
     ;
 
 params :

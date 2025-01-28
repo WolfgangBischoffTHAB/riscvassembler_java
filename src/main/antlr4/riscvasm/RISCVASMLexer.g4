@@ -125,6 +125,7 @@ I_SB : S B ;
 I_WFI : W F I ;
 
 I_XORI : X O R I ;
+I_XOR : X O R ;
 
 REG_ZERO_ABI : Z E R O ;
 REG_RA_ABI : R A ;

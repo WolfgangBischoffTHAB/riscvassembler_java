@@ -113,6 +113,9 @@ public class Decoder {
 
             case I_TYPE_3:
                 switch (funct3) {
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_LB;
+                        break;
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_LW;
                         break;
@@ -124,6 +127,9 @@ public class Decoder {
 
             case S_TYPE:
                 switch (funct3) {
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_SB;
+                        break;
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_SW;
                         break;

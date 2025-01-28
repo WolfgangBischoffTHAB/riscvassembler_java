@@ -45,13 +45,15 @@ public class App {
         //
 
         args = new String[1];
-        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
+
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/memory.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/uart.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
         //String inputFile = "src/test/resources/projects/snake/Main.asm";
         //String inputFile = "src/test/resources/riscvasm/test.s";
         //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";

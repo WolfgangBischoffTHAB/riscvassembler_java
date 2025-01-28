@@ -29,10 +29,10 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             // // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
             // // extension RV64I is enabled !!!
             // case I_ADDIW:
-            //     if (!USE_64_BIT) {
-            //         throw new RuntimeException("64 bit not supported!");
-            //     }
-            //     return encodeADDIW(byteArrayOutStream, asmLine);
+            // if (!USE_64_BIT) {
+            // throw new RuntimeException("64 bit not supported!");
+            // }
+            // return encodeADDIW(byteArrayOutStream, asmLine);
 
             case I_AND:
                 return encodeAND(byteArrayOutStream, asmLine);
@@ -82,10 +82,10 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             // // THIS IS 64 BIT !!!
             // case I_LD:
-            //     if (!USE_64_BIT) {
-            //         throw new RuntimeException("64 bit not supported!");
-            //     }
-            //     return encodeLD(byteArrayOutStream, asmLine);
+            // if (!USE_64_BIT) {
+            // throw new RuntimeException("64 bit not supported!");
+            // }
+            // return encodeLD(byteArrayOutStream, asmLine);
 
             case I_OR:
                 return encodeOR(byteArrayOutStream, asmLine);
@@ -104,10 +104,10 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             // // THIS IS 64 BIT !!!
             // case I_SD:
-            //     if (!USE_64_BIT) {
-            //         throw new RuntimeException("64 bit not supported!");
-            //     }
-            //     return encodeSD(byteArrayOutStream, asmLine);
+            // if (!USE_64_BIT) {
+            // throw new RuntimeException("64 bit not supported!");
+            // }
+            // return encodeSD(byteArrayOutStream, asmLine);
 
             case I_SW:
                 return encodeSW(byteArrayOutStream, asmLine);
@@ -122,10 +122,30 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             case I_SUB:
                 return encodeSUB(byteArrayOutStream, asmLine);
 
+            case I_XOR:
+                return encodeXOR(byteArrayOutStream, asmLine);
+
             case I_UNKNOWN:
             default:
                 throw new RuntimeException("Unknown mnemonic: " + asmLine);
         }
+    }
+
+    private int encodeXOR(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+
+        byte funct7 = 0b0000000;
+        byte funct3 = 0b100;
+        byte opcode = 0b0110011;
+
+        byte rd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
     }
 
     private int encodeAUIPC(final ByteArrayOutputStream byteArrayOutStream,
@@ -212,7 +232,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             long data_1 = 0L;
 
-            //boolean use_formula = false; // works for memory.s
+            // boolean use_formula = false; // works for memory.s
             boolean use_formula = true; // works for hello_world.s
             if (use_formula) {
 
@@ -571,7 +591,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         byte rd = (byte) asmLine.register_0.getIndex();
         byte rs1 = (byte) asmLine.register_1.getIndex();
-        short imm = (short)(((short) 0b010000000000) + ((short) asmLine.numeric_2.shortValue()));
+        short imm = (short) (((short) 0b010000000000) + ((short) asmLine.numeric_2.shortValue()));
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -586,7 +606,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         byte rd = (byte) asmLine.register_0.getIndex();
         byte rs1 = (byte) asmLine.register_1.getIndex();
-        short imm = (short)(((short) 0b000000000000) + ((short) asmLine.numeric_2.shortValue()));
+        short imm = (short) (((short) 0b000000000000) + ((short) asmLine.numeric_2.shortValue()));
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
