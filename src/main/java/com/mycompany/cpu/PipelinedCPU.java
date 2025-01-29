@@ -74,8 +74,8 @@ public class PipelinedCPU implements CPU {
         // mem_wb.rd_value = ex_mem.rd_value;
 
         // forward
-        mem_wb.forwardingMap.clear();
-        mem_wb.forwardingMap.putAll(ex_mem.forwardingMap);
+        // mem_wb.forwardingMap.clear();
+        // mem_wb.forwardingMap.putAll(ex_mem.forwardingMap);
         mem_wb.memoryAddress = ex_mem.memoryAddress;
 
         ex_mem.asmLine = de_ex.asmLine;
