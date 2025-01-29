@@ -6,13 +6,25 @@
 add x1, x2, x3
 sub x4, x1, x5
 
-# Assumption: registers are preloaded
-# x2 = 5
-# x3 = 10
+# Assumption for initial register values:
+# x0 = 0
+# x1 = 1
+# x2 = 2
+# x3 = 3
+# x4 = 4
+# x5 = 5
 #
 # The two writebacks are:
-# x1 = 15
-# x4 = 15
+# x1 = 5
+# x4 = 0
+#
+# Register values after execution:
+# x0 = 0
+# x1 = 5
+# x2 = 2
+# x3 = 3
+# x4 = 0
+# x5 = 5
 
 # The problem is that the sub instruction reads from the same register x1 that
 # the first instruction writes into. The read happens in the instruction

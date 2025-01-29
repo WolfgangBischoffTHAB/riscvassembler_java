@@ -334,6 +334,7 @@ public enum RISCVRegister implements Register {
     }
 
     public static String toString(final RISCVRegister register) {
+
         switch (register) {
             case REG_ZERO:
                 return "x0";
@@ -353,6 +354,8 @@ public enum RISCVRegister implements Register {
                 return "x7";
             // case REG_FP:
             //     return "x8";
+            case REG_S0:
+                return "x8";
             case REG_S1:
                 return "x9";
             case REG_A0:
@@ -405,6 +408,7 @@ public enum RISCVRegister implements Register {
     }
 
     public static String toStringAbi(final RISCVRegister register) {
+
         switch (register) {
 
             /** x0 */
@@ -484,6 +488,11 @@ public enum RISCVRegister implements Register {
             default:
                 throw new RuntimeException("Unknown register: \"" + register + "\"");
         }
+    }
+
+    public String toString() {
+        //return toStringAbi(this);
+        return toString(this);
     }
 
     @Override

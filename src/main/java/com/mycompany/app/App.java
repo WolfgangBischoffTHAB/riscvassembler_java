@@ -46,7 +46,8 @@ public class App {
 
         args = new String[1];
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
-        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
+        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
+        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
@@ -213,12 +214,13 @@ public class App {
         //CPU cpu = new CPU();
         PipelinedCPU cpu = new PipelinedCPU();
         cpu.pc = 0;
-        cpu.memory = machineCode;
+        System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
 
         // preload values into registers
         //
-        cpu.registerFile[RISCVRegister.REG_SP.ordinal()] = 5;
-        cpu.registerFile[RISCVRegister.REG_GP.ordinal()] = 10;
+        for (int i = 0; i < 32; i++) {
+            cpu.registerFile[i] = i;
+        }
 
         // //
         // // single cycle processor
@@ -232,10 +234,15 @@ public class App {
         // pipelined processor
         //
 
-        int lastCycle = 8;
+        int lastCycle = 16;
 
         for (int i = 0; i < lastCycle; i++) {
             cpu.step();
+        }
+
+
+        for (int i = 0; i < 32; i++) {
+            System.out.println("x" + (i) + ": " + cpu.registerFile[i]);
         }
     }
 

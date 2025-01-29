@@ -3,8 +3,6 @@ package com.mycompany.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import riscvasm.RISCVASMParser.ExprContext;
-
 public class AsmLine<T extends Register> {
 
     public int sourceLine = -1;

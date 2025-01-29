@@ -5,9 +5,19 @@ import com.mycompany.data.AsmLine;
 
 public class PipelinedCPUInstructionExecuteStage {
 
-    public int step(PipelinedCPU cpu, DE_EX de_ex, EX_MEM ex_mem) {
+    public void step_read(PipelinedCPU cpu, AsmLine asm_line, DE_EX de_ex) {
+        // nop
+    }
+
+    public int step_write(PipelinedCPU cpu, DE_EX de_ex, EX_MEM ex_mem, MEM_WB mem_wb) {
+        return step(cpu, de_ex, ex_mem, mem_wb);
+    }
+
+    public int step(final PipelinedCPU cpu, final DE_EX de_ex, final EX_MEM ex_mem, final MEM_WB mem_wb) {
 
         int result = 0;
+        int registerValue = 0;
+        int finalMemoryAddress = 0;
 
         // skip
         if (de_ex.asmLine == null) {
@@ -76,7 +86,34 @@ public class PipelinedCPUInstructionExecuteStage {
                 break;
 
             case I_LB:
-                System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                //System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+
+                // load byte (lb) needs an execute phase since the immediate offset
+                // has to be added to the register value
+
+                System.out.println("LB execute phase! " + de_ex.asmLine.mnemonic);
+
+                //
+                // retrieve the potentially forwarded register value
+                //
+
+                registerValue = 0;
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                    registerValue = ex_mem.forwardingMap.get(de_ex.asmLine.register_1);
+                }
+                else if (mem_wb.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                    registerValue = mem_wb.forwardingMap.get(de_ex.asmLine.register_1);
+                }
+                else {
+                    registerValue = cpu.registerFile[de_ex.asmLine.register_0.getIndex()];
+                }
+
+                finalMemoryAddress = registerValue + de_ex.asmLine.offset_1.intValue();
+
+                System.out.println("finalMemoryAddress: " + finalMemoryAddress);
+
+                ex_mem.memoryAddress = finalMemoryAddress;
+
                 break;
             case I_LH:
                 System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
@@ -95,7 +132,32 @@ public class PipelinedCPUInstructionExecuteStage {
                 break;
 
             case I_SB:
-                System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                //System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                System.out.println("SB execute phase! " + de_ex.asmLine.mnemonic);
+
+                //
+                // retrieve the potentially forwarded register value
+                //
+
+                registerValue = 0;
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                    registerValue = ex_mem.forwardingMap.get(de_ex.asmLine.register_1);
+                }
+                else if (mem_wb.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                    registerValue = mem_wb.forwardingMap.get(de_ex.asmLine.register_1);
+                }
+                else {
+                    registerValue = cpu.registerFile[de_ex.asmLine.register_1.getIndex()];
+                }
+
+                finalMemoryAddress = registerValue + de_ex.asmLine.offset_1.intValue();
+
+                System.out.println("finalMemoryAddress: " + finalMemoryAddress);
+
+                ex_mem.memoryAddress = finalMemoryAddress;
+                //ex_mem.forwardingMap.clear();
+                //ex_mem.forwardingMap.put(de_ex.asmLine.register_0, finalMemoryAddress);
+
                 break;
             case I_SH:
                 System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
@@ -146,14 +208,17 @@ public class PipelinedCPUInstructionExecuteStage {
                 // DEBUG
                 System.out.println("add");
 
-                if (de_ex.forwarded) {
+                //if (de_ex.forwarded) {
+                if (de_ex.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
 
-                    de_ex.forwarded = false;
+                    // de_ex.forwarded = false;
 
-                    result = de_ex.forwarded_rd_value
+                    int forwarded_value = de_ex.forwardingMap.get(de_ex.asmLine.register_1);
+
+                    result = forwarded_value
                             + cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
-                    System.out.println(result + " = " + de_ex.forwarded_rd_value + " + " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+                    System.out.println(result + " = " + forwarded_value + " + " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                     // write back
                     // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
@@ -168,8 +233,6 @@ public class PipelinedCPUInstructionExecuteStage {
 
                 }
 
-
-
                 // write back
                 // // compute instruction (ALU add operation)
                 // cpu.registerFile[asmLine.register_0.getIndex()] = result;
@@ -180,7 +243,9 @@ public class PipelinedCPUInstructionExecuteStage {
                 // forward value
                 // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
                 // stalls
-                de_ex.forwarded_rd_value = result;
+                //de_ex.forwarded_rd_value = result;
+                de_ex.forwardingMap.clear();
+                de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
 
                 // cpu.pc += 4;
                 break;
@@ -193,14 +258,17 @@ public class PipelinedCPUInstructionExecuteStage {
                 // x[rd] = x[rs1] - x[rs2]
                 System.out.println("sub");
 
-                if (de_ex.forwarded) {
+                //if (de_ex.forwarded) {
+                if (de_ex.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
 
-                    de_ex.forwarded = false;
+                    // de_ex.forwarded = false;
 
-                    result = de_ex.forwarded_rd_value
+                    int forwarded_rd_value = de_ex.forwardingMap.get(de_ex.asmLine.register_1);
+
+                    result = forwarded_rd_value
                             - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
-                    System.out.println(result + " = " + de_ex.forwarded_rd_value + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+                    System.out.println(result + " = " + forwarded_rd_value + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                     // write back
                     // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
@@ -215,10 +283,19 @@ public class PipelinedCPUInstructionExecuteStage {
 
                 }
 
-                // // write back
+                // write back
+                // // compute instruction (ALU add operation)
                 // cpu.registerFile[asmLine.register_0.getIndex()] = result;
 
+                // regulary store without forwarding
                 ex_mem.rd_value = result;
+
+                // forward value
+                // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
+                // stalls
+                //de_ex.forwarded_rd_value = result;
+                de_ex.forwardingMap.clear();
+                de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
 
                 // cpu.pc += 4;
                 break;
@@ -262,11 +339,50 @@ public class PipelinedCPUInstructionExecuteStage {
                 break;
             case I_AND:
                 System.out.println("and");
+
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
-                cpu.registerFile[de_ex.asmLine.register_0
-                        .getIndex()] = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
-                                & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
-                cpu.pc += 4;
+
+                if (de_ex.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+
+                    // de_ex.forwarded = false;
+
+                    result = de_ex.forwardingMap.get(de_ex.asmLine.register_1)
+                            & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                    //System.out.println(result + " = " + de_ex.forwarded_rd_value + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+
+                    // write back
+                    // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
+                    // - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                } else {
+
+                    result = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
+                            & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                    System.out.println(result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " & " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+
+                }
+
+                // write back
+                // // compute instruction (ALU add operation)
+                // cpu.registerFile[asmLine.register_0.getIndex()] = result;
+
+                // regulary store without forwarding
+                ex_mem.rd_value = result;
+
+                // forward value
+                // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
+                // stalls
+                //de_ex.forwarded_rd_value = result;
+                de_ex.forwardingMap.clear();
+                de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
+
+                // cpu.registerFile[de_ex.asmLine.register_0
+                //         .getIndex()] = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
+                //                 & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                //cpu.pc += 4;
                 break;
             // case I_FENCE:
             // break;
@@ -296,14 +412,6 @@ public class PipelinedCPUInstructionExecuteStage {
         }
 
         return result;
-    }
-
-    public int step_write(PipelinedCPU cpu, DE_EX de_ex, EX_MEM ex_mem) {
-        return step(cpu, de_ex, ex_mem);
-    }
-
-    public void step_read(PipelinedCPU cpu, AsmLine asm_line, DE_EX de_ex) {
-        // nop
     }
 
 }

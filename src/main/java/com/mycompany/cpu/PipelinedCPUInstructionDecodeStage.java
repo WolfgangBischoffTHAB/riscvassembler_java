@@ -28,7 +28,7 @@ public class PipelinedCPUInstructionDecodeStage {
                 System.out.println("Hazard with rd <-> rs1");
 
                 // forward value
-                de_ex.forwarded = true;
+                //de_ex.forwarded = true;
 
                 // the value is already written into the forwarded_rd_value right in the EX stage
                 // de_ex.forwarded_rd_value = cpu.registerFile[de_ex.asmLine.register_0.getIndex()];
