@@ -208,21 +208,14 @@ public class PipelinedCPUInstructionExecuteStage {
                 // DEBUG
                 System.out.println("add");
 
-                //if (de_ex.forwarded) {
-                if (de_ex.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
 
-                    // de_ex.forwarded = false;
-
-                    int forwarded_value = de_ex.forwardingMap.get(de_ex.asmLine.register_1);
+                    int forwarded_value = ex_mem.forwardingMap.get(de_ex.asmLine.register_1);
 
                     result = forwarded_value
                             + cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
                     System.out.println(result + " = " + forwarded_value + " + " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
-
-                    // write back
-                    // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
-                    // - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
                 } else {
 
@@ -244,8 +237,12 @@ public class PipelinedCPUInstructionExecuteStage {
                 // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
                 // stalls
                 //de_ex.forwarded_rd_value = result;
-                de_ex.forwardingMap.clear();
-                de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
+
+                // de_ex.forwardingMap.clear();
+                // de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
+
+                ex_mem.forwardingMap.clear();
+                ex_mem.forwardingMap.put(de_ex.asmLine.register_0, result);
 
                 // cpu.pc += 4;
                 break;
@@ -258,28 +255,21 @@ public class PipelinedCPUInstructionExecuteStage {
                 // x[rd] = x[rs1] - x[rs2]
                 System.out.println("sub");
 
-                //if (de_ex.forwarded) {
-                if (de_ex.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
 
-                    // de_ex.forwarded = false;
-
-                    int forwarded_rd_value = de_ex.forwardingMap.get(de_ex.asmLine.register_1);
+                    int forwarded_rd_value = ex_mem.forwardingMap.get(de_ex.asmLine.register_1);
 
                     result = forwarded_rd_value
                             - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
-                    System.out.println(result + " = " + forwarded_rd_value + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
-
-                    // write back
-                    // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
-                    // - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+                    System.out.println("FORWARD " + result + " = " + forwarded_rd_value + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                 } else {
 
                     result = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
                             - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
-                    System.out.println(result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+                    System.out.println("NO_FORWARD " + result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                 }
 

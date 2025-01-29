@@ -45,9 +45,9 @@ public class App {
         //
 
         args = new String[1];
-        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
-        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
+        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";

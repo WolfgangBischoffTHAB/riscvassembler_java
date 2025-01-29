@@ -18,7 +18,7 @@ sb x4, 12(x1)       # 00408623
 # x1 = 5
 # x2 = 2
 # x3 = 3
-# x4 = 10
+# x4 = -126 # because it actually loads a byte of machine code of the test application itself!
 #
 # Memory values after execution:
 # memory(5) = 10

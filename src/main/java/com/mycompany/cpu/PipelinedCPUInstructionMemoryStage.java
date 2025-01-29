@@ -77,6 +77,7 @@ public class PipelinedCPUInstructionMemoryStage {
                 System.out.println("result: " + data);
 
                 mem_wb.value = data;
+                mem_wb.rd_value = data;
                 break;
 
             case I_SB:
