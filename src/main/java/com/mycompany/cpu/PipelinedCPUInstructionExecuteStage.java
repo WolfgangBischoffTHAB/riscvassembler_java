@@ -310,7 +310,39 @@ public class PipelinedCPUInstructionExecuteStage {
                 System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 break;
             case I_XOR:
-                System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                //System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                System.out.println("xor");
+
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+
+                    result = ex_mem.forwardingMap.get(de_ex.asmLine.register_1)
+                        ^ cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                    System.out.println("FORWARD " + result + " = " + ex_mem.forwardingMap.get(de_ex.asmLine.register_1) + " | " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+
+                    // write back
+                    // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
+                    // - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                } else {
+
+                    result = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
+                        ^ cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                    System.out.println("NO FORWARD " + result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " xor " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+
+                }
+
+                // regulary store without forwarding
+                ex_mem.rd_value = result;
+
+                // forward value
+                // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
+                // stalls
+                //de_ex.forwarded_rd_value = result;
+
+                de_ex.forwardingMap.clear();
+                de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
                 break;
             case I_SRL:
                 System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
@@ -320,26 +352,51 @@ public class PipelinedCPUInstructionExecuteStage {
                 break;
 
             case I_OR:
-                System.out.println("or");
-                // Performs bitwise OR on registers rs1 and rs2 and place the result in rd
-                cpu.registerFile[de_ex.asmLine.register_0
-                        .getIndex()] = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
-                                | cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
-                cpu.pc += 4;
+                // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
+
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+
+                    result = ex_mem.forwardingMap.get(de_ex.asmLine.register_1)
+                        | cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                    System.out.println("FORWARD " + result + " = " + ex_mem.forwardingMap.get(de_ex.asmLine.register_1) + " | " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+
+                    // write back
+                    // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
+                    // - cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                } else {
+
+                    result = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
+                        | cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
+
+                    System.out.println("NO FORWARD " + result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " | " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+
+                }
+
+                // regulary store without forwarding
+                ex_mem.rd_value = result;
+
+                // forward value
+                // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
+                // stalls
+                //de_ex.forwarded_rd_value = result;
+
+                de_ex.forwardingMap.clear();
+                de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
                 break;
+
             case I_AND:
                 System.out.println("and");
 
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
 
-                if (de_ex.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
 
-                    // de_ex.forwarded = false;
-
-                    result = de_ex.forwardingMap.get(de_ex.asmLine.register_1)
+                    result = ex_mem.forwardingMap.get(de_ex.asmLine.register_1)
                             & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
-                    //System.out.println(result + " = " + de_ex.forwarded_rd_value + " - " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+                    System.out.println("FORWARD " + result + " = " + ex_mem.forwardingMap.get(de_ex.asmLine.register_1) + " & " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                     // write back
                     // cpu.registerFile[de_ex.asmLine.register_0.getIndex()] = de_ex.rd_value
@@ -350,13 +407,9 @@ public class PipelinedCPUInstructionExecuteStage {
                     result = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
                             & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
 
-                    System.out.println(result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " & " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
+                    System.out.println("NO FORWARD " + result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " & " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                 }
-
-                // write back
-                // // compute instruction (ALU add operation)
-                // cpu.registerFile[asmLine.register_0.getIndex()] = result;
 
                 // regulary store without forwarding
                 ex_mem.rd_value = result;
@@ -365,15 +418,11 @@ public class PipelinedCPUInstructionExecuteStage {
                 // pipeline stores result in DE_EX memory for forwarding to prevent pipeline
                 // stalls
                 //de_ex.forwarded_rd_value = result;
+
                 de_ex.forwardingMap.clear();
                 de_ex.forwardingMap.put(de_ex.asmLine.register_0, result);
-
-                // cpu.registerFile[de_ex.asmLine.register_0
-                //         .getIndex()] = cpu.registerFile[de_ex.asmLine.register_1.getIndex()]
-                //                 & cpu.registerFile[de_ex.asmLine.register_2.getIndex()];
-
-                //cpu.pc += 4;
                 break;
+
             // case I_FENCE:
             // break;
             // case I_FENCE_I:

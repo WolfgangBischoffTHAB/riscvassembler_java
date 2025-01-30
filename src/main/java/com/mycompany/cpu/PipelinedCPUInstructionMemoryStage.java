@@ -17,6 +17,9 @@ public class PipelinedCPUInstructionMemoryStage {
 
         switch (ex_mem.asmLine.mnemonic) {
 
+            case I_OR:
+            case I_XOR:
+            case I_AND:
             case I_SUB:
             case I_ADD:
                 mem_wb.rd_value = ex_mem.rd_value;
@@ -52,8 +55,6 @@ public class PipelinedCPUInstructionMemoryStage {
         // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
 
         switch (ex_mem.asmLine.mnemonic) {
-
-
 
             case I_LB:
 

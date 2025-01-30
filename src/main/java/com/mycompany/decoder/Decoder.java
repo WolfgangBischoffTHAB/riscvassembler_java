@@ -57,6 +57,10 @@ public class Decoder {
                                 asmLine.mnemonic = Mnemonic.I_SLT;
                                 break;
 
+                            case 0b100:
+                                asmLine.mnemonic = Mnemonic.I_XOR;
+                                break;
+
                             case 0b110:
                                 asmLine.mnemonic = Mnemonic.I_OR;
                                 break;
