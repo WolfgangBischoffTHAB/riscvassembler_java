@@ -5,6 +5,7 @@ public class PipelinedCPUInstructionMemoryStage {
     private int memoryAddress;
 
     public int step_read(final PipelinedCPU cpu, final EX_MEM ex_mem, final MEM_WB mem_wb) {
+
         // skip
         if (ex_mem.asmLine == null) {
             return 0;
@@ -12,7 +13,6 @@ public class PipelinedCPUInstructionMemoryStage {
 
         // store the memory address in the pipeline storage before the next instruction
         // erases it
-
         switch (ex_mem.asmLine.mnemonic) {
 
             case I_OR:
@@ -28,7 +28,6 @@ public class PipelinedCPUInstructionMemoryStage {
                 break;
 
             case I_SB:
-                // value = mem_wb.value;
                 memoryAddress = ex_mem.memoryAddress;
                 break;
 
@@ -53,48 +52,28 @@ public class PipelinedCPUInstructionMemoryStage {
         switch (ex_mem.asmLine.mnemonic) {
 
             case I_LB:
-
-                System.out.println("[MEMOR] LB: " + ex_mem.asmLine);
-
-                // int registerValue = 0;
-                // if (ex_mem.forwardingMap.containsKey(ex_mem.asmLine.register_1)) {
-                // registerValue = ex_mem.forwardingMap.get(ex_mem.asmLine.register_1);
-                // } else if (mem_wb.forwardingMap.containsKey(ex_mem.asmLine.register_1)) {
-                // registerValue = mem_wb.forwardingMap.get(ex_mem.asmLine.register_1);
-                // } else {
-                // registerValue = cpu.registerFile[ex_mem.asmLine.register_1.getIndex()];
-                // }
-
-                // int offset = (int) ex_mem.asmLine.offset;
-
-                // int memAddress = (int) (ex_mem.memoryAddress + offset);
-                // byte data = cpu.memory[ex_mem.memoryAddress];
                 byte data = cpu.memory[memoryAddress];
-
-                //System.out.println("result: " + data);
-
+                System.out.println("[MEMOR] LB: " + ex_mem.asmLine + " data = " + data);
                 mem_wb.value = data;
                 mem_wb.rd_value = data;
+
+                // need to forward into ex_mem pipeline memory becaus a subsequent sub for example
+                // will read from ex_mem forwarding Map
+                ex_mem.forwardingMap.put(ex_mem.asmLine.register_0, (int) data);
                 break;
 
             case I_SB:
-                System.out.println("[MEMOR] SB: " + ex_mem.asmLine);
-
-                // mem_wb.value = cpu.memory[ex_mem.memoryAddress];
-                // cpu.memory[ex_mem.memoryAddress] = (byte) (mem_wb.value & 0xFF);
-                cpu.memory[memoryAddress] = (byte) (mem_wb.value & 0xFF);
+                byte sbData = (byte) (mem_wb.value & 0xFF);
+                System.out.println("[MEMOR] SB: " + ex_mem.asmLine + " data = " + sbData);
+                cpu.memory[memoryAddress] = sbData;
                 break;
 
             default:
-                // throw new RuntimeException("Unknown mnemonic! " + ex_mem.asmLine.mnemonic);
                 System.out.println("[MEMOR] N/A");
                 break;
         }
 
         return 0;
-
     }
-
-
 
 }

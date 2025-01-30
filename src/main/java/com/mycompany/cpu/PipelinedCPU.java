@@ -98,8 +98,6 @@ public class PipelinedCPU implements CPU {
         // WB - write back - write
         instr_writeback.step_write(this, mem_wb);
 
-
-
         mem_wb.asmLine = ex_mem.asmLine;
         mem_wb.memoryAddress = ex_mem.memoryAddress;
 
@@ -123,6 +121,7 @@ public class PipelinedCPU implements CPU {
             de_ex.asmLine = asm_line;
 
             if_de.instruction = instruction;
+
         }
 
     }

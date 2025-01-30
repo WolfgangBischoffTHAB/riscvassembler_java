@@ -254,9 +254,13 @@ public class PipelinedCPUInstructionExecuteStage {
                 // sub rd,rs1,rs2
                 // x[rd] = x[rs1] - x[rs2]
 
-                //System.out.println("[EXEC ] sub");
+                System.out.println("[EXEC ] sub");
 
-                if (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1)) {
+                if (
+                    (ex_mem.forwardingMap.containsKey(de_ex.asmLine.register_1))
+                    //||
+                    //(mem_wb.forwardingMap.containsKey(de_ex.asmLine.register_1))
+                ) {
 
                     int forwarded_rd_value = ex_mem.forwardingMap.get(de_ex.asmLine.register_1);
 
@@ -293,6 +297,7 @@ public class PipelinedCPUInstructionExecuteStage {
             case I_SLL:
                 System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 break;
+
             case I_SLT:
                 System.out.println("[EXEC ] SLT");
                 // Place the value 1 in register rd if register rs1 is less
@@ -311,6 +316,7 @@ public class PipelinedCPUInstructionExecuteStage {
             case I_SLTU:
                 System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 break;
+
             case I_XOR:
                 //System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 System.out.println("[EXEC ] xor");
@@ -354,7 +360,6 @@ public class PipelinedCPUInstructionExecuteStage {
                 break;
 
             case I_OR:
-
                 //System.out.println("[EXEC ] OR");
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
 
