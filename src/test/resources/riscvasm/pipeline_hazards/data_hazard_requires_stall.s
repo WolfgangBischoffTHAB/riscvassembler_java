@@ -1,4 +1,11 @@
 # Computer Architecture - A quantative approach - page C-19
+#
+# The problem is the first instruction which may provide the data not
+# earlier than the mem phase. The subsequent instructions (sub, and)
+# need the data earlier than the cycle in which mem is returned!
+#
+# The is no way to solve this issue via forwarding, only stalls solve
+# the issue.
 
 lb      x1, 0(x2)
 sub     x4, x1, x5

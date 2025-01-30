@@ -23,7 +23,7 @@ public class Decoder {
     public static AsmLine decode(final int data) {
 
         // DEBUG
-        System.out.println("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        //System.out.println("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;

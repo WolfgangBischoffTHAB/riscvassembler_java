@@ -3,8 +3,6 @@ package com.mycompany.cpu;
 public class PipelinedCPUInstructionMemoryStage {
 
     private int memoryAddress;
-    // private int value;
-
 
     public int step_read(final PipelinedCPU cpu, final EX_MEM ex_mem, final MEM_WB mem_wb) {
         // skip
@@ -42,8 +40,6 @@ public class PipelinedCPUInstructionMemoryStage {
         return 0;
     }
 
-
-
     public int step_write(final PipelinedCPU cpu, final EX_MEM ex_mem, final MEM_WB mem_wb) {
 
         // skip
@@ -58,7 +54,7 @@ public class PipelinedCPUInstructionMemoryStage {
 
             case I_LB:
 
-                System.out.println("LB: " + ex_mem.asmLine);
+                System.out.println("[MEMOR] LB: " + ex_mem.asmLine);
 
                 // int registerValue = 0;
                 // if (ex_mem.forwardingMap.containsKey(ex_mem.asmLine.register_1)) {
@@ -75,14 +71,14 @@ public class PipelinedCPUInstructionMemoryStage {
                 // byte data = cpu.memory[ex_mem.memoryAddress];
                 byte data = cpu.memory[memoryAddress];
 
-                System.out.println("result: " + data);
+                //System.out.println("result: " + data);
 
                 mem_wb.value = data;
                 mem_wb.rd_value = data;
                 break;
 
             case I_SB:
-                System.out.println("SB: " + ex_mem.asmLine);
+                System.out.println("[MEMOR] SB: " + ex_mem.asmLine);
 
                 // mem_wb.value = cpu.memory[ex_mem.memoryAddress];
                 // cpu.memory[ex_mem.memoryAddress] = (byte) (mem_wb.value & 0xFF);
@@ -91,6 +87,7 @@ public class PipelinedCPUInstructionMemoryStage {
 
             default:
                 // throw new RuntimeException("Unknown mnemonic! " + ex_mem.asmLine.mnemonic);
+                System.out.println("[MEMOR] N/A");
                 break;
         }
 

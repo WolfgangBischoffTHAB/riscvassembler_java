@@ -30,10 +30,12 @@ public class PipelinedCPU implements CPU {
 
     public PipelinedCPUInstructionWriteBackStage instr_writeback = new PipelinedCPUInstructionWriteBackStage();
 
+    public Interlock interlock = new Interlock();
+
     @Override
     public void step() {
 
-        System.out.println("\n\nCycle: " + cycle_counter);
+        System.out.println("\n\nCycle: " + cycle_counter + " Instruction: " + pc / 4);
         cycle_counter++;
 
         // WB - write back - read
@@ -42,24 +44,53 @@ public class PipelinedCPU implements CPU {
         // MEM - memory access - read
         instr_memory.step_read(this, ex_mem, mem_wb);
 
-        // IE - Execute - read
-        instr_execute.step_read(this, de_ex.asmLine, de_ex);
+        AsmLine asm_line = null;
+        int instruction = 0;
 
-        // ID - Decode - read
-        AsmLine asm_line = instr_decode.step_read(this, if_de.instruction, de_ex);
+        interlock.checkForStall(if_de, de_ex, ex_mem, mem_wb);
 
-        // IF - Fetch - read
-        int instruction = instr_fetch.step_read(pc, memory);
+        if (interlock.isStall()) {
 
-        // IF - Fetch - write
-        instr_fetch.step_write(pc, memory);
+            // nop
 
-        // ID - Decode - write
-        instr_decode.step_write(this, if_de.instruction, de_ex);
+        } else {
 
-        // IE - Execute - write
-        int result = instr_execute.step_write(this, de_ex, ex_mem, mem_wb);
-        System.out.println("EX result: " + result);
+            // IE - Execute - read
+            instr_execute.step_read(this, de_ex.asmLine, de_ex);
+
+            // ID - Decode - read
+            asm_line = instr_decode.step_read(this, if_de.instruction, de_ex);
+
+            // IF - Fetch - read
+            instruction = instr_fetch.step_read(pc, memory);
+
+        }
+
+        int result = 0;
+
+        //interlock.checkForStall(if_de, de_ex, ex_mem, mem_wb);
+
+        if (interlock.isStall()) {
+
+            System.out.println("[FETCH] stall");
+
+            System.out.println("[DECOD] stall");
+
+            System.out.println("[EXEC ] stall");
+
+        } else {
+
+            // IF - Fetch - write
+            instr_fetch.step_write(pc, memory);
+
+            // ID - Decode - write
+            instr_decode.step_write(this, if_de.instruction, de_ex);
+
+            // IE - Execute - write
+            result = instr_execute.step_write(this, de_ex, ex_mem, mem_wb);
+            //System.out.println("EX result: " + result);
+
+        }
 
         // MEM - memory access - write
         instr_memory.step_write(this, ex_mem, mem_wb);
@@ -67,27 +98,32 @@ public class PipelinedCPU implements CPU {
         // WB - write back - write
         instr_writeback.step_write(this, mem_wb);
 
-        pc += 4;
+
 
         mem_wb.asmLine = ex_mem.asmLine;
-        // mem_wb.value = ex_mem.value;
-        // mem_wb.rd_value = ex_mem.rd_value;
-
-        // forward
-        // mem_wb.forwardingMap.clear();
-        // mem_wb.forwardingMap.putAll(ex_mem.forwardingMap);
         mem_wb.memoryAddress = ex_mem.memoryAddress;
 
-        ex_mem.asmLine = de_ex.asmLine;
-        ex_mem.value = result;
-        // ex_mem.forwardingMap.clear();
-        // ex_mem.forwardingMap.putAll(de_ex.forwardingMap);
+        if (interlock.isStall()) {
 
-        de_ex.instruction = if_de.instruction;
-        de_ex.asmLine = asm_line;
-        // de_ex.forwardingMap.clear();
+            // during stalls, PC is not allowed to advance!
+            pc += 0;
 
-        if_de.instruction = instruction;
+            ex_mem.asmLine = null;
+            ex_mem.value = 0;
+
+        } else {
+
+            // during stalls, PC is not allowed to advance!
+            pc += 4;
+
+            ex_mem.asmLine = de_ex.asmLine;
+            ex_mem.value = result;
+
+            de_ex.instruction = if_de.instruction;
+            de_ex.asmLine = asm_line;
+
+            if_de.instruction = instruction;
+        }
 
     }
 
