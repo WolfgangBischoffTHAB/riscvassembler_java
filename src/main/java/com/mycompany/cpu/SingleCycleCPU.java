@@ -71,12 +71,15 @@ public class SingleCycleCPU implements CPU {
                     pc += 4;
                 }
                 break;
+
             case I_BNE:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_BLT:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_BGE:
                 // if(rs1 >= rs2) pc += imm
                 System.out.println("bge");
@@ -86,9 +89,11 @@ public class SingleCycleCPU implements CPU {
                     pc += 4;
                 }
                 break;
+
             case I_BLTU:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_BGEU:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
@@ -96,18 +101,23 @@ public class SingleCycleCPU implements CPU {
             case I_LB:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_LH:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_LW:
                 System.out.println(asmLine);
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 throw new RuntimeException("Not implemented yet!");
+
             // pc += 4;
             // break;
+
             case I_LBU:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_LBW:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
@@ -115,15 +125,33 @@ public class SingleCycleCPU implements CPU {
             case I_SB:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SH:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SW:
                 System.out.println("sw : " + asmLine);
                 // Store 32-bit, values from the low bits of register rs2 to memory.
-                // sw rs2,offset(rs1)
+                // sw rs2, offset(rs1)
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
-                throw new RuntimeException("Not implemented yet!");
+                //throw new RuntimeException("Not implemented yet!");
+
+                int addr = (int) (asmLine.offset_0 + registerFile[asmLine.register_1.getIndex()]);
+
+                int testp = registerFile[asmLine.register_2.getIndex()];
+
+                byte[] let = ByteArrayUtil.intToFourByte(testp, ByteOrder.LITTLE_ENDIAN);
+                memory[addr + 0] = let[0];
+                System.out.println("mem: " + (addr + 0) + " = " + let[0]);
+                memory[addr + 1] = let[1];
+                System.out.println("mem: " + (addr + 1) + " = " + let[1]);
+                memory[addr + 2] = let[2];
+                System.out.println("mem: " + (addr + 2) + " = " + let[2]);
+                memory[addr + 3] = let[3];
+                System.out.println("mem: " + (addr + 3) + " = " + let[3]);
+                break;
+
             // pc += 4;
             // break;
             case I_ADDI:
@@ -137,24 +165,31 @@ public class SingleCycleCPU implements CPU {
             case I_SLTI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SLTIU:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_XORI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_ORI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_ANDI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SLLI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SRLI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SRAI:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
@@ -177,9 +212,11 @@ public class SingleCycleCPU implements CPU {
                         - registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
+
             case I_SLL:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SLT:
                 // Place the value 1 in register rd if register rs1 is less
                 // than register rs2 when both are treated as signed numbers,
@@ -193,15 +230,19 @@ public class SingleCycleCPU implements CPU {
                 }
                 pc += 4;
                 break;
+
             case I_SLTU:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_XOR:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SRL:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
+
             case I_SRA:
                 System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
                 break;
@@ -213,6 +254,7 @@ public class SingleCycleCPU implements CPU {
                         | registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
+
             case I_AND:
                 System.out.println("and");
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
@@ -220,6 +262,7 @@ public class SingleCycleCPU implements CPU {
                         & registerFile[asmLine.register_2.getIndex()];
                 pc += 4;
                 break;
+
             // case I_FENCE:
             // break;
             // case I_FENCE_I:
