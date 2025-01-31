@@ -335,6 +335,10 @@ public enum RISCVRegister implements Register {
 
     public static String toString(final RISCVRegister register) {
 
+        if (register == null) {
+            return "null";
+        }
+
         switch (register) {
             case REG_ZERO:
                 return "x0";
@@ -403,7 +407,7 @@ public enum RISCVRegister implements Register {
             case REG_T6:
                 return "x31";
             default:
-                throw new RuntimeException("Unknown register: \"" + register + "\"");
+                throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");
         }
     }
 
