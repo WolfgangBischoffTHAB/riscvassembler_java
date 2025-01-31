@@ -60,7 +60,7 @@ public abstract class BaseAssembler {
 
     public abstract ParserRuleContext getRoot();
 
-    public abstract List<AsmLine<?>> getAsmLines();
+    // public abstract List<AsmLine<?>> getAsmLines();
 
     public abstract Encoder getEncoder();
 
@@ -123,7 +123,7 @@ public abstract class BaseAssembler {
         // walk the tree created during the parse, trigger callbacks
         asmWalker.walk(asmListener, asmRoot);
 
-        List<AsmLine<?>> asmLines = getAsmLines();
+        // List<AsmLine<?>> asmLines = getAsmLines();
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -485,6 +485,11 @@ public abstract class BaseAssembler {
 
         }
         System.out.println("");
+    }
+
+    // @Override
+    public List<AsmLine<?>> getAsmLines() {
+        return asmLines;
     }
 
 }

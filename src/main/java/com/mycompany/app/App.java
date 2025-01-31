@@ -12,10 +12,7 @@ import java.util.Map;
 
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
-import com.mycompany.cpu.CPU;
 import com.mycompany.cpu.PipelinedCPU;
-import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;

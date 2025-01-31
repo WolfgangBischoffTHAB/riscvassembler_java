@@ -67,10 +67,10 @@ public class MIPSAssembler extends BaseAssembler {
         return parser.asm_file();
     }
 
-    @Override
-    public List<AsmLine<?>> getAsmLines() {
-        return asmLines;
-    }
+    // @Override
+    // public List<AsmLine<?>> getAsmLines() {
+    //     return asmLines;
+    // }
 
     @Override
     public Encoder getEncoder() {
