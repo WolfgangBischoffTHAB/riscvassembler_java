@@ -50,7 +50,9 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
 
-        String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
+        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
+
+        String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";

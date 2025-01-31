@@ -475,7 +475,8 @@ public abstract class BaseAssembler {
 
                 byte[] temp = ByteArrayUtil.intToFourByte(container, byteOrder);
 
-                System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));
+                //System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));
+                System.out.print(ByteArrayUtil.bytesToHexLowerCase(temp));
                 System.out.println("");
 
                 container_index = 0;
