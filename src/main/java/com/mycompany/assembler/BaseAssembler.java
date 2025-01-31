@@ -399,7 +399,11 @@ public abstract class BaseAssembler {
         System.out.println("\n\n\n");
         System.out.println("***************************");
         for (AsmLine<?> asmLine : asmLines) {
-            System.out.println(asmLine);
+            try {
+                System.out.println(asmLine);
+            } catch (Exception e) {
+                System.out.println("error!");
+            }
         }
         System.out.println("***************************");
 
