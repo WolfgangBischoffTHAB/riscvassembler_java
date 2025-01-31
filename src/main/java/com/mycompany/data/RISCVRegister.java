@@ -408,7 +408,7 @@ public enum RISCVRegister implements Register {
                 return "x31";
             default:
                 //throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");
-                System.out.println("Unknown register: \"" + register.ordinal() + "\"");
+                return "Unknown register: \"" + register.ordinal() + "\"";
         }
     }
 
