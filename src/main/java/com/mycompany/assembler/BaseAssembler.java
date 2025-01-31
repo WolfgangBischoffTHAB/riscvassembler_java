@@ -401,7 +401,7 @@ public abstract class BaseAssembler {
         for (AsmLine<?> asmLine : asmLines) {
             try {
                 System.out.println(asmLine);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 System.out.println("error!");
             }
         }
