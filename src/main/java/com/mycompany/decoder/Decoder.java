@@ -22,6 +22,13 @@ public class Decoder {
 
     public static AsmLine decode(final int data) {
 
+        AsmLine asmLine = new AsmLine();
+
+        if (data == 0) {
+            asmLine.mnemonic = Mnemonic.I_NOP;
+            return asmLine;
+        }
+
         // DEBUG
         //System.out.println("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
@@ -38,8 +45,6 @@ public class Decoder {
         int rd = (data >> 7) & 0b11111;
         int rs1 = (data >> 15) & 0b11111;
         int rs2 = (data >> 20) & 0b11111;
-
-        AsmLine asmLine = new AsmLine();
 
         switch (opcode) {
 

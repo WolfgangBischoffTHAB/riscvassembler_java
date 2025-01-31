@@ -137,11 +137,11 @@ public class SingleCycleCPU implements CPU {
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
                 //throw new RuntimeException("Not implemented yet!");
 
-                int addr = (int) (asmLine.offset_0 + registerFile[asmLine.register_1.getIndex()]);
+                int addr = (int) (asmLine.offset_1 + registerFile[asmLine.register_1.getIndex()]);
 
-                int testp = registerFile[asmLine.register_2.getIndex()];
+                int testp = registerFile[asmLine.register_0.getIndex()];
 
-                byte[] let = ByteArrayUtil.intToFourByte(testp, ByteOrder.LITTLE_ENDIAN);
+                byte[] let = ByteArrayUtil.intToFourByte(testp, ByteOrder.BIG_ENDIAN);
                 memory[addr + 0] = let[0];
                 System.out.println("mem: " + (addr + 0) + " = " + let[0]);
                 memory[addr + 1] = let[1];
@@ -150,6 +150,7 @@ public class SingleCycleCPU implements CPU {
                 System.out.println("mem: " + (addr + 2) + " = " + let[2]);
                 memory[addr + 3] = let[3];
                 System.out.println("mem: " + (addr + 3) + " = " + let[3]);
+                pc += 4;
                 break;
 
             // pc += 4;
@@ -285,6 +286,10 @@ public class SingleCycleCPU implements CPU {
             // break;
             // case I_CSRRCI:
             // break;
+
+            case I_NOP:
+                System.out.println("mnemonic: NOP");
+                break;
 
             default:
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);

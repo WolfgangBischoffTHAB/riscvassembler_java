@@ -13,6 +13,7 @@ import java.util.Map;
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.PipelinedCPU;
+import com.mycompany.cpu.SingleCycleCPU;
 import com.mycompany.data.Section;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;
@@ -49,7 +50,8 @@ public class App {
 
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
 
-        String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
+        String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
@@ -213,9 +215,12 @@ public class App {
 
     private static void emulate(byte[] machineCode) {
 
-        //CPU cpu = new CPU();
-        PipelinedCPU cpu = new PipelinedCPU();
+        SingleCycleCPU cpu = new SingleCycleCPU();
+        //PipelinedCPU cpu = new PipelinedCPU();
+
         cpu.pc = 0;
+        cpu.memory = new byte[256];
+
         System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
 
         // preload values into registers
@@ -241,7 +246,6 @@ public class App {
         for (int i = 0; i < lastCycle; i++) {
             cpu.step();
         }
-
 
         for (int i = 0; i < 32; i++) {
             System.out.println("x" + (i) + ": " + cpu.registerFile[i]);
