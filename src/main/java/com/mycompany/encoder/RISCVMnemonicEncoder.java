@@ -468,6 +468,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     }
 
     private int encodeJALR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+
         byte funct3 = 0b000;
         byte opcode = 0b1100111;
 

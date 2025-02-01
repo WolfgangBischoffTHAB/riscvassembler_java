@@ -67,7 +67,13 @@ public class SingleCycleCPU implements CPU {
                 // rd = pc+4; pc = rs1+imm
                 System.out.println("jalr");
                 registerFile[asmLine.register_0.getIndex()] = pc + 4;
-                pc = registerFile[asmLine.register_1.getIndex()] + asmLine.numeric_2.intValue();
+
+                int pcReplacement = registerFile[asmLine.register_1.getIndex()] + asmLine.numeric_2.intValue();
+
+                System.out.println("Current PC: " + pc);
+                System.out.println("New PC: " + pcReplacement);
+
+                pc = pcReplacement;
                 break;
 
             case I_BEQ:

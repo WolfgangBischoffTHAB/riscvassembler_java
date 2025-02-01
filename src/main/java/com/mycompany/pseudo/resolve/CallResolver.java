@@ -9,14 +9,14 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class CallResolver implements AsmInstructionListModifier {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap /* , final Map<String, Long> labelMap*/) {
+    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
+        // Loop over the entire set of asmLines to replace all call instructions
         boolean done = false;
         while (!done) {
 
@@ -24,6 +24,10 @@ public class CallResolver implements AsmInstructionListModifier {
             AsmLine foundAsmLine = null;
 
             int index = 0;
+
+            //
+            // Phase 1 - search first call instruction
+            //
 
             // to prevent concurrent modification exception, separate search
             // from modification
@@ -34,13 +38,15 @@ public class CallResolver implements AsmInstructionListModifier {
                     continue;
                 }
 
-                //System.out.println(asmLine);
-
                 found = true;
                 foundAsmLine = asmLine;
 
                 break;
             }
+
+            //
+            // Phase 2 - replace call instruction
+            //
 
             if (found) {
 
@@ -91,6 +97,8 @@ public class CallResolver implements AsmInstructionListModifier {
                 jalr.register_1 = RISCVRegister.REG_RA;
                 jalr.modifier_2 = Modifier.LO;
                 jalr.offsetLabel_2 = foundAsmLine.identifier_0;
+
+                System.out.println(jalr);
 
                 continue;
             }

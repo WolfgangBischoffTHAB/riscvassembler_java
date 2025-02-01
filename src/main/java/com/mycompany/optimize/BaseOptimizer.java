@@ -8,7 +8,6 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public abstract class BaseOptimizer implements AsmInstructionListModifier {
@@ -83,7 +82,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
     }
 
     public static void buildLabelTable(final List<AsmLine<?>> asmLines,
-        final Map<String, Long> labelAddressMap, final Map<String, Section> sectionMap) {
+            final Map<String, Long> labelAddressMap, final Map<String, Section> sectionMap) {
 
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
             entry.getValue().currentOffset = 0;
@@ -167,7 +166,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             }
         }
 
-        //outputLabelAddressMap(labelAddressMap);
+        // outputLabelAddressMap(labelAddressMap);
     }
 
     public static void outputLabelAddressMap(final Map<String, Long> labelAddressMap) {
@@ -204,7 +203,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
         for (AsmLine asmLine : asmLines) {
             // if (asmLine.mnemonic == Mnemonic.I_BNE) {
-            //     System.out.println("test");
+            // System.out.println("test");
             // }
 
             if (asmLine.asmInstruction != null) {
@@ -225,13 +224,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             }
 
             // if (asmLine.offsetLabel_0 != null) {
-            //     Long value = labelAddressMap.get(asmLine.offsetLabel_0);
-            //     if (value != null) {
-            //         asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
-            //         asmLine.offsetLabel_0 = null;
-            //     } else {
-            //         throw new RuntimeException("(A) Unknown label: \"" + asmLine.offsetLabel_0 + "\"");
-            //     }
+            // Long value = labelAddressMap.get(asmLine.offsetLabel_0);
+            // if (value != null) {
+            // asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
+            // asmLine.offsetLabel_0 = null;
+            // } else {
+            // throw new RuntimeException("(A) Unknown label: \"" + asmLine.offsetLabel_0 +
+            // "\"");
+            // }
             // }
             if (asmLine.identifier_0 != null) {
 
@@ -246,8 +246,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     AsmLine tempAsmLine = asmLine;
                     long offset = 0;
 
-                    String truncatedLabel = tempAsmLine.identifier_0.substring(0, tempAsmLine.identifier_0.length() - 1);
-                    while ((tempAsmLine != null) && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
+                    String truncatedLabel = tempAsmLine.identifier_0.substring(0,
+                            tempAsmLine.identifier_0.length() - 1);
+                    while ((tempAsmLine != null)
+                            && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
                         tempAsmLine = tempAsmLine.prev;
                         if (tempAsmLine.mnemonic != null) {
                             offset -= 4;
@@ -263,8 +265,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     AsmLine tempAsmLine = asmLine;
                     long offset = 4;
 
-                    String truncatedLabel = tempAsmLine.identifier_0.substring(0, tempAsmLine.identifier_0.length() - 1);
-                    while ((tempAsmLine != null) && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
+                    String truncatedLabel = tempAsmLine.identifier_0.substring(0,
+                            tempAsmLine.identifier_0.length() - 1);
+                    while ((tempAsmLine != null)
+                            && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
                         tempAsmLine = tempAsmLine.next;
                         if (tempAsmLine.mnemonic != null) {
                             offset += 4;
@@ -283,13 +287,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             }
 
             // if (asmLine.offsetLabel_1 != null) {
-            //     Long value = labelAddressMap.get(asmLine.offsetLabel_1);
-            //     if (value != null) {
-            //         asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
-            //         asmLine.offsetLabel_1 = null;
-            //     } else {
-            //         throw new RuntimeException("(C) Unknown label: \"" + asmLine.offsetLabel_1 + "\"");
-            //     }
+            // Long value = labelAddressMap.get(asmLine.offsetLabel_1);
+            // if (value != null) {
+            // asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
+            // asmLine.offsetLabel_1 = null;
+            // } else {
+            // throw new RuntimeException("(C) Unknown label: \"" + asmLine.offsetLabel_1 +
+            // "\"");
+            // }
             // }
             if (asmLine.identifier_1 != null) {
 
@@ -304,8 +309,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     AsmLine tempAsmLine = asmLine;
                     long offset = 0;
 
-                    String truncatedLabel = tempAsmLine.identifier_1.substring(0, tempAsmLine.identifier_1.length() - 1);
-                    while ((tempAsmLine != null) && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
+                    String truncatedLabel = tempAsmLine.identifier_1.substring(0,
+                            tempAsmLine.identifier_1.length() - 1);
+                    while ((tempAsmLine != null)
+                            && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
                         tempAsmLine = tempAsmLine.prev;
                         if (tempAsmLine.mnemonic != null) {
                             offset -= 4;
@@ -321,8 +328,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     AsmLine tempAsmLine = asmLine;
                     long offset = 4;
 
-                    String truncatedLabel = tempAsmLine.identifier_1.substring(0, tempAsmLine.identifier_1.length() - 1);
-                    while ((tempAsmLine != null) && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
+                    String truncatedLabel = tempAsmLine.identifier_1.substring(0,
+                            tempAsmLine.identifier_1.length() - 1);
+                    while ((tempAsmLine != null)
+                            && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
                         tempAsmLine = tempAsmLine.next;
                         if (tempAsmLine.mnemonic != null) {
                             offset += 4;
@@ -341,13 +350,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             }
 
             // if (asmLine.offsetLabel_2 != null) {
-            //     Long value = labelAddressMap.get(asmLine.offsetLabel_2);
-            //     if (value != null) {
-            //         asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
-            //         asmLine.offsetLabel_2 = null;
-            //     } else {
-            //         throw new RuntimeException("(E) Unknown label: \"" + asmLine.offsetLabel_2 + "\"");
-            //     }
+            // Long value = labelAddressMap.get(asmLine.offsetLabel_2);
+            // if (value != null) {
+            // asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
+            // asmLine.offsetLabel_2 = null;
+            // } else {
+            // throw new RuntimeException("(E) Unknown label: \"" + asmLine.offsetLabel_2 +
+            // "\"");
+            // }
             // }
             if (asmLine.identifier_2 != null) {
 
@@ -365,8 +375,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     AsmLine tempAsmLine = asmLine;
                     long offset = 0;
 
-                    String truncatedLabel = tempAsmLine.identifier_2.substring(0, tempAsmLine.identifier_2.length() - 1);
-                    while ((tempAsmLine != null) && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
+                    String truncatedLabel = tempAsmLine.identifier_2.substring(0,
+                            tempAsmLine.identifier_2.length() - 1);
+                    while ((tempAsmLine != null)
+                            && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
                         tempAsmLine = tempAsmLine.prev;
                         if (tempAsmLine.mnemonic != null) {
                             offset -= 4;
@@ -382,8 +394,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     AsmLine tempAsmLine = asmLine;
                     long offset = 4;
 
-                    String truncatedLabel = tempAsmLine.identifier_2.substring(0, tempAsmLine.identifier_2.length() - 1);
-                    while ((tempAsmLine != null) && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
+                    String truncatedLabel = tempAsmLine.identifier_2.substring(0,
+                            tempAsmLine.identifier_2.length() - 1);
+                    while ((tempAsmLine != null)
+                            && ((tempAsmLine.label == null) || (!tempAsmLine.label.equalsIgnoreCase(truncatedLabel)))) {
                         tempAsmLine = tempAsmLine.next;
                         if (tempAsmLine.mnemonic != null) {
                             offset += 4;
@@ -401,8 +415,6 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
             }
 
-
-
         }
     }
 
@@ -414,7 +426,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      */
     public static void resolveModifiers(List<AsmLine<?>> asmLines, Map<String, Long> map) {
 
+        //int offset = 4;
+        int offset = 0;
+
         for (AsmLine asmLine : asmLines) {
+
+            if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                System.out.println("DEBUG");
+            }
 
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
@@ -438,7 +457,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - 4);
+                    value = value - (asmLine.offset - offset);
                 }
 
                 switch (asmLine.modifier_0) {
@@ -474,7 +493,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - 4);
+                    value = value - (asmLine.offset - offset);
                 }
 
                 switch (asmLine.modifier_1) {
@@ -508,13 +527,10 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 Long value = map.get(label);
 
-                // special case for JALR: labels are resolved relative
+                // special case for JALR: labels are resolved pc relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - 4);
+                    value = value - (asmLine.offset - offset);
                 }
-                // if (asmLine.mnemonic == Mnemonic.I_BNE) {
-                //     value = value - (asmLine.offset - 4);
-                // }
 
                 switch (asmLine.modifier_2) {
 
