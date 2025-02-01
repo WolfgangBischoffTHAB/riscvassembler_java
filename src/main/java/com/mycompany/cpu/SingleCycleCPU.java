@@ -37,6 +37,10 @@ public class SingleCycleCPU implements CPU {
         // https://projectf.io/posts/riscv-cheat-sheet/
         // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
 
+        int addr;
+        int value;
+        byte[] let;
+
         switch (asmLine.mnemonic) {
 
             case I_LUI:
@@ -108,8 +112,33 @@ public class SingleCycleCPU implements CPU {
 
             case I_LW:
                 System.out.println(asmLine);
-                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
-                throw new RuntimeException("Not implemented yet!");
+
+                // compute memory address to load from (EXECUTE STAGE)
+                addr = (int) (asmLine.offset_1 + registerFile[asmLine.register_1.getIndex()]);
+
+                // read from memory (MEMORY STAGE)
+
+                //let = ByteArrayUtil.intToFourByte(value, ByteOrder.BIG_ENDIAN);
+
+                let = new byte[4];
+
+                let[0] = memory[addr + 0];
+                System.out.println("mem: " + (let[0]) + " = " + memory[addr + 0]);
+                let[1] = memory[addr + 1];
+                System.out.println("mem: " + (let[1]) + " = " + memory[addr + 1]);
+                let[2] = memory[addr + 2];
+                System.out.println("mem: " + (let[2]) + " = " + memory[addr + 2]);
+                let[3] = memory[addr + 3];
+                System.out.println("mem: " + (let[3]) + " = " + memory[addr + 3]);
+
+                // WRITE BACK STAGE
+
+                value = ByteArrayUtil.fourByteToInt(let, ByteOrder.BIG_ENDIAN);
+
+                registerFile[asmLine.register_0.getIndex()] = value;
+
+                pc += 4;
+                break;
 
             // pc += 4;
             // break;
@@ -137,11 +166,12 @@ public class SingleCycleCPU implements CPU {
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
                 //throw new RuntimeException("Not implemented yet!");
 
-                int addr = (int) (asmLine.offset_1 + registerFile[asmLine.register_1.getIndex()]);
+                // compute memory address to store to (EXECUTE STAGE)
+                addr = (int) (asmLine.offset_1 + registerFile[asmLine.register_1.getIndex()]);
 
-                int testp = registerFile[asmLine.register_0.getIndex()];
-
-                byte[] let = ByteArrayUtil.intToFourByte(testp, ByteOrder.BIG_ENDIAN);
+                // write into memory (MEMORY STAGE)
+                value = registerFile[asmLine.register_0.getIndex()];
+                let = ByteArrayUtil.intToFourByte(value, ByteOrder.BIG_ENDIAN);
                 memory[addr + 0] = let[0];
                 System.out.println("mem: " + (addr + 0) + " = " + let[0]);
                 memory[addr + 1] = let[1];
@@ -150,6 +180,7 @@ public class SingleCycleCPU implements CPU {
                 System.out.println("mem: " + (addr + 2) + " = " + let[2]);
                 memory[addr + 3] = let[3];
                 System.out.println("mem: " + (addr + 3) + " = " + let[3]);
+
                 pc += 4;
                 break;
 

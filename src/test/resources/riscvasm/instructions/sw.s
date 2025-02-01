@@ -3,7 +3,11 @@
 #
 # Format: sw rs2, imm(rs1)
 
+#sw    a0, -4(s0)
+
+addi  sp, sp, -32
 sw    s0, 28(sp)
+sw    a0, -4(s0)
 
 #sw   x2, 0x20(x3)
 

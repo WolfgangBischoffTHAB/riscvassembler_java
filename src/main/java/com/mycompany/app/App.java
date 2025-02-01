@@ -14,6 +14,7 @@ import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.PipelinedCPU;
 import com.mycompany.cpu.SingleCycleCPU;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;
@@ -51,7 +52,8 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
-        String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
@@ -219,15 +221,18 @@ public class App {
         //PipelinedCPU cpu = new PipelinedCPU();
 
         cpu.pc = 0;
+        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 100;
+        cpu.registerFile[RISCVRegister.REG_S0.getIndex()] = 100;
         cpu.memory = new byte[256];
 
         System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
 
-        // preload values into registers
-        //
-        for (int i = 0; i < 32; i++) {
-            cpu.registerFile[i] = i;
-        }
+        // // FOR DEBUGGING MULTISTAGE PIPELINE APPS
+        // // preload values into registers
+        // //
+        // for (int i = 0; i < 32; i++) {
+        //     cpu.registerFile[i] = i;
+        // }
 
         // //
         // // single cycle processor

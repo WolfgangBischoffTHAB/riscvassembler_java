@@ -199,10 +199,22 @@ public class Decoder {
         asmLine.numeric_2 = (long) imm;
     }
 
+    public static int twosComplement(final int value) {
+        final int mask = 0xffff_ffff;
+        return (value ^ mask) + 1;
+    }
+
     private static void decodeIType_2(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
+
         asmLine.numeric_2 = (long) imm;
+
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        if ((imm & 0x800) > 0) {
+            asmLine.numeric_2 = (long) twosComplement(imm | 0xFFFFF000);
+            asmLine.numeric_2 *= -1;
+        }
     }
 
     /**
@@ -219,13 +231,27 @@ public class Decoder {
     private static void decodeIType_3(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
+
         asmLine.offset_1 = (long) imm;
+
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        if ((imm & 0x800) > 0) {
+            asmLine.offset_1 = (long) twosComplement(imm | 0xFFFFF000);
+            asmLine.offset_1 *= -1;
+        }
     }
 
     private static void decodeSType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {
         asmLine.register_0 = RISCVRegister.fromInt(rs2);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
+
         asmLine.offset_1 = (long) imm;
+
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        if ((imm & 0x800) > 0) {
+            asmLine.offset_1 = (long) twosComplement(imm | 0xFFFFF000);
+            asmLine.offset_1 *= -1;
+        }
     }
 
     private static void decodeRType(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int rs2) {
@@ -237,12 +263,26 @@ public class Decoder {
     private static void decodeBType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {
         asmLine.register_0 = RISCVRegister.fromInt(rs1);
         asmLine.register_1 = RISCVRegister.fromInt(rs2);
+
         asmLine.numeric_2 = (long) imm;
+
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        if ((imm & 0x800) > 0) {
+            asmLine.numeric_2 = (long) twosComplement(imm | 0xFFFFF000);
+            asmLine.numeric_2 *= -1;
+        }
     }
 
     private static void decodeJType(AsmLine asmLine, int rd, int imm) {
         asmLine.register_0 = RISCVRegister.fromInt(rd);
+
         asmLine.numeric_1 = (long) imm;
+
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        if ((imm & 0x800) > 0) {
+            asmLine.numeric_1 = (long) twosComplement(imm | 0xFFFFF000);
+            asmLine.numeric_1 *= -1;
+        }
     }
 
 }
