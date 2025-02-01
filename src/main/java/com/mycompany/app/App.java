@@ -222,8 +222,12 @@ public class App {
 
         cpu.pc = 0;
         cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 100;
-        cpu.registerFile[RISCVRegister.REG_S0.getIndex()] = 100;
+        cpu.registerFile[RISCVRegister.REG_X8.getIndex()] = 100;
         cpu.memory = new byte[256];
+        cpu.memory[80] = 1;
+        cpu.memory[81] = 2;
+        cpu.memory[82] = 3;
+        cpu.memory[83] = 4;
 
         System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
 

@@ -386,8 +386,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b1110011;
 
-        byte rs1 = (byte) RISCVRegister.REG_ZERO.ordinal();
-        byte rs2 = (byte) RISCVRegister.REG_ZERO.ordinal();
+        byte rs1 = (byte) RISCVRegister.REG_ZERO.getIndex();
+        byte rs2 = (byte) RISCVRegister.REG_ZERO.getIndex();
         short imm = 0x00;
 
         int result = encodeIType(imm, rs2, rs1, funct3, opcode);

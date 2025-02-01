@@ -23,7 +23,7 @@ public class SingleCycleCPU implements CPU {
         final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc + 1], memory[pc + 2],
                 memory[pc + 3], byteOrder);
 
-        System.out.println("HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
+        System.out.println("Loaded Instr: HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
 
         AsmLine asmLine = Decoder.decode(instruction);
 
@@ -115,6 +115,7 @@ public class SingleCycleCPU implements CPU {
 
                 // compute memory address to load from (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + registerFile[asmLine.register_1.getIndex()]);
+                System.out.println("addr: " + addr);
 
                 // read from memory (MEMORY STAGE)
 

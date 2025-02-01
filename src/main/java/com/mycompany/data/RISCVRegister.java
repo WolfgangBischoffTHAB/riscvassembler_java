@@ -3,81 +3,152 @@ package com.mycompany.data;
 public enum RISCVRegister implements Register {
 
     /** x0 */
-    REG_ZERO,
+    REG_ZERO(0),
     /** x1 */
-    REG_RA,
+    REG_RA(1),
     /** x2 */
-    REG_SP,
+    REG_SP(2),
     /** x3 */
-    REG_GP,
+    REG_GP(3),
     /** x4 */
-    REG_TP,
+    REG_TP(4),
 
     /** x5 */
-    REG_T0,
+    REG_T0(5),
     /** x6 */
-    REG_T1,
+    REG_T1(6),
     /** x7 */
-    REG_T2,
+    REG_T2(7),
 
     /** x8 */
-    REG_S0,
-    // /** x8 */
-    // REG_FP,
+    REG_S0(8),
+    /** x8 */
+    REG_FP(8),
 
     /** x9 */
-    REG_S1,
-
+    REG_S1(9),
 
     /** x10 */
-    REG_A0,
+    REG_A0(10),
     /** x11 */
-    REG_A1,
+    REG_A1(11),
     /** x12 */
-    REG_A2,
+    REG_A2(12),
     /** x13 */
-    REG_A3,
+    REG_A3(13),
     /** x14 */
-    REG_A4,
+    REG_A4(14),
     /** x15 */
-    REG_A5,
+    REG_A5(15),
     /** x16 */
-    REG_A6,
+    REG_A6(16),
     /** x17 */
-    REG_A7,
-
+    REG_A7(17),
 
     /** x18 */
-    REG_S2,
+    REG_S2(18),
     /** x19 */
-    REG_S3,
+    REG_S3(19),
     /** x20 */
-    REG_S4,
+    REG_S4(20),
     /** x21 */
-    REG_S5,
+    REG_S5(21),
     /** x22 */
-    REG_S6,
+    REG_S6(22),
     /** x23 */
-    REG_S7,
+    REG_S7(23),
     /** x24 */
-    REG_S8,
+    REG_S8(24),
     /** x25 */
-    REG_S9,
+    REG_S9(25),
     /** x26 */
-    REG_S10,
+    REG_S10(26),
     /** x27 */
-    REG_S11,
+    REG_S11(27),
 
     /** x28 */
-    REG_T3,
+    REG_T3(28),
     /** x29 */
-    REG_T4,
+    REG_T4(29),
     /** x30 */
-    REG_T5,
+    REG_T5(30),
     /** x31 */
-    REG_T6,
+    REG_T6(31),
 
-    REG_UNKNOWN;
+
+    /** x0 */
+    REG_X0(0),
+    /** x1 */
+    REG_X1(1),
+    /** x2 */
+    REG_X2(2),
+    /** x3 */
+    REG_X3(3),
+    /** x4 */
+    REG_X4(4),
+
+    /** x5 */
+    REG_X5(5),
+    /** x6 */
+    REG_X6(6),
+    /** x7 */
+    REG_X7(7),
+
+    /** x8 */
+    REG_X8(8),
+
+    /** x9 */
+    REG_X9(9),
+
+    /** x10 */
+    REG_X10(10),
+    /** x11 */
+    REG_X11(11),
+    /** x12 */
+    REG_X12(12),
+    /** x13 */
+    REG_X13(13),
+    /** x14 */
+    REG_X14(14),
+    /** x15 */
+    REG_X15(15),
+    /** x16 */
+    REG_X16(16),
+    /** x17 */
+    REG_X17(17),
+
+    /** x18 */
+    REG_X18(18),
+    /** x19 */
+    REG_X19(19),
+    /** x20 */
+    REG_X20(20),
+    /** x21 */
+    REG_X21(21),
+    /** x22 */
+    REG_X22(22),
+    /** x23 */
+    REG_X23(23),
+    /** x24 */
+    REG_X24(24),
+    /** x25 */
+    REG_X25(25),
+    /** x26 */
+    REG_X26(26),
+    /** x27 */
+    REG_X27(27),
+
+    /** x28 */
+    REG_X28(28),
+    /** x29 */
+    REG_X29(29),
+    /** x30 */
+    REG_X30(30),
+    /** x31 */
+    REG_X31(31),
+
+
+    REG_UNKNOWN(255);
 
     // REG_ZERO : X '0' ; // 0, Hard-wired zero
     // REG_RA : X '1' ; // 1, Return address
@@ -117,6 +188,12 @@ public enum RISCVRegister implements Register {
     // REG_T4 : X '2' '9' ; // 29, Temporary
     // REG_T5 : X '3' '0' ; // 30, Temporary
     // REG_T6 : X '3' '1' ; // 31, Temporary
+
+    private int index;
+
+	RISCVRegister(final int index) {
+		this.index = index;
+	}
 
     public static Register fromInt(final int data) {
 
@@ -340,6 +417,7 @@ public enum RISCVRegister implements Register {
         }
 
         switch (register) {
+
             case REG_ZERO:
                 return "x0";
             case REG_RA:
@@ -502,7 +580,8 @@ public enum RISCVRegister implements Register {
 
     @Override
     public int getIndex() {
-        return ordinal();
+        //return ordinal();
+        return index;
     }
 
 }

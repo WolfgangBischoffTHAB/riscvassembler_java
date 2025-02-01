@@ -2,6 +2,16 @@ package com.mycompany.cpu;
 
 import com.mycompany.data.Mnemonic;
 
+/**
+ * The interlock is responsible for stalling the pipeline in situations where
+ * the pipeline cannot prevent stalls via forwarding. The pipeline will stall
+ * the earlier stages until the later stage has finally produced the data.
+ * An example is a load from memory directly followd by a register operation
+ * using the loaded data. The register operation requires the data in a phase
+ * which the pipeline will arrive at even before the load has produced the data.
+ * There is no way out of this without waiting for the data. Waiting is called
+ * stalling.
+ */
 public class Interlock {
 
     private boolean stall;
