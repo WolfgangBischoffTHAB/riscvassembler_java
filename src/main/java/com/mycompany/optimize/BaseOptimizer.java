@@ -426,8 +426,8 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      */
     public static void resolveModifiers(List<AsmLine<?>> asmLines, Map<String, Long> map) {
 
-        //int offset = 4;
-        int offset = 0;
+        int offset = 4;
+        //int offset = 0;
 
         for (AsmLine asmLine : asmLines) {
 
@@ -457,7 +457,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - offset);
+                    value = value - (asmLine.offset + offset);
                 }
 
                 switch (asmLine.modifier_0) {
@@ -493,7 +493,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - offset);
+                    value = value - (asmLine.offset + offset);
                 }
 
                 switch (asmLine.modifier_1) {
@@ -529,7 +529,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 // special case for JALR: labels are resolved pc relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset - offset);
+                    value = value - (asmLine.offset + offset);
                 }
 
                 switch (asmLine.modifier_2) {
