@@ -1,5 +1,8 @@
 package com.mycompany.data;
 
+/**
+ * 32-bit Instructions. See doc\riscv-spec-v2.2.pdf.
+ */
 public enum Mnemonic {
 
     I_ADD(false),
@@ -33,7 +36,7 @@ public enum Mnemonic {
     I_J(true),
     I_JR(false),
     I_JALR(false),
-    I_JAL(false),
+    I_JAL(false),       // rd <- pc + 4; pc <- pc + imm20
 
     I_LA(false),
     // I_LD(false), // This is 64 bits!!!
@@ -54,7 +57,7 @@ public enum Mnemonic {
     I_OR(false),
     I_ORI(false),
 
-    I_RET(false),
+    I_RET(true), // Return from subroutine Implementation: JALR zero, 0(ra)
 
     I_SRA(false),
     I_SRAI(false),

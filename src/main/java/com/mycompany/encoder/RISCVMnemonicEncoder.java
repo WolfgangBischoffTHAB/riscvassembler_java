@@ -157,6 +157,10 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             final String label = asmLine.offsetLabel_1;
 
+            if (!labelAddressMap.containsKey(label)) {
+                throw new RuntimeException("Trying to lookup label \"" + label + "\" in labelAddressMap but it is not defined!");
+            }
+
             long value = labelAddressMap.get(label);
             // value = 0x10000L;
 
@@ -442,6 +446,14 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
+    /**
+     * rd <- pc + 4
+     * pc <- pc + imm20
+     *
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return size of the encoded instruction in bytes
+     */
     private int encodeJAL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
         byte opcode = 0b1101111;
 

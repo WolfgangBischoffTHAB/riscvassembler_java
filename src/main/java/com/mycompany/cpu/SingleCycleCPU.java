@@ -48,7 +48,12 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_AUIPC:
-                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                // Add upper immediate to PC (and store the result into rd)
+                // auipc rd, imm
+                // rd <- PC + imm20 << 12; pc += 4;
+                System.out.println("auipc");
+                registerFile[asmLine.register_0.getIndex()] = (int) (pc + (asmLine.numeric_1 << 12L));
+                pc += 4;
                 break;
 
             case I_JAL:
@@ -318,6 +323,17 @@ public class SingleCycleCPU implements CPU {
             // break;
             // case I_CSRRCI:
             // break;
+
+            //
+            // multiplication extension
+            //
+
+            case I_MUL:
+                System.out.println("mul");
+                registerFile[asmLine.register_0.getIndex()] = registerFile[asmLine.register_1.getIndex()]
+                        * registerFile[asmLine.register_2.getIndex()];
+                pc += 4;
+                break;
 
             case I_NOP:
                 System.out.println("mnemonic: NOP");

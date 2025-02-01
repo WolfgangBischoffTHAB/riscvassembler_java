@@ -48,24 +48,26 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
-
         //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
-        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
-
         //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
         //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
         //String inputFile = "src/test/resources/riscvasm/examples/memory.s";
         //String inputFile = "src/test/resources/riscvasm/examples/uart.s";
         //String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
         //String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
-        //String inputFile = "src/test/resources/projects/snake/Main.asm";
-        //String inputFile = "src/test/resources/riscvasm/test.s";
         //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
+        String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
+
+        //String inputFile = "src/test/resources/projects/snake/Main.asm";
+
         //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
         //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
+
         args[0] = inputFile;
         mainRISCV(args);
 
@@ -223,11 +225,11 @@ public class App {
         cpu.pc = 0;
         cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 100;
         cpu.registerFile[RISCVRegister.REG_X8.getIndex()] = 100;
-        cpu.memory = new byte[256];
-        cpu.memory[80] = 1;
-        cpu.memory[81] = 2;
-        cpu.memory[82] = 3;
-        cpu.memory[83] = 4;
+        cpu.memory = new byte[2048];
+        // cpu.memory[80] = 1;
+        // cpu.memory[81] = 2;
+        // cpu.memory[82] = 3;
+        // cpu.memory[83] = 4;
 
         System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
 

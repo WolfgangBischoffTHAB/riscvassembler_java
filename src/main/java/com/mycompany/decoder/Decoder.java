@@ -4,7 +4,6 @@ import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 
 public class Decoder {
 
@@ -18,11 +17,15 @@ public class Decoder {
 
     private static final int B_TYPE = 0b1100011;
 
+    private static final int U_TYPE = 0b0010111;
+
     private static final int J_TYPE = 0b1101111;
 
     public static AsmLine decode(final int data) {
 
         AsmLine asmLine = new AsmLine();
+
+        System.out.println("Decoding: " + ByteArrayUtil.intToHex(data));
 
         if (data == 0) {
             asmLine.mnemonic = Mnemonic.I_NOP;
@@ -41,6 +44,8 @@ public class Decoder {
 
         int imm_4_0 = (data >> 7) & 0b11111;
         int imm_11_5 = (data >> 25) & 0b1111111;
+
+        int imm_31_12 = (data >> 12) & 0b11111111111111111111;
 
         int rd = (data >> 7) & 0b11111;
         int rs1 = (data >> 15) & 0b11111;
@@ -79,6 +84,14 @@ public class Decoder {
                         }
                         break;
 
+                    case 0b0000001:
+                        switch (funct3) {
+                            case 0b000:
+                                asmLine.mnemonic = Mnemonic.I_MUL;
+                                break;
+                        }
+                        break;
+
                     case 0b0100000:
                         switch (funct3) {
 
@@ -99,9 +112,11 @@ public class Decoder {
 
             case I_TYPE_1:
                 switch (funct3) {
+
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_JALR;
                         break;
+
                     default:
                         throw new RuntimeException("Unknown funct3: " + funct3);
                 }
@@ -174,6 +189,13 @@ public class Decoder {
                 decodeBType(asmLine, funct3, funct7, rs1, rs2, imm);
                 break;
 
+            case U_TYPE:
+                asmLine.mnemonic = Mnemonic.I_AUIPC;
+                asmLine.register_0 = RISCVRegister.fromInt(rd);
+                imm = imm_31_12;
+                asmLine.numeric_1 = (long) imm_31_12;
+                break;
+
             case J_TYPE:
                 int imm_19_12 = (data >> 12) & 0b11111111;
                 imm_11 = (data >> 20) & 0b1;
@@ -187,13 +209,14 @@ public class Decoder {
                 break;
 
             default:
-                throw new RuntimeException("Unknown Instruction Type!");
+                throw new RuntimeException("Unknown Instruction Type! opcode = " + opcode);
         }
 
         return asmLine;
     }
 
     private static void decodeIType_1(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.numeric_2 = (long) imm;
@@ -205,6 +228,7 @@ public class Decoder {
     }
 
     private static void decodeIType_2(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
 
@@ -229,6 +253,7 @@ public class Decoder {
      * @param imm
      */
     private static void decodeIType_3(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
 
@@ -242,6 +267,7 @@ public class Decoder {
     }
 
     private static void decodeSType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {
+
         asmLine.register_0 = RISCVRegister.fromInt(rs2);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
 
@@ -255,12 +281,14 @@ public class Decoder {
     }
 
     private static void decodeRType(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int rs2) {
+
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.register_2 = RISCVRegister.fromInt(rs2);
     }
 
     private static void decodeBType(AsmLine asmLine, int funct3, int funct7, int rs1, int rs2, int imm) {
+
         asmLine.register_0 = RISCVRegister.fromInt(rs1);
         asmLine.register_1 = RISCVRegister.fromInt(rs2);
 
@@ -274,8 +302,8 @@ public class Decoder {
     }
 
     private static void decodeJType(AsmLine asmLine, int rd, int imm) {
-        asmLine.register_0 = RISCVRegister.fromInt(rd);
 
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.numeric_1 = (long) imm;
 
         // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
