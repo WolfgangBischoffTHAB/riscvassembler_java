@@ -18,4 +18,18 @@ public class DE_EX {
 
     public int instruction;
 
+    /** for branch expression, the decode phase is able to evaluate the
+     * expression. It stores the verdict here.
+     */
+    public boolean branchTaken;
+    public boolean flush;
+
+    public void flush() {
+        System.out.println("DE_EX: flush");
+        asmLine = null;
+        instruction = 0;
+        branchTaken = false;
+        flush = true;
+    }
+
 }

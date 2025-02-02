@@ -21,7 +21,7 @@ public class PipelinedCPUInstructionFetchStage {
         final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc + 1], memory[pc + 2],
                 memory[pc + 3], byteOrder);
 
-        //System.out.println("[FETCH] HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
+        System.out.println("[FETCH] PC: " + pc + " HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
 
         instructionForDebugging = instruction;
 

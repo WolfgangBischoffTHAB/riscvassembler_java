@@ -5,15 +5,15 @@ import com.mycompany.data.AsmLine;
 
 public class PipelinedCPUInstructionExecuteStage {
 
-    public void step_read(PipelinedCPU cpu, AsmLine asm_line, DE_EX de_ex) {
+    public void step_read(final PipelinedCPU cpu, final AsmLine asm_line, final DE_EX de_ex) {
         // nop
     }
 
-    public int step_write(PipelinedCPU cpu, DE_EX de_ex, EX_MEM ex_mem, MEM_WB mem_wb) {
-        return step(cpu, de_ex, ex_mem, mem_wb);
+    public int step_write(final PipelinedCPU cpu, final IF_DE if_de, final DE_EX de_ex, final EX_MEM ex_mem, final MEM_WB mem_wb) {
+        return step(cpu, if_de, de_ex, ex_mem, mem_wb);
     }
 
-    public int step(final PipelinedCPU cpu, final DE_EX de_ex, final EX_MEM ex_mem, final MEM_WB mem_wb) {
+    public int step(final PipelinedCPU cpu, final IF_DE if_de, final DE_EX de_ex, final EX_MEM ex_mem, final MEM_WB mem_wb) {
 
         int result = 0;
         int registerValue = 0;
@@ -62,9 +62,27 @@ public class PipelinedCPUInstructionExecuteStage {
                     cpu.pc += 4;
                 }
                 break;
+
             case I_BNE:
-                System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                //System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.asmLine.mnemonic);
+                System.out.println("[EXEC ] bne");
+                de_ex.flush = false;
+                if (de_ex.branchTaken) {
+
+                    //cpu.pc += de_ex.asmLine.numeric_2.intValue();
+                    cpu.pc += de_ex.asmLine.numeric_2.intValue();
+                    cpu.pc -= 8;
+
+                    // cause a pipeline flush
+                    de_ex.flush();
+                    if_de.flush();
+
+                } else {
+                    cpu.pc += 4;
+                }
+                de_ex.branchTaken = false;
                 break;
+
             case I_BLT:
                 System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 break;

@@ -1,8 +1,24 @@
 package com.mycompany.cpu;
 
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.Mnemonic;
 import com.mycompany.decoder.Decoder;
 
+/**
+ * According to Figure 7.47 on page 440 (pdf page 462) of
+ * Digital Design and Computer Architecture RISC-V Edition (Harris & Harris),
+ *
+ * <ul>
+ * <li>the decode stage decodes the instruction and then knows which registers
+ * are used.</li>
+ *
+ * <li>The decode stage then accesses the register file to retrieve the register
+ * values.</li>
+ *
+ * <li>For branch instructions, the decode stage does also immediately
+ * determine if a branch is taken or not.</li>
+ * </ul>
+ */
 public class PipelinedCPUInstructionDecodeStage {
 
     private AsmLine asmLineForDebugging;
@@ -11,9 +27,14 @@ public class PipelinedCPUInstructionDecodeStage {
         return step(pipelinedCPU, instruction, de_ex);
     }
 
+    /**
+     * no operation
+     *
+     * @param pipelinedCPU
+     * @param instruction
+     * @param de_ex
+     */
     public void step_write(PipelinedCPU pipelinedCPU, int instruction, DE_EX de_ex) {
-        // nop
-
         if (asmLineForDebugging == null) {
             return;
         }
@@ -31,14 +52,47 @@ public class PipelinedCPUInstructionDecodeStage {
         AsmLine asmLine = Decoder.decode(instruction);
         asmLineForDebugging = asmLine;
 
-        // System.out.println("[DECOD] " + asmLine);
-
         if (asmLine.mnemonic == null) {
             System.out.println(asmLine);
             throw new RuntimeException("Decoding instruction without mnemonic!");
         }
 
-        // // check for data hazard
+        //
+        // determine branch outcome
+        //
+
+        switch (asmLine.mnemonic) {
+
+            case I_BNE:
+                // determine the registers used
+                int register_0_value = cpu.registerFile[asmLine.register_0.getIndex()];
+                int register_1_value = cpu.registerFile[asmLine.register_1.getIndex()];
+
+                // evaluate
+                de_ex.branchTaken = register_0_value != register_1_value;
+
+                // DEBUG
+                if (de_ex.branchTaken) {
+                    System.out.println("Branch taken.");
+                } else {
+                    System.out.println("Branch NOT taken.");
+                }
+                break;
+
+            default:
+                break;
+        }
+
+
+
+        return asmLine;
+    }
+
+}
+
+// // check for data hazard - data hazards are not detected. The pipeline
+// automatically forwards data and the stages check if their data has been
+// forwarded and retrieve it from the forwarded pipeline storage if present
         // if (de_ex.asmLine != null) {
         //     if (de_ex.asmLine.register_0 == asmLine.register_1) {
         //         System.out.println("Hazard with rd <-> rs1");
@@ -51,8 +105,3 @@ public class PipelinedCPUInstructionDecodeStage {
         //         // de_ex.forwarded_rd_value = cpu.registerFile[de_ex.asmLine.register_0.getIndex()];
         //     }
         // }
-
-        return asmLine;
-    }
-
-}

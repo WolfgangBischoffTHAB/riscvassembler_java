@@ -220,8 +220,8 @@ public class App {
 
     private static void emulate(byte[] machineCode) {
 
-        SingleCycleCPU cpu = new SingleCycleCPU();
-        //PipelinedCPU cpu = new PipelinedCPU();
+        //SingleCycleCPU cpu = new SingleCycleCPU();
+        PipelinedCPU cpu = new PipelinedCPU();
 
         cpu.pc = 0;
         cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 100;

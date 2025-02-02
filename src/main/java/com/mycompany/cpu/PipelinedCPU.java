@@ -64,6 +64,8 @@ public class PipelinedCPU implements CPU {
             // IF - Fetch - read
             instruction = instr_fetch.step_read(pc, memory);
 
+            // if_de.instruction = instruction;
+
         }
 
         int result = 0;
@@ -87,7 +89,7 @@ public class PipelinedCPU implements CPU {
             instr_decode.step_write(this, if_de.instruction, de_ex);
 
             // IE - Execute - write
-            result = instr_execute.step_write(this, de_ex, ex_mem, mem_wb);
+            result = instr_execute.step_write(this, if_de, de_ex, ex_mem, mem_wb);
             //System.out.println("EX result: " + result);
 
         }
@@ -111,8 +113,12 @@ public class PipelinedCPU implements CPU {
 
         } else {
 
-            // during stalls, PC is not allowed to advance!
-            pc += 4;
+            if (de_ex.flush) {
+                de_ex.flush = false;
+            } else {
+                // without flush and without stall the PC is incremented
+                pc += 4;
+            }
 
             ex_mem.asmLine = de_ex.asmLine;
             ex_mem.value = result;
