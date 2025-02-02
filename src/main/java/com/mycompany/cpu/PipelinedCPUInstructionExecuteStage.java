@@ -77,6 +77,8 @@ public class PipelinedCPUInstructionExecuteStage {
                     de_ex.flush();
                     if_de.flush();
 
+                    cpu.executePC += 4;
+
                 } else {
                     cpu.pc += 4;
                 }
@@ -477,7 +479,9 @@ public class PipelinedCPUInstructionExecuteStage {
                 throw new RuntimeException("[EXEC ] Unknown mnemonic! " + de_ex.getAsmLine().mnemonic);
         }
 
-        cpu.executePC = cpu.pc - 8;
+        if (de_ex.getAsmLine() != null) {
+            cpu.executePC = cpu.pc - 8;
+        }
         System.out.println("[EXEC ] cpu.executePC: " + cpu.executePC);
 
         return result;
