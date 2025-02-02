@@ -24,15 +24,15 @@ public class Interlock {
 
         stall = false;
 
-        if ((de_ex.asmLine != null) && (ex_mem.asmLine != null)) {
+        if ((de_ex.getAsmLine() != null) && (ex_mem.asmLine != null)) {
 
             if (ex_mem.asmLine.mnemonic == Mnemonic.I_LB) {
-                if (de_ex.asmLine.register_1 == ex_mem.asmLine.register_0) {
-                    System.out.println("STALL DETECTED between: " + ex_mem.asmLine + " and followup " + de_ex.asmLine);
+                if (de_ex.getAsmLine().register_1 == ex_mem.asmLine.register_0) {
+                    System.out.println("STALL DETECTED between: " + ex_mem.asmLine + " and followup " + de_ex.getAsmLine());
                     stall = true;
                 }
-                if (de_ex.asmLine.register_2 == ex_mem.asmLine.register_0) {
-                    System.out.println("STALL DETECTED between: " + ex_mem.asmLine + " and followup " + de_ex.asmLine);
+                if (de_ex.getAsmLine().register_2 == ex_mem.asmLine.register_0) {
+                    System.out.println("STALL DETECTED between: " + ex_mem.asmLine + " and followup " + de_ex.getAsmLine());
                     stall = true;
                 }
             }

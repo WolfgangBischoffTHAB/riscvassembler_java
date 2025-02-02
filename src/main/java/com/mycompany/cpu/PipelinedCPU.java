@@ -56,7 +56,7 @@ public class PipelinedCPU implements CPU {
         } else {
 
             // IE - Execute - read
-            instr_execute.step_read(this, de_ex.asmLine, de_ex);
+            instr_execute.step_read(this, de_ex.getAsmLine(), de_ex);
 
             // ID - Decode - read
             asm_line = instr_decode.step_read(this, if_de.instruction, de_ex);
@@ -113,20 +113,31 @@ public class PipelinedCPU implements CPU {
 
         } else {
 
+            ex_mem.asmLine = de_ex.getAsmLine();
+            ex_mem.value = result;
+
             if (de_ex.flush) {
+
+                de_ex.instruction = 0;
+                de_ex.setAsmLine(null);
                 de_ex.flush = false;
+
+                if_de.instruction = 0;
+
             } else {
+
+                de_ex.instruction = if_de.instruction;
+                de_ex.setAsmLine(asm_line);
+
+                if_de.instruction = instruction;
+
                 // without flush and without stall the PC is incremented
                 pc += 4;
             }
 
-            ex_mem.asmLine = de_ex.asmLine;
-            ex_mem.value = result;
 
-            de_ex.instruction = if_de.instruction;
-            de_ex.asmLine = asm_line;
 
-            if_de.instruction = instruction;
+
 
         }
 

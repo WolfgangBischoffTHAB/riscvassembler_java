@@ -8,11 +8,19 @@ import com.mycompany.data.Register;
 
 public class DE_EX {
 
-    public AsmLine asmLine;
+    private AsmLine asmLine;
 
     // result value from IE is stored here for forwarding to prevent pipeline stalls
     // public int forwarded_rd_value;
     // public boolean forwarded;
+
+    public AsmLine getAsmLine() {
+        return asmLine;
+    }
+
+    public void setAsmLine(AsmLine asmLine) {
+        this.asmLine = asmLine;
+    }
 
     public Map<Register, Integer> forwardingMap = new HashMap<>();
 
