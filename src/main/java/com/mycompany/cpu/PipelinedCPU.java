@@ -8,6 +8,8 @@ public class PipelinedCPU implements CPU {
 
     public int pc;
 
+    public int executePC;
+
     public byte[] memory = new byte[256];
 
     public int[] registerFile = new int[32];

@@ -65,7 +65,7 @@ public class PipelinedCPUInstructionExecuteStage {
 
             case I_BNE:
                 //System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.asmLine.mnemonic);
-                System.out.println("[EXEC ] bne");
+                System.out.println("[EXEC ] " + de_ex.getAsmLine());
                 de_ex.flush = false;
                 if (de_ex.branchTaken) {
 
@@ -476,6 +476,9 @@ public class PipelinedCPUInstructionExecuteStage {
             default:
                 throw new RuntimeException("[EXEC ] Unknown mnemonic! " + de_ex.getAsmLine().mnemonic);
         }
+
+        cpu.executePC = cpu.pc - 8;
+        System.out.println("[EXEC ] cpu.executePC: " + cpu.executePC);
 
         return result;
     }
