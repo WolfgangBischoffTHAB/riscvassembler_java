@@ -88,7 +88,12 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_BNE:
-                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                System.out.println("bne");
+                if (registerFile[asmLine.register_0.getIndex()] != registerFile[asmLine.register_1.getIndex()]) {
+                    pc += asmLine.numeric_2.intValue();
+                } else {
+                    pc += 4;
+                }
                 break;
 
             case I_BLT:

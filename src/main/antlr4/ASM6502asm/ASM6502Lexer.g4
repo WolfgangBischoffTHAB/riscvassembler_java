@@ -5,7 +5,7 @@
 lexer grammar ASM6502Lexer;
 
 LINE_COMMENT
-  : ( '#' | ';' ) ~[\r\n]* -> channel(HIDDEN)
+  : ( ';' ) ~[\r\n]* -> channel(HIDDEN)
   ;
 
 BLOCK_COMMENT
@@ -71,63 +71,66 @@ DOT_OPTION : DOT O P T I O N ;
 DOT_SIZE : DOT S I Z E ;
 DOT_IDENT : DOT I D E N T ;
 
-I_ADD : A D D ;
-I_ADDI : A D D I ;
-I_ADDIU : A D D I U ;
 I_AND : A N D ;
-I_ANDI : A N D I ;
-I_AUIPC : A U I P C ;
+//I_ADD : A D D ;
+//I_ADDI : A D D I ;
+//I_ADDIU : A D D I U ;
+//I_AND : A N D ;
+//I_ANDI : A N D I ;
+//I_AUIPC : A U I P C ;
 
-I_BEQ : B E Q ;
-I_BEQZ : B E Q Z ;
-I_BGE : B G E ;
-I_BGT : B G T ;
-I_BLT : B L T ;
-I_BLE : B L E ;
-I_BNE : B N E ;
-I_BNEZ : B N E Z ;
+//I_BEQ : B E Q ;
+//I_BEQZ : B E Q Z ;
+//I_BGE : B G E ;
+//I_BGT : B G T ;
+//I_BLT : B L T ;
+//I_BLE : B L E ;
+//I_BNE : B N E ;
+//I_BNEZ : B N E Z ;
 
-I_CALL : C A L L ;
-I_ECALL : E C A L L ;
+//I_CALL : C A L L ;
+//I_ECALL : E C A L L ;
 
-I_J : J ;
-I_JR : J R ;
-I_JAL : J A L ;
-I_JALR : J A L R ;
+//I_J : J ;
+//I_JR : J R ;
+//I_JAL : J A L ;
+//I_JALR : J A L R ;
 
-I_LA : L A ;
-I_LD : L D ;
-I_LW : L W ;
-I_LH : L H ;
-I_LB : L B ;
-I_LBU : L B U ;
-I_LI : L I ;
-I_LUI : L U I ;
+//I_LA : L A ;
+//I_LD : L D ;
+I_LDA : L D A ;
+//I_LW : L W ;
+//I_LH : L H ;
+//I_LB : L B ;
+//I_LBU : L B U ;
+//I_LI : L I ;
+//I_LUI : L U I ;
 
-I_MUL : M U L ;
-I_MV : M V ;
+//I_MUL : M U L ;
+//I_MV : M V ;
 
-I_NOP : N O P ;
-I_NOT : N O T ;
+//I_NOP : N O P ;
+//I_NOT : N O T ;
 
-I_OR : O R ;
+//I_OR : O R ;
 
-I_RET : R E T ;
+//I_RET : R E T ;
 
-I_SLT : S L T ;
-I_SRAI : S R A I ;
-I_SRLI : S R L I ;
-I_SLLI : S L L I ;
-I_SUB : S U B ;
-I_SD : S D ;
-I_SW : S W ;
-I_SH : S H ;
-I_SB : S B ;
-I_SYSCALL : S Y S C A L L ;
+I_STA : S T A ;
+//I_SLT : S L T ;
+//I_SRAI : S R A I ;
+//I_SRLI : S R L I ;
+//I_SLLI : S L L I ;
+//I_SUB : S U B ;
+//I_SD : S D ;
+//I_SW : S W ;
+//I_SH : S H ;
+//I_SB : S B ;
+//I_SYSCALL : S Y S C A L L ;
 
-I_WFI : W F I ;
+//I_WFI : W F I ;
 
-I_XORI : X O R I ;
+//I_XORI : X O R I ;
 
 //
 // Registers
@@ -227,9 +230,11 @@ COLON : ':' ;
 COMMA : ',' ;
 OPENING_BRACKET : '(' ;
 CLOSING_BRACKET : ')' ;
+HASH : '#' ;
 
-NUMERIC : '-'? [0-9]+ ;
-HEX_NUMERIC : '0' 'x' [a-fA-F0-9]+ ;
+BIN_NUMERIC : '%' [0-1]+ ;
+DEC_NUMERIC : '-'? [0-9]+ ;
+HEX_NUMERIC : '$' [a-fA-F0-9]+ ;
 
 IDENTIFIER : (('@')?DOT?('_')*[_0-9a-zA-Z]*[a-zA-Z]+)(DOT?('_')*[_0-9a-zA-Z]+)* ;
 

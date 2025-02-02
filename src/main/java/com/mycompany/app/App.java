@@ -59,7 +59,8 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
         //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
         //String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
-        String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
+        String inputFile = "src/test/resources/riscvasm/examples/if.s";
 
         //String inputFile = "src/test/resources/projects/snake/Main.asm";
 

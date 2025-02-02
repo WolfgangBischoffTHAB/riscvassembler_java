@@ -23,43 +23,39 @@ public class ASM6502Parser extends Parser {
 		DOT_DATA=16, DOT_BYTE=17, DOT_SPACE=18, DOT_HALF=19, DOT_WEAK=20, DOT_WORD=21, 
 		DOT_DWORD=22, DOT_FILE=23, DOT_RODATA=24, DOT_ASCII=25, DOT_ASCIZ=26, 
 		DOT_ASCIIZ=27, DOT_SKIP=28, DOT_STRING=29, DOT_OPTION=30, DOT_SIZE=31, 
-		DOT_IDENT=32, I_ADD=33, I_ADDI=34, I_ADDIU=35, I_AND=36, I_ANDI=37, I_AUIPC=38, 
-		I_BEQ=39, I_BEQZ=40, I_BGE=41, I_BGT=42, I_BLT=43, I_BLE=44, I_BNE=45, 
-		I_BNEZ=46, I_CALL=47, I_ECALL=48, I_J=49, I_JR=50, I_JAL=51, I_JALR=52, 
-		I_LA=53, I_LD=54, I_LW=55, I_LH=56, I_LB=57, I_LBU=58, I_LI=59, I_LUI=60, 
-		I_MUL=61, I_MV=62, I_NOP=63, I_NOT=64, I_OR=65, I_RET=66, I_SLT=67, I_SRAI=68, 
-		I_SRLI=69, I_SLLI=70, I_SUB=71, I_SD=72, I_SW=73, I_SH=74, I_SB=75, I_SYSCALL=76, 
-		I_WFI=77, I_XORI=78, REG_ZERO_ABI=79, REG_AT_ABI=80, REG_V0_ABI=81, REG_V1_ABI=82, 
-		REG_A0_ABI=83, REG_A1_ABI=84, REG_A2_ABI=85, REG_A3_ABI=86, REG_T0_ABI=87, 
-		REG_T1_ABI=88, REG_T2_ABI=89, REG_T3_ABI=90, REG_T4_ABI=91, REG_T5_ABI=92, 
-		REG_T6_ABI=93, REG_T7_ABI=94, REG_S0_ABI=95, REG_S1_ABI=96, REG_S2_ABI=97, 
-		REG_S3_ABI=98, REG_S4_ABI=99, REG_S5_ABI=100, REG_S6_ABI=101, REG_S7_ABI=102, 
-		REG_T8_ABI=103, REG_T9_ABI=104, REG_K0_ABI=105, REG_K1_ABI=106, REG_GP_ABI=107, 
-		REG_SP_ABI=108, REG_FP_ABI=109, REG_RA_ABI=110, ASTERISK=111, PLUS=112, 
-		MINUS=113, PERCENT=114, DOT=115, DOLLAR=116, COLON=117, COMMA=118, OPENING_BRACKET=119, 
-		CLOSING_BRACKET=120, NUMERIC=121, HEX_NUMERIC=122, IDENTIFIER=123, WS=124, 
-		STRING_LITERAL=125, UNTERMINATED_STRING_LITERAL=126, NEWLINE=127;
+		DOT_IDENT=32, I_AND=33, I_LDA=34, I_STA=35, REG_ZERO_ABI=36, REG_AT_ABI=37, 
+		REG_V0_ABI=38, REG_V1_ABI=39, REG_A0_ABI=40, REG_A1_ABI=41, REG_A2_ABI=42, 
+		REG_A3_ABI=43, REG_T0_ABI=44, REG_T1_ABI=45, REG_T2_ABI=46, REG_T3_ABI=47, 
+		REG_T4_ABI=48, REG_T5_ABI=49, REG_T6_ABI=50, REG_T7_ABI=51, REG_S0_ABI=52, 
+		REG_S1_ABI=53, REG_S2_ABI=54, REG_S3_ABI=55, REG_S4_ABI=56, REG_S5_ABI=57, 
+		REG_S6_ABI=58, REG_S7_ABI=59, REG_T8_ABI=60, REG_T9_ABI=61, REG_K0_ABI=62, 
+		REG_K1_ABI=63, REG_GP_ABI=64, REG_SP_ABI=65, REG_FP_ABI=66, REG_RA_ABI=67, 
+		ASTERISK=68, PLUS=69, MINUS=70, PERCENT=71, DOT=72, DOLLAR=73, COLON=74, 
+		COMMA=75, OPENING_BRACKET=76, CLOSING_BRACKET=77, HASH=78, BIN_NUMERIC=79, 
+		DEC_NUMERIC=80, HEX_NUMERIC=81, IDENTIFIER=82, WS=83, STRING_LITERAL=84, 
+		UNTERMINATED_STRING_LITERAL=85, NEWLINE=86;
 	public static final int
 		RULE_asm_file = 0, RULE_asm_line = 1, RULE_label = 2, RULE_mnemonic = 3, 
-		RULE_params = 4, RULE_param = 5, RULE_offset = 6, RULE_modifier = 7, RULE_expr = 8, 
-		RULE_register = 9, RULE_assembler_instruction = 10, RULE_attribute_assembler_instruction = 11, 
-		RULE_align_assembler_instruction = 12, RULE_equ_assembler_instruction = 13, 
-		RULE_extern_assembler_instruction = 14, RULE_section_definition_assembler_instruction = 15, 
-		RULE_globl_assembler_instruction = 16, RULE_global_assembler_instruction = 17, 
-		RULE_text_assembler_instruction = 18, RULE_type_assembler_instruction = 19, 
-		RULE_data_assembler_instruction = 20, RULE_byte_assembler_instruction = 21, 
-		RULE_space_assembler_instruction = 22, RULE_half_assembler_instruction = 23, 
-		RULE_weak_assembler_instruction = 24, RULE_word_assembler_instruction = 25, 
-		RULE_dword_assembler_instruction = 26, RULE_file_assembler_instruction = 27, 
-		RULE_skip_assembler_instruction = 28, RULE_ascii_assembler_instruction = 29, 
-		RULE_asciz_assembler_instruction = 30, RULE_asciiz_assembler_instruction = 31, 
-		RULE_string_assembler_instruction = 32, RULE_option_assembler_instruction = 33, 
-		RULE_size_assembler_instruction = 34, RULE_ident_assembler_instruction = 35, 
-		RULE_csv_identifier_list = 36, RULE_csv_numeric_list = 37;
+		RULE_params = 4, RULE_param = 5, RULE_immediate = 6, RULE_offset = 7, 
+		RULE_modifier = 8, RULE_expr = 9, RULE_register = 10, RULE_assembler_instruction = 11, 
+		RULE_attribute_assembler_instruction = 12, RULE_align_assembler_instruction = 13, 
+		RULE_equ_assembler_instruction = 14, RULE_extern_assembler_instruction = 15, 
+		RULE_section_definition_assembler_instruction = 16, RULE_globl_assembler_instruction = 17, 
+		RULE_global_assembler_instruction = 18, RULE_text_assembler_instruction = 19, 
+		RULE_type_assembler_instruction = 20, RULE_data_assembler_instruction = 21, 
+		RULE_byte_assembler_instruction = 22, RULE_space_assembler_instruction = 23, 
+		RULE_half_assembler_instruction = 24, RULE_weak_assembler_instruction = 25, 
+		RULE_word_assembler_instruction = 26, RULE_dword_assembler_instruction = 27, 
+		RULE_file_assembler_instruction = 28, RULE_skip_assembler_instruction = 29, 
+		RULE_ascii_assembler_instruction = 30, RULE_asciz_assembler_instruction = 31, 
+		RULE_asciiz_assembler_instruction = 32, RULE_string_assembler_instruction = 33, 
+		RULE_option_assembler_instruction = 34, RULE_size_assembler_instruction = 35, 
+		RULE_ident_assembler_instruction = 36, RULE_csv_identifier_list = 37, 
+		RULE_csv_numeric_list = 38;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"asm_file", "asm_line", "label", "mnemonic", "params", "param", "offset", 
-			"modifier", "expr", "register", "assembler_instruction", "attribute_assembler_instruction", 
+			"asm_file", "asm_line", "label", "mnemonic", "params", "param", "immediate", 
+			"offset", "modifier", "expr", "register", "assembler_instruction", "attribute_assembler_instruction", 
 			"align_assembler_instruction", "equ_assembler_instruction", "extern_assembler_instruction", 
 			"section_definition_assembler_instruction", "globl_assembler_instruction", 
 			"global_assembler_instruction", "text_assembler_instruction", "type_assembler_instruction", 
@@ -80,12 +76,8 @@ public class ASM6502Parser extends Parser {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, "'*'", "'+'", "'-'", "'%'", "'.'", "'$'", "':'", "','", 
-			"'('", "')'"
+			null, null, null, null, null, null, null, null, "'*'", "'+'", "'-'", 
+			"'%'", "'.'", "'$'", "':'", "','", "'('", "')'", "'#'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -97,20 +89,15 @@ public class ASM6502Parser extends Parser {
 			"DOT_TYPE", "DOT_DATA", "DOT_BYTE", "DOT_SPACE", "DOT_HALF", "DOT_WEAK", 
 			"DOT_WORD", "DOT_DWORD", "DOT_FILE", "DOT_RODATA", "DOT_ASCII", "DOT_ASCIZ", 
 			"DOT_ASCIIZ", "DOT_SKIP", "DOT_STRING", "DOT_OPTION", "DOT_SIZE", "DOT_IDENT", 
-			"I_ADD", "I_ADDI", "I_ADDIU", "I_AND", "I_ANDI", "I_AUIPC", "I_BEQ", 
-			"I_BEQZ", "I_BGE", "I_BGT", "I_BLT", "I_BLE", "I_BNE", "I_BNEZ", "I_CALL", 
-			"I_ECALL", "I_J", "I_JR", "I_JAL", "I_JALR", "I_LA", "I_LD", "I_LW", 
-			"I_LH", "I_LB", "I_LBU", "I_LI", "I_LUI", "I_MUL", "I_MV", "I_NOP", "I_NOT", 
-			"I_OR", "I_RET", "I_SLT", "I_SRAI", "I_SRLI", "I_SLLI", "I_SUB", "I_SD", 
-			"I_SW", "I_SH", "I_SB", "I_SYSCALL", "I_WFI", "I_XORI", "REG_ZERO_ABI", 
-			"REG_AT_ABI", "REG_V0_ABI", "REG_V1_ABI", "REG_A0_ABI", "REG_A1_ABI", 
-			"REG_A2_ABI", "REG_A3_ABI", "REG_T0_ABI", "REG_T1_ABI", "REG_T2_ABI", 
-			"REG_T3_ABI", "REG_T4_ABI", "REG_T5_ABI", "REG_T6_ABI", "REG_T7_ABI", 
-			"REG_S0_ABI", "REG_S1_ABI", "REG_S2_ABI", "REG_S3_ABI", "REG_S4_ABI", 
-			"REG_S5_ABI", "REG_S6_ABI", "REG_S7_ABI", "REG_T8_ABI", "REG_T9_ABI", 
-			"REG_K0_ABI", "REG_K1_ABI", "REG_GP_ABI", "REG_SP_ABI", "REG_FP_ABI", 
-			"REG_RA_ABI", "ASTERISK", "PLUS", "MINUS", "PERCENT", "DOT", "DOLLAR", 
-			"COLON", "COMMA", "OPENING_BRACKET", "CLOSING_BRACKET", "NUMERIC", "HEX_NUMERIC", 
+			"I_AND", "I_LDA", "I_STA", "REG_ZERO_ABI", "REG_AT_ABI", "REG_V0_ABI", 
+			"REG_V1_ABI", "REG_A0_ABI", "REG_A1_ABI", "REG_A2_ABI", "REG_A3_ABI", 
+			"REG_T0_ABI", "REG_T1_ABI", "REG_T2_ABI", "REG_T3_ABI", "REG_T4_ABI", 
+			"REG_T5_ABI", "REG_T6_ABI", "REG_T7_ABI", "REG_S0_ABI", "REG_S1_ABI", 
+			"REG_S2_ABI", "REG_S3_ABI", "REG_S4_ABI", "REG_S5_ABI", "REG_S6_ABI", 
+			"REG_S7_ABI", "REG_T8_ABI", "REG_T9_ABI", "REG_K0_ABI", "REG_K1_ABI", 
+			"REG_GP_ABI", "REG_SP_ABI", "REG_FP_ABI", "REG_RA_ABI", "ASTERISK", "PLUS", 
+			"MINUS", "PERCENT", "DOT", "DOLLAR", "COLON", "COMMA", "OPENING_BRACKET", 
+			"CLOSING_BRACKET", "HASH", "BIN_NUMERIC", "DEC_NUMERIC", "HEX_NUMERIC", 
 			"IDENTIFIER", "WS", "STRING_LITERAL", "UNTERMINATED_STRING_LITERAL", 
 			"NEWLINE"
 		};
@@ -204,21 +191,21 @@ public class ASM6502Parser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(82);
+			setState(84);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
-					setState(80);
+					setState(82);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,0,_ctx) ) {
 					case 1:
 						{
 						{
-						setState(76);
+						setState(78);
 						asm_line();
-						setState(77);
+						setState(79);
 						match(NEWLINE);
 						}
 						}
@@ -226,7 +213,7 @@ public class ASM6502Parser extends Parser {
 					case 2:
 						{
 						{
-						setState(79);
+						setState(81);
 						match(NEWLINE);
 						}
 						}
@@ -234,32 +221,32 @@ public class ASM6502Parser extends Parser {
 					}
 					} 
 				}
-				setState(84);
+				setState(86);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
 			}
-			setState(92);
+			setState(94);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,3,_ctx) ) {
 			case 1:
 				{
-				setState(85);
+				setState(87);
 				asm_line();
 				}
 				break;
 			case 2:
 				{
-				setState(89);
+				setState(91);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==NEWLINE) {
 					{
 					{
-					setState(86);
+					setState(88);
 					match(NEWLINE);
 					}
 					}
-					setState(91);
+					setState(93);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -319,71 +306,28 @@ public class ASM6502Parser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(97);
+			setState(99);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (_la==NUMERIC || _la==IDENTIFIER) {
+			if (((((_la - 79)) & ~0x3f) == 0 && ((1L << (_la - 79)) & ((1L << (BIN_NUMERIC - 79)) | (1L << (DEC_NUMERIC - 79)) | (1L << (HEX_NUMERIC - 79)) | (1L << (IDENTIFIER - 79)))) != 0)) {
 				{
-				setState(94);
+				setState(96);
 				label();
-				setState(95);
+				setState(97);
 				match(COLON);
 				}
 			}
 
-			setState(103);
+			setState(105);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case I_ADD:
-			case I_ADDI:
-			case I_ADDIU:
 			case I_AND:
-			case I_ANDI:
-			case I_AUIPC:
-			case I_BEQ:
-			case I_BEQZ:
-			case I_BGE:
-			case I_BGT:
-			case I_BLT:
-			case I_BLE:
-			case I_BNE:
-			case I_BNEZ:
-			case I_CALL:
-			case I_ECALL:
-			case I_J:
-			case I_JR:
-			case I_JAL:
-			case I_JALR:
-			case I_LA:
-			case I_LD:
-			case I_LW:
-			case I_LH:
-			case I_LB:
-			case I_LBU:
-			case I_LI:
-			case I_LUI:
-			case I_MUL:
-			case I_MV:
-			case I_NOP:
-			case I_NOT:
-			case I_OR:
-			case I_RET:
-			case I_SLT:
-			case I_SRAI:
-			case I_SRLI:
-			case I_SLLI:
-			case I_SUB:
-			case I_SD:
-			case I_SW:
-			case I_SH:
-			case I_SB:
-			case I_SYSCALL:
-			case I_WFI:
-			case I_XORI:
+			case I_LDA:
+			case I_STA:
 				{
-				setState(99);
+				setState(101);
 				mnemonic();
-				setState(100);
+				setState(102);
 				params();
 				}
 				break;
@@ -413,7 +357,7 @@ public class ASM6502Parser extends Parser {
 			case DOT_SIZE:
 			case DOT_IDENT:
 				{
-				setState(102);
+				setState(104);
 				assembler_instruction();
 				}
 				break;
@@ -438,7 +382,9 @@ public class ASM6502Parser extends Parser {
 
 	public static class LabelContext extends ParserRuleContext {
 		public TerminalNode IDENTIFIER() { return getToken(ASM6502Parser.IDENTIFIER, 0); }
-		public TerminalNode NUMERIC() { return getToken(ASM6502Parser.NUMERIC, 0); }
+		public TerminalNode BIN_NUMERIC() { return getToken(ASM6502Parser.BIN_NUMERIC, 0); }
+		public TerminalNode DEC_NUMERIC() { return getToken(ASM6502Parser.DEC_NUMERIC, 0); }
+		public TerminalNode HEX_NUMERIC() { return getToken(ASM6502Parser.HEX_NUMERIC, 0); }
 		public LabelContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -465,9 +411,9 @@ public class ASM6502Parser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(105);
+			setState(107);
 			_la = _input.LA(1);
-			if ( !(_la==NUMERIC || _la==IDENTIFIER) ) {
+			if ( !(((((_la - 79)) & ~0x3f) == 0 && ((1L << (_la - 79)) & ((1L << (BIN_NUMERIC - 79)) | (1L << (DEC_NUMERIC - 79)) | (1L << (HEX_NUMERIC - 79)) | (1L << (IDENTIFIER - 79)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -489,52 +435,9 @@ public class ASM6502Parser extends Parser {
 	}
 
 	public static class MnemonicContext extends ParserRuleContext {
-		public TerminalNode I_ADD() { return getToken(ASM6502Parser.I_ADD, 0); }
-		public TerminalNode I_ADDI() { return getToken(ASM6502Parser.I_ADDI, 0); }
-		public TerminalNode I_ADDIU() { return getToken(ASM6502Parser.I_ADDIU, 0); }
 		public TerminalNode I_AND() { return getToken(ASM6502Parser.I_AND, 0); }
-		public TerminalNode I_ANDI() { return getToken(ASM6502Parser.I_ANDI, 0); }
-		public TerminalNode I_AUIPC() { return getToken(ASM6502Parser.I_AUIPC, 0); }
-		public TerminalNode I_BEQ() { return getToken(ASM6502Parser.I_BEQ, 0); }
-		public TerminalNode I_BEQZ() { return getToken(ASM6502Parser.I_BEQZ, 0); }
-		public TerminalNode I_BGE() { return getToken(ASM6502Parser.I_BGE, 0); }
-		public TerminalNode I_BGT() { return getToken(ASM6502Parser.I_BGT, 0); }
-		public TerminalNode I_BLE() { return getToken(ASM6502Parser.I_BLE, 0); }
-		public TerminalNode I_BLT() { return getToken(ASM6502Parser.I_BLT, 0); }
-		public TerminalNode I_BNE() { return getToken(ASM6502Parser.I_BNE, 0); }
-		public TerminalNode I_BNEZ() { return getToken(ASM6502Parser.I_BNEZ, 0); }
-		public TerminalNode I_CALL() { return getToken(ASM6502Parser.I_CALL, 0); }
-		public TerminalNode I_ECALL() { return getToken(ASM6502Parser.I_ECALL, 0); }
-		public TerminalNode I_J() { return getToken(ASM6502Parser.I_J, 0); }
-		public TerminalNode I_JR() { return getToken(ASM6502Parser.I_JR, 0); }
-		public TerminalNode I_JAL() { return getToken(ASM6502Parser.I_JAL, 0); }
-		public TerminalNode I_JALR() { return getToken(ASM6502Parser.I_JALR, 0); }
-		public TerminalNode I_LA() { return getToken(ASM6502Parser.I_LA, 0); }
-		public TerminalNode I_LD() { return getToken(ASM6502Parser.I_LD, 0); }
-		public TerminalNode I_LW() { return getToken(ASM6502Parser.I_LW, 0); }
-		public TerminalNode I_LH() { return getToken(ASM6502Parser.I_LH, 0); }
-		public TerminalNode I_LB() { return getToken(ASM6502Parser.I_LB, 0); }
-		public TerminalNode I_LBU() { return getToken(ASM6502Parser.I_LBU, 0); }
-		public TerminalNode I_LI() { return getToken(ASM6502Parser.I_LI, 0); }
-		public TerminalNode I_LUI() { return getToken(ASM6502Parser.I_LUI, 0); }
-		public TerminalNode I_MUL() { return getToken(ASM6502Parser.I_MUL, 0); }
-		public TerminalNode I_MV() { return getToken(ASM6502Parser.I_MV, 0); }
-		public TerminalNode I_NOP() { return getToken(ASM6502Parser.I_NOP, 0); }
-		public TerminalNode I_NOT() { return getToken(ASM6502Parser.I_NOT, 0); }
-		public TerminalNode I_OR() { return getToken(ASM6502Parser.I_OR, 0); }
-		public TerminalNode I_RET() { return getToken(ASM6502Parser.I_RET, 0); }
-		public TerminalNode I_SLT() { return getToken(ASM6502Parser.I_SLT, 0); }
-		public TerminalNode I_SRAI() { return getToken(ASM6502Parser.I_SRAI, 0); }
-		public TerminalNode I_SRLI() { return getToken(ASM6502Parser.I_SRLI, 0); }
-		public TerminalNode I_SLLI() { return getToken(ASM6502Parser.I_SLLI, 0); }
-		public TerminalNode I_SUB() { return getToken(ASM6502Parser.I_SUB, 0); }
-		public TerminalNode I_SD() { return getToken(ASM6502Parser.I_SD, 0); }
-		public TerminalNode I_SW() { return getToken(ASM6502Parser.I_SW, 0); }
-		public TerminalNode I_SH() { return getToken(ASM6502Parser.I_SH, 0); }
-		public TerminalNode I_SB() { return getToken(ASM6502Parser.I_SB, 0); }
-		public TerminalNode I_SYSCALL() { return getToken(ASM6502Parser.I_SYSCALL, 0); }
-		public TerminalNode I_WFI() { return getToken(ASM6502Parser.I_WFI, 0); }
-		public TerminalNode I_XORI() { return getToken(ASM6502Parser.I_XORI, 0); }
+		public TerminalNode I_LDA() { return getToken(ASM6502Parser.I_LDA, 0); }
+		public TerminalNode I_STA() { return getToken(ASM6502Parser.I_STA, 0); }
 		public MnemonicContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -561,9 +464,9 @@ public class ASM6502Parser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(107);
+			setState(109);
 			_la = _input.LA(1);
-			if ( !(((((_la - 33)) & ~0x3f) == 0 && ((1L << (_la - 33)) & ((1L << (I_ADD - 33)) | (1L << (I_ADDI - 33)) | (1L << (I_ADDIU - 33)) | (1L << (I_AND - 33)) | (1L << (I_ANDI - 33)) | (1L << (I_AUIPC - 33)) | (1L << (I_BEQ - 33)) | (1L << (I_BEQZ - 33)) | (1L << (I_BGE - 33)) | (1L << (I_BGT - 33)) | (1L << (I_BLT - 33)) | (1L << (I_BLE - 33)) | (1L << (I_BNE - 33)) | (1L << (I_BNEZ - 33)) | (1L << (I_CALL - 33)) | (1L << (I_ECALL - 33)) | (1L << (I_J - 33)) | (1L << (I_JR - 33)) | (1L << (I_JAL - 33)) | (1L << (I_JALR - 33)) | (1L << (I_LA - 33)) | (1L << (I_LD - 33)) | (1L << (I_LW - 33)) | (1L << (I_LH - 33)) | (1L << (I_LB - 33)) | (1L << (I_LBU - 33)) | (1L << (I_LI - 33)) | (1L << (I_LUI - 33)) | (1L << (I_MUL - 33)) | (1L << (I_MV - 33)) | (1L << (I_NOP - 33)) | (1L << (I_NOT - 33)) | (1L << (I_OR - 33)) | (1L << (I_RET - 33)) | (1L << (I_SLT - 33)) | (1L << (I_SRAI - 33)) | (1L << (I_SRLI - 33)) | (1L << (I_SLLI - 33)) | (1L << (I_SUB - 33)) | (1L << (I_SD - 33)) | (1L << (I_SW - 33)) | (1L << (I_SH - 33)) | (1L << (I_SB - 33)) | (1L << (I_SYSCALL - 33)) | (1L << (I_WFI - 33)) | (1L << (I_XORI - 33)))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << I_AND) | (1L << I_LDA) | (1L << I_STA))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -585,15 +488,8 @@ public class ASM6502Parser extends Parser {
 	}
 
 	public static class ParamsContext extends ParserRuleContext {
-		public List<ParamContext> param() {
-			return getRuleContexts(ParamContext.class);
-		}
-		public ParamContext param(int i) {
-			return getRuleContext(ParamContext.class,i);
-		}
-		public List<TerminalNode> COMMA() { return getTokens(ASM6502Parser.COMMA); }
-		public TerminalNode COMMA(int i) {
-			return getToken(ASM6502Parser.COMMA, i);
+		public ParamContext param() {
+			return getRuleContext(ParamContext.class,0);
 		}
 		public ParamsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -617,85 +513,11 @@ public class ASM6502Parser extends Parser {
 	public final ParamsContext params() throws RecognitionException {
 		ParamsContext _localctx = new ParamsContext(_ctx, getState());
 		enterRule(_localctx, 8, RULE_params);
-		int _la;
 		try {
-			setState(134);
-			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
-			case 1:
-				enterOuterAlt(_localctx, 1);
-				{
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(110);
-				param();
-				setState(111);
-				match(COMMA);
-				setState(112);
-				param();
-				setState(113);
-				match(COMMA);
-				setState(114);
-				param();
-				setState(116);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==COMMA) {
-					{
-					setState(115);
-					match(COMMA);
-					}
-				}
-
-
-				    
-				}
-				break;
-			case 3:
-				enterOuterAlt(_localctx, 3);
-				{
-				setState(120);
-				param();
-				setState(121);
-				match(COMMA);
-				setState(122);
-				param();
-				setState(124);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==COMMA) {
-					{
-					setState(123);
-					match(COMMA);
-					}
-				}
-
-
-				    
-				}
-				break;
-			case 4:
-				enterOuterAlt(_localctx, 4);
-				{
-				setState(128);
-				param();
-				setState(130);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==COMMA) {
-					{
-					setState(129);
-					match(COMMA);
-					}
-				}
-
-
-				    
-				}
-				break;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(111);
+			param();
 			}
 		}
 		catch (RecognitionException re) {
@@ -710,14 +532,12 @@ public class ASM6502Parser extends Parser {
 	}
 
 	public static class ParamContext extends ParserRuleContext {
+		public ImmediateContext immediate() {
+			return getRuleContext(ImmediateContext.class,0);
+		}
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
-		public OffsetContext offset() {
-			return getRuleContext(OffsetContext.class,0);
-		}
-		public TerminalNode OPENING_BRACKET() { return getToken(ASM6502Parser.OPENING_BRACKET, 0); }
-		public TerminalNode CLOSING_BRACKET() { return getToken(ASM6502Parser.CLOSING_BRACKET, 0); }
 		public ParamContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -740,39 +560,111 @@ public class ASM6502Parser extends Parser {
 	public final ParamContext param() throws RecognitionException {
 		ParamContext _localctx = new ParamContext(_ctx, getState());
 		enterRule(_localctx, 10, RULE_param);
-		int _la;
 		try {
-			setState(144);
+			setState(115);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,11,_ctx) ) {
-			case 1:
+			switch (_input.LA(1)) {
+			case HASH:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(136);
+				setState(113);
+				immediate();
+				}
+				break;
+			case REG_ZERO_ABI:
+			case REG_AT_ABI:
+			case REG_V0_ABI:
+			case REG_V1_ABI:
+			case REG_A0_ABI:
+			case REG_A1_ABI:
+			case REG_A2_ABI:
+			case REG_A3_ABI:
+			case REG_T0_ABI:
+			case REG_T1_ABI:
+			case REG_T2_ABI:
+			case REG_T3_ABI:
+			case REG_T4_ABI:
+			case REG_T5_ABI:
+			case REG_T6_ABI:
+			case REG_T7_ABI:
+			case REG_S0_ABI:
+			case REG_S1_ABI:
+			case REG_S2_ABI:
+			case REG_S3_ABI:
+			case REG_S4_ABI:
+			case REG_S5_ABI:
+			case REG_S6_ABI:
+			case REG_S7_ABI:
+			case REG_T8_ABI:
+			case REG_T9_ABI:
+			case REG_K0_ABI:
+			case REG_K1_ABI:
+			case REG_GP_ABI:
+			case REG_SP_ABI:
+			case REG_FP_ABI:
+			case REG_RA_ABI:
+			case DOT:
+			case OPENING_BRACKET:
+			case BIN_NUMERIC:
+			case DEC_NUMERIC:
+			case HEX_NUMERIC:
+			case IDENTIFIER:
+			case STRING_LITERAL:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(114);
 				expr(0);
 				}
 				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(137);
-				offset();
-				setState(142);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				if (_la==OPENING_BRACKET) {
-					{
-					setState(138);
-					match(OPENING_BRACKET);
-					setState(139);
-					expr(0);
-					setState(140);
-					match(CLOSING_BRACKET);
-					}
-				}
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
 
-				}
-				break;
+	public static class ImmediateContext extends ParserRuleContext {
+		public TerminalNode HASH() { return getToken(ASM6502Parser.HASH, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public ImmediateContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_immediate; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof ASM6502ParserListener ) ((ASM6502ParserListener)listener).enterImmediate(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof ASM6502ParserListener ) ((ASM6502ParserListener)listener).exitImmediate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ASM6502ParserVisitor ) return ((ASM6502ParserVisitor<? extends T>)visitor).visitImmediate(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final ImmediateContext immediate() throws RecognitionException {
+		ImmediateContext _localctx = new ImmediateContext(_ctx, getState());
+		enterRule(_localctx, 12, RULE_immediate);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(117);
+			match(HASH);
+			setState(118);
+			expr(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -816,9 +708,9 @@ public class ASM6502Parser extends Parser {
 
 	public final OffsetContext offset() throws RecognitionException {
 		OffsetContext _localctx = new OffsetContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_offset);
+		enterRule(_localctx, 14, RULE_offset);
 		try {
-			setState(152);
+			setState(126);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case REG_ZERO_ABI:
@@ -855,13 +747,14 @@ public class ASM6502Parser extends Parser {
 			case REG_RA_ABI:
 			case DOT:
 			case OPENING_BRACKET:
-			case NUMERIC:
+			case BIN_NUMERIC:
+			case DEC_NUMERIC:
 			case HEX_NUMERIC:
 			case IDENTIFIER:
 			case STRING_LITERAL:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(146);
+				setState(120);
 				expr(0);
 				}
 				break;
@@ -871,13 +764,13 @@ public class ASM6502Parser extends Parser {
 			case MODIFIER_PCREL_LO:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(147);
+				setState(121);
 				modifier();
-				setState(148);
+				setState(122);
 				match(OPENING_BRACKET);
-				setState(149);
+				setState(123);
 				expr(0);
-				setState(150);
+				setState(124);
 				match(CLOSING_BRACKET);
 				}
 				break;
@@ -922,12 +815,12 @@ public class ASM6502Parser extends Parser {
 
 	public final ModifierContext modifier() throws RecognitionException {
 		ModifierContext _localctx = new ModifierContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_modifier);
+		enterRule(_localctx, 16, RULE_modifier);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(154);
+			setState(128);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MODIFIER_HI) | (1L << MODIFIER_LO) | (1L << MODIFIER_PCREL_HI) | (1L << MODIFIER_PCREL_LO))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -962,7 +855,8 @@ public class ASM6502Parser extends Parser {
 		public RegisterContext register() {
 			return getRuleContext(RegisterContext.class,0);
 		}
-		public TerminalNode NUMERIC() { return getToken(ASM6502Parser.NUMERIC, 0); }
+		public TerminalNode BIN_NUMERIC() { return getToken(ASM6502Parser.BIN_NUMERIC, 0); }
+		public TerminalNode DEC_NUMERIC() { return getToken(ASM6502Parser.DEC_NUMERIC, 0); }
 		public TerminalNode HEX_NUMERIC() { return getToken(ASM6502Parser.HEX_NUMERIC, 0); }
 		public TerminalNode IDENTIFIER() { return getToken(ASM6502Parser.IDENTIFIER, 0); }
 		public TerminalNode STRING_LITERAL() { return getToken(ASM6502Parser.STRING_LITERAL, 0); }
@@ -998,22 +892,22 @@ public class ASM6502Parser extends Parser {
 		int _parentState = getState();
 		ExprContext _localctx = new ExprContext(_ctx, _parentState);
 		ExprContext _prevctx = _localctx;
-		int _startState = 16;
-		enterRecursionRule(_localctx, 16, RULE_expr, _p);
+		int _startState = 18;
+		enterRecursionRule(_localctx, 18, RULE_expr, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(167);
+			setState(142);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case OPENING_BRACKET:
 				{
-				setState(157);
+				setState(131);
 				match(OPENING_BRACKET);
-				setState(158);
+				setState(132);
 				expr(0);
-				setState(159);
+				setState(133);
 				match(CLOSING_BRACKET);
 				}
 				break;
@@ -1050,37 +944,43 @@ public class ASM6502Parser extends Parser {
 			case REG_FP_ABI:
 			case REG_RA_ABI:
 				{
-				setState(161);
+				setState(135);
 				register();
 				}
 				break;
-			case NUMERIC:
+			case BIN_NUMERIC:
 				{
-				setState(162);
-				match(NUMERIC);
+				setState(136);
+				match(BIN_NUMERIC);
+				}
+				break;
+			case DEC_NUMERIC:
+				{
+				setState(137);
+				match(DEC_NUMERIC);
 				}
 				break;
 			case HEX_NUMERIC:
 				{
-				setState(163);
+				setState(138);
 				match(HEX_NUMERIC);
 				}
 				break;
 			case IDENTIFIER:
 				{
-				setState(164);
+				setState(139);
 				match(IDENTIFIER);
 				}
 				break;
 			case STRING_LITERAL:
 				{
-				setState(165);
+				setState(140);
 				match(STRING_LITERAL);
 				}
 				break;
 			case DOT:
 				{
-				setState(166);
+				setState(141);
 				match(DOT);
 				}
 				break;
@@ -1088,59 +988,59 @@ public class ASM6502Parser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(180);
+			setState(155);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(178);
+					setState(153);
 					_errHandler.sync(this);
-					switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
+					switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 					case 1:
 						{
 						_localctx = new ExprContext(_parentctx, _parentState);
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(169);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
-						setState(170);
+						setState(144);
+						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
+						setState(145);
 						match(PLUS);
-						setState(171);
-						expr(11);
+						setState(146);
+						expr(12);
 						}
 						break;
 					case 2:
 						{
 						_localctx = new ExprContext(_parentctx, _parentState);
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(172);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
-						setState(173);
+						setState(147);
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						setState(148);
 						match(MINUS);
-						setState(174);
-						expr(10);
+						setState(149);
+						expr(11);
 						}
 						break;
 					case 3:
 						{
 						_localctx = new ExprContext(_parentctx, _parentState);
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(175);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
-						setState(176);
+						setState(150);
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
+						setState(151);
 						match(ASTERISK);
-						setState(177);
-						expr(9);
+						setState(152);
+						expr(10);
 						}
 						break;
 					}
 					} 
 				}
-				setState(182);
+				setState(157);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,10,_ctx);
 			}
 			}
 		}
@@ -1209,14 +1109,14 @@ public class ASM6502Parser extends Parser {
 
 	public final RegisterContext register() throws RecognitionException {
 		RegisterContext _localctx = new RegisterContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_register);
+		enterRule(_localctx, 20, RULE_register);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(183);
+			setState(158);
 			_la = _input.LA(1);
-			if ( !(((((_la - 79)) & ~0x3f) == 0 && ((1L << (_la - 79)) & ((1L << (REG_ZERO_ABI - 79)) | (1L << (REG_AT_ABI - 79)) | (1L << (REG_V0_ABI - 79)) | (1L << (REG_V1_ABI - 79)) | (1L << (REG_A0_ABI - 79)) | (1L << (REG_A1_ABI - 79)) | (1L << (REG_A2_ABI - 79)) | (1L << (REG_A3_ABI - 79)) | (1L << (REG_T0_ABI - 79)) | (1L << (REG_T1_ABI - 79)) | (1L << (REG_T2_ABI - 79)) | (1L << (REG_T3_ABI - 79)) | (1L << (REG_T4_ABI - 79)) | (1L << (REG_T5_ABI - 79)) | (1L << (REG_T6_ABI - 79)) | (1L << (REG_T7_ABI - 79)) | (1L << (REG_S0_ABI - 79)) | (1L << (REG_S1_ABI - 79)) | (1L << (REG_S2_ABI - 79)) | (1L << (REG_S3_ABI - 79)) | (1L << (REG_S4_ABI - 79)) | (1L << (REG_S5_ABI - 79)) | (1L << (REG_S6_ABI - 79)) | (1L << (REG_S7_ABI - 79)) | (1L << (REG_T8_ABI - 79)) | (1L << (REG_T9_ABI - 79)) | (1L << (REG_K0_ABI - 79)) | (1L << (REG_K1_ABI - 79)) | (1L << (REG_GP_ABI - 79)) | (1L << (REG_SP_ABI - 79)) | (1L << (REG_FP_ABI - 79)) | (1L << (REG_RA_ABI - 79)))) != 0)) ) {
+			if ( !(((((_la - 36)) & ~0x3f) == 0 && ((1L << (_la - 36)) & ((1L << (REG_ZERO_ABI - 36)) | (1L << (REG_AT_ABI - 36)) | (1L << (REG_V0_ABI - 36)) | (1L << (REG_V1_ABI - 36)) | (1L << (REG_A0_ABI - 36)) | (1L << (REG_A1_ABI - 36)) | (1L << (REG_A2_ABI - 36)) | (1L << (REG_A3_ABI - 36)) | (1L << (REG_T0_ABI - 36)) | (1L << (REG_T1_ABI - 36)) | (1L << (REG_T2_ABI - 36)) | (1L << (REG_T3_ABI - 36)) | (1L << (REG_T4_ABI - 36)) | (1L << (REG_T5_ABI - 36)) | (1L << (REG_T6_ABI - 36)) | (1L << (REG_T7_ABI - 36)) | (1L << (REG_S0_ABI - 36)) | (1L << (REG_S1_ABI - 36)) | (1L << (REG_S2_ABI - 36)) | (1L << (REG_S3_ABI - 36)) | (1L << (REG_S4_ABI - 36)) | (1L << (REG_S5_ABI - 36)) | (1L << (REG_S6_ABI - 36)) | (1L << (REG_S7_ABI - 36)) | (1L << (REG_T8_ABI - 36)) | (1L << (REG_T9_ABI - 36)) | (1L << (REG_K0_ABI - 36)) | (1L << (REG_K1_ABI - 36)) | (1L << (REG_GP_ABI - 36)) | (1L << (REG_SP_ABI - 36)) | (1L << (REG_FP_ABI - 36)) | (1L << (REG_RA_ABI - 36)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -1334,183 +1234,183 @@ public class ASM6502Parser extends Parser {
 
 	public final Assembler_instructionContext assembler_instruction() throws RecognitionException {
 		Assembler_instructionContext _localctx = new Assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_assembler_instruction);
+		enterRule(_localctx, 22, RULE_assembler_instruction);
 		try {
-			setState(210);
+			setState(185);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case DOT_ATTRIBUTE:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(185);
+				setState(160);
 				attribute_assembler_instruction();
 				}
 				break;
 			case DOT_ALIGN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(186);
+				setState(161);
 				align_assembler_instruction();
 				}
 				break;
 			case DOT_EQU:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(187);
+				setState(162);
 				equ_assembler_instruction();
 				}
 				break;
 			case DOT_EXTERN:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(188);
+				setState(163);
 				extern_assembler_instruction();
 				}
 				break;
 			case DOT_SECTION:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(189);
+				setState(164);
 				section_definition_assembler_instruction();
 				}
 				break;
 			case DOT_GLOBL:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(190);
+				setState(165);
 				globl_assembler_instruction();
 				}
 				break;
 			case DOT_GLOBAL:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(191);
+				setState(166);
 				global_assembler_instruction();
 				}
 				break;
 			case DOT_TEXT:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(192);
+				setState(167);
 				text_assembler_instruction();
 				}
 				break;
 			case DOT_TYPE:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(193);
+				setState(168);
 				type_assembler_instruction();
 				}
 				break;
 			case DOT_DATA:
 				enterOuterAlt(_localctx, 10);
 				{
-				setState(194);
+				setState(169);
 				data_assembler_instruction();
 				}
 				break;
 			case DOT_BYTE:
 				enterOuterAlt(_localctx, 11);
 				{
-				setState(195);
+				setState(170);
 				byte_assembler_instruction();
 				}
 				break;
 			case DOT_SPACE:
 				enterOuterAlt(_localctx, 12);
 				{
-				setState(196);
+				setState(171);
 				space_assembler_instruction();
 				}
 				break;
 			case DOT_HALF:
 				enterOuterAlt(_localctx, 13);
 				{
-				setState(197);
+				setState(172);
 				half_assembler_instruction();
 				}
 				break;
 			case DOT_WORD:
 				enterOuterAlt(_localctx, 14);
 				{
-				setState(198);
+				setState(173);
 				word_assembler_instruction();
 				}
 				break;
 			case DOT_WEAK:
 				enterOuterAlt(_localctx, 15);
 				{
-				setState(199);
+				setState(174);
 				weak_assembler_instruction();
 				}
 				break;
 			case DOT_DWORD:
 				enterOuterAlt(_localctx, 16);
 				{
-				setState(200);
+				setState(175);
 				dword_assembler_instruction();
 				}
 				break;
 			case DOT_FILE:
 				enterOuterAlt(_localctx, 17);
 				{
-				setState(201);
+				setState(176);
 				file_assembler_instruction();
 				}
 				break;
 			case DOT_SKIP:
 				enterOuterAlt(_localctx, 18);
 				{
-				setState(202);
+				setState(177);
 				skip_assembler_instruction();
 				}
 				break;
 			case DOT_ASCII:
 				enterOuterAlt(_localctx, 19);
 				{
-				setState(203);
+				setState(178);
 				ascii_assembler_instruction();
 				}
 				break;
 			case DOT_ASCIZ:
 				enterOuterAlt(_localctx, 20);
 				{
-				setState(204);
+				setState(179);
 				asciz_assembler_instruction();
 				}
 				break;
 			case DOT_ASCIIZ:
 				enterOuterAlt(_localctx, 21);
 				{
-				setState(205);
+				setState(180);
 				asciiz_assembler_instruction();
 				}
 				break;
 			case DOT_STRING:
 				enterOuterAlt(_localctx, 22);
 				{
-				setState(206);
+				setState(181);
 				string_assembler_instruction();
 				}
 				break;
 			case DOT_OPTION:
 				enterOuterAlt(_localctx, 23);
 				{
-				setState(207);
+				setState(182);
 				option_assembler_instruction();
 				}
 				break;
 			case DOT_SIZE:
 				enterOuterAlt(_localctx, 24);
 				{
-				setState(208);
+				setState(183);
 				size_assembler_instruction();
 				}
 				break;
 			case DOT_IDENT:
 				enterOuterAlt(_localctx, 25);
 				{
-				setState(209);
+				setState(184);
 				ident_assembler_instruction();
 				}
 				break;
@@ -1557,17 +1457,17 @@ public class ASM6502Parser extends Parser {
 
 	public final Attribute_assembler_instructionContext attribute_assembler_instruction() throws RecognitionException {
 		Attribute_assembler_instructionContext _localctx = new Attribute_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_attribute_assembler_instruction);
+		enterRule(_localctx, 24, RULE_attribute_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(212);
+			setState(187);
 			match(DOT_ATTRIBUTE);
-			setState(213);
+			setState(188);
 			match(IDENTIFIER);
-			setState(214);
+			setState(189);
 			match(COMMA);
-			setState(215);
+			setState(190);
 			expr(0);
 			}
 		}
@@ -1608,13 +1508,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Align_assembler_instructionContext align_assembler_instruction() throws RecognitionException {
 		Align_assembler_instructionContext _localctx = new Align_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_align_assembler_instruction);
+		enterRule(_localctx, 26, RULE_align_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(217);
+			setState(192);
 			match(DOT_ALIGN);
-			setState(218);
+			setState(193);
 			expr(0);
 			}
 		}
@@ -1657,17 +1557,17 @@ public class ASM6502Parser extends Parser {
 
 	public final Equ_assembler_instructionContext equ_assembler_instruction() throws RecognitionException {
 		Equ_assembler_instructionContext _localctx = new Equ_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_equ_assembler_instruction);
+		enterRule(_localctx, 28, RULE_equ_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(220);
+			setState(195);
 			match(DOT_EQU);
-			setState(221);
+			setState(196);
 			match(IDENTIFIER);
-			setState(222);
+			setState(197);
 			match(COMMA);
-			setState(223);
+			setState(198);
 			expr(0);
 			}
 		}
@@ -1706,13 +1606,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Extern_assembler_instructionContext extern_assembler_instruction() throws RecognitionException {
 		Extern_assembler_instructionContext _localctx = new Extern_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_extern_assembler_instruction);
+		enterRule(_localctx, 30, RULE_extern_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(225);
+			setState(200);
 			match(DOT_EXTERN);
-			setState(226);
+			setState(201);
 			match(IDENTIFIER);
 			}
 		}
@@ -1753,14 +1653,14 @@ public class ASM6502Parser extends Parser {
 
 	public final Section_definition_assembler_instructionContext section_definition_assembler_instruction() throws RecognitionException {
 		Section_definition_assembler_instructionContext _localctx = new Section_definition_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 30, RULE_section_definition_assembler_instruction);
+		enterRule(_localctx, 32, RULE_section_definition_assembler_instruction);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(228);
+			setState(203);
 			match(DOT_SECTION);
-			setState(229);
+			setState(204);
 			_la = _input.LA(1);
 			if ( !(_la==DOT_TEXT || _la==DOT_RODATA || _la==IDENTIFIER) ) {
 			_errHandler.recoverInline(this);
@@ -1809,13 +1709,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Globl_assembler_instructionContext globl_assembler_instruction() throws RecognitionException {
 		Globl_assembler_instructionContext _localctx = new Globl_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 32, RULE_globl_assembler_instruction);
+		enterRule(_localctx, 34, RULE_globl_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(231);
+			setState(206);
 			match(DOT_GLOBL);
-			setState(232);
+			setState(207);
 			csv_identifier_list();
 			}
 		}
@@ -1856,13 +1756,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Global_assembler_instructionContext global_assembler_instruction() throws RecognitionException {
 		Global_assembler_instructionContext _localctx = new Global_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 34, RULE_global_assembler_instruction);
+		enterRule(_localctx, 36, RULE_global_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(234);
+			setState(209);
 			match(DOT_GLOBAL);
-			setState(235);
+			setState(210);
 			csv_identifier_list();
 			}
 		}
@@ -1900,11 +1800,11 @@ public class ASM6502Parser extends Parser {
 
 	public final Text_assembler_instructionContext text_assembler_instruction() throws RecognitionException {
 		Text_assembler_instructionContext _localctx = new Text_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 36, RULE_text_assembler_instruction);
+		enterRule(_localctx, 38, RULE_text_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(237);
+			setState(212);
 			match(DOT_TEXT);
 			}
 		}
@@ -1945,13 +1845,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Type_assembler_instructionContext type_assembler_instruction() throws RecognitionException {
 		Type_assembler_instructionContext _localctx = new Type_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 38, RULE_type_assembler_instruction);
+		enterRule(_localctx, 40, RULE_type_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(239);
+			setState(214);
 			match(DOT_TYPE);
-			setState(240);
+			setState(215);
 			csv_identifier_list();
 			}
 		}
@@ -1989,11 +1889,11 @@ public class ASM6502Parser extends Parser {
 
 	public final Data_assembler_instructionContext data_assembler_instruction() throws RecognitionException {
 		Data_assembler_instructionContext _localctx = new Data_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 40, RULE_data_assembler_instruction);
+		enterRule(_localctx, 42, RULE_data_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(242);
+			setState(217);
 			match(DOT_DATA);
 			}
 		}
@@ -2034,13 +1934,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Byte_assembler_instructionContext byte_assembler_instruction() throws RecognitionException {
 		Byte_assembler_instructionContext _localctx = new Byte_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 42, RULE_byte_assembler_instruction);
+		enterRule(_localctx, 44, RULE_byte_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(244);
+			setState(219);
 			match(DOT_BYTE);
-			setState(245);
+			setState(220);
 			csv_numeric_list();
 			}
 		}
@@ -2081,13 +1981,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Space_assembler_instructionContext space_assembler_instruction() throws RecognitionException {
 		Space_assembler_instructionContext _localctx = new Space_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 44, RULE_space_assembler_instruction);
+		enterRule(_localctx, 46, RULE_space_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(247);
+			setState(222);
 			match(DOT_SPACE);
-			setState(248);
+			setState(223);
 			csv_numeric_list();
 			}
 		}
@@ -2128,13 +2028,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Half_assembler_instructionContext half_assembler_instruction() throws RecognitionException {
 		Half_assembler_instructionContext _localctx = new Half_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 46, RULE_half_assembler_instruction);
+		enterRule(_localctx, 48, RULE_half_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(250);
+			setState(225);
 			match(DOT_HALF);
-			setState(251);
+			setState(226);
 			csv_numeric_list();
 			}
 		}
@@ -2173,13 +2073,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Weak_assembler_instructionContext weak_assembler_instruction() throws RecognitionException {
 		Weak_assembler_instructionContext _localctx = new Weak_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 48, RULE_weak_assembler_instruction);
+		enterRule(_localctx, 50, RULE_weak_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(253);
+			setState(228);
 			match(DOT_WEAK);
-			setState(254);
+			setState(229);
 			match(IDENTIFIER);
 			}
 		}
@@ -2220,13 +2120,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Word_assembler_instructionContext word_assembler_instruction() throws RecognitionException {
 		Word_assembler_instructionContext _localctx = new Word_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 50, RULE_word_assembler_instruction);
+		enterRule(_localctx, 52, RULE_word_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(256);
+			setState(231);
 			match(DOT_WORD);
-			setState(257);
+			setState(232);
 			csv_numeric_list();
 			}
 		}
@@ -2267,13 +2167,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Dword_assembler_instructionContext dword_assembler_instruction() throws RecognitionException {
 		Dword_assembler_instructionContext _localctx = new Dword_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 52, RULE_dword_assembler_instruction);
+		enterRule(_localctx, 54, RULE_dword_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(259);
+			setState(234);
 			match(DOT_DWORD);
-			setState(260);
+			setState(235);
 			csv_numeric_list();
 			}
 		}
@@ -2314,13 +2214,13 @@ public class ASM6502Parser extends Parser {
 
 	public final File_assembler_instructionContext file_assembler_instruction() throws RecognitionException {
 		File_assembler_instructionContext _localctx = new File_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 54, RULE_file_assembler_instruction);
+		enterRule(_localctx, 56, RULE_file_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(262);
+			setState(237);
 			match(DOT_FILE);
-			setState(263);
+			setState(238);
 			expr(0);
 			}
 		}
@@ -2361,13 +2261,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Skip_assembler_instructionContext skip_assembler_instruction() throws RecognitionException {
 		Skip_assembler_instructionContext _localctx = new Skip_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 56, RULE_skip_assembler_instruction);
+		enterRule(_localctx, 58, RULE_skip_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(265);
+			setState(240);
 			match(DOT_SKIP);
-			setState(266);
+			setState(241);
 			expr(0);
 			}
 		}
@@ -2406,13 +2306,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Ascii_assembler_instructionContext ascii_assembler_instruction() throws RecognitionException {
 		Ascii_assembler_instructionContext _localctx = new Ascii_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 58, RULE_ascii_assembler_instruction);
+		enterRule(_localctx, 60, RULE_ascii_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(268);
+			setState(243);
 			match(DOT_ASCII);
-			setState(269);
+			setState(244);
 			match(STRING_LITERAL);
 			}
 		}
@@ -2451,13 +2351,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Asciz_assembler_instructionContext asciz_assembler_instruction() throws RecognitionException {
 		Asciz_assembler_instructionContext _localctx = new Asciz_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 60, RULE_asciz_assembler_instruction);
+		enterRule(_localctx, 62, RULE_asciz_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(271);
+			setState(246);
 			match(DOT_ASCIZ);
-			setState(272);
+			setState(247);
 			match(STRING_LITERAL);
 			}
 		}
@@ -2496,13 +2396,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Asciiz_assembler_instructionContext asciiz_assembler_instruction() throws RecognitionException {
 		Asciiz_assembler_instructionContext _localctx = new Asciiz_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 62, RULE_asciiz_assembler_instruction);
+		enterRule(_localctx, 64, RULE_asciiz_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(274);
+			setState(249);
 			match(DOT_ASCIIZ);
-			setState(275);
+			setState(250);
 			match(STRING_LITERAL);
 			}
 		}
@@ -2541,13 +2441,13 @@ public class ASM6502Parser extends Parser {
 
 	public final String_assembler_instructionContext string_assembler_instruction() throws RecognitionException {
 		String_assembler_instructionContext _localctx = new String_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 64, RULE_string_assembler_instruction);
+		enterRule(_localctx, 66, RULE_string_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(277);
+			setState(252);
 			match(DOT_STRING);
-			setState(278);
+			setState(253);
 			match(STRING_LITERAL);
 			}
 		}
@@ -2586,13 +2486,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Option_assembler_instructionContext option_assembler_instruction() throws RecognitionException {
 		Option_assembler_instructionContext _localctx = new Option_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 66, RULE_option_assembler_instruction);
+		enterRule(_localctx, 68, RULE_option_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(280);
+			setState(255);
 			match(DOT_OPTION);
-			setState(281);
+			setState(256);
 			match(IDENTIFIER);
 			}
 		}
@@ -2637,17 +2537,17 @@ public class ASM6502Parser extends Parser {
 
 	public final Size_assembler_instructionContext size_assembler_instruction() throws RecognitionException {
 		Size_assembler_instructionContext _localctx = new Size_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 68, RULE_size_assembler_instruction);
+		enterRule(_localctx, 70, RULE_size_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(283);
+			setState(258);
 			match(DOT_SIZE);
-			setState(284);
+			setState(259);
 			expr(0);
-			setState(285);
+			setState(260);
 			match(COMMA);
-			setState(286);
+			setState(261);
 			expr(0);
 			}
 		}
@@ -2686,13 +2586,13 @@ public class ASM6502Parser extends Parser {
 
 	public final Ident_assembler_instructionContext ident_assembler_instruction() throws RecognitionException {
 		Ident_assembler_instructionContext _localctx = new Ident_assembler_instructionContext(_ctx, getState());
-		enterRule(_localctx, 70, RULE_ident_assembler_instruction);
+		enterRule(_localctx, 72, RULE_ident_assembler_instruction);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(288);
+			setState(263);
 			match(DOT_IDENT);
-			setState(289);
+			setState(264);
 			match(STRING_LITERAL);
 			}
 		}
@@ -2734,26 +2634,26 @@ public class ASM6502Parser extends Parser {
 
 	public final Csv_identifier_listContext csv_identifier_list() throws RecognitionException {
 		Csv_identifier_listContext _localctx = new Csv_identifier_listContext(_ctx, getState());
-		enterRule(_localctx, 72, RULE_csv_identifier_list);
+		enterRule(_localctx, 74, RULE_csv_identifier_list);
 		try {
-			setState(295);
+			setState(270);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,17,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,12,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(291);
+				setState(266);
 				match(IDENTIFIER);
-				setState(292);
+				setState(267);
 				match(COMMA);
-				setState(293);
+				setState(268);
 				csv_identifier_list();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(294);
+				setState(269);
 				match(IDENTIFIER);
 				}
 				break;
@@ -2775,7 +2675,8 @@ public class ASM6502Parser extends Parser {
 		public Csv_numeric_listContext csv_numeric_list() {
 			return getRuleContext(Csv_numeric_listContext.class,0);
 		}
-		public TerminalNode NUMERIC() { return getToken(ASM6502Parser.NUMERIC, 0); }
+		public TerminalNode BIN_NUMERIC() { return getToken(ASM6502Parser.BIN_NUMERIC, 0); }
+		public TerminalNode DEC_NUMERIC() { return getToken(ASM6502Parser.DEC_NUMERIC, 0); }
 		public TerminalNode HEX_NUMERIC() { return getToken(ASM6502Parser.HEX_NUMERIC, 0); }
 		public Csv_numeric_listContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2798,18 +2699,18 @@ public class ASM6502Parser extends Parser {
 
 	public final Csv_numeric_listContext csv_numeric_list() throws RecognitionException {
 		Csv_numeric_listContext _localctx = new Csv_numeric_listContext(_ctx, getState());
-		enterRule(_localctx, 74, RULE_csv_numeric_list);
+		enterRule(_localctx, 76, RULE_csv_numeric_list);
 		int _la;
 		try {
-			setState(301);
+			setState(276);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,18,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(297);
+				setState(272);
 				_la = _input.LA(1);
-				if ( !(_la==NUMERIC || _la==HEX_NUMERIC) ) {
+				if ( !(((((_la - 79)) & ~0x3f) == 0 && ((1L << (_la - 79)) & ((1L << (BIN_NUMERIC - 79)) | (1L << (DEC_NUMERIC - 79)) | (1L << (HEX_NUMERIC - 79)))) != 0)) ) {
 				_errHandler.recoverInline(this);
 				}
 				else {
@@ -2817,18 +2718,18 @@ public class ASM6502Parser extends Parser {
 					_errHandler.reportMatch(this);
 					consume();
 				}
-				setState(298);
+				setState(273);
 				match(COMMA);
-				setState(299);
+				setState(274);
 				csv_numeric_list();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(300);
+				setState(275);
 				_la = _input.LA(1);
-				if ( !(_la==NUMERIC || _la==HEX_NUMERIC) ) {
+				if ( !(((((_la - 79)) & ~0x3f) == 0 && ((1L << (_la - 79)) & ((1L << (BIN_NUMERIC - 79)) | (1L << (DEC_NUMERIC - 79)) | (1L << (HEX_NUMERIC - 79)))) != 0)) ) {
 				_errHandler.recoverInline(this);
 				}
 				else {
@@ -2853,7 +2754,7 @@ public class ASM6502Parser extends Parser {
 
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 8:
+		case 9:
 			return expr_sempred((ExprContext)_localctx, predIndex);
 		}
 		return true;
@@ -2861,117 +2762,106 @@ public class ASM6502Parser extends Parser {
 	private boolean expr_sempred(ExprContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
-			return precpred(_ctx, 10);
+			return precpred(_ctx, 11);
 		case 1:
-			return precpred(_ctx, 9);
+			return precpred(_ctx, 10);
 		case 2:
-			return precpred(_ctx, 8);
+			return precpred(_ctx, 9);
 		}
 		return true;
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\u0081\u0132\4\2\t"+
-		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
-		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3X\u0119\4\2\t\2\4"+
+		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
+		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
 		"\4\32\t\32\4\33\t\33\4\34\t\34\4\35\t\35\4\36\t\36\4\37\t\37\4 \t \4!"+
-		"\t!\4\"\t\"\4#\t#\4$\t$\4%\t%\4&\t&\4\'\t\'\3\2\3\2\3\2\3\2\7\2S\n\2\f"+
-		"\2\16\2V\13\2\3\2\3\2\7\2Z\n\2\f\2\16\2]\13\2\5\2_\n\2\3\3\3\3\3\3\5\3"+
-		"d\n\3\3\3\3\3\3\3\3\3\5\3j\n\3\3\4\3\4\3\5\3\5\3\6\3\6\3\6\3\6\3\6\3\6"+
-		"\3\6\5\6w\n\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6\177\n\6\3\6\3\6\3\6\3\6\5\6"+
-		"\u0085\n\6\3\6\3\6\5\6\u0089\n\6\3\7\3\7\3\7\3\7\3\7\3\7\5\7\u0091\n\7"+
-		"\5\7\u0093\n\7\3\b\3\b\3\b\3\b\3\b\3\b\5\b\u009b\n\b\3\t\3\t\3\n\3\n\3"+
-		"\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\5\n\u00aa\n\n\3\n\3\n\3\n\3\n\3\n\3"+
-		"\n\3\n\3\n\3\n\7\n\u00b5\n\n\f\n\16\n\u00b8\13\n\3\13\3\13\3\f\3\f\3\f"+
-		"\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3"+
-		"\f\3\f\3\f\3\f\3\f\5\f\u00d5\n\f\3\r\3\r\3\r\3\r\3\r\3\16\3\16\3\16\3"+
-		"\17\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\21\3\21\3\21\3\22\3\22\3\22\3"+
-		"\23\3\23\3\23\3\24\3\24\3\25\3\25\3\25\3\26\3\26\3\27\3\27\3\27\3\30\3"+
-		"\30\3\30\3\31\3\31\3\31\3\32\3\32\3\32\3\33\3\33\3\33\3\34\3\34\3\34\3"+
-		"\35\3\35\3\35\3\36\3\36\3\36\3\37\3\37\3\37\3 \3 \3 \3!\3!\3!\3\"\3\""+
-		"\3\"\3#\3#\3#\3$\3$\3$\3$\3$\3%\3%\3%\3&\3&\3&\3&\5&\u012a\n&\3\'\3\'"+
-		"\3\'\3\'\5\'\u0130\n\'\3\'\2\3\22(\2\4\6\b\n\f\16\20\22\24\26\30\32\34"+
-		"\36 \"$&(*,.\60\62\64\668:<>@BDFHJL\2\b\4\2{{}}\3\2#P\3\2\5\b\3\2Qp\5"+
-		"\2\20\20\32\32}}\3\2{|\2\u013e\2T\3\2\2\2\4c\3\2\2\2\6k\3\2\2\2\bm\3\2"+
-		"\2\2\n\u0088\3\2\2\2\f\u0092\3\2\2\2\16\u009a\3\2\2\2\20\u009c\3\2\2\2"+
-		"\22\u00a9\3\2\2\2\24\u00b9\3\2\2\2\26\u00d4\3\2\2\2\30\u00d6\3\2\2\2\32"+
-		"\u00db\3\2\2\2\34\u00de\3\2\2\2\36\u00e3\3\2\2\2 \u00e6\3\2\2\2\"\u00e9"+
-		"\3\2\2\2$\u00ec\3\2\2\2&\u00ef\3\2\2\2(\u00f1\3\2\2\2*\u00f4\3\2\2\2,"+
-		"\u00f6\3\2\2\2.\u00f9\3\2\2\2\60\u00fc\3\2\2\2\62\u00ff\3\2\2\2\64\u0102"+
-		"\3\2\2\2\66\u0105\3\2\2\28\u0108\3\2\2\2:\u010b\3\2\2\2<\u010e\3\2\2\2"+
-		">\u0111\3\2\2\2@\u0114\3\2\2\2B\u0117\3\2\2\2D\u011a\3\2\2\2F\u011d\3"+
-		"\2\2\2H\u0122\3\2\2\2J\u0129\3\2\2\2L\u012f\3\2\2\2NO\5\4\3\2OP\7\u0081"+
-		"\2\2PS\3\2\2\2QS\7\u0081\2\2RN\3\2\2\2RQ\3\2\2\2SV\3\2\2\2TR\3\2\2\2T"+
-		"U\3\2\2\2U^\3\2\2\2VT\3\2\2\2W_\5\4\3\2XZ\7\u0081\2\2YX\3\2\2\2Z]\3\2"+
-		"\2\2[Y\3\2\2\2[\\\3\2\2\2\\_\3\2\2\2][\3\2\2\2^W\3\2\2\2^[\3\2\2\2_\3"+
-		"\3\2\2\2`a\5\6\4\2ab\7w\2\2bd\3\2\2\2c`\3\2\2\2cd\3\2\2\2di\3\2\2\2ef"+
-		"\5\b\5\2fg\5\n\6\2gj\3\2\2\2hj\5\26\f\2ie\3\2\2\2ih\3\2\2\2ij\3\2\2\2"+
-		"j\5\3\2\2\2kl\t\2\2\2l\7\3\2\2\2mn\t\3\2\2n\t\3\2\2\2o\u0089\3\2\2\2p"+
-		"q\5\f\7\2qr\7x\2\2rs\5\f\7\2st\7x\2\2tv\5\f\7\2uw\7x\2\2vu\3\2\2\2vw\3"+
-		"\2\2\2wx\3\2\2\2xy\b\6\1\2y\u0089\3\2\2\2z{\5\f\7\2{|\7x\2\2|~\5\f\7\2"+
-		"}\177\7x\2\2~}\3\2\2\2~\177\3\2\2\2\177\u0080\3\2\2\2\u0080\u0081\b\6"+
-		"\1\2\u0081\u0089\3\2\2\2\u0082\u0084\5\f\7\2\u0083\u0085\7x\2\2\u0084"+
-		"\u0083\3\2\2\2\u0084\u0085\3\2\2\2\u0085\u0086\3\2\2\2\u0086\u0087\b\6"+
-		"\1\2\u0087\u0089\3\2\2\2\u0088o\3\2\2\2\u0088p\3\2\2\2\u0088z\3\2\2\2"+
-		"\u0088\u0082\3\2\2\2\u0089\13\3\2\2\2\u008a\u0093\5\22\n\2\u008b\u0090"+
-		"\5\16\b\2\u008c\u008d\7y\2\2\u008d\u008e\5\22\n\2\u008e\u008f\7z\2\2\u008f"+
-		"\u0091\3\2\2\2\u0090\u008c\3\2\2\2\u0090\u0091\3\2\2\2\u0091\u0093\3\2"+
-		"\2\2\u0092\u008a\3\2\2\2\u0092\u008b\3\2\2\2\u0093\r\3\2\2\2\u0094\u009b"+
-		"\5\22\n\2\u0095\u0096\5\20\t\2\u0096\u0097\7y\2\2\u0097\u0098\5\22\n\2"+
-		"\u0098\u0099\7z\2\2\u0099\u009b\3\2\2\2\u009a\u0094\3\2\2\2\u009a\u0095"+
-		"\3\2\2\2\u009b\17\3\2\2\2\u009c\u009d\t\4\2\2\u009d\21\3\2\2\2\u009e\u009f"+
-		"\b\n\1\2\u009f\u00a0\7y\2\2\u00a0\u00a1\5\22\n\2\u00a1\u00a2\7z\2\2\u00a2"+
-		"\u00aa\3\2\2\2\u00a3\u00aa\5\24\13\2\u00a4\u00aa\7{\2\2\u00a5\u00aa\7"+
-		"|\2\2\u00a6\u00aa\7}\2\2\u00a7\u00aa\7\177\2\2\u00a8\u00aa\7u\2\2\u00a9"+
-		"\u009e\3\2\2\2\u00a9\u00a3\3\2\2\2\u00a9\u00a4\3\2\2\2\u00a9\u00a5\3\2"+
-		"\2\2\u00a9\u00a6\3\2\2\2\u00a9\u00a7\3\2\2\2\u00a9\u00a8\3\2\2\2\u00aa"+
-		"\u00b6\3\2\2\2\u00ab\u00ac\f\f\2\2\u00ac\u00ad\7r\2\2\u00ad\u00b5\5\22"+
-		"\n\r\u00ae\u00af\f\13\2\2\u00af\u00b0\7s\2\2\u00b0\u00b5\5\22\n\f\u00b1"+
-		"\u00b2\f\n\2\2\u00b2\u00b3\7q\2\2\u00b3\u00b5\5\22\n\13\u00b4\u00ab\3"+
-		"\2\2\2\u00b4\u00ae\3\2\2\2\u00b4\u00b1\3\2\2\2\u00b5\u00b8\3\2\2\2\u00b6"+
-		"\u00b4\3\2\2\2\u00b6\u00b7\3\2\2\2\u00b7\23\3\2\2\2\u00b8\u00b6\3\2\2"+
-		"\2\u00b9\u00ba\t\5\2\2\u00ba\25\3\2\2\2\u00bb\u00d5\5\30\r\2\u00bc\u00d5"+
-		"\5\32\16\2\u00bd\u00d5\5\34\17\2\u00be\u00d5\5\36\20\2\u00bf\u00d5\5 "+
-		"\21\2\u00c0\u00d5\5\"\22\2\u00c1\u00d5\5$\23\2\u00c2\u00d5\5&\24\2\u00c3"+
-		"\u00d5\5(\25\2\u00c4\u00d5\5*\26\2\u00c5\u00d5\5,\27\2\u00c6\u00d5\5."+
-		"\30\2\u00c7\u00d5\5\60\31\2\u00c8\u00d5\5\64\33\2\u00c9\u00d5\5\62\32"+
-		"\2\u00ca\u00d5\5\66\34\2\u00cb\u00d5\58\35\2\u00cc\u00d5\5:\36\2\u00cd"+
-		"\u00d5\5<\37\2\u00ce\u00d5\5> \2\u00cf\u00d5\5@!\2\u00d0\u00d5\5B\"\2"+
-		"\u00d1\u00d5\5D#\2\u00d2\u00d5\5F$\2\u00d3\u00d5\5H%\2\u00d4\u00bb\3\2"+
-		"\2\2\u00d4\u00bc\3\2\2\2\u00d4\u00bd\3\2\2\2\u00d4\u00be\3\2\2\2\u00d4"+
-		"\u00bf\3\2\2\2\u00d4\u00c0\3\2\2\2\u00d4\u00c1\3\2\2\2\u00d4\u00c2\3\2"+
-		"\2\2\u00d4\u00c3\3\2\2\2\u00d4\u00c4\3\2\2\2\u00d4\u00c5\3\2\2\2\u00d4"+
-		"\u00c6\3\2\2\2\u00d4\u00c7\3\2\2\2\u00d4\u00c8\3\2\2\2\u00d4\u00c9\3\2"+
-		"\2\2\u00d4\u00ca\3\2\2\2\u00d4\u00cb\3\2\2\2\u00d4\u00cc\3\2\2\2\u00d4"+
-		"\u00cd\3\2\2\2\u00d4\u00ce\3\2\2\2\u00d4\u00cf\3\2\2\2\u00d4\u00d0\3\2"+
-		"\2\2\u00d4\u00d1\3\2\2\2\u00d4\u00d2\3\2\2\2\u00d4\u00d3\3\2\2\2\u00d5"+
-		"\27\3\2\2\2\u00d6\u00d7\7\t\2\2\u00d7\u00d8\7}\2\2\u00d8\u00d9\7x\2\2"+
-		"\u00d9\u00da\5\22\n\2\u00da\31\3\2\2\2\u00db\u00dc\7\n\2\2\u00dc\u00dd"+
-		"\5\22\n\2\u00dd\33\3\2\2\2\u00de\u00df\7\13\2\2\u00df\u00e0\7}\2\2\u00e0"+
-		"\u00e1\7x\2\2\u00e1\u00e2\5\22\n\2\u00e2\35\3\2\2\2\u00e3\u00e4\7\f\2"+
-		"\2\u00e4\u00e5\7}\2\2\u00e5\37\3\2\2\2\u00e6\u00e7\7\r\2\2\u00e7\u00e8"+
-		"\t\6\2\2\u00e8!\3\2\2\2\u00e9\u00ea\7\16\2\2\u00ea\u00eb\5J&\2\u00eb#"+
-		"\3\2\2\2\u00ec\u00ed\7\17\2\2\u00ed\u00ee\5J&\2\u00ee%\3\2\2\2\u00ef\u00f0"+
-		"\7\20\2\2\u00f0\'\3\2\2\2\u00f1\u00f2\7\21\2\2\u00f2\u00f3\5J&\2\u00f3"+
-		")\3\2\2\2\u00f4\u00f5\7\22\2\2\u00f5+\3\2\2\2\u00f6\u00f7\7\23\2\2\u00f7"+
-		"\u00f8\5L\'\2\u00f8-\3\2\2\2\u00f9\u00fa\7\24\2\2\u00fa\u00fb\5L\'\2\u00fb"+
-		"/\3\2\2\2\u00fc\u00fd\7\25\2\2\u00fd\u00fe\5L\'\2\u00fe\61\3\2\2\2\u00ff"+
-		"\u0100\7\26\2\2\u0100\u0101\7}\2\2\u0101\63\3\2\2\2\u0102\u0103\7\27\2"+
-		"\2\u0103\u0104\5L\'\2\u0104\65\3\2\2\2\u0105\u0106\7\30\2\2\u0106\u0107"+
-		"\5L\'\2\u0107\67\3\2\2\2\u0108\u0109\7\31\2\2\u0109\u010a\5\22\n\2\u010a"+
-		"9\3\2\2\2\u010b\u010c\7\36\2\2\u010c\u010d\5\22\n\2\u010d;\3\2\2\2\u010e"+
-		"\u010f\7\33\2\2\u010f\u0110\7\177\2\2\u0110=\3\2\2\2\u0111\u0112\7\34"+
-		"\2\2\u0112\u0113\7\177\2\2\u0113?\3\2\2\2\u0114\u0115\7\35\2\2\u0115\u0116"+
-		"\7\177\2\2\u0116A\3\2\2\2\u0117\u0118\7\37\2\2\u0118\u0119\7\177\2\2\u0119"+
-		"C\3\2\2\2\u011a\u011b\7 \2\2\u011b\u011c\7}\2\2\u011cE\3\2\2\2\u011d\u011e"+
-		"\7!\2\2\u011e\u011f\5\22\n\2\u011f\u0120\7x\2\2\u0120\u0121\5\22\n\2\u0121"+
-		"G\3\2\2\2\u0122\u0123\7\"\2\2\u0123\u0124\7\177\2\2\u0124I\3\2\2\2\u0125"+
-		"\u0126\7}\2\2\u0126\u0127\7x\2\2\u0127\u012a\5J&\2\u0128\u012a\7}\2\2"+
-		"\u0129\u0125\3\2\2\2\u0129\u0128\3\2\2\2\u012aK\3\2\2\2\u012b\u012c\t"+
-		"\7\2\2\u012c\u012d\7x\2\2\u012d\u0130\5L\'\2\u012e\u0130\t\7\2\2\u012f"+
-		"\u012b\3\2\2\2\u012f\u012e\3\2\2\2\u0130M\3\2\2\2\25RT[^civ~\u0084\u0088"+
-		"\u0090\u0092\u009a\u00a9\u00b4\u00b6\u00d4\u0129\u012f";
+		"\t!\4\"\t\"\4#\t#\4$\t$\4%\t%\4&\t&\4\'\t\'\4(\t(\3\2\3\2\3\2\3\2\7\2"+
+		"U\n\2\f\2\16\2X\13\2\3\2\3\2\7\2\\\n\2\f\2\16\2_\13\2\5\2a\n\2\3\3\3\3"+
+		"\3\3\5\3f\n\3\3\3\3\3\3\3\3\3\5\3l\n\3\3\4\3\4\3\5\3\5\3\6\3\6\3\7\3\7"+
+		"\5\7v\n\7\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\5\t\u0081\n\t\3\n\3\n\3"+
+		"\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\5\13\u0091"+
+		"\n\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\7\13\u009c\n\13\f\13"+
+		"\16\13\u009f\13\13\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r"+
+		"\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\5\r\u00bc\n\r"+
+		"\3\16\3\16\3\16\3\16\3\16\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3\20\3\21"+
+		"\3\21\3\21\3\22\3\22\3\22\3\23\3\23\3\23\3\24\3\24\3\24\3\25\3\25\3\26"+
+		"\3\26\3\26\3\27\3\27\3\30\3\30\3\30\3\31\3\31\3\31\3\32\3\32\3\32\3\33"+
+		"\3\33\3\33\3\34\3\34\3\34\3\35\3\35\3\35\3\36\3\36\3\36\3\37\3\37\3\37"+
+		"\3 \3 \3 \3!\3!\3!\3\"\3\"\3\"\3#\3#\3#\3$\3$\3$\3%\3%\3%\3%\3%\3&\3&"+
+		"\3&\3\'\3\'\3\'\3\'\5\'\u0111\n\'\3(\3(\3(\3(\5(\u0117\n(\3(\2\3\24)\2"+
+		"\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJL"+
+		"N\2\b\3\2QT\3\2#%\3\2\5\b\3\2&E\5\2\20\20\32\32TT\3\2QS\2\u011e\2V\3\2"+
+		"\2\2\4e\3\2\2\2\6m\3\2\2\2\bo\3\2\2\2\nq\3\2\2\2\fu\3\2\2\2\16w\3\2\2"+
+		"\2\20\u0080\3\2\2\2\22\u0082\3\2\2\2\24\u0090\3\2\2\2\26\u00a0\3\2\2\2"+
+		"\30\u00bb\3\2\2\2\32\u00bd\3\2\2\2\34\u00c2\3\2\2\2\36\u00c5\3\2\2\2 "+
+		"\u00ca\3\2\2\2\"\u00cd\3\2\2\2$\u00d0\3\2\2\2&\u00d3\3\2\2\2(\u00d6\3"+
+		"\2\2\2*\u00d8\3\2\2\2,\u00db\3\2\2\2.\u00dd\3\2\2\2\60\u00e0\3\2\2\2\62"+
+		"\u00e3\3\2\2\2\64\u00e6\3\2\2\2\66\u00e9\3\2\2\28\u00ec\3\2\2\2:\u00ef"+
+		"\3\2\2\2<\u00f2\3\2\2\2>\u00f5\3\2\2\2@\u00f8\3\2\2\2B\u00fb\3\2\2\2D"+
+		"\u00fe\3\2\2\2F\u0101\3\2\2\2H\u0104\3\2\2\2J\u0109\3\2\2\2L\u0110\3\2"+
+		"\2\2N\u0116\3\2\2\2PQ\5\4\3\2QR\7X\2\2RU\3\2\2\2SU\7X\2\2TP\3\2\2\2TS"+
+		"\3\2\2\2UX\3\2\2\2VT\3\2\2\2VW\3\2\2\2W`\3\2\2\2XV\3\2\2\2Ya\5\4\3\2Z"+
+		"\\\7X\2\2[Z\3\2\2\2\\_\3\2\2\2][\3\2\2\2]^\3\2\2\2^a\3\2\2\2_]\3\2\2\2"+
+		"`Y\3\2\2\2`]\3\2\2\2a\3\3\2\2\2bc\5\6\4\2cd\7L\2\2df\3\2\2\2eb\3\2\2\2"+
+		"ef\3\2\2\2fk\3\2\2\2gh\5\b\5\2hi\5\n\6\2il\3\2\2\2jl\5\30\r\2kg\3\2\2"+
+		"\2kj\3\2\2\2kl\3\2\2\2l\5\3\2\2\2mn\t\2\2\2n\7\3\2\2\2op\t\3\2\2p\t\3"+
+		"\2\2\2qr\5\f\7\2r\13\3\2\2\2sv\5\16\b\2tv\5\24\13\2us\3\2\2\2ut\3\2\2"+
+		"\2v\r\3\2\2\2wx\7P\2\2xy\5\24\13\2y\17\3\2\2\2z\u0081\5\24\13\2{|\5\22"+
+		"\n\2|}\7N\2\2}~\5\24\13\2~\177\7O\2\2\177\u0081\3\2\2\2\u0080z\3\2\2\2"+
+		"\u0080{\3\2\2\2\u0081\21\3\2\2\2\u0082\u0083\t\4\2\2\u0083\23\3\2\2\2"+
+		"\u0084\u0085\b\13\1\2\u0085\u0086\7N\2\2\u0086\u0087\5\24\13\2\u0087\u0088"+
+		"\7O\2\2\u0088\u0091\3\2\2\2\u0089\u0091\5\26\f\2\u008a\u0091\7Q\2\2\u008b"+
+		"\u0091\7R\2\2\u008c\u0091\7S\2\2\u008d\u0091\7T\2\2\u008e\u0091\7V\2\2"+
+		"\u008f\u0091\7J\2\2\u0090\u0084\3\2\2\2\u0090\u0089\3\2\2\2\u0090\u008a"+
+		"\3\2\2\2\u0090\u008b\3\2\2\2\u0090\u008c\3\2\2\2\u0090\u008d\3\2\2\2\u0090"+
+		"\u008e\3\2\2\2\u0090\u008f\3\2\2\2\u0091\u009d\3\2\2\2\u0092\u0093\f\r"+
+		"\2\2\u0093\u0094\7G\2\2\u0094\u009c\5\24\13\16\u0095\u0096\f\f\2\2\u0096"+
+		"\u0097\7H\2\2\u0097\u009c\5\24\13\r\u0098\u0099\f\13\2\2\u0099\u009a\7"+
+		"F\2\2\u009a\u009c\5\24\13\f\u009b\u0092\3\2\2\2\u009b\u0095\3\2\2\2\u009b"+
+		"\u0098\3\2\2\2\u009c\u009f\3\2\2\2\u009d\u009b\3\2\2\2\u009d\u009e\3\2"+
+		"\2\2\u009e\25\3\2\2\2\u009f\u009d\3\2\2\2\u00a0\u00a1\t\5\2\2\u00a1\27"+
+		"\3\2\2\2\u00a2\u00bc\5\32\16\2\u00a3\u00bc\5\34\17\2\u00a4\u00bc\5\36"+
+		"\20\2\u00a5\u00bc\5 \21\2\u00a6\u00bc\5\"\22\2\u00a7\u00bc\5$\23\2\u00a8"+
+		"\u00bc\5&\24\2\u00a9\u00bc\5(\25\2\u00aa\u00bc\5*\26\2\u00ab\u00bc\5,"+
+		"\27\2\u00ac\u00bc\5.\30\2\u00ad\u00bc\5\60\31\2\u00ae\u00bc\5\62\32\2"+
+		"\u00af\u00bc\5\66\34\2\u00b0\u00bc\5\64\33\2\u00b1\u00bc\58\35\2\u00b2"+
+		"\u00bc\5:\36\2\u00b3\u00bc\5<\37\2\u00b4\u00bc\5> \2\u00b5\u00bc\5@!\2"+
+		"\u00b6\u00bc\5B\"\2\u00b7\u00bc\5D#\2\u00b8\u00bc\5F$\2\u00b9\u00bc\5"+
+		"H%\2\u00ba\u00bc\5J&\2\u00bb\u00a2\3\2\2\2\u00bb\u00a3\3\2\2\2\u00bb\u00a4"+
+		"\3\2\2\2\u00bb\u00a5\3\2\2\2\u00bb\u00a6\3\2\2\2\u00bb\u00a7\3\2\2\2\u00bb"+
+		"\u00a8\3\2\2\2\u00bb\u00a9\3\2\2\2\u00bb\u00aa\3\2\2\2\u00bb\u00ab\3\2"+
+		"\2\2\u00bb\u00ac\3\2\2\2\u00bb\u00ad\3\2\2\2\u00bb\u00ae\3\2\2\2\u00bb"+
+		"\u00af\3\2\2\2\u00bb\u00b0\3\2\2\2\u00bb\u00b1\3\2\2\2\u00bb\u00b2\3\2"+
+		"\2\2\u00bb\u00b3\3\2\2\2\u00bb\u00b4\3\2\2\2\u00bb\u00b5\3\2\2\2\u00bb"+
+		"\u00b6\3\2\2\2\u00bb\u00b7\3\2\2\2\u00bb\u00b8\3\2\2\2\u00bb\u00b9\3\2"+
+		"\2\2\u00bb\u00ba\3\2\2\2\u00bc\31\3\2\2\2\u00bd\u00be\7\t\2\2\u00be\u00bf"+
+		"\7T\2\2\u00bf\u00c0\7M\2\2\u00c0\u00c1\5\24\13\2\u00c1\33\3\2\2\2\u00c2"+
+		"\u00c3\7\n\2\2\u00c3\u00c4\5\24\13\2\u00c4\35\3\2\2\2\u00c5\u00c6\7\13"+
+		"\2\2\u00c6\u00c7\7T\2\2\u00c7\u00c8\7M\2\2\u00c8\u00c9\5\24\13\2\u00c9"+
+		"\37\3\2\2\2\u00ca\u00cb\7\f\2\2\u00cb\u00cc\7T\2\2\u00cc!\3\2\2\2\u00cd"+
+		"\u00ce\7\r\2\2\u00ce\u00cf\t\6\2\2\u00cf#\3\2\2\2\u00d0\u00d1\7\16\2\2"+
+		"\u00d1\u00d2\5L\'\2\u00d2%\3\2\2\2\u00d3\u00d4\7\17\2\2\u00d4\u00d5\5"+
+		"L\'\2\u00d5\'\3\2\2\2\u00d6\u00d7\7\20\2\2\u00d7)\3\2\2\2\u00d8\u00d9"+
+		"\7\21\2\2\u00d9\u00da\5L\'\2\u00da+\3\2\2\2\u00db\u00dc\7\22\2\2\u00dc"+
+		"-\3\2\2\2\u00dd\u00de\7\23\2\2\u00de\u00df\5N(\2\u00df/\3\2\2\2\u00e0"+
+		"\u00e1\7\24\2\2\u00e1\u00e2\5N(\2\u00e2\61\3\2\2\2\u00e3\u00e4\7\25\2"+
+		"\2\u00e4\u00e5\5N(\2\u00e5\63\3\2\2\2\u00e6\u00e7\7\26\2\2\u00e7\u00e8"+
+		"\7T\2\2\u00e8\65\3\2\2\2\u00e9\u00ea\7\27\2\2\u00ea\u00eb\5N(\2\u00eb"+
+		"\67\3\2\2\2\u00ec\u00ed\7\30\2\2\u00ed\u00ee\5N(\2\u00ee9\3\2\2\2\u00ef"+
+		"\u00f0\7\31\2\2\u00f0\u00f1\5\24\13\2\u00f1;\3\2\2\2\u00f2\u00f3\7\36"+
+		"\2\2\u00f3\u00f4\5\24\13\2\u00f4=\3\2\2\2\u00f5\u00f6\7\33\2\2\u00f6\u00f7"+
+		"\7V\2\2\u00f7?\3\2\2\2\u00f8\u00f9\7\34\2\2\u00f9\u00fa\7V\2\2\u00faA"+
+		"\3\2\2\2\u00fb\u00fc\7\35\2\2\u00fc\u00fd\7V\2\2\u00fdC\3\2\2\2\u00fe"+
+		"\u00ff\7\37\2\2\u00ff\u0100\7V\2\2\u0100E\3\2\2\2\u0101\u0102\7 \2\2\u0102"+
+		"\u0103\7T\2\2\u0103G\3\2\2\2\u0104\u0105\7!\2\2\u0105\u0106\5\24\13\2"+
+		"\u0106\u0107\7M\2\2\u0107\u0108\5\24\13\2\u0108I\3\2\2\2\u0109\u010a\7"+
+		"\"\2\2\u010a\u010b\7V\2\2\u010bK\3\2\2\2\u010c\u010d\7T\2\2\u010d\u010e"+
+		"\7M\2\2\u010e\u0111\5L\'\2\u010f\u0111\7T\2\2\u0110\u010c\3\2\2\2\u0110"+
+		"\u010f\3\2\2\2\u0111M\3\2\2\2\u0112\u0113\t\7\2\2\u0113\u0114\7M\2\2\u0114"+
+		"\u0117\5N(\2\u0115\u0117\t\7\2\2\u0116\u0112\3\2\2\2\u0116\u0115\3\2\2"+
+		"\2\u0117O\3\2\2\2\20TV]`eku\u0080\u0090\u009b\u009d\u00bb\u0110\u0116";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

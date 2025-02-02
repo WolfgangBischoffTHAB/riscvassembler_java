@@ -59,6 +59,13 @@ public class ASM6502ParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> imp
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitImmediate(ASM6502Parser.ImmediateContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitOffset(ASM6502Parser.OffsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

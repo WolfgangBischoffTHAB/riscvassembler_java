@@ -88,6 +88,18 @@ public class ASM6502ParserBaseListener implements ASM6502ParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterImmediate(ASM6502Parser.ImmediateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImmediate(ASM6502Parser.ImmediateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOffset(ASM6502Parser.OffsetContext ctx) { }
 	/**
 	 * {@inheritDoc}

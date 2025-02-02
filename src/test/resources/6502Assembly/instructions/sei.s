@@ -1,0 +1,2 @@
+; SEI
+set interrupt disable

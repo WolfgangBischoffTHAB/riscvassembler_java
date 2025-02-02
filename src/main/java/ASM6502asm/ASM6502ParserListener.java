@@ -68,6 +68,16 @@ public interface ASM6502ParserListener extends ParseTreeListener {
 	 */
 	void exitParam(ASM6502Parser.ParamContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ASM6502Parser#immediate}.
+	 * @param ctx the parse tree
+	 */
+	void enterImmediate(ASM6502Parser.ImmediateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ASM6502Parser#immediate}.
+	 * @param ctx the parse tree
+	 */
+	void exitImmediate(ASM6502Parser.ImmediateContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ASM6502Parser#offset}.
 	 * @param ctx the parse tree
 	 */

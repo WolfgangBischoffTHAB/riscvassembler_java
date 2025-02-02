@@ -47,6 +47,12 @@ public interface ASM6502ParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParam(ASM6502Parser.ParamContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ASM6502Parser#immediate}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImmediate(ASM6502Parser.ImmediateContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ASM6502Parser#offset}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

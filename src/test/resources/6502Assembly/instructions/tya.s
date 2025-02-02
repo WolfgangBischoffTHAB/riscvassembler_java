@@ -1,0 +1,1 @@
+; TYA - transfer Y to accumulator
