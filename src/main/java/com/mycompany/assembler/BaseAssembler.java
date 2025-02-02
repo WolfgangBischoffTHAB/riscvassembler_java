@@ -60,13 +60,9 @@ public abstract class BaseAssembler {
 
     public abstract ParserRuleContext getRoot();
 
-    // public abstract List<AsmLine<?>> getAsmLines();
-
     public abstract Encoder getEncoder();
 
     public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
-
-        // asmLines = new ArrayList<>();
 
         //
         // set default section

@@ -205,6 +205,7 @@ public class App {
 
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
+        // DEBUG
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         assembler.outputHexMachineCode(machineCode, byteOrder);
