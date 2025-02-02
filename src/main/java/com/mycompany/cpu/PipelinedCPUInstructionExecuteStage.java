@@ -480,7 +480,7 @@ public class PipelinedCPUInstructionExecuteStage {
         }
 
         if (de_ex.getAsmLine() != null) {
-            cpu.executePC = cpu.pc - 8;
+            cpu.executePC = cpu.pc - 4;
         }
         System.out.println("[EXEC ] cpu.executePC: " + cpu.executePC);
 
