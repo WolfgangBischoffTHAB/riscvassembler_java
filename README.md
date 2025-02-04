@@ -15,35 +15,6 @@ src/test/resources/riscvasm/examples/hello_world.s
 src/test/resources/riscvasm/examples/function.s // GNU riscv elf 32 bit does not know ld sd instructions because double word is 64 bit
 ```
 
-next steps:
-
-Implement the I_BLE instruction!
-
-fix src/test/resources/riscvasm/examples/tohex.s it seems as if .rodata is not processed correctly
-fix src/test/resources/riscvasm/examples/arrayindex.s it seems as if .rodata is not processed correctly
-
-implement src/test/resources/riscvasm/examples/string_reverse.s
-implement srai, slli, srli
-
-implement all examples in here:
-https://marz.utk.edu/my-courses/cosc230/book/example-risc-v-assembly-programs/
-
-src/test/resources/riscvasm/examples/arrayindex.s
-Implement src/test/resources/riscvasm/examples/string_copy.s which has the infimous b and f labels!
-Implement this shit: https://www.chibialiens.com/riscv/simplesamples.php
-https://www.chibialiens.com/riscv/
-https://www.riscfive.com/2022/10/27/risc-v-example-assembly-programs/
-maybe implement the extensions that contains the mul instruction, which is m or zmmul
-
-fix:
-```
-src/test/resources/riscvasm/instructions/li_wierd_encoding_5.s
-```
-
-copy the source code from the samples above into src/test/resources/riscvasm/test.s.
-Run App.java and also run the Makefile src/test/resources/riscvasm/Makefile
-Compare both results. The results have to match.
-
 ## Registers
 
 | Register Name  | ABI Name  | Description  | Saved By  |
@@ -81,15 +52,10 @@ Compare both results. The results have to match.
 | x30 | t5 | Temporaries | Caller |
 | x31 | t6 | Temporaries | Caller |
 
-
-## RISCV GNU Toolchain
-
-https://github.com/riscv-collab/riscv-gnu-toolchain
-
 ## Online RISCV assemblers
 
 NOTE: Watch out when using online assemblers! Online assemblers are preconfigured
-and do not allow you to fine tune parameters. 
+and do not allow you to fine tune parameters.
 
 For example there is no way to tell the toolchain to output 32 bit or 64 bit code
 using a instruction in your source file! Instead, the toolchain itself is compiled
@@ -119,11 +85,15 @@ https://ripes.me/ (encodes to 32 bit machine code. It seems that Ripes version: 
     is not able to assemble, when .data sections are defined and data is placed into those data sections
     using .byte or .space)
 
-## Assembling using the RISCV gnu toolchain
+## RISCV GNU Toolchain
+
+https://github.com/riscv-collab/riscv-gnu-toolchain
+
+## Assembling using the RISCV GNU toolchain
 
 Assumption: You have downloaded the riscv32-elf-ubuntu-22.04-gcc-nightly-2024.12.16-nightly.tar.xz file
 from https://github.com/riscv-collab/riscv-gnu-toolchain
-and extracted it to your user's Downloads folder. A riscv folder has been created by extracting the 
+and extracted it to your user's Downloads folder. A riscv folder has been created by extracting the
 archive and this riscv folder now contains the 32 bit elf toolchain for linux.
 
 For Windows, maybe this precompiled version will work: https://gnutoolchains.com/risc-v/
@@ -155,7 +125,7 @@ cd riscvassembler_java/src/test/resources/riscvasm/c_code
 readelf cheatsheet:
 
 output relocations if any exist
-``` 
+```
 readelf --relocs a.out
 ```
 
@@ -198,7 +168,7 @@ the assembly instructions that are placed into the binary!
 
 At this point of the development of my own assembler, optimizations
 are not part of the picture just yet. Therefore if the GNU linker optimizes
-the output, I cannot compare my assembler's output to the GNU toolchain output 
+the output, I cannot compare my assembler's output to the GNU toolchain output
 any more because instructions are removed or added and therefore addresses change.
 Addresses are encoded into instructions in RISCV assembly so the entire output is
 not comparable any more!
@@ -207,10 +177,10 @@ I want to disable any optimizations if possible to be able to compare the output
 of my own assembler to the output of the riscv GNU toolchain.
 
 One flag to prevent the linker from removing zero loads into registers, is to
-use the --no-relax --no-check-uleb128 flags. 
+use the --no-relax --no-check-uleb128 flags.
 
-In a random attempt for turning off optimizations I added these flags without 
-really knowing what they do but after adding those flags, the source code that 
+In a random attempt for turning off optimizations I added these flags without
+really knowing what they do but after adding those flags, the source code that
 the linker outputs remained unoptmized which is exactly what I was hoping for!
 
 The linker will now use the assembler's code and only replace addresses in code
@@ -250,3 +220,32 @@ riscv64-unknown-elf-gcc -I /usr/riscv64-linux-gnu/include -nostdlib hello.S -o h
 ```
 
 https://stackoverflow.com/questions/64745868/how-do-i-set-up-instruction-data-memory-address-when-using-riscv32-unknown-el
+
+# Next Steps
+
+Implement the I_BLE instruction!
+
+fix src/test/resources/riscvasm/examples/tohex.s it seems as if .rodata is not processed correctly
+fix src/test/resources/riscvasm/examples/arrayindex.s it seems as if .rodata is not processed correctly
+
+implement src/test/resources/riscvasm/examples/string_reverse.s
+implement srai, slli, srli
+
+implement all examples in here:
+https://marz.utk.edu/my-courses/cosc230/book/example-risc-v-assembly-programs/
+
+src/test/resources/riscvasm/examples/arrayindex.s
+Implement src/test/resources/riscvasm/examples/string_copy.s which has the infimous b and f labels!
+Implement this: https://www.chibialiens.com/riscv/simplesamples.php
+https://www.chibialiens.com/riscv/
+https://www.riscfive.com/2022/10/27/risc-v-example-assembly-programs/
+maybe implement the extensions that contains the mul instruction, which is m or zmmul
+
+fix:
+```
+src/test/resources/riscvasm/instructions/li_wierd_encoding_5.s
+```
+
+copy the source code from the samples above into src/test/resources/riscvasm/test.s.
+Run App.java and also run the Makefile src/test/resources/riscvasm/Makefile
+Compare both results. The results have to match.
