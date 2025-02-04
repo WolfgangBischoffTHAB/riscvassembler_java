@@ -42,3 +42,7 @@ src/test/resources/riscvasm/test.s
 src/test/resources/riscvasm/preprocessed.s
 src/test/resources/riscvasm/c_code/*.o
 src/test/resources/riscvasm/c_code/*.s
+src/main/java/MIPSLexer.tokens
+src/main/java/MIPSParser.tokens
+src/main/java/ASM6502Lexer.tokens
+src/main/java/ASM6502Parser.tokens
