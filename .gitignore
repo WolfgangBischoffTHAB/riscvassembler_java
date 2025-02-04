@@ -46,3 +46,6 @@ src/main/java/MIPSLexer.tokens
 src/main/java/MIPSParser.tokens
 src/main/java/ASM6502Lexer.tokens
 src/main/java/ASM6502Parser.tokens
+src/main/java/ASM6502asm
+src/main/java/mipsasm
+src/main/java/linkerscriptlanguage
