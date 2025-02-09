@@ -71,12 +71,10 @@ public abstract class BaseAssembler {
         currentSection = sectionMap.get(".text");
         // setCurrentSection(currentSection);
 
-        System.out.println("Lexing ...");
-
         // create a buffer of tokens pulled from the lexer
         final CommonTokenStream asmTokens = new CommonTokenStream(getLexer(asmInputFile));
 
-        System.out.println("Parsing ...");
+
 
         final Parser asmParser = getParser(asmTokens);
             asmParser.addErrorListener(new ANTLRErrorListener() {
@@ -110,8 +108,15 @@ public abstract class BaseAssembler {
 
         });
 
+        //
         // parse
+        //
+
+        System.out.println("Parsing ...");
+
         ParserRuleContext asmRoot = getRoot();
+
+        System.out.println("Parsing done.");
 
         // create a generic parse tree walker that can trigger callbacks
         final ParseTreeWalker asmWalker = new ParseTreeWalker();

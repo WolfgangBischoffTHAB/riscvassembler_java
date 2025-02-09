@@ -170,10 +170,16 @@ public enum Mnemonic {
             return I_ORI;
         } else if (mnemonic.equalsIgnoreCase("RET")) {
             return I_RET;
+        } else if (mnemonic.equalsIgnoreCase("SRA")) {
+            return I_SRA;
         } else if (mnemonic.equalsIgnoreCase("SRAI")) {
             return I_SRAI;
+        } else if (mnemonic.equalsIgnoreCase("SRL")) {
+            return I_SRL;
         } else if (mnemonic.equalsIgnoreCase("SRLI")) {
             return I_SRLI;
+        } else if (mnemonic.equalsIgnoreCase("SLL")) {
+            return I_SLL;
         } else if (mnemonic.equalsIgnoreCase("SLLI")) {
             return I_SLLI;
         } else if (mnemonic.equalsIgnoreCase("SUB")) {
@@ -315,10 +321,16 @@ public enum Mnemonic {
             case I_RET:         // pseudo instruction
                 return "ret";
 
+            case I_SRA:
+                return "sra";
             case I_SRAI:
                 return "srai";
+            case I_SRL:
+                return "srl";
             case I_SRLI:
                 return "srli";
+            case I_SLL:
+                return "sll";
             case I_SLLI:
                 return "slli";
             case I_SUB:

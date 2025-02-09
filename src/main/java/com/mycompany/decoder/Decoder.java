@@ -33,7 +33,7 @@ public class Decoder {
         }
 
         // DEBUG
-        //System.out.println("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        System.out.println("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;
@@ -63,12 +63,20 @@ public class Decoder {
                                 asmLine.mnemonic = Mnemonic.I_ADD;
                                 break;
 
+                            case 0b001:
+                                asmLine.mnemonic = Mnemonic.I_SLL;
+                                break;
+
                             case 0b010:
                                 asmLine.mnemonic = Mnemonic.I_SLT;
                                 break;
 
                             case 0b100:
                                 asmLine.mnemonic = Mnemonic.I_XOR;
+                                break;
+
+                            case 0b101:
+                                asmLine.mnemonic = Mnemonic.I_SRL;
                                 break;
 
                             case 0b110:
@@ -97,6 +105,10 @@ public class Decoder {
 
                             case 0b000:
                                 asmLine.mnemonic = Mnemonic.I_SUB;
+                                break;
+
+                            case 0b101:
+                                asmLine.mnemonic = Mnemonic.I_SRA;
                                 break;
 
                             default:

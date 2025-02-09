@@ -1,7 +1,6 @@
 package com.mycompany.assembler;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.CharStream;
@@ -11,7 +10,6 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenSource;
 
-import com.mycompany.data.AsmLine;
 import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
 import com.mycompany.encoder.RISCVEncoder;
@@ -66,11 +64,6 @@ public class RiscVAssembler extends BaseAssembler {
     public ParserRuleContext getRoot() {
         return parser.asm_file();
     }
-
-    // @Override
-    // public List<AsmLine<?>> getAsmLines() {
-    //     return asmLines;
-    // }
 
     @Override
     public Encoder getEncoder() {

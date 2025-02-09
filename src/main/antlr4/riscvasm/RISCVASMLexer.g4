@@ -113,8 +113,11 @@ I_OR : O R ;
 I_RET : R E T ;
 
 I_SLT : S L T ;
+I_SRA : S R A ;
 I_SRAI : S R A I ;
+I_SRL : S R L ;
 I_SRLI : S R L I ;
+I_SLL : S L L ;
 I_SLLI : S L L I ;
 I_SUB : S U B ;
 I_SD : S D ;
