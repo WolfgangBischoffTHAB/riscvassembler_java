@@ -74,8 +74,6 @@ public abstract class BaseAssembler {
         // create a buffer of tokens pulled from the lexer
         final CommonTokenStream asmTokens = new CommonTokenStream(getLexer(asmInputFile));
 
-
-
         final Parser asmParser = getParser(asmTokens);
             asmParser.addErrorListener(new ANTLRErrorListener() {
 

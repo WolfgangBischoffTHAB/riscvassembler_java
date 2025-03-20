@@ -59,7 +59,7 @@ public class LiResolver implements AsmInstructionListModifier {
 
                     asmLines.remove(foundAsmLine);
 
-                    // Case 0: addi to fill entire 32bit register with zero
+                    // Case 0: addi to fill entire 32 bit register with zero
 
                     //
                     // addi
@@ -79,12 +79,14 @@ public class LiResolver implements AsmInstructionListModifier {
                     addi.register_1 = RISCVRegister.REG_ZERO;
                     addi.numeric_2 = 0L;
 
+                    if (foundAsmLine.label != null) {
+                        addi.label = foundAsmLine.label;
+                    }
+
                 } else if (!upper_part_used && lower_part_used) {
 
-                    //throw new RuntimeException();
-
-                    // // Case 1: CONSTANT fits into 12 lower bits.
-                    // // For CASE 1, a addi instruction is generated since addi handles 12 bit sufficiently
+                    // Case 1: CONSTANT fits into 12 lower bits.
+                    // For CASE 1, a addi instruction is generated since addi handles 12 bit sufficiently
 
                     // data->instruction = I_ADDI;
                     // data->reg_rs1 = R_ZERO;

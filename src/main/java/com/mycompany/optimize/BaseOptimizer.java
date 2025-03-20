@@ -179,10 +179,12 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
     }
 
     /**
-     * Resolves labels to offset! For each label, the absolute address of that label
+     * Resolves labels to offsets.
+     *
+     * For each label, the absolute address of that label
      * is retrieved in a first step. In the second step, the relative offset of
      * the label from the current asm line in which the label is used (pc-relative)
-     * is compputed. In a third step, the pc-relative offset is stored inside
+     * is computed. In a third step, the pc-relative offset is stored inside
      * the AsmLine's numeric_xyz member.
      *
      * @param asmLines
@@ -190,6 +192,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      */
     public static void resolveLabels(List<AsmLine<?>> asmLines, Map<String, Long> labelAddressMap) {
 
+        // connect lines to each other for easier traversal
         AsmLine prev = null;
         for (AsmLine asmLine : asmLines) {
 
@@ -202,9 +205,6 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         }
 
         for (AsmLine asmLine : asmLines) {
-            // if (asmLine.mnemonic == Mnemonic.I_BNE) {
-            // System.out.println("test");
-            // }
 
             if (asmLine.asmInstruction != null) {
                 continue;
@@ -223,16 +223,6 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 continue;
             }
 
-            // if (asmLine.offsetLabel_0 != null) {
-            // Long value = labelAddressMap.get(asmLine.offsetLabel_0);
-            // if (value != null) {
-            // asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
-            // asmLine.offsetLabel_0 = null;
-            // } else {
-            // throw new RuntimeException("(A) Unknown label: \"" + asmLine.offsetLabel_0 +
-            // "\"");
-            // }
-            // }
             if (asmLine.identifier_0 != null) {
 
                 Long value = labelAddressMap.get(asmLine.identifier_0);
@@ -286,16 +276,6 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
             }
 
-            // if (asmLine.offsetLabel_1 != null) {
-            // Long value = labelAddressMap.get(asmLine.offsetLabel_1);
-            // if (value != null) {
-            // asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
-            // asmLine.offsetLabel_1 = null;
-            // } else {
-            // throw new RuntimeException("(C) Unknown label: \"" + asmLine.offsetLabel_1 +
-            // "\"");
-            // }
-            // }
             if (asmLine.identifier_1 != null) {
 
                 Long value = labelAddressMap.get(asmLine.identifier_1);
@@ -349,16 +329,6 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                 }
             }
 
-            // if (asmLine.offsetLabel_2 != null) {
-            // Long value = labelAddressMap.get(asmLine.offsetLabel_2);
-            // if (value != null) {
-            // asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset);
-            // asmLine.offsetLabel_2 = null;
-            // } else {
-            // throw new RuntimeException("(E) Unknown label: \"" + asmLine.offsetLabel_2 +
-            // "\"");
-            // }
-            // }
             if (asmLine.identifier_2 != null) {
 
                 Long value = labelAddressMap.get(asmLine.identifier_2);

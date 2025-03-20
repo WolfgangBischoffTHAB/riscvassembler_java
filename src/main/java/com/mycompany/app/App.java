@@ -61,7 +61,11 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
         //String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
         //String inputFile = "src/test/resources/riscvasm/examples/if.s";
-        String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
+        String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
+
+        //String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
         //String inputFile = "src/test/resources/projects/snake/Main.asm";
 
@@ -141,7 +145,6 @@ public class App {
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         assembler.outputHexMachineCode(machineCode, byteOrder);
-
     }
 
     public static void mainRISCV(String[] args) throws IOException {
@@ -222,8 +225,8 @@ public class App {
 
     private static void emulate(byte[] machineCode) {
 
-        //SingleCycleCPU cpu = new SingleCycleCPU();
-        PipelinedCPU cpu = new PipelinedCPU();
+        SingleCycleCPU cpu = new SingleCycleCPU();
+        // PipelinedCPU cpu = new PipelinedCPU();
 
         cpu.pc = 0;
         cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 100;
@@ -255,7 +258,8 @@ public class App {
         // pipelined processor
         //
 
-        int lastCycle = 16;
+        //int lastCycle = 16;
+        int lastCycle = 100;
 
         for (int i = 0; i < lastCycle; i++) {
             cpu.step();
