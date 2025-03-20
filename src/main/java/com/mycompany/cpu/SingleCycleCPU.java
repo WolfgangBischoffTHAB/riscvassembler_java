@@ -212,8 +212,6 @@ public class SingleCycleCPU implements CPU {
                 pc += 4;
                 break;
 
-            // pc += 4;
-            // break;
             case I_ADDI:
                 // rd = rs1 + imm
                 System.out.println("addi: " + asmLine);
@@ -233,7 +231,15 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_XORI:
-                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                // System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+
+                // xori rd,rs1,imm
+                // x[rd] = x[rs1] ^ sext(immediate)
+
+                value = readRegisterFile(asmLine.register_1.getIndex()) ^ ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
+                writeRegisterFile(asmLine.register_0.getIndex(), value);
+
+                pc += 4;
                 break;
 
             case I_ORI:

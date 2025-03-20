@@ -63,7 +63,8 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/if.s";
         //String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
         //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
-        String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
+        String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
 
         //String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 

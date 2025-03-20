@@ -140,7 +140,9 @@ public class Decoder {
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_ADDI;
                         break;
-
+                    case 0b100:
+                        asmLine.mnemonic = Mnemonic.I_XORI;
+                        break;
                     default:
                         throw new RuntimeException("Unknown funct3: " + funct3);
                 }
