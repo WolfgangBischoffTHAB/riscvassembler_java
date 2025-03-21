@@ -423,11 +423,11 @@ public abstract class BaseAssembler {
                 // save the line for later error output
                 errorAsmLine = asmLine;
 
-                // DEBUG
-                //System.out.println(asmLine);
-                if (asmLine.label != null) {
-                    System.out.println("Label: " + asmLine.label);
-                }
+                // // DEBUG
+                // //System.out.println(asmLine);
+                // if (asmLine.label != null) {
+                //     System.out.println("Label: " + asmLine.label);
+                // }
 
                 currentAddress = asmLine.section.address;
                 asmLine.section.address += encoder.encode(asmLine, labelAddressMap, asmLine.section.address);
