@@ -17,7 +17,8 @@ public class Decoder {
 
     private static final int B_TYPE = 0b1100011;
 
-    private static final int U_TYPE = 0b0010111;
+    private static final int U_TYPE_1 = 0b0010111;
+    private static final int U_TYPE_2 = 0b0110111;
 
     private static final int J_TYPE = 0b1101111;
 
@@ -207,8 +208,15 @@ public class Decoder {
                 decodeBType(asmLine, funct3, funct7, rs1, rs2, imm);
                 break;
 
-            case U_TYPE:
+            case U_TYPE_1:
                 asmLine.mnemonic = Mnemonic.I_AUIPC;
+                asmLine.register_0 = RISCVRegister.fromInt(rd);
+                imm = imm_31_12;
+                asmLine.numeric_1 = (long) imm_31_12;
+                break;
+
+            case U_TYPE_2:
+                asmLine.mnemonic = Mnemonic.I_LUI;
                 asmLine.register_0 = RISCVRegister.fromInt(rd);
                 imm = imm_31_12;
                 asmLine.numeric_1 = (long) imm_31_12;
@@ -227,7 +235,7 @@ public class Decoder {
                 break;
 
             default:
-                throw new RuntimeException("Unknown Instruction Type! opcode = " + opcode);
+                throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data) + ". Unknown Instruction Type! opcode = " + opcode);
         }
 
         return asmLine;

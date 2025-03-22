@@ -15,9 +15,11 @@ import com.mycompany.data.Section;
  * amount of instructions.
  *
  * For example:
- * li -> addi if upper_part_used == 0 && lower_part_used == 0
- * li -> addi if (upper_part_used == 0 && lower_part_used != 0)
- * if -> lui if (upper_part_used != 0 && lower_part_used == 0)
+ * <pre>
+ *li -> addi if upper_part_used == 0 && lower_part_used == 0
+ *li -> addi if (upper_part_used == 0 && lower_part_used != 0)
+ *if -> lui if (upper_part_used != 0 && lower_part_used == 0)
+ * </pre>
  *
  * Effect of %hi(), %lo():
  * https://sourceware.org/binutils/docs/as/RISC_002dV_002dModifiers.html
@@ -25,9 +27,10 @@ import com.mycompany.data.Section;
  * %hi(symbol) - The high 20 bits of absolute address for symbol.
  *
  * Code that can be optimized looks like this:
- *
- * lui a0, %hi(.L.str)
- * addi a0, a0, %lo(.L.str)
+ * <pre>
+ *lui a0, %hi(.L.str)
+ *addi a0, a0, %lo(.L.str)
+ * </pre>
  *
  * This is basically the same as a li pseudo instruction
  * If the assembler could detect a li here, it can then potentially optimize
@@ -38,7 +41,17 @@ import com.mycompany.data.Section;
  * 2. the same symbol is used in %hi(symbol) and %lo(symbol)
  *
  * The optimized output is:
- * li a0, .L.str
+ * <pre>
+ *li a0, .L.str
+ * </pre>
+ *
+ * A second example is this sequence:
+ * <pre>
+ *lui x15, 2441
+ *addi x15, x15, 1662
+ * </pre>
+ *
+ * In this example, there are no labels.
  */
 public class LiCombiner implements AsmInstructionListModifier {
 
@@ -60,8 +73,14 @@ public class LiCombiner implements AsmInstructionListModifier {
 
             if ((data_1.mnemonic == Mnemonic.I_LUI) && (data_2.mnemonic == Mnemonic.I_ADDI)) {
 
+                boolean noLabels = (data_1.offsetLabel_1 == null) && (data_2.offsetLabel_2 == null);
+                boolean labelsMatch = false;
+                if ((data_1.offsetLabel_1 != null) && (data_2.offsetLabel_2 != null)) {
+                    labelsMatch = data_1.offsetLabel_1.equalsIgnoreCase(data_2.offsetLabel_2);
+                }
+
                 // offset label must match
-                if (data_1.offsetLabel_1.equalsIgnoreCase(data_2.offsetLabel_2)) {
+                if (noLabels || labelsMatch) {
 
                     // registers must match
                     if ((data_1.register_0 == data_2.register_0) && (data_2.register_0 == data_2.register_1)) {

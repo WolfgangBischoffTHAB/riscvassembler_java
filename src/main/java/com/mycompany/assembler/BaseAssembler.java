@@ -80,7 +80,7 @@ public abstract class BaseAssembler {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                     int charPositionInLine, String msg, RecognitionException e) {
-                throw new UnsupportedOperationException("Unimplemented method 'syntaxError'");
+                throw new UnsupportedOperationException("SyntaxError (line:col) (" + line + ":" + charPositionInLine + ")");
             }
 
             @Override
@@ -339,7 +339,7 @@ public abstract class BaseAssembler {
         // Check for unoptimized instructions
         //
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<?> asmLine : asmLines) {
             if (asmLine.pseudoInstructionAsmLine != null) {
                 if (!asmLine.pseudoInstructionAsmLine.optimized) {
                     throw new RuntimeException("Unoptimized instruction detected! " + asmLine.mnemonic);

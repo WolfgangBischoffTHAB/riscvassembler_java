@@ -51,7 +51,9 @@ public class SingleCycleCPU implements CPU {
         switch (asmLine.mnemonic) {
 
             case I_LUI:
-                System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                //System.out.println("Unknown mnemonic! " + asmLine.mnemonic);
+                writeRegisterFile(asmLine.register_0.getIndex(), asmLine.numeric_1.intValue() << 12L);
+                pc += 4;
                 break;
 
             case I_AUIPC:

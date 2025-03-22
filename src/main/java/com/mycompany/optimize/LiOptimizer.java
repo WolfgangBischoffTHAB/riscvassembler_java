@@ -8,7 +8,6 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class LiOptimizer extends BaseOptimizer {
@@ -34,7 +33,7 @@ public class LiOptimizer extends BaseOptimizer {
             AsmLine<?> liPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
-            for (AsmLine asmLine : asmLines) {
+            for (AsmLine<?> asmLine : asmLines) {
 
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LI)
@@ -55,6 +54,21 @@ public class LiOptimizer extends BaseOptimizer {
             AsmLine<?> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
             AsmLine<?> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
+            System.out.println(liPseudoAsmLine);
+            System.out.println(firstAsmLine);
+            System.out.println(secondAsmLine);
+
+            // if no label is used, then return
+            if (firstAsmLine.offsetLabel_1 == null) {
+                asmLines.remove(liPseudoAsmLine);
+                liPseudoAsmLine.optimized = true;
+                firstAsmLine.optimized = true;
+                // asmLines.add(firstAsmLine);
+                secondAsmLine.optimized = true;
+                // asmLines.add(secondAsmLine);
+                return;
+            }
+
             // determine movement direction towards label (use label table for that)
             int direction = 0;
             if ((firstAsmLine.section.address + firstAsmLine.offset) > map.get(firstAsmLine.offsetLabel_1)) {
@@ -65,10 +79,10 @@ public class LiOptimizer extends BaseOptimizer {
 
             if (direction == -1) {
 
-                // move upwards
+                // move upwards with the goal to find the
                 for (int i = index - 1; i > 0; i--) {
 
-                    AsmLine currentAsmLine = asmLines.get(i);
+                    AsmLine<?> currentAsmLine = asmLines.get(i);
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
@@ -86,7 +100,7 @@ public class LiOptimizer extends BaseOptimizer {
                 // move downwards
                 for (int i = index + 1; i < asmLines.size(); i++) {
 
-                    AsmLine currentAsmLine = asmLines.get(i);
+                    AsmLine<?> currentAsmLine = asmLines.get(i);
 
                     if (currentAsmLine.pseudoInstructionAsmLine == firstAsmLine.pseudoInstructionAsmLine) {
                         continue;
@@ -114,7 +128,7 @@ public class LiOptimizer extends BaseOptimizer {
             // System.out.println("Label: " + firstAsmLine.offsetLabel_1);
             // System.out.println("absolute address of label: " + map.get(firstAsmLine.offsetLabel_1));
 
-            // if arriving at the target label is possible only crossing real instructions
+            // if arriving at the target label is possible only crossing real instructions (which is the positive case)
             // take the absolute value of the label and put it into the modifier.
 
             long address = map.get(firstAsmLine.offsetLabel_1);

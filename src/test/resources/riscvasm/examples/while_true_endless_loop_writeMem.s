@@ -1,6 +1,8 @@
 inita:      li t0, 0                # t0 = 0        # x5 = 0
             li t1, 0                # t1 = 0        # x6 = 0
-            li t2, 10               # t2 = 10       # x7 = 10
+#            li t2, 999999           # t2 = 10       # x7 = 10
+            lui x15, 2441
+            addi x15, x15, 1662
 loop_head:  bge t0, t2, loop_end
 
                                     # Repeated code goes here
@@ -22,28 +24,41 @@ loop_head:  bge t0, t2, loop_end
 #   }
 # }
 
-
+# lui x3, 2441
 
 # 00000293
 # 00000313
-# 00a00393
+# 009891b7 # lui x3, 2441 --> lui x15, 2441
+# 67e78793
 # 0072d663
 # 00128293
 # ff9ff06f
 # 03c02303
 # 00134313
 # 02602e23
-# fddff06f
+# fd9ff06f
+
+
+# 00000293  # 0
+# 00000313  # 4
+# 00a00393  # 8
+# 0072d663  # 12
+# 00128293  # 16
+# ff9ff06f  # 20
+# 03c02303  # 24
+# 00134313  # 28
+# 02602e23  # 32
+# fddff06f  # 36
 
 
 
-# 00000293      # addi x5, x0, 0x0
-# 00000313      # addi x6, x0, 0x0
-# 00a00393      # addi x7, x0, 0xA
-# 0072d663      # loop_head: bge x5, x7, 0xC
-# 00128293      # addi x5, x5, 1
-# ff9ff06f      # jal x0, -8
-# 03c02303      # loop_end: lw x6, 60(x0)
-# 00134313      # xori x6, x6, 1
-# 02602e23      # sw x6, 60(x0)
-# fddff06f      # jal x0, -36
+# 00000293      # inita:        addi x5, x0, 0x0
+# 00000313      #               addi x6, x0, 0x0
+# 00a00393      #               addi x7, x0, 0xA
+# 0072d663      # loop_head:    bge x5, x7, 0xC     # if (x5 >= x7) jump to loop_end
+# 00128293      #               addi x5, x5, 1
+# ff9ff06f      #               jal x0, -8          # jal loop head
+# 03c02303      # loop_end:     lw x6, 60(x0)
+# 00134313      #               xori x6, x6, 1
+# 02602e23      #               sw x6, 60(x0)
+# fddff06f      #               jal x0, -36         # jal inita
