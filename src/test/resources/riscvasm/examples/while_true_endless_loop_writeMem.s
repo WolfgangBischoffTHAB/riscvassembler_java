@@ -1,8 +1,14 @@
 inita:      li t0, 0                # t0 = 0        # x5 = 0
             li t1, 0                # t1 = 0        # x6 = 0
+
 #            li t2, 999999           # t2 = 10       # x7 = 10
-            lui x15, 2441
-            addi x15, x15, 1662
+
+            lui t2, 2441
+            addi t2, t2, 1662
+
+#            lui t2, 0
+#            addi t2, t2, 10
+
 loop_head:  bge t0, t2, loop_end
 
                                     # Repeated code goes here

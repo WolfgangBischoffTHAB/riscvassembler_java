@@ -249,3 +249,15 @@ src/test/resources/riscvasm/instructions/li_wierd_encoding_5.s
 copy the source code from the samples above into src/test/resources/riscvasm/test.s.
 Run App.java and also run the Makefile src/test/resources/riscvasm/Makefile
 Compare both results. The results have to match.
+
+# Logging
+
+Logging is implemented using https://logback.qos.ch/.
+
+The loggers are configured using the configuration file: src\main\resources\logback.xml
+
+Here you can disable the log output of packages or even individual classes:
+
+```
+<logger name="com.mycompany.app.App" level="OFF" />
+```

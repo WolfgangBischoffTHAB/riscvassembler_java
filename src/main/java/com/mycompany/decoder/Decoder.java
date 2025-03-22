@@ -1,11 +1,16 @@
 package com.mycompany.decoder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 
 public class Decoder {
+
+    private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
 
     private static final int R_TYPE = 0b0110011;
 
@@ -22,11 +27,11 @@ public class Decoder {
 
     private static final int J_TYPE = 0b1101111;
 
-    public static AsmLine decode(final int data) {
+    public static AsmLine<?> decode(final int data) {
 
         AsmLine asmLine = new AsmLine();
 
-        System.out.println("Decoding: " + ByteArrayUtil.intToHex(data));
+        logger.trace("Decoding: " + ByteArrayUtil.intToHex(data));
 
         if (data == 0) {
             asmLine.mnemonic = Mnemonic.I_NOP;
@@ -34,7 +39,7 @@ public class Decoder {
         }
 
         // DEBUG
-        System.out.println("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;

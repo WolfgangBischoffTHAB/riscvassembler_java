@@ -38,6 +38,13 @@
       <artifactId>antlr4</artifactId>
       <version>4.9.1</version>
     </dependency>
+
+    <!-- https://logback.qos.ch/setup.html -->
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.5.18</version>
+    </dependency>
   </dependencies>
 
   <build>

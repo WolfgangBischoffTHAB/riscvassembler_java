@@ -10,6 +10,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.PipelinedCPU;
@@ -35,9 +38,13 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
+
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
 
     public static void main(String[] args) throws IOException {
+
+        logger.debug("Start of Application");
 
         //
         // RISC V
@@ -45,35 +52,42 @@ public class App {
 
         args = new String[1];
 
-        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
-        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
-        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
-        //String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
 
-        //String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/memory.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/uart.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/if.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/examples/square_with_driver.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/if.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
         String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
 
-        //String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
-        //String inputFile = "src/test/resources/projects/snake/Main.asm";
+        // String inputFile = "src/test/resources/projects/snake/Main.asm";
 
-        //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
-        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        //String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        //String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -95,9 +109,10 @@ public class App {
         // global variables
         //
 
-        // the GCC compiler adds a funny line: .section	.note.GNU-stack,"",@progbits
+        // the GCC compiler adds a funny line: .section .note.GNU-stack,"",@progbits
         // The section .note.GNU-stack is not defined
-        // To not break the code, a dummy section is inserted which is used as a catch-all
+        // To not break the code, a dummy section is inserted which is used as a
+        // catch-all
         // for all sections that are not defined
         Section dummySection = new Section();
         dummySection.name = "dummy-section";
@@ -135,7 +150,7 @@ public class App {
         String asmInputFile = INTERMEDIATE_FILE;
 
         // the raw listener just prints the AST to the console
-        //RawOutputListener listener = new RawOutputListener();
+        // RawOutputListener listener = new RawOutputListener();
 
         //
         // assemble to machine code
@@ -144,7 +159,7 @@ public class App {
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         assembler.outputHexMachineCode(machineCode, byteOrder);
     }
 
@@ -154,9 +169,10 @@ public class App {
         // global variables
         //
 
-        // the GCC compiler adds a funny line: .section	.note.GNU-stack,"",@progbits
+        // the GCC compiler adds a funny line: .section .note.GNU-stack,"",@progbits
         // The section .note.GNU-stack is not defined
-        // To not break the code, a dummy section is inserted which is used as a catch-all
+        // To not break the code, a dummy section is inserted which is used as a
+        // catch-all
         // for all sections that are not defined
         Section dummySection = new Section();
         dummySection.name = "dummy-section";
@@ -195,7 +211,8 @@ public class App {
 
         // // set up the visitor
         // // the extractor assembles AsmLineS by visiting the antlr4 AST
-        // RISCASMExtractingOutputListener asmListener = new RISCASMExtractingOutputListener();
+        // RISCASMExtractingOutputListener asmListener = new
+        // RISCASMExtractingOutputListener();
         // asmListener.dummySection = dummySection;
         // asmListener.asmLines = assembler.asmLines;
         // asmListener.sectionMap = sectionMap;
@@ -212,7 +229,7 @@ public class App {
 
         // DEBUG
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        //ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         assembler.outputHexMachineCode(machineCode, byteOrder);
 
         //
@@ -244,7 +261,7 @@ public class App {
         // // preload values into registers
         // //
         // for (int i = 0; i < 32; i++) {
-        //     cpu.registerFile[i] = i;
+        // cpu.registerFile[i] = i;
         // }
 
         // //
@@ -252,18 +269,24 @@ public class App {
         // //
 
         // for (int i = 0; i < 100; i++) {
-        //     cpu.step();
+        // cpu.step();
         // }
 
         //
         // pipelined processor
         //
 
-        //int lastCycle = 16;
-        int lastCycle = 100;
-
-        for (int i = 0; i < lastCycle; i++) {
-            cpu.step();
+        boolean limited = false;
+        if (limited) {
+            // int lastCycle = 16;
+            int lastCycle = 100;
+            for (int i = 0; i < lastCycle; i++) {
+                cpu.step();
+            }
+        } else {
+            while (true) {
+                cpu.step();
+            }
         }
 
         for (int i = 0; i < 32; i++) {
@@ -271,7 +294,8 @@ public class App {
         }
     }
 
-    private static void preprocess(final String inputFile, final String outputFile) throws FileNotFoundException, IOException {
+    private static void preprocess(final String inputFile, final String outputFile)
+            throws FileNotFoundException, IOException {
 
         System.out.println("Precprocessing input file ...");
 

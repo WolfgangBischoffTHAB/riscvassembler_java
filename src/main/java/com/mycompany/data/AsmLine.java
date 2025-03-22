@@ -44,17 +44,13 @@ public class AsmLine<T extends Register> {
 
     public String stringValue;
 
-    // public ExprContext exprContext_0 = null;
-    // public ExprContext exprContext_1 = null;
-    // public ExprContext exprContext_2 = null;
-
-    public AsmLine pseudoInstructionAsmLine = null;
-    public List<AsmLine> pseudoInstructionChildren = new ArrayList<>();
+    public AsmLine<?> pseudoInstructionAsmLine = null;
+    public List<AsmLine<?>> pseudoInstructionChildren = new ArrayList<>();
 
     public boolean optimized = false;
 
-    public AsmLine prev;
-    public AsmLine next;
+    public AsmLine<?> prev;
+    public AsmLine<?> next;
 
     public String toString() {
 
