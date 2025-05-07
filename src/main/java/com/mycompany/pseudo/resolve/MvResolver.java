@@ -22,7 +22,8 @@ public class MvResolver implements AsmInstructionListModifier {
             }
 
             asmLine.mnemonic = Mnemonic.I_ADDI;
-            asmLine.register_2 = RISCVRegister.REG_UNKNOWN;
+            // asmLine.register_2 = RISCVRegister.REG_UNKNOWN;
+            asmLine.register_2 = null;
             asmLine.numeric_2 = 0L;
         }
     }

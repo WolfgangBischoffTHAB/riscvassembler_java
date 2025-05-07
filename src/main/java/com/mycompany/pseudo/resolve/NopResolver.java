@@ -24,7 +24,8 @@ public class NopResolver implements AsmInstructionListModifier {
             asmLine.mnemonic = Mnemonic.I_ADDI;
             asmLine.register_0 = RISCVRegister.REG_ZERO;
             asmLine.register_1 = RISCVRegister.REG_ZERO;
-            asmLine.register_2 = RISCVRegister.REG_UNKNOWN;
+            // asmLine.register_2 = RISCVRegister.REG_UNKNOWN;
+            asmLine.register_2 = null;
             asmLine.numeric_2 = 0L;
         }
     }

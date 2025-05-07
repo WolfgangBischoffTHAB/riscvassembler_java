@@ -1,15 +1,23 @@
-inita:      li t0, 0                # t0 = 0        # x5 = 0
-            li t1, 0                # t1 = 0        # x6 = 0
+inita:      addi t0, x0, 0                # t0 = 0        # x5 = 0
+            addi t1, x0, 0                # t1 = 0        # x6 = 0
 
-#            li t2, 999999           # t2 = 10       # x7 = 10
+            # li pseudo instruction
+            #li t2, 999999                 # t2 = 999999       # x7 = 999999
 
-            lui t2, 2441
-            addi t2, t2, 1662
+#            # 9999999
+#            lui t2, 2441                # t2 = 2441       # x7 = 2441
+#            addi t2, t2, 1662
 
-#            lui t2, 0
-#            addi t2, t2, 10
+#            # 999999
+#            lui	t2, 0xf4
+#            addi t2, t2, 575
 
-loop_head:  bge t0, t2, loop_end
+            # 3
+            lui t2, 0
+            addi t2, t2, 3
+
+#loop_head:  bge t0, t2, loop_end
+loop_head:  beq t0, t2, loop_end
 
                                     # Repeated code goes here
 

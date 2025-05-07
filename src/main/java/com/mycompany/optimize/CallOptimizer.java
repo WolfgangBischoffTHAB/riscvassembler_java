@@ -7,9 +7,14 @@ import java.util.Map;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
+/**
+ * If possible turns far calls (auipc+jalr) to near calls (jal)
+ *
+ * A far call goes beyond +/-1Mb relative to the PC.
+ * A near call remains within +/-1MB relative to the PC.
+ */
 public class CallOptimizer extends BaseOptimizer {
 
     @Override
@@ -24,7 +29,7 @@ public class CallOptimizer extends BaseOptimizer {
 
             // // DEBUG
             // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
-            //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+            // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
             // }
 
             updateAddresses(asmLines, sectionMap);
@@ -33,7 +38,7 @@ public class CallOptimizer extends BaseOptimizer {
             AsmLine<?> callPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
-            for (AsmLine asmLine : asmLines) {
+            for (AsmLine<?> asmLine : asmLines) {
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_CALL)
                         && (asmLine.pseudoInstructionAsmLine.optimized == false)) {
@@ -50,8 +55,8 @@ public class CallOptimizer extends BaseOptimizer {
             }
 
             // start with first child instruction
-            AsmLine firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
-            AsmLine secondAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(1);
+            AsmLine<?> firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
+            AsmLine<?> secondAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(1);
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
@@ -66,10 +71,11 @@ public class CallOptimizer extends BaseOptimizer {
                 // move upwards
                 for (int i = index - 1; i > 0; i--) {
 
-                    AsmLine currentAsmLine = asmLines.get(i);
+                    AsmLine<?> currentAsmLine = asmLines.get(i);
 
                     // for each instruction, check if it is a real instruction (not pseudo)
-                    if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
+                    if ((currentAsmLine.pseudoInstructionAsmLine != null)
+                            && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
                         currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -84,14 +90,15 @@ public class CallOptimizer extends BaseOptimizer {
                 // move downwards
                 for (int i = index + 1; i < asmLines.size(); i++) {
 
-                    AsmLine currentAsmLine = asmLines.get(i);
+                    AsmLine<?> currentAsmLine = asmLines.get(i);
 
                     if (currentAsmLine.pseudoInstructionAsmLine == firstAsmLine.pseudoInstructionAsmLine) {
                         continue;
                     }
 
                     // for each instruction, check if it is a real instruction (not pseudo)
-                    if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
+                    if ((currentAsmLine.pseudoInstructionAsmLine != null)
+                            && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -101,7 +108,6 @@ public class CallOptimizer extends BaseOptimizer {
                 }
             }
 
-
             if (firstAsmLine.pseudoInstructionAsmLine.optimized == true) {
                 continue;
             }
@@ -110,7 +116,8 @@ public class CallOptimizer extends BaseOptimizer {
             // System.out.println("first: " + firstAsmLine);
             // System.out.println("Second: " + secondAsmLine);
             // System.out.println("Label: " + firstAsmLine.offsetLabel_1);
-            // System.out.println("absolute address of label: " + map.get(firstAsmLine.offsetLabel_1));
+            // System.out.println("absolute address of label: " +
+            // map.get(firstAsmLine.offsetLabel_1));
 
             // if arriving at the target label is possible only crossing real instructions
             // take the absolute value of the label and put it into the modifier.
@@ -162,7 +169,8 @@ public class CallOptimizer extends BaseOptimizer {
                 boolean twoByteAligned = true;
                 long delta = 0;
 
-                delta = (firstAsmLine.section.address + firstAsmLine.offset) - labelTableMap.get(firstAsmLine.offsetLabel_1);
+                delta = (firstAsmLine.section.address + firstAsmLine.offset)
+                        - labelTableMap.get(firstAsmLine.offsetLabel_1);
                 twoByteAligned = (delta % 2) == 0;
 
                 asmLines.remove(firstAsmLine);

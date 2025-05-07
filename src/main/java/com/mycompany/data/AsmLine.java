@@ -14,9 +14,9 @@ public class AsmLine<T extends Register> {
 
     public Mnemonic mnemonic;
 
-    public T register_0;
-    public T register_1;
-    public T register_2;
+    public T register_0 = null;
+    public T register_1 = null;
+    public T register_2 = null;
 
     public Long numeric_0 = null;
     public Long numeric_1 = null;
@@ -70,7 +70,6 @@ public class AsmLine<T extends Register> {
 
                 case EQU:
                     stringBuilder.append(" ").append(identifier_0).append(", ").append(numeric_1);
-                    //System.out.println(stringBuilder.toString());
                     break;
 
                 case SECTION:

@@ -38,6 +38,8 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
+    private static final int MEMORY_SIZE_IN_BYTE = 2048;
+
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
@@ -78,7 +80,8 @@ public class App {
         // "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
         // String inputFile =
         // "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
-        String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
+        String inputFile = "src/test/resources/riscvasm/examples/function_call_c_abi.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
@@ -227,6 +230,10 @@ public class App {
 
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
+        if ((assembler.labelAddressMap == null) || (!assembler.labelAddressMap.containsKey("_start"))) {
+            throw new RuntimeException("No _start label found! Do not know where to execute the application from!");
+        }
+
         // DEBUG
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
@@ -236,20 +243,39 @@ public class App {
         // emulate
         //
 
-        emulate(machineCode);
+        emulate(machineCode, assembler.labelAddressMap.get("_start").intValue());
 
         System.out.println("done");
     }
 
-    private static void emulate(byte[] machineCode) {
+    private static void emulate(final byte[] machineCode, final int main_entry_point_address) {
 
         SingleCycleCPU cpu = new SingleCycleCPU();
         // PipelinedCPU cpu = new PipelinedCPU();
 
-        cpu.pc = 0;
-        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 100;
-        cpu.registerFile[RISCVRegister.REG_X8.getIndex()] = 100;
-        cpu.memory = new byte[2048];
+        // THIS IS AN ERROR!
+        // THE PC SHOULD ONLY START AT ADDRESS 0 IF THIS APPLICATION
+        // DOES NOT DEFINE A MAIN ENTRY POINT!
+        // IF THE APPLICATION HAS A MAIN FUNCTION / MAIN ENTRY POINT,
+        // EXECUTION HAS TO START AT THE MAIN ENTRY POINT!
+        cpu.pc = main_entry_point_address;
+
+        // stack-pointer (sp, x2) register:
+        // should not point into the source code (menomics in memory!)
+        // because using the stack will then override the application code!
+        //
+        // stack should grow down, so set it to the highest memory address possible
+        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = MEMORY_SIZE_IN_BYTE - 4;
+
+        // frame-pointer (s0/fp, x8 register)
+        cpu.registerFile[RISCVRegister.REG_FP.getIndex()] = 0;
+
+        // ra - the initial return address is retrieved from the application loader
+        // so that the app can return to that address
+        // Without loader, we set it to 0xCAFEBABE = 3405691582 dec
+        cpu.registerFile[RISCVRegister.REG_FP.getIndex()] = 0xCAFEBABE;
+
+        cpu.memory = new byte[MEMORY_SIZE_IN_BYTE];
         // cpu.memory[80] = 1;
         // cpu.memory[81] = 2;
         // cpu.memory[82] = 3;

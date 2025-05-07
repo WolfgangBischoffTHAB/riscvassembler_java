@@ -161,4 +161,9 @@ public enum MIPSRegister implements Register {
         return ordinal();
     }
 
+    @Override
+    public String toStringAbi() {
+        return this.name();
+    }
+
 }

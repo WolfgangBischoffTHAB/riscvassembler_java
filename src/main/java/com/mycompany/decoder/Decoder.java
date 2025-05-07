@@ -1,12 +1,16 @@
 package com.mycompany.decoder;
 
+import java.nio.ByteOrder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.assembler.BaseAssembler;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 
 public class Decoder {
 
@@ -29,7 +33,7 @@ public class Decoder {
 
     public static AsmLine<?> decode(final int data) {
 
-        AsmLine asmLine = new AsmLine();
+        AsmLine<Register> asmLine = new AsmLine<>();
 
         logger.trace("Decoding: " + ByteArrayUtil.intToHex(data));
 
@@ -39,7 +43,7 @@ public class Decoder {
         }
 
         // DEBUG
-        logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;
@@ -196,12 +200,16 @@ public class Decoder {
                         asmLine.mnemonic = Mnemonic.I_BNE;
                         break;
 
+                    case 0b100:
+                        asmLine.mnemonic = Mnemonic.I_BLT;
+                        break;
+
                     case 0b101:
                         asmLine.mnemonic = Mnemonic.I_BGE;
                         break;
 
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3);
+                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
 
                 int imm_12 = (data >> 31) & 0b1;

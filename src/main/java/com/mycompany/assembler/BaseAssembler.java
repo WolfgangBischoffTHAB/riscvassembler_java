@@ -46,7 +46,9 @@ import com.mycompany.pseudo.resolve.RetResolver;
 
 public abstract class BaseAssembler {
 
-    public static final boolean USE_CALL_OPTIMIZER = false;
+    /** Combine far calls (auipc+jalr) into near calls (jal) if possible */
+    public static final boolean USE_CALL_OPTIMIZER = true;
+    // public static final boolean USE_CALL_OPTIMIZER = false;
 
     public List<AsmLine<?>> asmLines = new ArrayList<>();
 
@@ -62,6 +64,8 @@ public abstract class BaseAssembler {
 
     public abstract Encoder getEncoder();
 
+    public Map<String, Long> labelAddressMap;
+
     public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
         //
@@ -75,12 +79,13 @@ public abstract class BaseAssembler {
         final CommonTokenStream asmTokens = new CommonTokenStream(getLexer(asmInputFile));
 
         final Parser asmParser = getParser(asmTokens);
-            asmParser.addErrorListener(new ANTLRErrorListener() {
+        asmParser.addErrorListener(new ANTLRErrorListener() {
 
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                     int charPositionInLine, String msg, RecognitionException e) {
-                throw new UnsupportedOperationException("SyntaxError (line:col) (" + line + ":" + charPositionInLine + ")");
+                throw new UnsupportedOperationException(
+                        "SyntaxError (line:col) (" + line + ":" + charPositionInLine + ")");
             }
 
             @Override
@@ -159,7 +164,7 @@ public abstract class BaseAssembler {
 
         Map<String, Object> equMap = new HashMap<>();
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<?> asmLine : asmLines) {
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
                 equMap.put(asmLine.identifier_0, asmLine.numeric_1);
             }
@@ -176,6 +181,7 @@ public abstract class BaseAssembler {
 
         for (AsmLine<?> asmLine : asmLines) {
 
+            // DEBUG
             System.out.println(asmLine);
 
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
@@ -240,7 +246,7 @@ public abstract class BaseAssembler {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         NopResolver nopResolver = new NopResolver();
@@ -283,7 +289,7 @@ public abstract class BaseAssembler {
         //
 
         boolean leftoverPseudoInstructionsFound = false;
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<?> asmLine : asmLines) {
             if (asmLine.mnemonic != null && asmLine.mnemonic.isPseudo()) {
                 // throw new RuntimeException("Pseudo detected: " + asmLine.mnemonic);
                 System.out.println("ERROR! Leftover pseudo instruction detected: " + asmLine.mnemonic);
@@ -322,7 +328,7 @@ public abstract class BaseAssembler {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         if (USE_CALL_OPTIMIZER) {
@@ -351,7 +357,7 @@ public abstract class BaseAssembler {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
         // System.out.println("");
         // System.out.println("");
@@ -364,7 +370,7 @@ public abstract class BaseAssembler {
         // System.out.println(asmLine);
         // }
 
-        Map<String, Long> labelAddressMap = new HashMap<>();
+        labelAddressMap = new HashMap<>();
         BaseOptimizer.buildLabelTable(asmLines, labelAddressMap, sectionMap);
 
         // DEBUG
@@ -373,7 +379,7 @@ public abstract class BaseAssembler {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         //
@@ -389,7 +395,7 @@ public abstract class BaseAssembler {
         // // DEBUG
         // System.out.println("\n\n\n");
         // for (AsmLine asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         BaseOptimizer.resolveLabels(asmLines, labelAddressMap);
@@ -426,7 +432,7 @@ public abstract class BaseAssembler {
                 // // DEBUG
                 // //System.out.println(asmLine);
                 // if (asmLine.label != null) {
-                //     System.out.println("Label: " + asmLine.label);
+                // System.out.println("Label: " + asmLine.label);
                 // }
 
                 currentAddress = asmLine.section.address;
@@ -456,7 +462,7 @@ public abstract class BaseAssembler {
         return byteArray;
     }
 
-    public void outputHexMachineCode(final byte[] byteArray, final ByteOrder byteOrder) {
+    public static void outputHexMachineCode(final byte[] byteArray, final ByteOrder byteOrder) {
 
         // DEBUG
         // System.out.println(ByteArrayUtil.bytesToHex(byteArray));
@@ -475,10 +481,8 @@ public abstract class BaseAssembler {
 
             if (container_index == 4) {
 
-
                 byte[] temp = ByteArrayUtil.intToFourByte(container, byteOrder);
 
-                //System.out.print(ByteArrayUtil.bytesToHexUpperCase(temp));
                 System.out.print(ByteArrayUtil.bytesToHexLowerCase(temp));
                 System.out.println("");
 

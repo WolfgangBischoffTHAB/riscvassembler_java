@@ -32,13 +32,16 @@ public class SingleCycleCPU implements CPU {
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
+        // FETCH - use PC to load instruction from memory
         final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc + 1], memory[pc + 2],
                 memory[pc + 3], byteOrder);
 
-        logger.trace("\nLoaded Instr: HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
+        // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
+        // parameters and opcode
+        AsmLine<?> asmLine = Decoder.decode(instruction);
 
-        AsmLine asmLine = Decoder.decode(instruction);
-
+        logger.info("\nPC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
+                + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
         logger.trace(asmLine.toString());
 
         if (asmLine.mnemonic == null) {
@@ -57,7 +60,7 @@ public class SingleCycleCPU implements CPU {
         switch (asmLine.mnemonic) {
 
             case I_LUI:
-                // logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
+                // rd <- imm20 << 12
                 writeRegisterFile(asmLine.register_0.getIndex(), asmLine.numeric_1.intValue() << 12L);
                 pc += 4;
                 break;
@@ -84,13 +87,19 @@ public class SingleCycleCPU implements CPU {
             case I_JALR:
                 // rd = pc+4; pc = rs1+imm
                 logger.trace("jalr");
+
+                // rd = pc+4;
                 // registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 writeRegisterFile(asmLine.register_0.getIndex(), pc + 4);
 
+                logger.info("register_1 content: " + readRegisterFile(asmLine.register_1.getIndex()));
+
+                // pc = rs1+imm
                 int pcReplacement = readRegisterFile(asmLine.register_1.getIndex()) + asmLine.numeric_2.intValue();
 
-                logger.trace("Current PC: " + pc);
-                logger.trace("New PC: " + pcReplacement);
+                // DEBUG
+                logger.info("Current PC: " + pc);
+                logger.info("New PC: " + pcReplacement);
 
                 pc = pcReplacement;
                 break;
@@ -118,13 +127,27 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_BLT:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
+                // if (rs1 < rs2) pc += imm
+
+                // DEBUG
+                logger.info("blt " + readRegisterFile(asmLine.register_0.getIndex()) + " < "
+                        + readRegisterFile(asmLine.register_1.getIndex()));
+
+                if (readRegisterFile(asmLine.register_0.getIndex()) < readRegisterFile(
+                        asmLine.register_1.getIndex())) {
+                    pc += asmLine.numeric_2.intValue();
+                } else {
+                    pc += 4;
+                }
                 break;
 
             case I_BGE:
                 // if (rs1 >= rs2) pc += imm
+
+                // DEBUG
                 logger.info("bge " + readRegisterFile(asmLine.register_0.getIndex()) + " >= "
                         + readRegisterFile(asmLine.register_1.getIndex()));
+
                 if (readRegisterFile(asmLine.register_0.getIndex()) >= readRegisterFile(
                         asmLine.register_1.getIndex())) {
                     pc += asmLine.numeric_2.intValue();
@@ -134,20 +157,20 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_BLTU:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_BGEU:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_LB:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_LH:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_LW:
                 logger.trace(asmLine.toString());
@@ -181,20 +204,20 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_LBU:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_LBW:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SB:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SH:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SW:
                 logger.trace("sw : " + asmLine);
@@ -230,21 +253,31 @@ public class SingleCycleCPU implements CPU {
             case I_ADDI:
                 // rd = rs1 + imm
                 logger.trace("addi: " + asmLine);
-                // registerFile[asmLine.register_0.getIndex()] =
-                // registerFile[asmLine.register_1.getIndex()]
-                // + asmLine.numeric_2.intValue();
-                writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
-                        + asmLine.numeric_2.intValue());
+
+                int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
+                int immediate_value = asmLine.numeric_2.intValue();
+
+                logger.info("1st Register Name: " + asmLine.register_1.toStringAbi());
+                logger.info("1st Register Value: " + first_register_value);
+                logger.info("2nd Immediate Value: " + immediate_value);
+                logger.info("dest Register Name: " + asmLine.register_0.toStringAbi());
+
+                int result = first_register_value
+                        + immediate_value;
+
+                writeRegisterFile(asmLine.register_0.getIndex(), result);
+
+                // increment PC
                 pc += 4;
                 break;
 
             case I_SLTI:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SLTIU:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_XORI:
                 logger.info("XORI");
@@ -260,24 +293,24 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_ORI:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_ANDI:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SLLI:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SRLI:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SRAI:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_ADD:
                 logger.trace("add");
@@ -305,8 +338,8 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_SLL:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SLT:
                 // Place the value 1 in register rd if register rs1 is less
@@ -325,20 +358,20 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_SLTU:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_XOR:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SRL:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_SRA:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
 
             case I_OR:
                 logger.trace("or");
@@ -368,8 +401,8 @@ public class SingleCycleCPU implements CPU {
             // break;
 
             case I_ECALL:
-                logger.trace("Unknown mnemonic! " + asmLine.mnemonic);
-                break;
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+            // break;
             // case I_EBREAK:
             // break;
             // case I_CSRRW:
@@ -400,7 +433,8 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_NOP:
-                logger.trace("mnemonic: NOP");
+                // logger.trace("mnemonic: NOP");
+                pc += 4;
                 break;
 
             default:
@@ -420,7 +454,7 @@ public class SingleCycleCPU implements CPU {
         return registerFile[index];
     }
 
-    private void writeRegisterFile(int index, int value) {
+    private void writeRegisterFile(final int index, final int value) {
 
         // write to zero register has no effect
         if (index == 0) {

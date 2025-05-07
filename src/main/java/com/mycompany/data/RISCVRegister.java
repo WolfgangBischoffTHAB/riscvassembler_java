@@ -573,6 +573,11 @@ public enum RISCVRegister implements Register {
         }
     }
 
+    public String toStringAbi() {
+        return toStringAbi(this);
+        // return toString(this);
+    }
+
     public String toString() {
         //return toStringAbi(this);
         return toString(this);
