@@ -28,7 +28,7 @@ some_func:
         lw      s0,40(sp)
         addi    sp,sp,48
         jr      ra
-main:
+__main:
         addi    sp,sp,-32
         sw      ra,28(sp)
         sw      s0,24(sp)

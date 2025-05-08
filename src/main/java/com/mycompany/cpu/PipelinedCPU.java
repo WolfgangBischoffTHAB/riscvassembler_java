@@ -35,7 +35,7 @@ public class PipelinedCPU implements CPU {
     public Interlock interlock = new Interlock();
 
     @Override
-    public void step() {
+    public boolean step() {
 
         System.out.println("\n\nCycle: " + cycle_counter + " Instruction: " + pc / 4);
         cycle_counter++;
@@ -137,12 +137,9 @@ public class PipelinedCPU implements CPU {
                 pc += 4;
             }
 
-
-
-
-
         }
 
+        return false;
     }
 
     // /**

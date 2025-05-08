@@ -35,15 +35,13 @@ public class Decoder {
 
         AsmLine<Register> asmLine = new AsmLine<>();
 
-        logger.trace("Decoding: " + ByteArrayUtil.intToHex(data));
-
         if (data == 0) {
             asmLine.mnemonic = Mnemonic.I_NOP;
             return asmLine;
         }
 
         // DEBUG
-        logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;

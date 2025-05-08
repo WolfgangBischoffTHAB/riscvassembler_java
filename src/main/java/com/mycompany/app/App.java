@@ -13,6 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.assembler.BaseAssembler;
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.PipelinedCPU;
@@ -37,6 +38,8 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  * Ctrl + Shift + P > Clean java language server workspace > Clean and Restart
  */
 public class App {
+
+    private static final String MAIN_ENTRY_POINT_LABEL = "__main";
 
     private static final int MEMORY_SIZE_IN_BYTE = 2048;
 
@@ -163,7 +166,7 @@ public class App {
 
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-        assembler.outputHexMachineCode(machineCode, byteOrder);
+        BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
     }
 
     public static void mainRISCV(String[] args) throws IOException {
@@ -230,20 +233,21 @@ public class App {
 
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
-        if ((assembler.labelAddressMap == null) || (!assembler.labelAddressMap.containsKey("_start"))) {
-            throw new RuntimeException("No _start label found! Do not know where to execute the application from!");
+        if ((assembler.labelAddressMap == null) || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
+            throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL + "' label found! Do not know where to execute the application from!");
         }
 
         // DEBUG
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-        assembler.outputHexMachineCode(machineCode, byteOrder);
+        BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
 
         //
         // emulate
         //
 
-        emulate(machineCode, assembler.labelAddressMap.get("_start").intValue());
+        int startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL).intValue();
+        emulate(machineCode, startAddress);
 
         System.out.println("done");
     }
@@ -273,7 +277,7 @@ public class App {
         // ra - the initial return address is retrieved from the application loader
         // so that the app can return to that address
         // Without loader, we set it to 0xCAFEBABE = 3405691582 dec
-        cpu.registerFile[RISCVRegister.REG_FP.getIndex()] = 0xCAFEBABE;
+        cpu.registerFile[RISCVRegister.REG_RA.getIndex()] = 0xCAFEBABE;
 
         cpu.memory = new byte[MEMORY_SIZE_IN_BYTE];
         // cpu.memory[80] = 1;
@@ -282,6 +286,11 @@ public class App {
         // cpu.memory[83] = 4;
 
         System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
+
+        cpu.memory[machineCode.length + 4] = (byte) 0xFF;
+        cpu.memory[machineCode.length + 5] = (byte) 0xFF;
+        cpu.memory[machineCode.length + 6] = (byte) 0xFF;
+        cpu.memory[machineCode.length + 7] = (byte) 0xFF;
 
         // // FOR DEBUGGING MULTISTAGE PIPELINE APPS
         // // preload values into registers
@@ -310,8 +319,9 @@ public class App {
                 cpu.step();
             }
         } else {
-            while (true) {
-                cpu.step();
+            boolean done = false;
+            while (!done) {
+                done = !cpu.step();
             }
         }
 

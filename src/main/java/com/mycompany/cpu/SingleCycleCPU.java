@@ -27,22 +27,30 @@ public class SingleCycleCPU implements CPU {
         registerFile[0] = 0; // set zero
     }
 
-    public void step() {
+    public boolean step() {
+
+        if ((pc == 0xFFFFFFFF) || (pc == 0xCAFEBABE)) {
+            System.out.println("PC is 0xFFFFFFFF! End of application!");
+
+            return false;
+        }
 
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-
         // FETCH - use PC to load instruction from memory
         final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc + 1], memory[pc + 2],
                 memory[pc + 3], byteOrder);
+
+        if (instruction == 0xFFFFFFFF) {
+            throw new RuntimeException("Done");
+        }
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
         AsmLine<?> asmLine = Decoder.decode(instruction);
 
-        logger.info("\nPC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
-                + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
-        logger.trace(asmLine.toString());
+        logger.info("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: " + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
+        // logger.info(asmLine.toString());
 
         if (asmLine.mnemonic == null) {
             logger.trace(asmLine.toString());
@@ -92,14 +100,14 @@ public class SingleCycleCPU implements CPU {
                 // registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 writeRegisterFile(asmLine.register_0.getIndex(), pc + 4);
 
-                logger.info("register_1 content: " + readRegisterFile(asmLine.register_1.getIndex()));
+                logger.trace("register_1 content: " + readRegisterFile(asmLine.register_1.getIndex()));
 
                 // pc = rs1+imm
                 int pcReplacement = readRegisterFile(asmLine.register_1.getIndex()) + asmLine.numeric_2.intValue();
 
                 // DEBUG
-                logger.info("Current PC: " + pc);
-                logger.info("New PC: " + pcReplacement);
+                logger.trace("Current PC: " + pc);
+                logger.trace("New PC: " + pcReplacement);
 
                 pc = pcReplacement;
                 break;
@@ -130,13 +138,14 @@ public class SingleCycleCPU implements CPU {
                 // if (rs1 < rs2) pc += imm
 
                 // DEBUG
-                logger.info("blt " + readRegisterFile(asmLine.register_0.getIndex()) + " < "
-                        + readRegisterFile(asmLine.register_1.getIndex()));
+                int blt_a = readRegisterFile(asmLine.register_0.getIndex());
+                int blt_b = readRegisterFile(asmLine.register_1.getIndex());
 
-                if (readRegisterFile(asmLine.register_0.getIndex()) < readRegisterFile(
-                        asmLine.register_1.getIndex())) {
+                if (blt_a < blt_b) {
+                    logger.trace("blt " + blt_a + " < " + blt_b + ". Branch is taken!");
                     pc += asmLine.numeric_2.intValue();
                 } else {
+                    logger.trace("blt " + blt_a + " < " + blt_b + ". Branch is NOT taken!");
                     pc += 4;
                 }
                 break;
@@ -145,7 +154,7 @@ public class SingleCycleCPU implements CPU {
                 // if (rs1 >= rs2) pc += imm
 
                 // DEBUG
-                logger.info("bge " + readRegisterFile(asmLine.register_0.getIndex()) + " >= "
+                logger.trace("bge " + readRegisterFile(asmLine.register_0.getIndex()) + " >= "
                         + readRegisterFile(asmLine.register_1.getIndex()));
 
                 if (readRegisterFile(asmLine.register_0.getIndex()) >= readRegisterFile(
@@ -198,7 +207,7 @@ public class SingleCycleCPU implements CPU {
                 stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.info(stringBuilder.toString());
+                logger.trace(stringBuilder.toString());
 
                 pc += 4;
                 break;
@@ -245,7 +254,7 @@ public class SingleCycleCPU implements CPU {
                 stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.info(stringBuilder.toString());
+                logger.trace(stringBuilder.toString());
 
                 pc += 4;
                 break;
@@ -257,13 +266,12 @@ public class SingleCycleCPU implements CPU {
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
                 int immediate_value = asmLine.numeric_2.intValue();
 
-                logger.info("1st Register Name: " + asmLine.register_1.toStringAbi());
-                logger.info("1st Register Value: " + first_register_value);
-                logger.info("2nd Immediate Value: " + immediate_value);
-                logger.info("dest Register Name: " + asmLine.register_0.toStringAbi());
+                logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
+                logger.trace("1st Register Value: " + first_register_value);
+                logger.trace("2nd Immediate Value: " + immediate_value);
+                logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
 
-                int result = first_register_value
-                        + immediate_value;
+                int result = first_register_value + immediate_value;
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result);
 
@@ -280,7 +288,7 @@ public class SingleCycleCPU implements CPU {
             // break;
 
             case I_XORI:
-                logger.info("XORI");
+                logger.trace("XORI");
 
                 // xori rd,rs1,imm
                 // x[rd] = x[rs1] ^ sext(immediate)
@@ -441,6 +449,7 @@ public class SingleCycleCPU implements CPU {
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
         }
 
+        return true;
     }
 
     private int readRegisterFile(int index) {
