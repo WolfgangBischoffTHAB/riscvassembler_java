@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.assembler.BaseAssembler;
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
+import com.mycompany.cpu.CPU;
 import com.mycompany.cpu.PipelinedCPU;
 import com.mycompany.cpu.SingleCycleCPU;
 import com.mycompany.data.RISCVRegister;
@@ -41,7 +42,7 @@ public class App {
 
     private static final String MAIN_ENTRY_POINT_LABEL = "__main";
 
-    private static final int MEMORY_SIZE_IN_BYTE = 2048;
+    private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
@@ -83,8 +84,12 @@ public class App {
         // "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
         // String inputFile =
         // "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
-        String inputFile = "src/test/resources/riscvasm/examples/function_call_c_abi.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
+        // String inputFile =
+        // "src/test/resources/riscvasm/examples/function_call_c_abi.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
+        String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
@@ -234,10 +239,11 @@ public class App {
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
         if ((assembler.labelAddressMap == null) || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
-            throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL + "' label found! Do not know where to execute the application from!");
+            throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL
+                    + "' label found! Do not know where to execute the application from!");
         }
 
-        // DEBUG
+        // DEBUG - output machine code as hex
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
@@ -247,12 +253,22 @@ public class App {
         //
 
         int startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL).intValue();
-        emulate(machineCode, startAddress);
+        CPU cpu = emulate(machineCode, startAddress);
+
+        SingleCycleCPU singleCycleCPU = (SingleCycleCPU) cpu;
+
+        // DEBUG output all registers
+        for (int i = 0; i < 32; i++) {
+            System.out.println("x" + (i) + ": " + singleCycleCPU.registerFile[i]);
+        }
+
+        // DEBUG
+        BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
 
         System.out.println("done");
     }
 
-    private static void emulate(final byte[] machineCode, final int main_entry_point_address) {
+    private static CPU emulate(final byte[] machineCode, final int main_entry_point_address) {
 
         SingleCycleCPU cpu = new SingleCycleCPU();
         // PipelinedCPU cpu = new PipelinedCPU();
@@ -325,9 +341,7 @@ public class App {
             }
         }
 
-        for (int i = 0; i < 32; i++) {
-            System.out.println("x" + (i) + ": " + cpu.registerFile[i]);
-        }
+        return cpu;
     }
 
     private static void preprocess(final String inputFile, final String outputFile)

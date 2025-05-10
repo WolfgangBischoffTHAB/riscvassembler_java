@@ -1,0 +1,236 @@
+# void swap(int* a, int* b) {
+swap:
+    addi sp, sp, 0xFFFFFFD0 	# make space for stack frame 
+    sw ra, 44(sp)				# jal, jalr has loade ra, safe ra here for return
+    sw s0, 40(sp)				# safe s0 because it is used in the next line
+    addi s0, sp, 0x30			# s0 points to both function parameters on the stack
+    
+	sw a0, -36(s0)				# place int* a on the stack
+    sw a1, -40(s0)				# place int* b on the stack
+	
+	# int temp = *a;
+    lw a5, -36(s0)				# retrieve int* a from the stack
+    lw a5, 0(a5)                # deref int* a, a5 is the value of the arr element
+    sw a5, -20(s0)              # store the value in a temp variable (on the stack)
+	
+	# *a = *b;
+    lw a5, -40(s0)				# retrieve int* b from the stack
+    lw a4, 0(a5)				# deref int* b, a4 is the value of the arr element
+    lw a5, -36(s0)				# retrieve int* a from the stack 
+    sw a4, 0(a5)                # store b into a
+	
+	# *b = temp;
+    lw a5, -40(s0)				# find b on the stack
+    lw a4, -20(s0)              # get back the temp variable
+    sw a4, 0(a5)                # write temp var into b
+	
+	# return from swap()
+    addi zero, zero, 0x0
+    lw ra, 44(sp)
+    lw s0, 40(sp)
+    addi sp, sp, 0x30
+    jalr zero, ra, 0x0
+	
+
+# int partition(int arr[], int low, int high)
+partition:
+    addi sp, sp, 0xFFFFFFD0
+    sw ra, 44(sp)
+    sw s0, 40(sp)
+    addi s0, sp, 0x30
+    sw a0, -36(s0)
+    sw a1, -40(s0)
+    sw a2, -44(s0)
+	
+	# initialize pivot to be the first element
+	# int p = arr[low];
+    lw a5, -40(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a5, a4, a5
+    lw a5, 0(a5)
+    sw a5, -28(s0)
+	
+	# int i = low;
+    lw a5, -40(s0)
+    sw a5, -20(s0)
+	
+	# int j = high;
+    lw a5, -44(s0)
+    sw a5, -24(s0)
+	
+	# jump to .L3 (= while (i < j) { ... } )
+    jal zero, 0xA8
+	
+	
+.L6:
+    lw a5, -20(s0)
+    addi a5, a5, 0x1
+    sw a5, -20(s0)
+	
+	
+.L4:
+    lw a5, -20(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a5, a4, a5
+    lw a5, 0(a5)
+    lw a4, -28(s0)
+    blt a4, a5, 0x20
+    lw a4, -44(s0)
+    lw a5, -20(s0)
+    blt a5, a4, 0xFFFFFFD0
+    jal zero, 0x10
+	
+	# 
+.L9:
+    lw a5, -24(s0)
+    addi a5, a5, 0xFFFFFFFF
+    sw a5, -24(s0)
+	
+	
+	# part of the partition function
+	#
+	# find the first element smaller than the pivot (from last)
+    # while (arr[j] > p && j >= low + 1) {
+.L7:
+    lw a5, -24(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a5, a4, a5
+    lw a5, 0(a5)
+    lw a4, -28(s0)
+    bge a4, a5, 0x10 # jump to .L8
+    lw a4, -40(s0)
+    lw a5, -24(s0)
+    blt a4, a5, 0xFFFFFFD0
+	
+	
+	# if (i < j) {
+    #     swap(&arr[i], &arr[j]);
+    # }
+.L8:
+    lw a4, -20(s0)
+    lw a5, -24(s0)
+    bge a4, a5, 0x30     # jump to .L3 to start next iteration
+    lw a5, -20(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a3, a4, a5
+    lw a5, -24(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a5, a4, a5
+    addi a1, a5, 0x0
+    addi a0, a3, 0x0
+	
+	# call swap(int*, int*)
+    jal ra, 0xFFFFFEC4 # --pseudo--> I_CALL
+	
+	
+.L3:
+
+	# while (i < j) {
+    lw a4, -20(s0)
+    lw a5, -24(s0)
+    blt a4, a5, 0xFFFFFF60 # jump to .L4
+	
+	# swap(&arr[low], &arr[j]);
+    lw a5, -40(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a3, a4, a5
+    lw a5, -24(s0)
+    slli a5, a5, 0x2
+    lw a4, -36(s0)
+    add a5, a4, a5
+    addi a1, a5, 0x0
+    addi a0, a3, 0x0
+    jal ra, 0xFFFFFE8C # --pseudo--> I_CALL # call swap(), jump to label swap
+	
+	# prepare return value j by writing it into the return register 
+    lw a5, -24(s0)
+	
+	# return from the partition() function()
+    addi a0, a5, 0x0
+    lw ra, 44(sp)
+    lw s0, 40(sp)
+    addi sp, sp, 0x30
+    jalr zero, ra, 0x0
+	
+	
+quickSort:
+    addi sp, sp, 0xFFFFFFD0
+    sw ra, 44(sp)
+    sw s0, 40(sp)
+    addi s0, sp, 0x30
+    sw a0, -36(s0)
+    sw a1, -40(s0)
+    sw a2, -44(s0)
+    lw a4, -40(s0)
+    lw a5, -44(s0)
+    bge a4, a5, 0x48
+    lw a2, -44(s0)
+    lw a1, -40(s0)
+    lw a0, -36(s0)
+    jal ra, 0xFFFFFE90 # --pseudo--> I_CALL
+    sw a0, -20(s0)
+    lw a5, -20(s0)
+    addi a5, a5, 0xFFFFFFFF
+    addi a2, a5, 0x0
+    lw a1, -40(s0)
+    lw a0, -36(s0)
+    jal ra, 0xFFFFFFB0 # --pseudo--> I_CALL
+    lw a5, -20(s0)
+    addi a5, a5, 0x1
+    lw a2, -44(s0)
+    addi a1, a5, 0x0
+    lw a0, -36(s0)
+    jal ra, 0xFFFFFF98 # --pseudo--> I_CALL
+	
+	
+.L14:
+    addi zero, zero, 0x0
+    lw ra, 44(sp)
+    lw s0, 40(sp)
+    addi sp, sp, 0x30
+    jalr zero, ra, 0x0
+	
+	
+.LC0:
+.word 4
+.word 2
+.word 5
+.word 3
+.word 1
+__main:
+    addi sp, sp, 0xFFFFFFD0
+    sw ra, 44(sp)
+    sw s0, 40(sp)
+    addi s0, sp, 0x30
+    addi a5, zero, 0x210 # --pseudo--> I_LI
+    lw a1, 0(a5)
+    lw a2, 4(a5)
+    lw a3, 8(a5)
+    lw a4, 12(a5)
+    sw a1, -40(s0)
+    sw a2, -36(s0)
+    sw a3, -32(s0)
+    sw a4, -28(s0)
+    lw a5, 16(a5)
+    sw a5, -24(s0)
+    addi a5, zero, 0x5
+    sw a5, -20(s0)
+    lw a5, -20(s0)
+    addi a4, a5, 0xFFFFFFFF
+    addi a5, s0, 0xFFFFFFD8
+    addi a2, a4, 0x0
+    addi a1, zero, 0x0 # --pseudo--> I_LI
+    addi a0, a5, 0x0
+    jal ra, 0xFFFFFF10 # --pseudo--> I_CALL
+    addi a5, zero, 0x0 # --pseudo--> I_LI
+    addi a0, a5, 0x0
+    lw ra, 44(sp)
+    lw s0, 40(sp)
+    addi sp, sp, 0x30
+    jalr zero, ra, 0x0

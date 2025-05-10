@@ -30,6 +30,8 @@ public enum Mnemonic {
     I_BNEU(false),
     I_BNEZ(true),
 
+    I_BRK(false),   // custom breakpoint instruction
+
     I_CALL(true),
     I_ECALL(false),
 
@@ -126,6 +128,8 @@ public enum Mnemonic {
             return I_BNEZ;
         } else if (mnemonic.equalsIgnoreCase("BEQZ")) {
             return I_BEQZ;
+        } else if (mnemonic.equalsIgnoreCase("BRK")) {
+            return I_BRK; // custom instruction
         } else if (mnemonic.equalsIgnoreCase("CALL")) {
             return I_CALL;
         } else if (mnemonic.equalsIgnoreCase("ECALL")) {
@@ -269,6 +273,9 @@ public enum Mnemonic {
                 return "bneu";
             case I_BNEZ:        // pseudo instruction
                 return "bnez";
+
+            case I_BRK:         // custom breakpoint instruction
+                return "brk";
 
             case I_CALL:        // pseudo instruction
                 return "call";

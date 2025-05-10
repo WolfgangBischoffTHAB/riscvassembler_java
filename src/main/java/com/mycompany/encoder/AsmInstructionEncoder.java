@@ -1,13 +1,16 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteOrder;
 
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 
 public class AsmInstructionEncoder {
 
-    public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine) {
+    public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine)
+            throws IOException {
 
         switch (asmLine.asmInstruction) {
 
@@ -55,7 +58,8 @@ public class AsmInstructionEncoder {
         return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
     }
 
-    private int encodeSpaceAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSpaceAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+            final AsmLine<?> asmLine) {
 
         String sizeAsString = asmLine.csvList.get(0);
         long sizeInBytes = NumberParseUtil.parseLong(sizeAsString);
@@ -66,7 +70,8 @@ public class AsmInstructionEncoder {
         return length;
     }
 
-    private int encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeByteAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+            final AsmLine<?> asmLine) {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {
@@ -78,12 +83,21 @@ public class AsmInstructionEncoder {
         return length;
     }
 
-    private int encodeWordAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    /**
+     * This function inserts the bytes right into the code section.
+     *
+     * @param byteArrayOutStream output stream
+     * @param asmLine            the line to encode
+     * @return the length, amount of bytes used by this instruction
+     * @throws IOException
+     */
+    private int encodeWordAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+            final AsmLine<?> asmLine) throws IOException {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {
             long data = NumberParseUtil.parseLong(dataAsString);
-            EncoderUtils.convertToUint32_t(byteArrayOutStream, (int) data);
+            EncoderUtils.convertToUint32_t(byteArrayOutStream, (int) data, ByteOrder.LITTLE_ENDIAN);
             length += 4;
         }
 

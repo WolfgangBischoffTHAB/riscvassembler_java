@@ -204,6 +204,10 @@ public class ByteArrayUtil {
 		return String.format(format, data);
 	}
 
+    public static String longToHex(Long data) {
+        return String.format("%08x", data);
+    }
+
 	// /**
 	//  * Searches 'searchData' within 'data'.
 	//  *

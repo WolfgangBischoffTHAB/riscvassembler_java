@@ -193,8 +193,8 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
     public static void resolveLabels(List<AsmLine<?>> asmLines, Map<String, Long> labelAddressMap) {
 
         // connect lines to each other for easier traversal
-        AsmLine prev = null;
-        for (AsmLine asmLine : asmLines) {
+        AsmLine<?> prev = null;
+        for (AsmLine<?> asmLine : asmLines) {
 
             asmLine.prev = prev;
             if (prev != null) {
@@ -204,7 +204,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
             prev = asmLine;
         }
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<?> asmLine : asmLines) {
 
             if (asmLine.asmInstruction != null) {
                 continue;
@@ -233,7 +233,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 } else if (asmLine.identifier_0.endsWith("b")) {
 
-                    AsmLine tempAsmLine = asmLine;
+                    AsmLine<?> tempAsmLine = asmLine;
                     long offset = 0;
 
                     String truncatedLabel = tempAsmLine.identifier_0.substring(0,
@@ -252,7 +252,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 } else if (asmLine.identifier_0.endsWith("f")) {
 
-                    AsmLine tempAsmLine = asmLine;
+                    AsmLine<?> tempAsmLine = asmLine;
                     long offset = 4;
 
                     String truncatedLabel = tempAsmLine.identifier_0.substring(0,
@@ -286,7 +286,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 } else if (asmLine.identifier_1.endsWith("b")) {
 
-                    AsmLine tempAsmLine = asmLine;
+                    AsmLine<?> tempAsmLine = asmLine;
                     long offset = 0;
 
                     String truncatedLabel = tempAsmLine.identifier_1.substring(0,
@@ -305,7 +305,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 } else if (asmLine.identifier_1.endsWith("f")) {
 
-                    AsmLine tempAsmLine = asmLine;
+                    AsmLine<?> tempAsmLine = asmLine;
                     long offset = 4;
 
                     String truncatedLabel = tempAsmLine.identifier_1.substring(0,
@@ -342,7 +342,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
                     // iterate backwards and count +4 every time until label is found
                     // use the resulting value as numeric_2
 
-                    AsmLine tempAsmLine = asmLine;
+                    AsmLine<?> tempAsmLine = asmLine;
                     long offset = 0;
 
                     String truncatedLabel = tempAsmLine.identifier_2.substring(0,
@@ -361,7 +361,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
 
                 } else if (asmLine.identifier_2.endsWith("f")) {
 
-                    AsmLine tempAsmLine = asmLine;
+                    AsmLine<?> tempAsmLine = asmLine;
                     long offset = 4;
 
                     String truncatedLabel = tempAsmLine.identifier_2.substring(0,
@@ -397,13 +397,8 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
     public static void resolveModifiers(List<AsmLine<?>> asmLines, Map<String, Long> map) {
 
         int offset = 4;
-        //int offset = 0;
 
-        for (AsmLine asmLine : asmLines) {
-
-            if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                System.out.println("DEBUG");
-            }
+        for (AsmLine<?> asmLine : asmLines) {
 
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)

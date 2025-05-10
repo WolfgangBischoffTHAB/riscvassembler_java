@@ -2,6 +2,8 @@
 // $antlr-format allowShortRulesOnASingleLine true, allowShortBlocksOnASingleLine true, minEmptyLines 0, alignSemicolons ownLine
 // $antlr-format alignColons trailing, singleLineOverrulesHangingColon true, alignLexerCommands true, alignLabels true, alignTrailers true
 
+// start symbol: asm_file
+
 lexer grammar RISCVASMLexer;
 
 LINE_COMMENT
@@ -84,6 +86,8 @@ I_BLT : B L T ;
 I_BLE : B L E ;
 I_BNE : B N E ;
 I_BNEZ : B N E Z ;
+
+I_BRK : B R K ;     // custom break point instruction 0x1f1f1f1f
 
 I_CALL : C A L L ;
 I_ECALL : E C A L L ;

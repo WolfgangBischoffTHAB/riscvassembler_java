@@ -10,6 +10,9 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
+/**
+ * A nop pseudo instruction is implemented using a nonsense addi instruction
+ */
 public class NopResolver implements AsmInstructionListModifier {
 
     @Override
@@ -24,7 +27,6 @@ public class NopResolver implements AsmInstructionListModifier {
             asmLine.mnemonic = Mnemonic.I_ADDI;
             asmLine.register_0 = RISCVRegister.REG_ZERO;
             asmLine.register_1 = RISCVRegister.REG_ZERO;
-            // asmLine.register_2 = RISCVRegister.REG_UNKNOWN;
             asmLine.register_2 = null;
             asmLine.numeric_2 = 0L;
         }

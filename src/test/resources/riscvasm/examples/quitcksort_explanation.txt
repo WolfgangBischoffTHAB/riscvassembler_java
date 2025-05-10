@@ -1,0 +1,49 @@
+Quicksort 
+
+Quicksort uses recursive calls to the quicksort() function.
+Each call potentially changes the array to sort.
+The recursion does not recurse any more, when a high index j 
+and a low index i have been moved past each other.
+When the entire recursion returns, the array is sorted.
+
+Each call to quicksort() deals with a section of the 
+array and selects a pivot element (randomly) out of that section.
+It will increment low index i starting from the first element in the 
+section and decrement j from the highest element in the section,
+while i is smaller or equal than the pivot and j is larger than
+the pivot.
+
+The effect is that sections gradually get sorted more and more starting
+at their borders. Because they are split in the middle, the order spreads
+through the array until indexes i and j have crossed.
+
+
+530
+
+quicksort[0, 4]
+4 2 5 3 1
+pivot = 4
+low = 0
+high = 4
+first iteration:
+first greater: [i = 2] = 5
+first smaller: [j = 4] = 1
+swap (2, 4)
+4 2 1 3 5
+second iteration
+i = 4
+j = 3
+loop terminates
+swap(0, 3)
+3 2 1 4 5
+return j = 3
+
+	quicksort[0 2]
+	1 2 3 4 5
+	return 0
+
+
+
+	quicksort[3 4]
+	return 3
+

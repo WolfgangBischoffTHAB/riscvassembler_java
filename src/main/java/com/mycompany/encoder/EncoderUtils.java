@@ -1,17 +1,28 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class EncoderUtils {
 
-    public static void convertToUint8_t(final ByteArrayOutputStream byteArrayOutStream, final int result) {
-        byteArrayOutStream.write((byte) result);
+    public static void convertToUint8_t(final ByteArrayOutputStream byteArrayOutStream, final int data) {
+        byteArrayOutStream.write((byte) data);
     }
 
-    public static void convertToUint32_t(final ByteArrayOutputStream byteArrayOutStream, final int result) {
-        for (int i = 0; i < 4; i++) {
-            byteArrayOutStream.write((byte) ((result >> i * 8) & 0xFF));
-        }
+    public static void convertToUint32_t(final ByteArrayOutputStream byteArrayOutStream, final int data)
+            throws IOException {
+        convertToUint32_t(byteArrayOutStream, data, ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public static void convertToUint32_t(final ByteArrayOutputStream byteArrayOutStream, final int data,
+            ByteOrder byteOrder) throws IOException {
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+        byteBuffer.order(byteOrder);
+        byteBuffer.putInt(data);
+
+        byteArrayOutStream.write(byteBuffer.array());
     }
 
     public static void encodeString(final ByteArrayOutputStream byteArrayOutStream, final String stringValue) {

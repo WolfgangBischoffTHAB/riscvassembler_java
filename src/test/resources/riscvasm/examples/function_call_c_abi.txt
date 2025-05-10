@@ -1,0 +1,260 @@
+void some_func(int a, int b, int* c)
+{
+   int cnt = a;
+   for( ; cnt > 0; cnt--)
+   {
+      *c += b;
+   }
+}
+
+int main(){
+   int a = 5;
+   int b = 6;
+   int c = 0;
+
+   some_func(a, b, &c);
+   
+   return 0;
+}
+
+
+
+
+
+some_func(int, int, int*):
+        addi    sp,sp,-48
+        sw      ra,44(sp)
+        sw      s0,40(sp)
+        addi    s0,sp,48
+        sw      a0,-36(s0)
+        sw      a1,-40(s0)
+        sw      a2,-44(s0)
+        lw      a5,-36(s0)
+        sw      a5,-20(s0)
+        j       .L2
+.L3:
+        lw      a5,-44(s0)
+        lw      a4,0(a5)
+        lw      a5,-40(s0)
+        add     a4,a4,a5
+        lw      a5,-44(s0)
+        sw      a4,0(a5)
+        lw      a5,-20(s0)
+        addi    a5,a5,-1
+        sw      a5,-20(s0)
+.L2:
+        lw      a5,-20(s0)
+        bgt     a5,zero,.L3
+        nop
+        nop
+        lw      ra,44(sp)
+        lw      s0,40(sp)
+        addi    sp,sp,48
+        jr      ra
+main:
+        addi    sp,sp,-32
+        sw      ra,28(sp)
+        sw      s0,24(sp)
+        addi    s0,sp,32
+        li      a5,5
+        sw      a5,-20(s0)
+        li      a5,6
+        sw      a5,-24(s0)
+        sw      zero,-28(s0)
+        addi    a5,s0,-28
+        mv      a2,a5
+        lw      a1,-24(s0)
+        lw      a0,-20(s0)
+        call    some_func(int, int, int*)
+        li      a5,0
+        mv      a0,a5
+        lw      ra,28(sp)
+        lw      s0,24(sp)
+        addi    sp,sp,32
+        jr      ra
+		
+		
+		
+		
+		
+		
+To compile the code with https://riscvasm.lucasteske.dev/#
+it was adjusted slightly (labels are renamed)
+
+sp is set to 2048 - 4 = 2044 initially
+
+some_func:
+        addi    sp,sp,-48	# stackframe of 44 byte = 11 32bit variables
+		                    # EFFECT: sp = 1996 = 2024 - 48
+        sw      ra,44(sp)   # highest variable is return address
+		                    # EFFECT: 44(sp) = 1996 + 44 = 2040
+							# [2040] = ra
+							# ra has the value: 0xCAFEBABE
+        sw      s0,40(sp)	# next value on the stack is s0. I think this is the frame pointer
+        addi    s0,sp,48    # frame pointer goes to start of this new stack frame
+        sw      a0,-36(s0)  # retrieve first parameter
+        sw      a1,-40(s0)  # retrieve second parameter
+        sw      a2,-44(s0)
+        lw      a5,-36(s0)
+        sw      a5,-20(s0)
+        j       .L2
+.L3:
+        lw      a5,-44(s0)
+        lw      a4,0(a5)
+        lw      a5,-40(s0)
+        add     a4,a4,a5
+        lw      a5,-44(s0)
+        sw      a4,0(a5)
+        lw      a5,-20(s0)
+        addi    a5,a5,-1
+        sw      a5,-20(s0)
+.L2:
+        lw      a5,-20(s0)
+        bgt     a5,zero,.L3
+        nop                   # nop pseudo implemented as: addi zero, zero, 0x0
+        nop                   # nop pseudo implemented as: addi zero, zero, 0x0
+        lw      ra,44(sp)     
+        lw      s0,40(sp)
+        addi    sp,sp,48
+        jr      ra
+main:
+        addi    sp,sp,-32     # stackframe of 32 byte = 8 32bit variables
+        sw      ra,28(sp)     # highest variable is return address
+        sw      s0,24(sp)     # next value on the stack is s0. I think this is the frame pointer
+        addi    s0,sp,32      # frame pointer goes to start of this new stack frame
+        li      a5,5          # load value 5 into temp variable
+        sw      a5,-20(s0)    # push parameter to func call onto stack
+        li      a5,6          # load value 6 into temp variable
+        sw      a5,-24(s0)    # push parameter to func call onto stack
+        sw      zero,-28(s0)  # write zero into the stack
+        addi    a5,s0,-28
+        mv      a2,a5
+        lw      a1,-24(s0)
+        lw      a0,-20(s0)
+		
+        call    some_func     # call function
+		
+        li      a5,0		  # break down stack frame
+        mv      a0,a5
+        lw      ra,28(sp)
+        lw      s0,24(sp)
+        addi    sp,sp,32
+        jr      ra
+        
+		
+		
+		
+		
+		
+fd010113
+02112623
+02812423
+03010413
+fca42e23
+fcb42c23
+fcc42a23
+fdc42783
+fef42623
+0280006f
+fd442783
+0007a703
+fd842783
+00f70733
+fd442783
+00e7a023
+fec42783		# lw      a5,-20(s0)
+fff78793
+fef42623
+fec42783		# lw      a5,-20(s0)
+fcf04ce3
+00000013
+00000013
+02c12083
+02812403
+03010113
+00008067
+fe010113
+00112e23
+00812c23
+02010413
+00500793
+fef42623
+00600793
+fef42423
+fe042223
+fe440793
+00078613
+fe842583
+fec42503
+f61ff0ef		# jal x1, -160
+00000793
+00078513
+01c12083
+01812403
+02010113
+00008067
+
+
+
+f61ff0ef		# jal x1, -160
+
+
+jal - jump and link
+Jump to a PC-relative offset and store the return address in rd.
+
+jal rd, imm
+
+
+
+
+some_func:
+SourceLine: 2 [0] addi sp, sp, 0xFFFFFFD0 -> FD010113
+SourceLine: 3 [4] sw ra, 44(sp) -> 02112623
+SourceLine: 4 [8] sw s0, 40(sp) -> 02812423
+SourceLine: 5 [12] addi s0, sp, 0x30 -> 03010413
+SourceLine: 6 [16] sw a0, -36(s0) -> FCA42E23
+SourceLine: 7 [20] sw a1, -40(s0) -> FCB42C23
+SourceLine: 8 [24] sw a2, -44(s0) -> FCC42A23
+SourceLine: 9 [28] lw a5, -36(s0) -> FDC42783
+SourceLine: 10 [32] sw a5, -20(s0) -> FEF42623
+SourceLine: 11 [36] jal zero, 0x28 -> 0280006F
+.L3:
+SourceLine: 13 [40] lw a5, -44(s0) -> FD442783
+SourceLine: 14 [44] lw a4, 0(a5) -> 0007A703
+SourceLine: 15 [48] lw a5, -40(s0) -> FD842783
+SourceLine: 16 [52] add a4, a4, a5 -> 00F70733
+SourceLine: 17 [56] lw a5, -44(s0) -> FD442783
+SourceLine: 18 [60] sw a4, 0(a5) -> 00E7A023
+SourceLine: 19 [64] lw a5, -20(s0) -> FEC42783
+SourceLine: 20 [68] addi a5, a5, 0xFFFFFFFF -> FFF78793
+SourceLine: 21 [72] sw a5, -20(s0) -> FEF42623
+.L2:
+SourceLine: 23 [76] lw a5, -20(s0) -> FEC42783
+SourceLine: 24 [80] blt zero, a5, 0xFFFFFFD8 -> FCF04CE3
+SourceLine: 25 [84] addi zero, zero, 0x0 -> 00000013
+SourceLine: 26 [88] addi zero, zero, 0x0 -> 00000013
+SourceLine: 27 [92] lw ra, 44(sp) -> 02C12083
+SourceLine: 28 [96] lw s0, 40(sp) -> 02812403
+SourceLine: 29 [100] addi sp, sp, 0x30 -> 03010113
+SourceLine: 30 [104] jalr zero, ra, 0x0 -> 00008067
+__main:
+SourceLine: 32 [108] addi sp, sp, 0xFFFFFFE0 -> FE010113
+SourceLine: 33 [112] sw ra, 28(sp) -> 00112E23
+SourceLine: 34 [116] sw s0, 24(sp) -> 00812C23
+SourceLine: 35 [120] addi s0, sp, 0x20 -> 02010413
+SourceLine: 36 [124] addi a5, zero, 0x5 -> 00500793
+SourceLine: 37 [128] sw a5, -20(s0) -> FEF42623
+SourceLine: 38 [132] addi a5, zero, 0x6 -> 00600793
+SourceLine: 39 [136] sw a5, -24(s0) -> FEF42423
+SourceLine: 40 [140] sw zero, -28(s0) -> FE042223
+SourceLine: 41 [144] addi a5, s0, 0xFFFFFFE4 -> FE440793
+SourceLine: 42 [148] addi a2, a5, 0x0 -> 00078613
+SourceLine: 43 [152] lw a1, -24(s0) -> FE842583
+SourceLine: 44 [156] lw a0, -20(s0) -> FEC42503
+SourceLine: -1 [160] jal ra, 0xFFFFFF60 # --pseudo--> I_CALL -> F61FF0EF
+SourceLine: -1 [164] addi a5, zero, 0x0 # --pseudo--> I_LI -> 00000793
+SourceLine: 47 [168] addi a0, a5, 0x0 -> 00078513
+SourceLine: 48 [172] lw ra, 28(sp) -> 01C12083
+SourceLine: 49 [176] lw s0, 24(sp) -> 01812403
+SourceLine: 50 [180] addi sp, sp, 0x20 -> 02010113
+SourceLine: 51 [184] jalr zero, ra, 0x0 -> 00008067

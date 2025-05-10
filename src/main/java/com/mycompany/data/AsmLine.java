@@ -56,9 +56,8 @@ public class AsmLine<T extends Register> {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("SourceLine: ").append(sourceLine).append(" ");
-
-        stringBuilder.append("[").append(offset).append("] ");
+        // stringBuilder.append("SourceLine: ").append(sourceLine).append(" ");
+        // stringBuilder.append("[").append(offset).append("] ");
 
         if (label != null) {
             stringBuilder.append(label).append(": ");
@@ -104,6 +103,8 @@ public class AsmLine<T extends Register> {
         if (mnemonic == null) {
             return stringBuilder.toString();
         }
+
+        stringBuilder.append("    ");
 
         stringBuilder.append(Mnemonic.toString(mnemonic)).append(" ");
 

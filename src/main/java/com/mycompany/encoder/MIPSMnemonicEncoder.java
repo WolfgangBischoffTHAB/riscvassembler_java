@@ -1,6 +1,7 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 import com.mycompany.data.AsmLine;
@@ -9,7 +10,7 @@ public class MIPSMnemonicEncoder implements MnemonicEncoder {
 
     @Override
     public int encodeMnemonic(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine,
-            Map<String, Long> labelAddressMap, long currentAddress) {
+            Map<String, Long> labelAddressMap, long currentAddress) throws IOException {
 
         switch (asmLine.mnemonic) {
 
@@ -24,7 +25,7 @@ public class MIPSMnemonicEncoder implements MnemonicEncoder {
     }
 
     private int encodeADD(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine,
-            Map<String, Long> labelAddressMap, long currentAddress) {
+            Map<String, Long> labelAddressMap, long currentAddress) throws IOException {
 
         int special = 0b000000;
         int rs = asmLine.register_1.getIndex();

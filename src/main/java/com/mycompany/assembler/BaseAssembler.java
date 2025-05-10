@@ -1,6 +1,8 @@
 package com.mycompany.assembler;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import com.mycompany.encoder.Encoder;
 import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
+import com.mycompany.preprocessing.IncludePreprocessor;
 import com.mycompany.pseudo.combine.LiCombiner;
 import com.mycompany.pseudo.resolve.BeqzResolver;
 import com.mycompany.pseudo.resolve.BgezResolver;
@@ -176,7 +179,7 @@ public abstract class BaseAssembler {
         // }
 
         //
-        // replace all .equ values in instructions
+        // replace all .equ values in instructions and replace labels
         //
 
         for (AsmLine<?> asmLine : asmLines) {
@@ -187,6 +190,10 @@ public abstract class BaseAssembler {
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
                 continue;
             }
+
+            //
+            // try to replace constants by their values
+            //
 
             if (asmLine.identifier_0 != null) {
                 Object value = equMap.get(asmLine.identifier_0);
@@ -209,6 +216,10 @@ public abstract class BaseAssembler {
                     asmLine.numeric_2 = (Long) value;
                 }
             }
+
+            //
+            // replace labels
+            //
 
             if (asmLine.offsetLabel_0 != null) {
                 if (equMap.containsKey(asmLine.offsetLabel_0)) {
@@ -248,6 +259,10 @@ public abstract class BaseAssembler {
         // for (AsmLine asmLine : asmLines) {
         // System.out.println(asmLine);
         // }
+
+        //
+        // Replace pseudo instruction by real instructions
+        //
 
         NopResolver nopResolver = new NopResolver();
         nopResolver.modify(asmLines, sectionMap);
@@ -400,11 +415,29 @@ public abstract class BaseAssembler {
 
         BaseOptimizer.resolveLabels(asmLines, labelAddressMap);
 
+        // DEBUG output label address map
+        System.out.println("\n\n\n");
+        System.out.println("* LABEL-ADDRESS-MAP **************************");
+        for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
+
+            System.out.println("Key: " + entry.getKey() + " Value: " + entry.getValue() + " " + ByteArrayUtil.longToHex(entry.getValue()));
+        }
+        System.out.println("***************************");
+
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("build//map_file.txt"))) {
+            for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
+                bufferedWriter.write("Key: " + entry.getKey() + " Value: " + entry.getValue() + " " + ByteArrayUtil.longToHex(entry.getValue()) + "\n");
+            }
+            bufferedWriter.flush();
+        }
+
+
         // DEBUG
         System.out.println("\n\n\n");
         System.out.println("***************************");
         for (AsmLine<?> asmLine : asmLines) {
             try {
+                //System.out.println(asmLine);
                 System.out.println(asmLine);
             } catch (Throwable e) {
                 System.out.println("error!");

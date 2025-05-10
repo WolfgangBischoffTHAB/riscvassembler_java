@@ -1,11 +1,12 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 import com.mycompany.data.AsmLine;
 
-public class RISCVEncoder implements Encoder{
+public class RISCVEncoder implements Encoder {
 
     private ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
 
@@ -13,12 +14,14 @@ public class RISCVEncoder implements Encoder{
 
     private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
 
-    public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) {
+    public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap, final long currentAddress)
+            throws IOException {
 
         switch (asmLine.getAsmLineType()) {
 
             case MNEMONIC:
-                int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
+                int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap,
+                        currentAddress);
                 return length;
 
             case ASSEMBLER_INSTRUCTION:

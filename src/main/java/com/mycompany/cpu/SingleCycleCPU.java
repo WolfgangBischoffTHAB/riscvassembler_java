@@ -41,8 +41,9 @@ public class SingleCycleCPU implements CPU {
         final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc + 1], memory[pc + 2],
                 memory[pc + 3], byteOrder);
 
-        if (instruction == 0xFFFFFFFF) {
-            throw new RuntimeException("Done");
+        if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
+            //throw new RuntimeException("Done");
+            return false;
         }
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
@@ -151,14 +152,16 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_BGE:
+                // bge rs1, sr2, imm
                 // if (rs1 >= rs2) pc += imm
 
-                // DEBUG
-                logger.trace("bge " + readRegisterFile(asmLine.register_0.getIndex()) + " >= "
-                        + readRegisterFile(asmLine.register_1.getIndex()));
+                int register_0_value = readRegisterFile(asmLine.register_0.getIndex());
+                int register_1_value = readRegisterFile(asmLine.register_1.getIndex());
 
-                if (readRegisterFile(asmLine.register_0.getIndex()) >= readRegisterFile(
-                        asmLine.register_1.getIndex())) {
+                // DEBUG
+                logger.info("bge " + register_0_value + " >= " + register_1_value);
+
+                if (register_0_value >= register_1_value) {
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     pc += 4;
@@ -197,7 +200,8 @@ public class SingleCycleCPU implements CPU {
 
                 // WRITE BACK STAGE
                 // place read value into the destination register
-                value = ByteArrayUtil.fourByteToInt(let, ByteOrder.BIG_ENDIAN);
+                //value = ByteArrayUtil.fourByteToInt(let, ByteOrder.BIG_ENDIAN);
+                value = ByteArrayUtil.fourByteToInt(let, ByteOrder.LITTLE_ENDIAN);
                 writeRegisterFile(asmLine.register_0.getIndex(), value);
 
                 // DEBUG
@@ -207,7 +211,7 @@ public class SingleCycleCPU implements CPU {
                 stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.trace(stringBuilder.toString());
+                logger.info(stringBuilder.toString());
 
                 pc += 4;
                 break;
@@ -239,7 +243,8 @@ public class SingleCycleCPU implements CPU {
 
                 // retrieve the value to write into the address
                 value = readRegisterFile(asmLine.register_0.getIndex());
-                let = ByteArrayUtil.intToFourByte(value, ByteOrder.BIG_ENDIAN);
+                let = ByteArrayUtil.intToFourByte(value, ByteOrder.LITTLE_ENDIAN);
+                //let = ByteArrayUtil.intToFourByte(value, ByteOrder.BIG_ENDIAN);
 
                 // write value into memory (MEMORY STAGE)
                 memory[addr + 0] = let[0];
@@ -309,8 +314,17 @@ public class SingleCycleCPU implements CPU {
             // break;
 
             case I_SLLI:
-                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
-            // break;
+                // SLLI (Shift Left Logical Immediate)
+                // slli rd, rs1, imm  # rd = rs1 << imm
+                logger.trace("SLLI");
+
+                immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+
+                value = readRegisterFile(asmLine.register_1.getIndex()) << immediate_value;
+                writeRegisterFile(asmLine.register_0.getIndex(), value);
+
+                pc += 4;
+                break;
 
             case I_SRLI:
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
@@ -441,6 +455,11 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_NOP:
+                // logger.trace("mnemonic: NOP");
+                pc += 4;
+                break;
+
+            case I_BRK:
                 // logger.trace("mnemonic: NOP");
                 pc += 4;
                 break;

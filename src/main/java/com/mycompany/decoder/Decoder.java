@@ -31,12 +31,24 @@ public class Decoder {
 
     private static final int J_TYPE = 0b1101111;
 
+    /**
+     * decodes four byte of machine code into a ASMLine domain model
+     * @param data machine code
+     * @return ASMLine object with decoded information
+     */
     public static AsmLine<?> decode(final int data) {
 
         AsmLine<Register> asmLine = new AsmLine<>();
 
+        // decode 0 to NOP
         if (data == 0) {
             asmLine.mnemonic = Mnemonic.I_NOP;
+            return asmLine;
+        }
+
+        // detect custom breakpoint instruction
+        if (data == 0x1f1f1f1f) {
+            asmLine.mnemonic = Mnemonic.I_BRK;
             return asmLine;
         }
 
@@ -96,7 +108,7 @@ public class Decoder {
                                 break;
 
                             default:
-                                throw new RuntimeException("Unknown funct7: " + funct7);
+                                throw new RuntimeException("Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
@@ -120,12 +132,12 @@ public class Decoder {
                                 break;
 
                             default:
-                                throw new RuntimeException("Unknown funct3: " + funct7);
+                                throw new RuntimeException("Unknown funct3: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
                     default:
-                        throw new RuntimeException("Unknown funct7: " + funct3);
+                        throw new RuntimeException("Unknown funct7: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                 break;
@@ -138,7 +150,7 @@ public class Decoder {
                         break;
 
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3);
+                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
@@ -148,11 +160,14 @@ public class Decoder {
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_ADDI;
                         break;
+                    case 0b001:
+                        asmLine.mnemonic = Mnemonic.I_SLLI;
+                        break;
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_XORI;
                         break;
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3);
+                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
@@ -166,7 +181,7 @@ public class Decoder {
                         asmLine.mnemonic = Mnemonic.I_LW;
                         break;
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3);
+                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_3(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
@@ -180,7 +195,7 @@ public class Decoder {
                         asmLine.mnemonic = Mnemonic.I_SW;
                         break;
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3);
+                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
 
                 imm = (imm_11_5 << 5) | (imm_4_0 << 0);

@@ -9,6 +9,17 @@ import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
+/**
+ * BGT is a pseudo instruction that does not exist in the RISC V instruction
+ * set!
+ * Implement BGT by BLT
+ *
+ * BGT a > b
+ * BLT b < a
+ *
+ * BLE is not the correct instruction to use! BLT is correct including swapping
+ * the parameters
+ */
 public class BgtResolver implements AsmInstructionListModifier {
 
     @Override
@@ -20,7 +31,10 @@ public class BgtResolver implements AsmInstructionListModifier {
                 continue;
             }
 
+            // replace BGT by BLT
             asmLine.mnemonic = Mnemonic.I_BLT;
+
+            // swap registers
             Register temp = asmLine.register_0;
             asmLine.register_0 = asmLine.register_1;
             asmLine.register_1 = temp;

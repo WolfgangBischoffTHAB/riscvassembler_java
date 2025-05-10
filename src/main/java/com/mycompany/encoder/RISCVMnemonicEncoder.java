@@ -1,6 +1,8 @@
 package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.Map;
 
 import com.mycompany.data.AsmLine;
@@ -12,8 +14,11 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     @SuppressWarnings("unused")
     private static final boolean USE_64_BIT = false;
 
+    private static final ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+
     public int encodeMnemonic(final ByteArrayOutputStream byteArrayOutStream,
-            final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) {
+            final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap, final long currentAddress)
+            throws IOException {
 
         switch (asmLine.mnemonic) {
 
@@ -54,6 +59,10 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             case I_BLT:
                 return encodeBLT(byteArrayOutStream, asmLine);
+
+            case I_BRK:
+                // custom breakpoint instruction
+                return encodeBRK(byteArrayOutStream, asmLine);
 
             case I_ECALL:
                 return encodeECALL(byteArrayOutStream, asmLine);
@@ -143,7 +152,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         }
     }
 
-    private int encodeXOR(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+    private int encodeXOR(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
 
         byte funct7 = 0b0000000;
         byte funct3 = 0b100;
@@ -160,7 +169,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeXORI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeXORI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
 
         byte funct3 = 0b100;
         byte opcode = 0b0010011;
@@ -178,7 +188,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     private int encodeAUIPC(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
-            final long currentAddress) {
+            final long currentAddress) throws IOException {
 
         if ((asmLine.pseudoInstructionAsmLine != null)
                 && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
@@ -186,7 +196,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             final String label = asmLine.offsetLabel_1;
 
             if (!labelAddressMap.containsKey(label)) {
-                throw new RuntimeException("Trying to lookup label \"" + label + "\" in labelAddressMap but it is not defined!");
+                throw new RuntimeException(
+                        "Trying to lookup label \"" + label + "\" in labelAddressMap but it is not defined!");
             }
 
             long value = labelAddressMap.get(label);
@@ -231,7 +242,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeADD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeADD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
 
         byte funct7 = 0b0000000;
         byte funct3 = 0b000;
@@ -250,7 +261,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     private int encodeADDI(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
-            final long currentAddress) {
+            final long currentAddress) throws IOException {
 
         if ((asmLine.pseudoInstructionAsmLine != null)
                 && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)) {
@@ -317,7 +328,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     /** This is 64 bit */
     @SuppressWarnings("unused")
-    private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b000;
         byte opcode = 0b0011011;
 
@@ -332,7 +344,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeAND(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeAND(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct7 = 0b0000000;
         byte funct3 = 0b111;
         byte opcode = 0b0110011;
@@ -348,7 +360,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeANDI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeANDI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b111;
         byte opcode = 0b0010011;
 
@@ -363,7 +376,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeMUL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeMUL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct7 = 0b0000001;
         byte funct3 = 0b000;
         byte opcode = 0b0110011;
@@ -379,7 +392,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSUB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSUB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct7 = 0b0100000;
         byte funct3 = 0b000;
         byte opcode = 0b0110011;
@@ -395,7 +408,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeBEQ(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeBEQ(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b000;
         byte opcode = 0b1100011;
 
@@ -414,7 +427,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeECALL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeECALL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b000;
         byte opcode = 0b1110011;
 
@@ -429,7 +443,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeBNE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeBNE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b001;
         byte opcode = 0b1100011;
 
@@ -444,7 +458,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeBGE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeBGE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b101;
         byte opcode = 0b1100011;
 
@@ -459,7 +473,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeBLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeBLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b100;
         byte opcode = 0b1100011;
 
@@ -475,6 +489,19 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     }
 
     /**
+     * Custom breakpoint instruction
+     *
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return encoded size of the instruction
+     */
+    private int encodeBRK(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, 0x1f1f1f1f);
+
+        return 4;
+    }
+
+    /**
      * rd <- pc + 4
      * pc <- pc + imm20
      *
@@ -482,7 +509,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
      * @param asmLine
      * @return size of the encoded instruction in bytes
      */
-    private int encodeJAL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeJAL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte opcode = 0b1101111;
 
         byte rd = (byte) asmLine.register_0.getIndex();
@@ -495,7 +522,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeJALR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeJALR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
 
         byte funct3 = 0b000;
         byte opcode = 0b1100111;
@@ -516,7 +544,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeLUI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeLUI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte opcode = 0b0110111;
         byte rd = (byte) asmLine.register_0.getIndex();
         int imm = asmLine.numeric_1.shortValue();
@@ -528,7 +556,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeLB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeLB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b000;
         byte opcode = 0b0000011;
 
@@ -543,7 +571,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeLBU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeLBU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b100;
         byte opcode = 0b0000011;
 
@@ -558,7 +586,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b000;
         byte opcode = 0b0100011;
         byte rs2 = (byte) asmLine.register_0.getIndex();
@@ -572,7 +600,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeLW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeLW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b010;
         byte opcode = 0b0000011;
 
@@ -587,7 +615,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeOR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeOR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct7 = 0b0000000;
         byte funct3 = 0b110;
         byte opcode = 0b0110011;
@@ -611,7 +639,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
      * @return
      */
     @SuppressWarnings("unused")
-    private int encodeLD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeLD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b011;
         byte opcode = 0b0000011;
 
@@ -626,7 +654,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSRA(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSRA(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
 
         byte funct7 = 0b0100000;
         byte funct3 = 0b101;
@@ -643,7 +671,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSRAI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSRAI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b101;
         byte opcode = 0b0010011;
 
@@ -658,7 +687,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSRL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSRL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
 
         byte funct7 = 0b0000000;
         byte funct3 = 0b101;
@@ -675,7 +704,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSRLI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSRLI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b101;
         byte opcode = 0b0010011;
 
@@ -690,7 +720,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSLL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSLL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
 
         byte funct7 = 0b0000000;
         byte funct3 = 0b001;
@@ -707,7 +737,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSLLI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSLLI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b001;
         byte opcode = 0b0010011;
 
@@ -722,7 +753,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct7 = 0b0000000;
         byte funct3 = 0b010;
         byte opcode = 0b0110011;
@@ -739,7 +770,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     }
 
     @SuppressWarnings("unused")
-    private int encodeSD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b011;
         byte opcode = 0b0100011;
         byte rs2 = (byte) asmLine.register_0.getIndex();
@@ -753,7 +784,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) {
+    private int encodeSW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b010;
         byte opcode = 0b0100011;
         byte rs2 = (byte) asmLine.register_0.getIndex();
@@ -767,7 +798,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeRType(byte funct7, byte rs2, byte rs1, byte funct3, byte rd, byte opcode) {
+    private int encodeRType(byte funct7, byte rs2, byte rs1, byte funct3, byte rd, byte opcode) throws IOException {
 
         return ((opcode & 0b1111111) << 0) |
                 ((rd & 0b11111) << 7) |
