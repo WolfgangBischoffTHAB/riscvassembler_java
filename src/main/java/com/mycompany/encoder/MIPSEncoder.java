@@ -15,17 +15,21 @@ public class MIPSEncoder implements Encoder {
     private MnemonicEncoder mnemonicEncoder = new MIPSMnemonicEncoder();
 
     @Override
-    public long encode(AsmLine<?> asmLine, Map<String, Long> labelAddressMap, long currentAddress) throws IOException {
+    public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
+            final Map<Long, AsmLine<?>> addressSourceAsmLineMap,
+            final long currentAddress) throws IOException {
 
         switch (asmLine.getAsmLineType()) {
 
             case MNEMONIC:
                 int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap,
+                        addressSourceAsmLineMap,
                         currentAddress);
                 return length;
 
             case ASSEMBLER_INSTRUCTION:
-                return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine);
+                return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine,
+                        addressSourceAsmLineMap, currentAddress);
 
             default:
                 return 0;

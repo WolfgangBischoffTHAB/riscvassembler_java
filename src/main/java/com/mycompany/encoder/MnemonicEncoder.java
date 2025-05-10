@@ -8,7 +8,8 @@ import com.mycompany.data.AsmLine;
 
 public interface MnemonicEncoder {
 
-    int encodeMnemonic(final ByteArrayOutputStream byteArrayOutStream,
-            final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap, final long currentAddress) throws IOException;
+    int encodeMnemonic(ByteArrayOutputStream byteArrayOutStream,
+            AsmLine<?> asmLine, Map<String, Long> labelAddressMap, Map<Long, AsmLine<?>> addressSourceAsmLineMap,
+            long currentAddress) throws IOException;
 
 }

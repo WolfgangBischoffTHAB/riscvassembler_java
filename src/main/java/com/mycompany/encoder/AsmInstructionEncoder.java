@@ -3,14 +3,18 @@ package com.mycompany.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.Map;
 
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 
 public class AsmInstructionEncoder {
 
-    public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine asmLine)
+    public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine,
+            final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
             throws IOException {
+
+        addressSourceAsmLineMap.put(currentAddress, asmLine);
 
         switch (asmLine.asmInstruction) {
 
@@ -45,16 +49,18 @@ public class AsmInstructionEncoder {
                 throw new RuntimeException("Unknown assembler instruction: " + asmLine);
         }
 
+        addressSourceAsmLineMap.put(currentAddress, asmLine);
+
         return 0;
     }
 
     private int encodeStringAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
-            final AsmLine asmLine) {
+            final AsmLine<?> asmLine) {
         return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, true);
     }
 
     private int encodeAsciiAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
-            final AsmLine asmLine) {
+            final AsmLine<?> asmLine) {
         return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
     }
 

@@ -88,8 +88,8 @@ public class App {
         // "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
         // String inputFile =
         // "src/test/resources/riscvasm/examples/function_call_c_abi.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
-        String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
+        String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
@@ -254,6 +254,10 @@ public class App {
 
         int startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL).intValue();
         CPU cpu = emulate(machineCode, startAddress);
+
+        //
+        // post emulation
+        //
 
         SingleCycleCPU singleCycleCPU = (SingleCycleCPU) cpu;
 

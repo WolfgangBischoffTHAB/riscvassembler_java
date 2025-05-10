@@ -69,6 +69,8 @@ public abstract class BaseAssembler {
 
     public Map<String, Long> labelAddressMap;
 
+    public Map<Long, AsmLine<?>> addressSourceAsmLineMap;
+
     public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
         //
@@ -420,25 +422,27 @@ public abstract class BaseAssembler {
         System.out.println("* LABEL-ADDRESS-MAP **************************");
         for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
 
-            System.out.println("Key: " + entry.getKey() + " Value: " + entry.getValue() + " " + ByteArrayUtil.longToHex(entry.getValue()));
+            System.out.println("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
+                    + ByteArrayUtil.longToHex(entry.getValue()));
         }
         System.out.println("***************************");
 
+        // write label map to map_file.txt
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("build//map_file.txt"))) {
             for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
-                bufferedWriter.write("Key: " + entry.getKey() + " Value: " + entry.getValue() + " " + ByteArrayUtil.longToHex(entry.getValue()) + "\n");
+                bufferedWriter.write("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
+                        + ByteArrayUtil.longToHex(entry.getValue()) + "\n");
             }
             bufferedWriter.flush();
         }
-
 
         // DEBUG
         System.out.println("\n\n\n");
         System.out.println("***************************");
         for (AsmLine<?> asmLine : asmLines) {
             try {
-                //System.out.println(asmLine);
-                System.out.println(asmLine);
+                System.out.print(asmLine);
+                System.out.println(" SourceLine: " + asmLine.sourceLine);
             } catch (Throwable e) {
                 System.out.println("error!");
             }
@@ -449,6 +453,8 @@ public abstract class BaseAssembler {
         // encode everything that has a mnemonic or is a
         // .dword, .word, .half, .byte, .string, .asciz, .ascii assembler instruction
         //
+
+        addressSourceAsmLineMap = new HashMap<>();
 
         Encoder encoder = getEncoder();
 
@@ -469,12 +475,12 @@ public abstract class BaseAssembler {
                 // }
 
                 currentAddress = asmLine.section.address;
-                asmLine.section.address += encoder.encode(asmLine, labelAddressMap, asmLine.section.address);
+                asmLine.section.address += encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap, asmLine.section.address);
             }
 
         } catch (Exception e) {
             System.out.println("Failure while encoding: " + errorAsmLine);
-            encoder.encode(errorAsmLine, labelAddressMap, currentAddress);
+            encoder.encode(errorAsmLine, labelAddressMap, addressSourceAsmLineMap, currentAddress);
         }
 
         //
