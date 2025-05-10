@@ -21,8 +21,13 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
             throws IOException {
 
-        System.out.println(currentAddress + " -> " + asmLine);
-        addressSourceAsmLineMap.put(currentAddress, asmLine);
+        if (asmLine.pseudoInstructionAsmLine != null) {
+            System.out.println(currentAddress + " -> " + asmLine.pseudoInstructionAsmLine);
+            addressSourceAsmLineMap.put(currentAddress, asmLine.pseudoInstructionAsmLine);
+        } else {
+            System.out.println(currentAddress + " -> " + asmLine);
+            addressSourceAsmLineMap.put(currentAddress, asmLine);
+        }
 
         switch (asmLine.mnemonic) {
 
