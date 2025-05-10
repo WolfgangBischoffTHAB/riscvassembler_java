@@ -8,6 +8,7 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public class LiOptimizer extends BaseOptimizer {
@@ -54,6 +55,7 @@ public class LiOptimizer extends BaseOptimizer {
             AsmLine<?> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
             AsmLine<?> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
+            // DEBUG
             System.out.println(liPseudoAsmLine);
             System.out.println(firstAsmLine);
             System.out.println(secondAsmLine);
@@ -63,9 +65,7 @@ public class LiOptimizer extends BaseOptimizer {
                 asmLines.remove(liPseudoAsmLine);
                 liPseudoAsmLine.optimized = true;
                 firstAsmLine.optimized = true;
-                // asmLines.add(firstAsmLine);
                 secondAsmLine.optimized = true;
-                // asmLines.add(secondAsmLine);
                 return;
             }
 
@@ -133,7 +133,7 @@ public class LiOptimizer extends BaseOptimizer {
 
             long address = map.get(firstAsmLine.offsetLabel_1);
             long highValue = 0;
-            long lowValue = 0;
+            // long lowValue = 0;
 
             switch (firstAsmLine.modifier_1) {
 
@@ -142,7 +142,7 @@ public class LiOptimizer extends BaseOptimizer {
                     break;
 
                 case LO:
-                    lowValue = address & 0xFFF;
+                    //long lowValue = address & 0xFFF;
                     break;
 
                 default:
@@ -156,7 +156,7 @@ public class LiOptimizer extends BaseOptimizer {
                     break;
 
                 case LO:
-                    lowValue = address & 0xFFF;
+                    //long lowValue = address & 0xFFF;
                     break;
 
                 default:
@@ -174,13 +174,16 @@ public class LiOptimizer extends BaseOptimizer {
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
 
-                AsmLine asmLine = new AsmLine();
+                AsmLine<Register> asmLine = new AsmLine<>();
                 asmLine.mnemonic = Mnemonic.I_ADDI;
                 asmLine.register_0 = secondAsmLine.register_0;
                 asmLine.register_1 = RISCVRegister.REG_ZERO;
                 asmLine.modifier_2 = Modifier.LO;
                 asmLine.offsetLabel_2 = secondAsmLine.offsetLabel_2;
                 asmLine.section = liPseudoAsmLine.section;
+
+                // copy source line for displaying the line in the editor / debugger
+                asmLine.sourceLine = firstAsmLine.sourceLine;
 
                 firstAsmLine.pseudoInstructionAsmLine.optimized = true;
                 firstAsmLine.pseudoInstructionAsmLine.pseudoInstructionChildren.clear();

@@ -6,6 +6,7 @@ import java.util.Map;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
@@ -58,10 +59,10 @@ public class LiCombiner implements AsmInstructionListModifier {
     @Override
     public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
-        AsmLine data_1 = null;
-        AsmLine data_2 = null;
+        AsmLine<?> data_1 = null;
+        AsmLine<?> data_2 = null;
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<?> asmLine : asmLines) {
 
             data_2 = asmLine;
 
@@ -86,7 +87,7 @@ public class LiCombiner implements AsmInstructionListModifier {
                     if ((data_1.register_0 == data_2.register_0) && (data_2.register_0 == data_2.register_1)) {
 
                         // attach pseudo instruction
-                        AsmLine pseudoInstructionAsmLine = new AsmLine();
+                        AsmLine<Register> pseudoInstructionAsmLine = new AsmLine<>();
                         pseudoInstructionAsmLine.section = data_1.section;
                         pseudoInstructionAsmLine.optimized = false;
                         pseudoInstructionAsmLine.mnemonic = Mnemonic.I_LI;
@@ -96,15 +97,13 @@ public class LiCombiner implements AsmInstructionListModifier {
                         pseudoInstructionAsmLine.pseudoInstructionChildren.add(data_1);
                         data_2.pseudoInstructionAsmLine = pseudoInstructionAsmLine;
                         pseudoInstructionAsmLine.pseudoInstructionChildren.add(data_2);
+
+                        pseudoInstructionAsmLine.sourceLine = data_1.sourceLine;
                     }
-
                 }
-
             }
 
             data_1 = data_2;
-
         }
     }
-
 }
