@@ -69,6 +69,7 @@ public abstract class BaseAssembler {
 
     public Map<String, Long> labelAddressMap;
 
+    /** maps an address to the AsmLine the data at that address was encoded from */
     public Map<Long, AsmLine<?>> addressSourceAsmLineMap;
 
     public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
@@ -475,7 +476,8 @@ public abstract class BaseAssembler {
                 // }
 
                 currentAddress = asmLine.section.address;
-                asmLine.section.address += encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap, asmLine.section.address);
+                asmLine.section.address += encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap,
+                        asmLine.section.address);
             }
 
         } catch (Exception e) {

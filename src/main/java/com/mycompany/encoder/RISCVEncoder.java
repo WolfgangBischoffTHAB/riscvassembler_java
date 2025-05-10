@@ -2,7 +2,6 @@ package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.mycompany.data.AsmLine;
@@ -14,9 +13,6 @@ public class RISCVEncoder implements Encoder {
     private AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
 
     private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
-
-    /** maps an address to the AsmLine the data at that address was encoded from */
-    public Map<Long, AsmLine<?>> addressSourceAsmLineMap = new HashMap<>();
 
     @Override
     public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,

@@ -14,6 +14,7 @@ public class AsmInstructionEncoder {
             final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
             throws IOException {
 
+        System.out.println(currentAddress + " -> " + asmLine);
         addressSourceAsmLineMap.put(currentAddress, asmLine);
 
         switch (asmLine.asmInstruction) {
