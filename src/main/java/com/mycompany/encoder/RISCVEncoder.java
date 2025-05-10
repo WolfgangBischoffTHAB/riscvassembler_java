@@ -16,7 +16,7 @@ public class RISCVEncoder implements Encoder {
     private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
 
     /** maps an address to the AsmLine the data at that address was encoded from */
-    private Map<Long, AsmLine<?>> addressSourceAsmLineMap = new HashMap<>();
+    public Map<Long, AsmLine<?>> addressSourceAsmLineMap = new HashMap<>();
 
     @Override
     public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,

@@ -26,7 +26,7 @@ public class RiscVAssembler extends BaseAssembler {
 
     private RISCVASMParser parser;
 
-    private RISCVEncoder encoder = new RISCVEncoder();
+    public RISCVEncoder encoder = new RISCVEncoder();
 
     public RiscVAssembler(Map<String, Section> sectionMap, Section dummySection) {
 
