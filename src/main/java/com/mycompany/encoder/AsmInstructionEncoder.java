@@ -8,6 +8,9 @@ import java.util.Map;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 
+/**
+ * Encode instructions directed at the assembler: .BYTE, .WORD, ...
+ */
 public class AsmInstructionEncoder {
 
     public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine,

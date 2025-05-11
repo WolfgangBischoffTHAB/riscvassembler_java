@@ -2,6 +2,7 @@ package com.mycompany.cpu;
 
 import java.nio.ByteOrder;
 
+import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -211,7 +212,7 @@ public class SingleCycleCPU implements CPU {
                 stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.info(stringBuilder.toString());
+                logger.trace(stringBuilder.toString());
 
                 pc += 4;
                 break;
@@ -310,8 +311,18 @@ public class SingleCycleCPU implements CPU {
             // break;
 
             case I_ANDI:
-                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
-            // break;
+                logger.trace("ANDI");
+                // Format: andi rd, rs1, imm
+                // Description: Performs bitwise AND on register rs1 and the sign-extended 12-bit
+                // immediate and place the result in rd. This is the basic bitwise AND operator but
+                // instead of using two registers, it uses a 12-bit immediate which is sign extended.
+                // Implementation: x[rd] = x[rs1] & sext(immediate)
+                value = readRegisterFile(asmLine.register_1.getIndex())
+                        & ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
+                writeRegisterFile(asmLine.register_0.getIndex(), value);
+
+                pc += 4;
+                break;
 
             case I_SLLI:
                 // SLLI (Shift Left Logical Immediate)

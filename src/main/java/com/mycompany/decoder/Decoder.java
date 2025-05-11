@@ -166,6 +166,9 @@ public class Decoder {
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_XORI;
                         break;
+                    case 0b111:
+                        asmLine.mnemonic = Mnemonic.I_ANDI;
+                        break;
                     default:
                         throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }

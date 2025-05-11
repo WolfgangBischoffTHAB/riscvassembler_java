@@ -2,19 +2,19 @@ package com.mycompany.encoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.util.Map;
 
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 
+/**
+ * Encodes mnemonics (add, sub, ...) but no assembler instructions (.BYTE, .WORD, ...)
+ */
 public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     @SuppressWarnings("unused")
     private static final boolean USE_64_BIT = false;
-
-    // private static final ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
     public int encodeMnemonic(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,

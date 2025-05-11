@@ -22,9 +22,13 @@ public class RetResolver implements AsmInstructionListModifier {
             }
 
             asmLine.mnemonic = Mnemonic.I_JALR;
+
             asmLine.register_0 = RISCVRegister.REG_ZERO;
             asmLine.register_1 = RISCVRegister.REG_RA;
-            asmLine.register_2 = RISCVRegister.REG_UNKNOWN;
+            asmLine.register_2 = null;
+
+            asmLine.numeric_0 = 0L;
+            asmLine.numeric_1 = 0L;
             asmLine.numeric_2 = 0L;
         }
     }

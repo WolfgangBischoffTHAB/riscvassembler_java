@@ -1,3 +1,59 @@
+__main:
+        addi    sp,sp,-48           # reserve stack frame
+        sw      ra,44(sp)           # save return address of caller
+        sw      s0,40(sp)           # save top of stack of caller
+
+        addi    s0, sp, 48            # initialize s0 to top of stack
+
+        # determine address of array
+        # this is the correct address of the array according to the map file
+        # optimized to addi, zero 0x214
+        lui     a5, %hi(.LC0)
+        addi    a5, a5, %lo(.LC0)
+
+        #brk                         # breakpoint, check a5, has to point to array .LC0
+
+        # this copies the array to the stack !?!
+
+        lw      a1, 0(a5)           # load array element 0 with value 4 int a1
+        lw      a2, 4(a5)           # load array element 1 with value 2 int a1
+        lw      a3, 8(a5)           # load array element 2 with value 5 int a1
+        lw      a4, 12(a5)          # load array element 3 with value 3 int a1
+        lw      a5, 16(a5)          # load array element 4 with value 1 int a1
+
+        sw      a1, -40(s0)         # store value 4 onto the stack
+        sw      a2, -36(s0)         # store value 2 onto the stack
+        sw      a3, -32(s0)         # store value 5 onto the stack
+        sw      a4, -28(s0)         # store value 3 onto the stack
+        sw      a5, -24(s0)         # store value 1 onto the stack
+
+        # store array length on the stack as a parameter to quicksort()
+        li      a5, 5               # length of the array, compiler does hardcode this value
+        sw      a5, -20(s0)         # store length of array on the stack
+
+        lw      a5, -20(s0)         # load the same value stored before??? Length of array
+        addi    a4, a5, -1          # this computes (n - 1) which is used in the C code as third parameter
+
+        addi    a5, s0, -40         # address of the array somehow???
+
+        # prepare parameters in a0, a1, a2
+        mv      a2, a4              # param 3 - is (n - 1) in the C code
+        li      a1, 0               # param 2 - is zero in the C code
+
+        #brk                        # breakpoint (custom instruction)
+
+        mv      a0, a5              # param 1 - address of the array
+                                    # move pseudo instruction is implemented by addi a0, a5, 0x00
+
+        call    quickSort
+
+        li      a5, 0
+        mv      a0, a5
+        lw      ra, 44(sp)
+        lw      s0, 40(sp)
+        addi    sp, sp, 48
+        jr      ra
+
 swap:
         addi    sp,sp,-48           # make space for stack frame
         sw      ra,44(sp)           # jal, jalr has loade ra, safe ra here for return
@@ -189,58 +245,3 @@ quickSort:
         .word   3
         .word   1
 
-__main:
-        addi    sp,sp,-48           # reserve stack frame
-        sw      ra,44(sp)           # save return address of caller
-        sw      s0,40(sp)           # save top of stack of caller
-
-        addi    s0, sp, 48            # initialize s0 to top of stack
-
-        # determine address of array
-        # this is the correct address of the array according to the map file
-        # optimized to addi, zero 0x214
-        lui     a5, %hi(.LC0)
-        addi    a5, a5, %lo(.LC0)
-
-        #brk                         # breakpoint, check a5, has to point to array .LC0
-
-        # this copies the array to the stack !?!
-
-        lw      a1, 0(a5)           # load array element 0 with value 4 int a1
-        lw      a2, 4(a5)           # load array element 1 with value 2 int a1
-        lw      a3, 8(a5)           # load array element 2 with value 5 int a1
-        lw      a4, 12(a5)          # load array element 3 with value 3 int a1
-        lw      a5, 16(a5)          # load array element 4 with value 1 int a1
-
-        sw      a1, -40(s0)         # store value 4 onto the stack
-        sw      a2, -36(s0)         # store value 2 onto the stack
-        sw      a3, -32(s0)         # store value 5 onto the stack
-        sw      a4, -28(s0)         # store value 3 onto the stack
-        sw      a5, -24(s0)         # store value 1 onto the stack
-
-        # store array length on the stack as a parameter to quicksort()
-        li      a5, 5               # length of the array, compiler does hardcode this value
-        sw      a5, -20(s0)         # store length of array on the stack
-
-        lw      a5, -20(s0)         # load the same value stored before??? Length of array
-        addi    a4, a5, -1          # this computes (n - 1) which is used in the C code as third parameter
-
-        addi    a5, s0, -40         # address of the array somehow???
-
-        # prepare parameters in a0, a1, a2
-        mv      a2, a4              # param 3 - is (n - 1) in the C code
-        li      a1, 0               # param 2 - is zero in the C code
-
-        #brk                        # breakpoint (custom instruction)
-
-        mv      a0, a5              # param 1 - address of the array
-                                    # move pseudo instruction is implemented by addi a0, a5, 0x00
-
-        call    quickSort
-
-        li      a5, 0
-        mv      a0, a5
-        lw      ra, 44(sp)
-        lw      s0, 40(sp)
-        addi    sp, sp, 48
-        jr      ra
