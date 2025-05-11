@@ -44,9 +44,9 @@ public class App {
 
     private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
 
-    private static final Logger logger = LoggerFactory.getLogger(App.class);
-
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
+
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) throws IOException {
 
@@ -90,7 +90,7 @@ public class App {
         // "src/test/resources/riscvasm/examples/function_call_c_abi.s";
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
-        String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
@@ -100,6 +100,10 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
+
+        // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/slti.s";
+        String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
 
         args[0] = inputFile;
         mainRISCV(args);

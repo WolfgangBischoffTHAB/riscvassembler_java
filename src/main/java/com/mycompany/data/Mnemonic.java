@@ -120,6 +120,8 @@ public enum Mnemonic {
             return I_BGT;
         } else if (mnemonic.equalsIgnoreCase("BLT")) {
             return I_BLT;
+        } else if (mnemonic.equalsIgnoreCase("BLTU")) {
+            return I_BLTU;
         } else if (mnemonic.equalsIgnoreCase("BLE")) {
             return I_BLE;
         } else if (mnemonic.equalsIgnoreCase("BNE")) {

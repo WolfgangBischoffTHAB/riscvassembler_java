@@ -224,6 +224,10 @@ public class Decoder {
                         asmLine.mnemonic = Mnemonic.I_BGE;
                         break;
 
+                    case 0b110:
+                        asmLine.mnemonic = Mnemonic.I_BLTU;
+                        break;
+
                     default:
                         throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }

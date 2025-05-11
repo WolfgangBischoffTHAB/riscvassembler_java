@@ -70,6 +70,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             case I_BLT:
                 return encodeBLT(byteArrayOutStream, asmLine);
 
+            case I_BLTU:
+                return encodeBLTU(byteArrayOutStream, asmLine);
+
             case I_BRK:
                 // custom breakpoint instruction
                 return encodeBRK(byteArrayOutStream, asmLine);
@@ -498,6 +501,21 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
+    private int encodeBLTU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        byte funct3 = 0b110;
+        byte opcode = 0b1100011;
+
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rs2 = (byte) asmLine.register_1.getIndex();
+        short imm = asmLine.numeric_2.shortValue();
+
+        int result = encodeBType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     /**
      * Custom breakpoint instruction
      *
@@ -749,6 +767,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     private int encodeSLLI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
             throws IOException {
+
         byte funct3 = 0b001;
         byte opcode = 0b0010011;
 

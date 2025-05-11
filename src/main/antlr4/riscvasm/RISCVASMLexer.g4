@@ -83,6 +83,7 @@ I_BEQZ : B E Q Z ;
 I_BGE : B G E ;
 I_BGT : B G T ;
 I_BLT : B L T ;
+I_BLTU : B L T U ;
 I_BLE : B L E ;
 I_BNE : B N E ;
 I_BNEZ : B N E Z ;
