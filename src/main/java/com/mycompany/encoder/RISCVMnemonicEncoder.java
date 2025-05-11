@@ -9,7 +9,8 @@ import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 
 /**
- * Encodes mnemonics (add, sub, ...) but no assembler instructions (.BYTE, .WORD, ...)
+ * Encodes RISCV mnemonics (add, sub, ...) but no assembler instructions (.BYTE,
+ * .WORD, ...)
  */
 public class RISCVMnemonicEncoder implements MnemonicEncoder {
 

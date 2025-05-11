@@ -221,7 +221,7 @@ public abstract class BaseAssembler {
             }
 
             //
-            // replace labels
+            // replace labels with definitions
             //
 
             if (asmLine.offsetLabel_0 != null) {

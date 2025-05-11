@@ -178,8 +178,36 @@ public class SingleCycleCPU implements CPU {
             // break;
 
             case I_LB:
-                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
-            // break;
+                logger.info(asmLine.toString());
+
+                // compute memory address to load from (EXECUTE STAGE)
+                addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
+                logger.info("addr: " + addr);
+
+                // read from memory (MEMORY STAGE)
+                let = new byte[1];
+                let[0] = memory[addr + 0];
+                // let[1] = memory[addr + 1];
+                // let[2] = memory[addr + 2];
+                // let[3] = memory[addr + 3];
+
+                // WRITE BACK STAGE
+                // place read value into the destination register
+                //value = ByteArrayUtil.fourByteToInt(let, ByteOrder.BIG_ENDIAN);
+                // value = ByteArrayUtil.fourByteToInt(let, ByteOrder.LITTLE_ENDIAN);
+                writeRegisterFile(asmLine.register_0.getIndex(), (int) let[0]);
+
+                // DEBUG
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("lw");
+                stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
+                // stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
+                // stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
+                // stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
+                logger.trace(stringBuilder.toString());
+
+                pc += 4;
+                break;
 
             case I_LH:
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);

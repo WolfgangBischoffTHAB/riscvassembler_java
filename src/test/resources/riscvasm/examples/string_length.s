@@ -1,10 +1,10 @@
 # https://marz.utk.edu/my-courses/cosc230/book/example-risc-v-assembly-programs/
 # file: string_length.s
 
-.section .text
-.global strlen
+#.section .text
+#.global __main
 
-strlen:
+__main:
                         # a0 = const char *str (a0 constains the address of the string input data for which to determine the string length)
     li     t0, 0        # i = 0                                                 (size: 8)  8 pseudo (lui, addi)
                         # initialize the string length to zero

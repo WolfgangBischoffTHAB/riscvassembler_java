@@ -2,6 +2,22 @@
 
 riscvassembler written in Java
 
+## Debugging in Visual Studio Code
+
+The RISC-V Venus Simulator: https://marketplace.visualstudio.com/items?itemName=hm.riscv-venus
+
+in combination with the RISC-V Support: https://marketplace.visualstudio.com/items?itemName=zhwu95.riscv
+
+extensions form a good basis for debugging your code.
+
+The important part is to move the main entry point to the top of the application since the Venus simulator starts to execute the first instruction and does not looks for any specific start labels.
+
+The memory can be inspected by opening the memory view. On windows it is CTRL + SHIFT + P, then type "Venus: Open Memory".
+
+The initial value of the stack pointer is 0x7FFFFFF0.
+
+
+
 ## Testsuite
 
 ```
