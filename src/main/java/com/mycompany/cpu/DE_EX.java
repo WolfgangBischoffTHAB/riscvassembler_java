@@ -6,21 +6,12 @@ import java.util.Map;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Register;
 
+/**
+ * Pipeline stage between Decode and Execute.
+ */
 public class DE_EX {
 
     private AsmLine asmLine;
-
-    // result value from IE is stored here for forwarding to prevent pipeline stalls
-    // public int forwarded_rd_value;
-    // public boolean forwarded;
-
-    public AsmLine getAsmLine() {
-        return asmLine;
-    }
-
-    public void setAsmLine(AsmLine asmLine) {
-        this.asmLine = asmLine;
-    }
 
     public Map<Register, Integer> forwardingMap = new HashMap<>();
 
@@ -30,6 +21,7 @@ public class DE_EX {
      * expression. It stores the verdict here.
      */
     public boolean branchTaken;
+
     public boolean flush;
 
     public void flush() {
@@ -38,6 +30,14 @@ public class DE_EX {
         instruction = 0;
         branchTaken = false;
         flush = true;
+    }
+
+    public AsmLine getAsmLine() {
+        return asmLine;
+    }
+
+    public void setAsmLine(AsmLine asmLine) {
+        this.asmLine = asmLine;
     }
 
 }
