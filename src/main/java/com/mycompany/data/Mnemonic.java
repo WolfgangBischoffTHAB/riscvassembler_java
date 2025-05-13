@@ -40,7 +40,7 @@ public enum Mnemonic {
     I_JALR(false),
     I_JAL(false),       // rd <- pc + 4; pc <- pc + imm20
 
-    I_LA(false),
+    I_LA(true),
     // I_LD(false), // This is 64 bits!!!
     I_LW(false),
     I_LH(false),

@@ -2,17 +2,19 @@ package com.mycompany.visitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Stack;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.mycompany.common.NumberParseUtil;
+import com.mycompany.data.ASTNode;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 import riscvasm.RISCVASMParser;
@@ -43,6 +45,72 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     public Section dummySection;
 
+    public Stack<ASTNode> exprStack = new Stack<>();
+
+    @Override
+    public void enterExpr(RISCVASMParser.ExprContext ctx) {
+    }
+
+    @Override
+    public void exitExpr(RISCVASMParser.ExprContext ctx) {
+
+        ASTNode astNode = new ASTNode();
+
+        // case: a single node expression
+        // push a node onto the stack
+        if (ctx.children.size() == 1) {
+
+            RegisterContext registerContext = ctx.register();
+            if (registerContext != null) {
+                astNode.isRegister = true;
+                astNode.register = RISCVRegister.fromString(registerContext.getText());
+            }
+
+            TerminalNode numericTerminalNode = ctx.NUMERIC();
+            if (numericTerminalNode != null) {
+                astNode.isNumeric = true;
+                astNode.numeric = NumberParseUtil.parseLong(numericTerminalNode.toString());
+            }
+
+            numericTerminalNode = ctx.HEX_NUMERIC();
+            if (numericTerminalNode != null) {
+                astNode.isHexNumeric = true;
+                String numeric = numericTerminalNode.toString();
+                astNode.hexNumeric = NumberParseUtil.parseLong(numeric);
+            }
+
+            TerminalNode stringLiteralTerminalNode = ctx.IDENTIFIER();
+            if (stringLiteralTerminalNode != null) {
+                astNode.isStringLiteral = true;
+                astNode.identifier = stringLiteralTerminalNode.getText();
+            }
+
+            exprStack.push(astNode);
+
+            return;
+
+        } else if (ctx.children.size() == 3) {
+
+            ASTNode rhs = exprStack.pop();
+            ASTNode lhs = exprStack.pop();
+
+            astNode.operatorAsString = ctx.children.get(1).getText();
+
+            astNode.rhs = rhs;
+            rhs.parent = astNode;
+
+            astNode.lhs = lhs;
+            lhs.parent = astNode;
+
+            exprStack.push(astNode);
+
+            return;
+
+        }
+
+        throw new RuntimeException("Not implemented yet!");
+    }
+
     @Override
     public void exitAsm_line(RISCVASMParser.Asm_lineContext ctx) {
 
@@ -59,8 +127,12 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         asmLine.mnemonic = Mnemonic.fromString(ctx.getText());
     }
 
+    /**
+     * (Almos) every assembler line that contains a mnemonic has a params
+     * grammar element which has the individual parameters as children.
+     */
     @Override
-    public void enterParams(RISCVASMParser.ParamsContext ctx) {
+    public void exitParams(RISCVASMParser.ParamsContext ctx) {
 
         boolean isOffset = false;
         boolean isRegister = false;
@@ -70,8 +142,23 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         try {
 
-            int index = 0;
-            for (ParamContext paramContext : ctx.param()) {
+            // loop over all parameters in forward direction
+            // int index = 0;
+            // for (ParamContext paramContext : ctx.param()) {
+
+            // iterate in reverse direction
+
+            int index = ctx.children.size();
+            if (index == 3) {
+                index = 1;
+            }
+            if (index == 5) {
+                index = 2;
+            }
+            ListIterator li = ctx.param().listIterator(ctx.param().size());
+            while (li.hasPrevious()) {
+
+                ParamContext paramContext = (ParamContext) li.previous();
 
                 OffsetContext offsetContext = paramContext.offset();
                 if (offsetContext != null) {
@@ -160,9 +247,17 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                 if (exprContext != null) {
 
                     RegisterContext registerContext = exprContext.register();
+                    TerminalNode numericTerminalNode = exprContext.NUMERIC();
+                    TerminalNode hexNumericTerminalNode = exprContext.HEX_NUMERIC();
+                    TerminalNode stringLiteralTerminalNode = exprContext.IDENTIFIER();
+
                     if (registerContext != null) {
 
                         isRegister = true;
+
+                        // remove the expression from the stack to consume it so that the stack remains
+                        // in correct state
+                        exprStack.pop();
 
                         switch (index) {
                             case 0:
@@ -175,12 +270,14 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 asmLine.register_2 = RISCVRegister.fromString(registerContext.getText());
                                 break;
                         }
-                    }
 
-                    TerminalNode numericTerminalNode = exprContext.NUMERIC();
-                    if (numericTerminalNode != null) {
+                    } else if (numericTerminalNode != null) {
 
                         isNumeric = true;
+
+                        // remove the expression from the stack to consume it so that the stack remains
+                        // in correct state
+                        exprStack.pop();
 
                         String numeric = numericTerminalNode.toString();
                         if (numeric != null) {
@@ -196,12 +293,14 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                     break;
                             }
                         }
-                    }
 
-                    numericTerminalNode = exprContext.HEX_NUMERIC();
-                    if (numericTerminalNode != null) {
+                    } else if (hexNumericTerminalNode != null) {
 
                         isHexNumeric = true;
+
+                        // remove the expression from the stack to consume it so that the stack remains
+                        // in correct state
+                        exprStack.pop();
 
                         String numeric = numericTerminalNode.toString();
                         long value = NumberParseUtil.parseLong(numeric);
@@ -219,12 +318,14 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                     break;
                             }
                         }
-                    }
 
-                    TerminalNode stringLiteralTerminalNode = exprContext.IDENTIFIER();
-                    if (stringLiteralTerminalNode != null) {
+                    } else if (stringLiteralTerminalNode != null) {
 
                         isStringLiteral = true;
+
+                        // remove the expression from the stack to consume it so that the stack remains
+                        // in correct state
+                        exprStack.pop();
 
                         String identifier = stringLiteralTerminalNode.getText();
                         switch (index) {
@@ -238,7 +339,26 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 asmLine.identifier_2 = identifier;
                                 break;
                         }
+
+                    } else {
+
+                        // last option is an expression located on the expression stack
+                        ASTNode exprASTNode = exprStack.pop();
+
+                        switch (index) {
+                            case 0:
+                                asmLine.expr_0 = exprASTNode;
+                                break;
+                            case 1:
+                                asmLine.expr_1 = exprASTNode;
+                                break;
+                            case 2:
+                                asmLine.expr_2 = exprASTNode;
+                                break;
+                        }
+
                     }
+
                 }
 
                 if (!isOffset && !isRegister && !isNumeric && !isHexNumeric && !isStringLiteral) {
@@ -250,13 +370,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                     switch (index) {
                         case 0:
-                            //asmLine.exprContext_0 = exprContext;
+                            // asmLine.exprContext_0 = exprContext;
                             break;
                         case 1:
-                            //asmLine.exprContext_1 = exprContext;
+                            // asmLine.exprContext_1 = exprContext;
                             break;
                         case 2:
-                            //asmLine.exprContext_2 = exprContext;
+                            // asmLine.exprContext_2 = exprContext;
                             break;
                     }
                 }
@@ -267,7 +387,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                 isHexNumeric = false;
                 isStringLiteral = false;
 
-                index++;
+                // index++;
+                index--;
             }
 
         } catch (Exception e) {
@@ -381,7 +502,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
      * Sections (source and target) have to be defined inside the linker script!
      *
      * @param inputSectionName name of the input section to convert into a
-     * target section! (linker script has to match!)
+     *                         target section! (linker script has to match!)
      */
     private Section enableTargetSection(String inputSectionName) {
 
@@ -392,7 +513,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
             }
         }
 
-        //throw new RuntimeException("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
         System.out.println("Section: \"" + inputSectionName + "\" is not defined! Double check the linker script!");
 
         return dummySection;

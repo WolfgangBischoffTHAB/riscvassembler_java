@@ -52,6 +52,10 @@ public class AsmLine<T extends Register> {
     public AsmLine<?> prev;
     public AsmLine<?> next;
 
+    public ASTNode expr_0;
+    public ASTNode expr_1;
+    public ASTNode expr_2;
+
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();

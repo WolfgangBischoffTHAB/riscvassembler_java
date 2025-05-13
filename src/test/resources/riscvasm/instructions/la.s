@@ -6,7 +6,7 @@
 # file: la.s
 #
 # Load Address
-# The la (load address) instruction is an assembler pseudo- instruction used to
+# The la (load address) instruction is an assembler pseudo-instruction used to
 # load the address of a symbol or label. The instruction can emit absolute or
 # relative addresses depending on the -fpic or -fno-pic assembler command line
 # options or an .options pic or .options nopic assembler directive.
@@ -20,7 +20,13 @@
 # auipc rd, %hi(symbol)
 # addi rd, rd, %lo(symbol)
 
-la t0, test_2
+__main:
+    la t0, test_2
+    addi t1, t1, 1
+    addi t1, t1, 1
+    addi t1, t1, 1
+test_2:
+    addi t1, t1, 1
 
 
 

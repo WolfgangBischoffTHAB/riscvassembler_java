@@ -28,6 +28,12 @@ public class RiscVAssembler extends BaseAssembler {
 
     public RISCVEncoder encoder = new RISCVEncoder();
 
+    /**
+     * ctor
+     *
+     * @param sectionMap
+     * @param dummySection
+     */
     public RiscVAssembler(Map<String, Section> sectionMap, Section dummySection) {
 
         currentSection = sectionMap.get(".text");

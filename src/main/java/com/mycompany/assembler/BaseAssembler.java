@@ -242,6 +242,24 @@ public abstract class BaseAssembler {
                     asmLine.offsetLabel_2 = null;
                 }
             }
+
+            //
+            // replace identifier and labels in expressions
+            //
+            // recursively traverse the expr tree of ASTNodes and replace
+            // each occurence of a equ by the real value so that the expression
+            // can be evaluated
+            //
+
+            if (asmLine.expr_0 != null) {
+                asmLine.expr_0.replace(equMap);
+            }
+            if (asmLine.expr_1 != null) {
+                asmLine.expr_1.replace(equMap);
+            }
+            if (asmLine.expr_2 != null) {
+                asmLine.expr_2.replace(equMap);
+            }
         }
 
         //
@@ -321,7 +339,7 @@ public abstract class BaseAssembler {
         }
 
         if (!leftoverPseudoInstructionsFound) {
-            System.out.println("No pseudo instructions left!");
+            System.out.println("[OK] No pseudo instructions left!");
         }
 
         //
@@ -370,7 +388,7 @@ public abstract class BaseAssembler {
                 }
             }
         }
-        System.out.println("No unoptimized instructions found!");
+        System.out.println("[OK] No unoptimized instructions found!");
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -396,9 +414,27 @@ public abstract class BaseAssembler {
 
         // // DEBUG
         // System.out.println("\n\n\n");
-        // for (AsmLine asmLine : asmLines) {
+        // for (final AsmLine asmLine<?> : asmLines) {
         // System.out.println(asmLine);
         // }
+
+
+        //
+        // evaluate expressions
+        //
+
+        for (final AsmLine<?> asmLine : asmLines) {
+
+            if (asmLine.expr_0 != null) {
+                asmLine.numeric_0 = asmLine.expr_0.evaluate();
+            }
+            if (asmLine.expr_1 != null) {
+                asmLine.numeric_1 = asmLine.expr_1.evaluate();
+            }
+            if (asmLine.expr_2 != null) {
+                asmLine.numeric_2 = asmLine.expr_2.evaluate();
+            }
+        }
 
         //
         // resolve modifiers

@@ -103,7 +103,10 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
         //String inputFile = "src/test/resources/riscvasm/examples/slti.s";
-        String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
+        String inputFile = "src/test/resources/riscvasm/examples/fib.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
 
         args[0] = inputFile;
         mainRISCV(args);

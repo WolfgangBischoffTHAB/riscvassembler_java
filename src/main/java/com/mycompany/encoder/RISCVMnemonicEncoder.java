@@ -425,6 +425,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte funct3 = 0b000;
         byte opcode = 0b1100011;
 
+        // System.out.println(asmLine);
+
         byte rs1 = (byte) asmLine.register_0.getIndex();
         byte rs2 = (byte) asmLine.register_1.getIndex();
         short imm = asmLine.numeric_2.shortValue();
@@ -501,7 +503,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeBLTU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+    private int encodeBLTU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
         byte funct3 = 0b110;
         byte opcode = 0b1100011;
 
