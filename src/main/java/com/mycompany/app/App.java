@@ -69,7 +69,7 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
         // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
         // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
         // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
         // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
@@ -91,6 +91,7 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
+        String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
@@ -105,7 +106,7 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/slti.s";
         //String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
-        String inputFile = "src/test/resources/riscvasm/examples/fib.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/fib.s";
         // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
 
         args[0] = inputFile;

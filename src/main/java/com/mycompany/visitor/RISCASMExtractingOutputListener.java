@@ -302,7 +302,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                         // in correct state
                         exprStack.pop();
 
-                        String numeric = numericTerminalNode.toString();
+                        String numeric = hexNumericTerminalNode.toString();
                         long value = NumberParseUtil.parseLong(numeric);
 
                         if (numeric != null) {
