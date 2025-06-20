@@ -7,7 +7,6 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**

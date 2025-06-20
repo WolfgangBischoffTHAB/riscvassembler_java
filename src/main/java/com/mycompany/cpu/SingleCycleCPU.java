@@ -1,9 +1,7 @@
 package com.mycompany.cpu;
 
 import java.nio.ByteOrder;
-import java.text.Format;
 
-import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

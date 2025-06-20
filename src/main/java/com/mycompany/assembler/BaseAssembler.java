@@ -182,7 +182,7 @@ public abstract class BaseAssembler {
         // }
 
         //
-        // replace all .equ values in instructions and replace labels
+        // replace all .equ values in instructions
         //
 
         for (AsmLine<?> asmLine : asmLines) {
@@ -196,6 +196,7 @@ public abstract class BaseAssembler {
 
             //
             // try to replace constants by their values
+            // If an .equ konstant is used as a label, also replace the label
             //
 
             if (asmLine.identifier_0 != null) {
