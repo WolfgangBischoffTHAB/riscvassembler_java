@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,21 +329,14 @@ public class App {
         // cpu.registerFile[i] = i;
         // }
 
-        // //
-        // // single cycle processor
-        // //
-
-        // for (int i = 0; i < 100; i++) {
-        // cpu.step();
-        // }
-
-        //
-        // pipelined processor
-        //
+        logger.info("Enter any text to start emulation!");
+        System.out.println("Enter any text to start emulation!");
+        
+        Scanner s = new Scanner(System.in);
+        String str = s.nextLine();
 
         boolean limited = false;
         if (limited) {
-            // int lastCycle = 16;
             int lastCycle = 100;
             for (int i = 0; i < lastCycle; i++) {
                 cpu.step();

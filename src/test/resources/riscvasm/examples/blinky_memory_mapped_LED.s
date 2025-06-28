@@ -11,8 +11,8 @@ busy_loop_start:
     jal x0, busy_loop_start     # jal loop head (pc relative jump back -8 bytes)
 
 busy_loop_end:
-    lw x6, 52(x0)
-    xori x6, x6, 1
-    sw x6, 52(x0)
+    lw x6, 52(x0)               # load data from mem-address 52 into x6
+    xori x6, x6, 1              # toggle the value stored inside x6
+    sw x6, 52(x0)               # write data from x6 into mem-address 52
 
     jal x0, loop_start
