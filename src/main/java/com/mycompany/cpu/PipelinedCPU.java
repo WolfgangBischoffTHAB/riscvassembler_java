@@ -2,7 +2,7 @@ package com.mycompany.cpu;
 
 import com.mycompany.data.AsmLine;
 
-public class PipelinedCPU implements CPU {
+public class PipelinedCPU extends AbstractCPU {
 
     public int cycle_counter = 1;
 
@@ -11,8 +11,6 @@ public class PipelinedCPU implements CPU {
     public int executePC;
 
     public byte[] memory = new byte[256];
-
-    public int[] registerFile = new int[32];
 
     public PipelinedCPUInstructionFetchStage instr_fetch = new PipelinedCPUInstructionFetchStage();
 
@@ -34,6 +32,15 @@ public class PipelinedCPU implements CPU {
 
     public Interlock interlock = new Interlock();
 
+    /**
+     * Computer Organisation And Design - RISC V edition, page 529
+     *
+     * <ul>
+     * <li>Shading on the right half of the register file or memory means the
+     * element is read in that stage,</li>
+     * <li>and shading of the left half means it is written in that stage.</li>
+     * </ul>
+     */
     @Override
     public boolean step() {
 
@@ -46,7 +53,7 @@ public class PipelinedCPU implements CPU {
         // MEM - memory access - read
         instr_memory.step_read(this, ex_mem, mem_wb);
 
-        AsmLine asm_line = null;
+        AsmLine<?> asm_line = null;
         int instruction = 0;
 
         interlock.checkForStall(if_de, de_ex, ex_mem, mem_wb);
@@ -70,6 +77,7 @@ public class PipelinedCPU implements CPU {
 
         }
 
+        // this is the result value computed by the execute stage
         int result = 0;
 
         //interlock.checkForStall(if_de, de_ex, ex_mem, mem_wb);
@@ -139,39 +147,7 @@ public class PipelinedCPU implements CPU {
 
         }
 
-        return false;
+        return true;
     }
-
-    // /**
-    // * Computer Organisation And Design - RISC V edition, page 529
-    // *
-    // * <ul>
-    // * <li>Shading on the right half of the register file or memory means the
-    // * element is read in that stage,</li>
-    // * <li>and shading of the left half means it is written in that stage.</li>
-    // * </ul>
-    // */
-    // @Override
-    // public void step() {
-
-    // // IE
-    // instr_execute.step(this, de_ex.asm_line, de_ex);
-
-    // // ID
-    // AsmLine asm_line = instr_decode.step(this, if_de.instruction, de_ex);
-
-    // // IF
-    // int instruction = instr_fetch.step(pc, memory);
-
-    // pc += 4;
-
-    // de_ex.instruction = if_de.instruction;
-
-    // if_de.instruction = instruction;
-    // // if_de.asm_line = asm_line;
-
-    // de_ex.asm_line = asm_line;
-
-    // }
 
 }

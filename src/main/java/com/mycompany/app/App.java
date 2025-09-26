@@ -18,6 +18,7 @@ import com.mycompany.assembler.BaseAssembler;
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.cpu.CPU;
+import com.mycompany.cpu.PipelinedCPU;
 //import com.mycompany.cpu.PipelinedCPU;
 import com.mycompany.cpu.SingleCycleCPU;
 import com.mycompany.data.RISCVRegister;
@@ -48,6 +49,8 @@ public class App {
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
+
+    private static final boolean WAIT_FOR_INPUT = false;
 
     public static void main(String[] args) throws IOException {
 
@@ -92,17 +95,19 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
         //String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
-        String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
 
         // String inputFile = "src/test/resources/projects/snake/Main.asm";
 
-        // String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
 
+        String inputFile = "src/test/resources/riscvasm/examples/printf.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
         // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
         //String inputFile = "src/test/resources/riscvasm/examples/slti.s";
         //String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
@@ -248,7 +253,8 @@ public class App {
 
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
-        if ((assembler.labelAddressMap == null) || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
+        if ((assembler.labelAddressMap == null) 
+            || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
             throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL
                     + "' label found! Do not know where to execute the application from!");
         }
@@ -269,15 +275,19 @@ public class App {
         // post emulation
         //
 
-        SingleCycleCPU singleCycleCPU = (SingleCycleCPU) cpu;
+        if (cpu instanceof SingleCycleCPU) {
 
-        // DEBUG output all registers
-        for (int i = 0; i < 32; i++) {
-            System.out.println("x" + (i) + ": " + singleCycleCPU.registerFile[i]);
+            SingleCycleCPU singleCycleCPU = (SingleCycleCPU) cpu;
+
+            // DEBUG output all registers
+            for (int i = 0; i < 32; i++) {
+                System.out.println("x" + (i) + ": " + singleCycleCPU.registerFile[i]);
+            }
+
+            // DEBUG
+            BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
+
         }
-
-        // DEBUG
-        BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
 
         System.out.println("done");
     }
@@ -285,7 +295,7 @@ public class App {
     private static CPU emulate(final byte[] machineCode, final int main_entry_point_address) {
 
         SingleCycleCPU cpu = new SingleCycleCPU();
-        // PipelinedCPU cpu = new PipelinedCPU();
+        //PipelinedCPU cpu = new PipelinedCPU();
 
         // THIS IS AN ERROR!
         // THE PC SHOULD ONLY START AT ADDRESS 0 IF THIS APPLICATION
@@ -326,14 +336,19 @@ public class App {
         // // preload values into registers
         // //
         // for (int i = 0; i < 32; i++) {
-        // cpu.registerFile[i] = i;
+        //     cpu.registerFile[i] = i;
         // }
 
-        logger.info("Enter any text to start emulation!");
-        System.out.println("Enter any text to start emulation!");
-        
-        Scanner s = new Scanner(System.in);
-        String str = s.nextLine();
+        if (WAIT_FOR_INPUT) {
+            logger.info("Enter any text to start emulation!");
+            System.out.println("Enter any text to start emulation!");
+            
+            // this code reads the users input from stdin / System.in
+            @SuppressWarnings("resource")
+            Scanner scanner = new Scanner(System.in);
+            @SuppressWarnings("unused")
+            String sourceLine = scanner.nextLine();
+        }
 
         boolean limited = false;
         if (limited) {

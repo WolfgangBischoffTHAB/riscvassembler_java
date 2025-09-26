@@ -349,8 +349,7 @@ public abstract class BaseAssembler {
         // - first assume maximum amount of instructions for each pseudo instruction
         // - build a label table
         // - check if modifiers %hi and %lo resolve to 0. If so check if the
-        // instructions
-        // can be removed/optimized away
+        // instructions can be removed/optimized away
         // - it is only possible to use a label if there is no unoptimized pseudo
         // instruction between the current instruction and the label! Only
         // offsets over true instructions make sense!
@@ -418,7 +417,6 @@ public abstract class BaseAssembler {
         // System.out.println(asmLine);
         // }
 
-
         //
         // evaluate expressions
         //
@@ -481,6 +479,7 @@ public abstract class BaseAssembler {
                 System.out.print(asmLine);
                 System.out.println(" SourceLine: " + asmLine.sourceLine);
             } catch (Throwable e) {
+                e.printStackTrace();
                 System.out.println("error!");
             }
         }

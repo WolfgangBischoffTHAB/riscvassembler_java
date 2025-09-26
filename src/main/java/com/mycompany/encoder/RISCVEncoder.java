@@ -12,6 +12,8 @@ public class RISCVEncoder implements Encoder {
 
     private AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
 
+    private EmulatorExtensionEncoder emulatorExtensionEncoder = new EmulatorExtensionEncoder();
+
     private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
 
     @Override
@@ -22,13 +24,16 @@ public class RISCVEncoder implements Encoder {
         switch (asmLine.getAsmLineType()) {
 
             case MNEMONIC:
-                int length = mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap,
+                return mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap,
                         addressSourceAsmLineMap,
                         currentAddress);
-                return length;
 
             case ASSEMBLER_INSTRUCTION:
                 return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine,
+                        addressSourceAsmLineMap, currentAddress);
+
+            case EMULATOR_EXTENSION:
+                return emulatorExtensionEncoder.encodeEmulatorExtension(byteArrayOutStream, asmLine,
                         addressSourceAsmLineMap, currentAddress);
 
             default:

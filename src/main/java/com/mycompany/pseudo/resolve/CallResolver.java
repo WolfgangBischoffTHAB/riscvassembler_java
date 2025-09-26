@@ -36,6 +36,7 @@ import com.mycompany.data.Section;
  */
 public class CallResolver implements AsmInstructionListModifier {
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
@@ -75,11 +76,31 @@ public class CallResolver implements AsmInstructionListModifier {
             if (found) {
 
                 //
+                // process special functions like printf, puts
+                //
+
+                String offsetLabel = foundAsmLine.identifier_1;
+                if (offsetLabel.equalsIgnoreCase("printf")) {
+                    throw new RuntimeException("Implement library function printf!");
+                } else if (offsetLabel.equalsIgnoreCase("puts")) {
+                    //throw new RuntimeException("Implement library function puts!");
+                    foundAsmLine.mnemonic = Mnemonic.I_PUTS;
+                    foundAsmLine.identifier_1 = null;
+                    foundAsmLine.optimized = true;
+                    return;
+                }
+
+                //
                 // call
                 //
 
+                // remove the call line and add it's children instead.
+                // The pseudo line CALL is the parent of two real lines
+                // being auipc and jalr
                 asmLines.remove(foundAsmLine);
 
+                // if the call pseudo instruction should be optimized,
+                // set optized to falso so that the CALL-Optimizer kicks in.
                 foundAsmLine.optimized = true;
                 if (RiscVAssembler.USE_CALL_OPTIMIZER) {
                     foundAsmLine.optimized = false;
@@ -99,7 +120,8 @@ public class CallResolver implements AsmInstructionListModifier {
                 auipc.mnemonic = Mnemonic.I_AUIPC;
                 auipc.register_0 = RISCVRegister.REG_RA;
                 auipc.modifier_1 = Modifier.HI;
-                auipc.offsetLabel_1 = foundAsmLine.identifier_0;
+                //auipc.offsetLabel_1 = foundAsmLine.identifier_0;
+                auipc.offsetLabel_1 = foundAsmLine.identifier_1;
 
                 if (foundAsmLine.label != null) {
                     auipc.label = foundAsmLine.label;

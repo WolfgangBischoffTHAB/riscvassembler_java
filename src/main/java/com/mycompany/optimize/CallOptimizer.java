@@ -10,6 +10,11 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 
 /**
+ * First, the CallResolver has added two non-pseudo asm lines as children
+ * into the pseudo assembler asmLine. Now the job of the CallOptimizer is
+ * it to apply both of the child assembler lines or apply any optimizations
+ * if possible.
+ * 
  * If possible turns far calls (auipc+jalr) to near calls (jal)
  *
  * A far call goes beyond +/-1Mb relative to the PC.
@@ -17,6 +22,7 @@ import com.mycompany.data.Section;
  */
 public class CallOptimizer extends BaseOptimizer {
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void modify(final List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
@@ -58,9 +64,15 @@ public class CallOptimizer extends BaseOptimizer {
             AsmLine<?> firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
             AsmLine<?> secondAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(1);
 
+            String offsetLabel = firstAsmLine.offsetLabel_1;
+
+            if (!labelTableMap.containsKey(offsetLabel)) {
+                throw new RuntimeException("The function \"" + offsetLabel + "\" is not defined!");
+            }
+
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if ((firstAsmLine.section.address + firstAsmLine.offset) > labelTableMap.get(firstAsmLine.offsetLabel_1)) {
+            if ((firstAsmLine.section.address + firstAsmLine.offset) > labelTableMap.get(offsetLabel)) {
                 direction = -1;
             } else {
                 direction = +1;
@@ -79,7 +91,7 @@ public class CallOptimizer extends BaseOptimizer {
                         currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
-                    if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentAsmLine.label)) {
+                    if (offsetLabel.equalsIgnoreCase(currentAsmLine.label)) {
                         break;
                     }
                 }
@@ -102,7 +114,7 @@ public class CallOptimizer extends BaseOptimizer {
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
-                    if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentAsmLine.label)) {
+                    if (offsetLabel.equalsIgnoreCase(currentAsmLine.label)) {
                         break;
                     }
                 }
@@ -122,8 +134,9 @@ public class CallOptimizer extends BaseOptimizer {
             // if arriving at the target label is possible only crossing real instructions
             // take the absolute value of the label and put it into the modifier.
 
-            long address = labelTableMap.get(firstAsmLine.offsetLabel_1);
+            long address = labelTableMap.get(offsetLabel);
             long highValue = 0;
+            @SuppressWarnings("unused")
             long lowValue = 0;
 
             switch (firstAsmLine.modifier_1) {

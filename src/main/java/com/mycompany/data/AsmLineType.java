@@ -6,5 +6,8 @@ public enum AsmLineType {
 
     ASSEMBLER_INSTRUCTION,
 
+    EMULATOR_EXTENSION,
+
     UNKNOWN
+    
 }

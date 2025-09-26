@@ -8,17 +8,16 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.decoder.Decoder;
 
-public class SingleCycleCPU implements CPU {
+public class SingleCycleCPU extends AbstractCPU {
 
     private static final Logger logger = LoggerFactory.getLogger(SingleCycleCPU.class);
 
     public int pc;
 
     public byte[] memory;
-
-    public int[] registerFile = new int[32];
 
     /**
      * ctor
@@ -342,6 +341,7 @@ public class SingleCycleCPU implements CPU {
                 memory[addr + 1] = let[1];
                 memory[addr + 2] = let[2];
                 memory[addr + 3] = let[3];
+
                 // DEBUG
                 stringBuilder = new StringBuilder();
                 stringBuilder.append("sw");
@@ -350,6 +350,7 @@ public class SingleCycleCPU implements CPU {
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
                 logger.trace(stringBuilder.toString());
+
                 // Increment PC
                 pc += 4;
                 break;
@@ -576,7 +577,31 @@ public class SingleCycleCPU implements CPU {
                 break;
 
             case I_BRK:
-                // logger.trace("mnemonic: NOP");
+                // logger.trace("mnemonic: BRK");
+                pc += 4;
+                break;
+
+            case I_PUTS:
+                logger.info("mnemonic: PUTS");
+
+                // the start address of the zero terminated string is expected in A0
+                int startAddress = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                logger.info("startAddress: " + startAddress);
+
+                stringBuilder = new StringBuilder();
+                while (true) {
+                    int tempByte = memory[startAddress];
+                    if (tempByte == 0x00) {
+                        break;
+                    } else {
+                        stringBuilder.append((char) tempByte);
+                    }
+
+                    startAddress++;
+                }
+
+                System.out.println(stringBuilder.toString());
+                
                 pc += 4;
                 break;
 
@@ -585,28 +610,6 @@ public class SingleCycleCPU implements CPU {
         }
 
         return true;
-    }
-
-    private int readRegisterFile(int index) {
-
-        // register zero is hardcoded zero
-        if (index == 0) {
-            return 0;
-        }
-
-        // set the value
-        return registerFile[index];
-    }
-
-    private void writeRegisterFile(final int register_index, final int value) {
-
-        // write to zero register has no effect
-        if (register_index == 0) {
-            return;
-        }
-
-        // set the value
-        registerFile[register_index] = value;
     }
 
 }

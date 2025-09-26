@@ -11,7 +11,7 @@ import com.mycompany.data.Register;
  */
 public class DE_EX {
 
-    private AsmLine asmLine;
+    private AsmLine<?> asmLine;
 
     public Map<Register, Integer> forwardingMap = new HashMap<>();
 
@@ -32,11 +32,11 @@ public class DE_EX {
         flush = true;
     }
 
-    public AsmLine getAsmLine() {
+    public AsmLine<?> getAsmLine() {
         return asmLine;
     }
 
-    public void setAsmLine(AsmLine asmLine) {
+    public void setAsmLine(AsmLine<?> asmLine) {
         this.asmLine = asmLine;
     }
 

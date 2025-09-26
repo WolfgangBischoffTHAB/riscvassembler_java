@@ -82,6 +82,12 @@ public enum Mnemonic {
     I_XOR(false),
     I_XORI(false),
 
+    //
+    // Special instructions to add extended functionality to the emulator
+    //
+
+    I_PUTS(true),
+
     I_UNKNOWN(true);
 
     private boolean pseudo;
@@ -363,6 +369,9 @@ public enum Mnemonic {
                 return "xor";
             case I_XORI:
                 return "xori";
+
+            case I_PUTS:
+                return "puts";
 
             default:
                 throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");

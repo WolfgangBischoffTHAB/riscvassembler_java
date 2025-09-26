@@ -17,9 +17,9 @@ import com.mycompany.data.Section;
  *
  * For example:
  * <pre>
- *li -> addi if upper_part_used == 0 && lower_part_used == 0
- *li -> addi if (upper_part_used == 0 && lower_part_used != 0)
- *if -> lui if (upper_part_used != 0 && lower_part_used == 0)
+ * li -> addi if upper_part_used == 0 && lower_part_used == 0
+ * li -> addi if (upper_part_used == 0 && lower_part_used != 0)
+ * if -> lui if (upper_part_used != 0 && lower_part_used == 0)
  * </pre>
  *
  * Effect of %hi(), %lo():
@@ -29,8 +29,8 @@ import com.mycompany.data.Section;
  *
  * Code that can be optimized looks like this:
  * <pre>
- *lui a0, %hi(.L.str)
- *addi a0, a0, %lo(.L.str)
+ * lui a0, %hi(.L.str)
+ * addi a0, a0, %lo(.L.str)
  * </pre>
  *
  * This is basically the same as a li pseudo instruction
@@ -43,13 +43,13 @@ import com.mycompany.data.Section;
  *
  * The optimized output is:
  * <pre>
- *li a0, .L.str
+ * li a0, .L.str
  * </pre>
  *
  * A second example is this sequence:
  * <pre>
- *lui x15, 2441
- *addi x15, x15, 1662
+ * lui x15, 2441
+ * addi x15, x15, 1662
  * </pre>
  *
  * In this example, there are no labels.

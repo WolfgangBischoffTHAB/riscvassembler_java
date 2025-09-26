@@ -236,8 +236,15 @@ public class AsmLine<T extends Register> {
 
     public AsmLineType getAsmLineType() {
 
-        if ((mnemonic != null) && (mnemonic != Mnemonic.I_UNKNOWN) && (!mnemonic.isPseudo())) {
-            return AsmLineType.MNEMONIC;
+        if (mnemonic != null) {
+
+            if (mnemonic == Mnemonic.I_PUTS) {
+                return AsmLineType.EMULATOR_EXTENSION;
+            }
+
+            if ((mnemonic != Mnemonic.I_UNKNOWN) && (!mnemonic.isPseudo())) {
+                return AsmLineType.MNEMONIC;
+            }
         }
 
         if (asmInstruction != null) {

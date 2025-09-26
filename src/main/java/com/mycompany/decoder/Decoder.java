@@ -52,8 +52,14 @@ public class Decoder {
             return asmLine;
         }
 
+        // emulator extension PUTS
+        if (data == 0x11111111) {
+            asmLine.mnemonic = Mnemonic.I_PUTS;
+            return asmLine;
+        }
+
         // DEBUG
-        logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;

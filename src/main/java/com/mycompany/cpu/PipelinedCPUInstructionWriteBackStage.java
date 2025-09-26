@@ -11,7 +11,7 @@ public class PipelinedCPUInstructionWriteBackStage {
         }
 
         // ALU add, sub operation
-        cpu.registerFile[mem_wb.asmLine.register_0.getIndex()] = val;
+        cpu.writeRegisterFile(mem_wb.asmLine.register_0.getIndex(), val);
 
         System.out.println("[WBACK] " + mem_wb.asmLine.register_0 + " <= " + val);
 

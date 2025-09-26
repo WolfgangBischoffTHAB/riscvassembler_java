@@ -5,7 +5,7 @@ import com.mycompany.data.AsmLine;
 
 public class PipelinedCPUInstructionExecuteStage {
 
-    public void step_read(final PipelinedCPU cpu, final AsmLine asm_line, final DE_EX de_ex) {
+    public void step_read(final PipelinedCPU cpu, final AsmLine<?> asm_line, final DE_EX de_ex) {
         // nop
     }
 
@@ -18,6 +18,8 @@ public class PipelinedCPUInstructionExecuteStage {
         int result = 0;
         int registerValue = 0;
         int finalMemoryAddress = 0;
+        int regValue1 = 0;
+        int regValue2 = 0;
 
         // skip
         if (de_ex.getAsmLine() == null) {
@@ -40,23 +42,27 @@ public class PipelinedCPUInstructionExecuteStage {
             case I_JAL:
                 // rd = pc+4; pc += imm
                 System.out.println("[EXEC ] jal");
-                cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] = cpu.pc + 4;
+                //cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] = cpu.pc + 4;
+                cpu.writeRegisterFile(de_ex.getAsmLine().register_0.getIndex(), cpu.pc + 4);
                 cpu.pc += (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(de_ex.getAsmLine().numeric_1.intValue());
                 break;
 
             case I_JALR:
                 // rd = pc+4; pc = rs1+imm
                 System.out.println("[EXEC ] jalr");
-                cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] = cpu.pc + 4;
-                cpu.pc = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()] + de_ex.getAsmLine().numeric_2.intValue();
+                //cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] = cpu.pc + 4;
+                cpu.writeRegisterFile(de_ex.getAsmLine().register_0.getIndex(), cpu.pc + 4);
+                cpu.pc = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex()) + de_ex.getAsmLine().numeric_2.intValue();
                 break;
 
             case I_BEQ:
                 // Take the branch if registers rs1 and rs2 are equal.
                 // if (x[rs1] == x[rs2]) pc += sext(offset)
                 System.out.println("[EXEC ] beq");
-                if (cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] == cpu.registerFile[de_ex.getAsmLine().register_1
-                        .getIndex()]) {
+                //cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()]
+                regValue1 = cpu.readRegisterFile(de_ex.getAsmLine().register_0.getIndex());
+                regValue2 = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex());
+                if (regValue1 == regValue2) {
                     cpu.pc += de_ex.getAsmLine().numeric_2.intValue();
                 } else {
                     cpu.pc += 4;
@@ -91,8 +97,9 @@ public class PipelinedCPUInstructionExecuteStage {
             case I_BGE:
                 // if(rs1 >= rs2) pc += imm
                 System.out.println("[EXEC ] bge");
-                if (cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] >= cpu.registerFile[de_ex.getAsmLine().register_1
-                        .getIndex()]) {
+                regValue1 = cpu.readRegisterFile(de_ex.getAsmLine().register_0.getIndex());
+                regValue2 = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex());
+                if (regValue1 >= regValue2) {
                     cpu.pc += de_ex.getAsmLine().numeric_2.intValue();
                 } else {
                     cpu.pc += 4;
@@ -125,7 +132,7 @@ public class PipelinedCPUInstructionExecuteStage {
                     registerValue = mem_wb.forwardingMap.get(de_ex.getAsmLine().register_1);
                 }
                 else {
-                    registerValue = cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()];
+                    registerValue = cpu.readRegisterFile(de_ex.getAsmLine().register_0.getIndex());
                 }
 
                 finalMemoryAddress = registerValue + de_ex.getAsmLine().offset_1.intValue();
@@ -142,7 +149,6 @@ public class PipelinedCPUInstructionExecuteStage {
                 System.out.println("[EXEC ] " + de_ex.getAsmLine());
                 //System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 throw new RuntimeException("Not implemented yet!");
-            // pc += 4;
             // break;
             case I_LBU:
                 System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.getAsmLine().mnemonic);
@@ -152,7 +158,6 @@ public class PipelinedCPUInstructionExecuteStage {
                 break;
 
             case I_SB:
-                //System.out.println("Unknown mnemonic! " + de_ex.asmLine.mnemonic);
                 System.out.println("[EXEC ] " + de_ex.getAsmLine().mnemonic);
 
                 //
@@ -167,7 +172,7 @@ public class PipelinedCPUInstructionExecuteStage {
                     registerValue = mem_wb.forwardingMap.get(de_ex.getAsmLine().register_1);
                 }
                 else {
-                    registerValue = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()];
+                    registerValue = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex());
                 }
 
                 finalMemoryAddress = registerValue + de_ex.getAsmLine().offset_1.intValue();
@@ -187,16 +192,43 @@ public class PipelinedCPUInstructionExecuteStage {
                 // Store 32-bit, values from the low bits of register rs2 to memory.
                 // sw rs2,offset(rs1)
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
-                throw new RuntimeException("Not implemented yet!");
-            // pc += 4;
-            // break;
+                //throw new RuntimeException("Not implemented yet!");
+
+                registerValue = 0;
+                if (ex_mem.forwardingMap.containsKey(de_ex.getAsmLine().register_1)) {
+                    registerValue = ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1);
+                }
+                else if (mem_wb.forwardingMap.containsKey(de_ex.getAsmLine().register_1)) {
+                    registerValue = mem_wb.forwardingMap.get(de_ex.getAsmLine().register_1);
+                }
+                else {
+                    registerValue = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex());
+                }
+
+                finalMemoryAddress = registerValue + de_ex.getAsmLine().offset_1.intValue();
+
+                System.out.println("finalMemoryAddress: " + finalMemoryAddress);
+
+                ex_mem.memoryAddress = finalMemoryAddress;
+                break;
             case I_ADDI:
                 // rd = rs1 + imm
                 System.out.println("[EXEC ] addi: " + de_ex.getAsmLine());
-                cpu.registerFile[de_ex.getAsmLine().register_0
-                        .getIndex()] = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()]
-                                + de_ex.getAsmLine().numeric_2.intValue();
-                // cpu.pc += 4;
+
+                result = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex()) + de_ex.getAsmLine().numeric_2.intValue();
+                
+                // TODO: Maybe the register file is not written in the execute phase
+                // but laster in the writeback phase?
+                //cpu.writeRegisterFile(de_ex.getAsmLine().register_0.getIndex(), temp);
+                
+                //ex_mem.value = temp;
+
+                // regulary store without forwarding
+                ex_mem.rd_value = result;
+                                
+                // forward value
+                ex_mem.forwardingMap.clear();
+                ex_mem.forwardingMap.put(de_ex.getAsmLine().register_0, result);
                 break;
 
             case I_SLTI:
@@ -233,14 +265,14 @@ public class PipelinedCPUInstructionExecuteStage {
                     int forwarded_value = ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1);
 
                     result = forwarded_value
-                            + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                            + cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     //System.out.println(result + " = " + forwarded_value + " + " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
                 } else {
 
-                    result = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()]
-                            + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                    result = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex())
+                            + cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     //System.out.println(result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " + " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
@@ -264,7 +296,6 @@ public class PipelinedCPUInstructionExecuteStage {
                 ex_mem.forwardingMap.clear();
                 ex_mem.forwardingMap.put(de_ex.getAsmLine().register_0, result);
 
-                // cpu.pc += 4;
                 break;
 
             case I_SUB:
@@ -285,14 +316,14 @@ public class PipelinedCPUInstructionExecuteStage {
                     int forwarded_rd_value = ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1);
 
                     result = forwarded_rd_value
-                            - cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                            - cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     System.out.println("[EXEC ] sub FORWARD " + result + " = " + forwarded_rd_value + " - " + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()]);
 
                 } else {
 
-                    result = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()]
-                            - cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                    result = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex())
+                            - cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     System.out.println("[EXEC ] sub NO_FORWARD " + result + " = " + cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()] + " - " + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()]);
 
@@ -312,7 +343,6 @@ public class PipelinedCPUInstructionExecuteStage {
                 de_ex.forwardingMap.clear();
                 de_ex.forwardingMap.put(de_ex.getAsmLine().register_0, result);
 
-                // cpu.pc += 4;
                 break;
             case I_SLL:
                 System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.getAsmLine().mnemonic);
@@ -325,13 +355,12 @@ public class PipelinedCPUInstructionExecuteStage {
                 // else 0 is written to rd.
                 // slt rd, rs1, rs2
                 // x[rd] = x[rs1] <s x[rs2]
-                if (cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()] < cpu.registerFile[de_ex.getAsmLine().register_2
-                        .getIndex()]) {
-                    cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] = 1;
+                if (cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex()) < cpu.readRegisterFile(de_ex.getAsmLine().register_2
+                        .getIndex())) {
+                    cpu.writeRegisterFile(de_ex.getAsmLine().register_0.getIndex(), 1);
                 } else {
-                    cpu.registerFile[de_ex.getAsmLine().register_0.getIndex()] = 0;
+                    cpu.writeRegisterFile(de_ex.getAsmLine().register_0.getIndex(), 0);
                 }
-                //cpu.pc += 4;
                 break;
             case I_SLTU:
                 System.out.println("[EXEC ] Unknown mnemonic! " + de_ex.getAsmLine().mnemonic);
@@ -344,7 +373,7 @@ public class PipelinedCPUInstructionExecuteStage {
                 if (ex_mem.forwardingMap.containsKey(de_ex.getAsmLine().register_1)) {
 
                     result = ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1)
-                        ^ cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                        ^ cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     //System.out.println("FORWARD " + result + " = " + ex_mem.forwardingMap.get(de_ex.asmLine.register_1) + " | " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
@@ -354,8 +383,8 @@ public class PipelinedCPUInstructionExecuteStage {
 
                 } else {
 
-                    result = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()]
-                        ^ cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                    result = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex())
+                        ^ cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     //System.out.println("NO FORWARD " + result + " = " + cpu.registerFile[de_ex.asmLine.register_1.getIndex()] + " xor " + cpu.registerFile[de_ex.asmLine.register_2.getIndex()]);
 
@@ -386,7 +415,7 @@ public class PipelinedCPUInstructionExecuteStage {
                 if (ex_mem.forwardingMap.containsKey(de_ex.getAsmLine().register_1)) {
 
                     result = ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1)
-                        | cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                        | cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     System.out.println("[EXEC ] OR FORWARD " + result + " = " + ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1) + " | " + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()]);
 
@@ -396,8 +425,8 @@ public class PipelinedCPUInstructionExecuteStage {
 
                 } else {
 
-                    result = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()]
-                        | cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                    result = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex())
+                        | cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     System.out.println("[EXEC ] OR NO FORWARD " + result + " = " + cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()] + " | " + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()]);
 
@@ -423,7 +452,7 @@ public class PipelinedCPUInstructionExecuteStage {
                 if (ex_mem.forwardingMap.containsKey(de_ex.getAsmLine().register_1)) {
 
                     result = ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1)
-                            & cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                            & cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     System.out.println("[EXEC ] and FORWARD " + result + " = " + ex_mem.forwardingMap.get(de_ex.getAsmLine().register_1) + " & " + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()]);
 
@@ -433,8 +462,8 @@ public class PipelinedCPUInstructionExecuteStage {
 
                 } else {
 
-                    result = cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()]
-                            & cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()];
+                    result = cpu.readRegisterFile(de_ex.getAsmLine().register_1.getIndex())
+                            & cpu.readRegisterFile(de_ex.getAsmLine().register_2.getIndex());
 
                     System.out.println("[EXEC ] and NO FORWARD " + result + " = " + cpu.registerFile[de_ex.getAsmLine().register_1.getIndex()] + " & " + cpu.registerFile[de_ex.getAsmLine().register_2.getIndex()]);
 

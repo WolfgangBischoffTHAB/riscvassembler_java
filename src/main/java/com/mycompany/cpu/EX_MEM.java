@@ -10,7 +10,7 @@ public class EX_MEM {
 
     public Register register_0;
 
-    public AsmLine asmLine;
+    public AsmLine<?> asmLine;
 
     public int value;
 

@@ -1,5 +1,47 @@
 package com.mycompany.data;
 
+/**
+ * <pre>
+ * REG_ZERO : X '0' ;       // 0, Hard-wired zero
+ * REG_RA : X '1' ;         // 1, Return address
+ * REG_SP : X '2' ;         // 2, Stack pointer
+ * REG_GP : X '3' ;         // 3, Global pointer
+ * REG_TP : X '4' ;         // 4, Thread pointer
+ *
+ * REG_T0 : X '5' ;         // 5, Temporary/alternate link register
+ * REG_T1 : X '6' ;         // 6, Temporary
+ * REG_T2 : X '7' ;         // 7, Temporary
+ *
+ * REG_S0 : X '8' ;         // 8, Saved register/frame pointer
+ * REG_S1 : X '9' ;         // 9, Saved register
+ *
+ * REG_A0 : X '1' '0' ;     // 10, Function arguments/return values
+ * REG_A1 : X '1' '1' ;     // 11, Function arguments/return values
+ *
+ * REG_A2 : X '1' '2' ;     // 12, Function arguments
+ * REG_A3 : X '1' '3' ;     // 13, Function arguments
+ * REG_A4 : X '1' '4' ;     // 14, Function arguments
+ * REG_A5 : X '1' '5' ;     // 15, Function arguments
+ * REG_A6 : X '1' '6' ;     // 16, Function arguments
+ * REG_A7 : X '1' '7' ;     // 17, Function arguments
+ *
+ * REG_S2 : X '1' '8' ;     // 18, Saved registers (By convention, called function should save and restore s register if it wants to use them!)
+ * REG_S3 : X '1' '9' ;     // 19, Saved registers
+ * REG_S4 : X '2' '0' ;     // 20, Saved registers
+ * REG_S5 : X '2' '1' ;     // 21, Saved registers
+ * REG_S6 : X '2' '2' ;     // 22, Saved registers
+ * REG_S7 : X '2' '3' ;     // 23, Saved registers
+ * REG_S8 : X '2' '4' ;     // 24, Saved registers
+ * REG_S9 : X '2' '5' ;     // 25, Saved registers
+ * REG_S10 : X '2' '6' ;    // 26, Saved registers
+ * REG_S11 : X '2' '7' ;    // 27, Saved registers
+ *
+ * REG_T3 : X '2' '8' ;     // 28, Temporary (can be trashed, caller saved)
+ * REG_T4 : X '2' '9' ;     // 29, Temporary (can be trashed, caller saved)
+ * REG_T5 : X '3' '0' ;     // 30, Temporary (can be trashed, caller saved)
+ * REG_T6 : X '3' '1' ;     // 31, Temporary (can be trashed, caller saved)
+ * </pre>
+ */
 public enum RISCVRegister implements Register {
 
     /** x0 */
@@ -75,7 +117,6 @@ public enum RISCVRegister implements Register {
     /** x31 */
     REG_T6(31),
 
-
     /** x0 */
     REG_X0(0),
     /** x1 */
@@ -147,47 +188,7 @@ public enum RISCVRegister implements Register {
     /** x31 */
     REG_X31(31),
 
-
-    REG_UNKNOWN(255);
-
-    // REG_ZERO : X '0' ; // 0, Hard-wired zero
-    // REG_RA : X '1' ; // 1, Return address
-    // REG_SP : X '2' ; // 2, Stack pointer
-    // REG_GP : X '3' ; // 3, Global pointer
-    // REG_TP : X '4' ; // 4, Thread pointer
-
-    // REG_T0 : X '5' ; // 5, Temporary/alternate link register
-    // REG_T1 : X '6' ; // 6, Temporary
-    // REG_T2 : X '7' ; // 7, Temporary
-
-    // REG_S0 : X '8' ; // 8, Saved register/frame pointer
-    // REG_S1 : X '9' ; // 9, Saved register
-
-    // REG_A0 : X '1' '0' ; // 10, Function arguments/return values
-    // REG_A1 : X '1' '1' ; // 11, Function arguments/return values
-
-    // REG_A2 : X '1' '2' ; // 12, Function arguments
-    // REG_A3 : X '1' '3' ; // 13, Function arguments
-    // REG_A4 : X '1' '4' ; // 14, Function arguments
-    // REG_A5 : X '1' '5' ; // 15, Function arguments
-    // REG_A6 : X '1' '6' ; // 16, Function arguments
-    // REG_A7 : X '1' '7' ; // 17, Function arguments
-
-    // REG_S2 : X '1' '8' ; // 18, Saved registers
-    // REG_S3 : X '1' '9' ; // 19, Saved registers
-    // REG_S4 : X '2' '0' ; // 20, Saved registers
-    // REG_S5 : X '2' '1' ; // 21, Saved registers
-    // REG_S6 : X '2' '2' ; // 22, Saved registers
-    // REG_S7 : X '2' '3' ; // 23, Saved registers
-    // REG_S8 : X '2' '4' ; // 24, Saved registers
-    // REG_S9 : X '2' '5' ; // 25, Saved registers
-    // REG_S10 : X '2' '6' ; // 26, Saved registers
-    // REG_S11 : X '2' '7' ; // 27, Saved registers
-
-    // REG_T3 : X '2' '8' ; // 28, Temporary
-    // REG_T4 : X '2' '9' ; // 29, Temporary
-    // REG_T5 : X '3' '0' ; // 30, Temporary
-    // REG_T6 : X '3' '1' ; // 31, Temporary
+    REG_UNKNOWN(255);    
 
     private int index;
 
