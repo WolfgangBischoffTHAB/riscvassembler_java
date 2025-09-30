@@ -20,7 +20,7 @@
 # auipc rd, %hi(symbol)
 # addi rd, rd, %lo(symbol)
 
-__main:
+main:
     la t0, test_2
     addi t1, t1, 1
     addi t1, t1, 1

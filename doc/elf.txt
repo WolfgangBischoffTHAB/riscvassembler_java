@@ -1,0 +1,153 @@
+https://medium.com/@louaylouay20/understanding-the-elf-format-a-comprehensive-guide-3ee1dc938389
+
+https://medium.com/@4984_30211/elf-format-toolbox-ee110fe987ba
+
+https://gist.github.com/x0nu11byt3/bcb35c3de461e5fb66173071a2379779
+
+
+
+
+# ELF-Header
+
+https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
+https://wiki.osdev.org/ELF
+
+Q: How do I know if the .elf file is 32-bit or 64-bit?
+A: This information is stored in the e_type field: 1 == 32 bit and 2 == 64 bit
+
+Q: How do I know that the .elf file contains an executable application?
+A: e_type field of the elf-header has the value ET_EXEC
+
+```
+/* Type for a 16-bit quantity.  */
+typedef uint16_t Elf32_Half;
+typedef uint16_t Elf64_Half;
+
+#define EI_NIDENT (16)
+
+typedef struct
+{
+  unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */ // 16 byte magic number 7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+  Elf32_Half	e_type;			/* Object file type */
+  Elf32_Half	e_machine;		/* Architecture */
+  Elf32_Word	e_version;		/* Object file version */
+  Elf32_Addr	e_entry;		/* Entry point virtual address */
+  Elf32_Off		e_phoff;		/* Program header table file offset */
+  Elf32_Off		e_shoff;		/* Section header table file offset */
+  Elf32_Word	e_flags;		/* Processor-specific flags */
+  Elf32_Half	e_ehsize;		/* ELF header size in bytes */
+  Elf32_Half	e_phentsize;	/* Program header table entry size */
+  Elf32_Half	e_phnum;		/* Program header table entry count */
+  Elf32_Half	e_shentsize;	/* Section header table entry size */
+  Elf32_Half	e_shnum;		/* Section header table entry count */
+  Elf32_Half	e_shstrndx;		/* Section header string table index */
+} Elf32_Ehdr;
+
+typedef struct
+{
+  unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */
+  Elf64_Half	e_type;			/* Object file type */
+  Elf64_Half	e_machine;		/* Architecture */
+  Elf64_Word	e_version;		/* Object file version */
+  Elf64_Addr	e_entry;		/* Entry point virtual address */
+  Elf64_Off		e_phoff;		/* Program header table file offset */
+  Elf64_Off		e_shoff;		/* Section header table file offset */
+  Elf64_Word	e_flags;		/* Processor-specific flags */
+  Elf64_Half	e_ehsize;		/* ELF header size in bytes */
+  Elf64_Half	e_phentsize;	/* Program header table entry size */
+  Elf64_Half	e_phnum;		/* Program header table entry count */
+  Elf64_Half	e_shentsize;	/* Section header table entry size */
+  Elf64_Half	e_shnum;		/* Section header table entry count */
+  Elf64_Half	e_shstrndx;		/* Section header string table index */
+} Elf64_Ehdr;
+```
+
+# Program-Header
+
+https://refspecs.linuxbase.org/elf/gabi4+/ch5.pheader.html
+
+If an .elf file stores an executable application, it has to have a 'program header table'.
+If a 'program header table' is present, the 'program header table' contains several 'program headers':
+
+```
+typedef struct {
+	Elf32_Word	p_type;
+	Elf32_Off	p_offset;
+	Elf32_Addr	p_vaddr;
+	Elf32_Addr	p_paddr;
+	Elf32_Word	p_filesz;
+	Elf32_Word	p_memsz;
+	Elf32_Word	p_flags;
+	Elf32_Word	p_align;
+} Elf32_Phdr;
+
+typedef struct {
+	Elf64_Word	p_type;
+	Elf64_Word	p_flags;
+	Elf64_Off	p_offset;
+	Elf64_Addr	p_vaddr;
+	Elf64_Addr	p_paddr;
+	Elf64_Xword	p_filesz;
+	Elf64_Xword	p_memsz;
+	Elf64_Xword	p_align;
+} Elf64_Phdr;
+```
+
+Each program header either describes a segment or auxilliary information.
+A segment consists of sections, meaning a segment points to one or more sections.
+Instead of resolving the individual sections, it is enough to look at the entire segment for execution.
+
+# Executing an .elf file
+
+First, load the elf-header and check if the e_type field of the elf-header has the value ET_EXEC.
+
+If the file is of type ET_EXEC, then the 'program header table' is present.
+Iterate over each 'program header' in the table and check 
+	- the p_flags field for PF_X (executable) If it has this flag, then the segment contains executable code.
+    - p_type == PT_LOAD (loadable)
+
+From the executable, loadable 'program header' use the p_offset field as an absolute offset from the beginning of the .elf file.
+At p_offset, there is the segment that consists of all sections storing the executable code of the application.
+
+This segment is loaded into DRAM from disk and then execution starts at offset 0x00 within this segment.
+The program counter (PC) register of the CPU is set to the address to which the segment has been loaded.
+
+There is a special case: If the p_offset of the segment is 0, this means that the segment starts at an offset
+of 0 from the beginning of the file. This means the segment contains not only the executable code but it also
+contains the elf-header for example! Which is not executable! In this case the execution should not start 
+at offset 0 directly as this would interpret the elf-header as executable code! 
+
+In the p_offset == 0 case, add the value elf_header.e_phoff to the p_offset. This results in the
+address of the executable code.
+
+check the address: elf_header.e_entry. e_entry is a virtual address of the entry point which is the 
+start of execution.
+
+
+
+
+# Question: How can a LOAD segment have an offset of 0?
+
+https://stackoverflow.com/questions/73143035/how-can-a-load-segment-have-an-offset-of-0
+
+
+
+https://github.com/ecilasun/riscvtool/tree/main/doom/src
+
+
+https://github.com/Vokerlee/riscv32-func-simulator/tree/master/examples/factorial
+
+
+
+
+Erst muss der Wert 130101fe umgedreht werden in fe010113, dann kann er dekodiert werden.
+
+130101fe - c.slli x3, 31
+
+fe010113 - addi sp, sp, -32
+fe010113 - addi x2, x2, -32
+
+addi sp, sp, -32 - fe010113
+addi x2, x2, -32 - fe010113
+
+

@@ -17,7 +17,7 @@
 # The application loads the values 1 3 5 2 4 onto the stack.
 # It will sort the values in descending order. The result
 # will be 5 4 3 2 1
-__main:
+main:
         addi    sp, sp, -48
         sw      ra, 44(sp)
         sw      s0, 40(sp)

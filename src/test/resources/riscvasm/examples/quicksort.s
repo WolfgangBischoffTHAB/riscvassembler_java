@@ -1,4 +1,4 @@
-__main:
+main:
         addi    sp,sp,-48           # reserve stack frame
         sw      ra,44(sp)           # save return address of caller
         sw      s0,40(sp)           # save top of stack of caller

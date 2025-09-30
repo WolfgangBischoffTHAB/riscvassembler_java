@@ -217,7 +217,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 // blt 1001, 0010, <offset> --> blt -7d < 2d is TRUE, branch is taken
                 // bltu 1001, 0010, <offset> --> bltu 9d < 2d is FALSE, branch is NOT taken
                 //
-                // __main:
+                // main:
                 // li t0, -3
                 // lui t1, 2
                 // bltu t0, t1, -8
@@ -443,8 +443,23 @@ public class SingleCycleCPU extends AbstractCPU {
             // break;
 
             case I_SRAI:
-                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
-            // break;
+                // SRAI (Shift Right Arithmetic Immediate)
+                // srai rd, rs1, shamt
+                // example: srai a5, a5, 1
+                // definition: x[rd] = x[rs1] >>s shamt
+                //
+                // The difference to the logical form SRLI (Shift Right Logical Immediate)
+                // is that SRLI always shifts in zeroes from the left while SRAI shifts in
+                // the sign-bit from the left to keep the sign of the number correct
+                int registerValue = readRegisterFile(asmLine.register_1.getIndex());
+                int signBit = registerValue >= 0 ? 0 : 1;
+                for (int i = 0; i < asmLine.numeric_2; i++) {
+                    registerValue >>= 1;
+                    registerValue |= (signBit << 31);
+                }
+                writeRegisterFile(asmLine.register_0.getIndex(), registerValue);
+                pc += 4;
+                break;
 
             case I_ADD:
                 logger.trace("add");

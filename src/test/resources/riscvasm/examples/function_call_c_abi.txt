@@ -237,7 +237,7 @@ SourceLine: 27 [92] lw ra, 44(sp) -> 02C12083
 SourceLine: 28 [96] lw s0, 40(sp) -> 02812403
 SourceLine: 29 [100] addi sp, sp, 0x30 -> 03010113
 SourceLine: 30 [104] jalr zero, ra, 0x0 -> 00008067
-__main:
+main:
 SourceLine: 32 [108] addi sp, sp, 0xFFFFFFE0 -> FE010113
 SourceLine: 33 [112] sw ra, 28(sp) -> 00112E23
 SourceLine: 34 [116] sw s0, 24(sp) -> 00812C23

@@ -23,6 +23,7 @@ import com.mycompany.cpu.PipelinedCPU;
 import com.mycompany.cpu.SingleCycleCPU;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
+import com.mycompany.elf.Elf;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.preprocessing.IncludePreprocessor;
 
@@ -42,7 +43,7 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
-    private static final String MAIN_ENTRY_POINT_LABEL = "__main";
+    private static final String MAIN_ENTRY_POINT_LABEL = "main";
 
     private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
 
@@ -106,7 +107,7 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
 
-        String inputFile = "src/test/resources/riscvasm/examples/printf.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/printf.s";
         //String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
         // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
         //String inputFile = "src/test/resources/riscvasm/examples/slti.s";
@@ -114,6 +115,8 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
         //String inputFile = "src/test/resources/riscvasm/examples/fib.s";
         // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
+
+        String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -252,6 +255,15 @@ public class App {
         //
 
         byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
+
+        // //
+        // // elf to machinen code
+        // //
+
+        // Elf elf = new Elf();
+        // elf.setFile("src/test/resources/riscvelf/factorial.out");
+        // elf.load();
+        // byte[] machineCode = elf.getMachineCode();
 
         if ((assembler.labelAddressMap == null) 
             || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {

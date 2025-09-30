@@ -113,7 +113,6 @@ public class AsmLine<T extends Register> {
         stringBuilder.append(Mnemonic.toString(mnemonic)).append(" ");
 
         if (numeric_0 != null) {
-            //stringBuilder.append(String.format("0x%08X", numeric_0.intValue()));
             stringBuilder.append(String.format("0x%X", numeric_0.intValue()));
         }
         if (modifier_0 != null) {
@@ -149,7 +148,6 @@ public class AsmLine<T extends Register> {
 
         if (numeric_1 != null) {
             stringBuilder.append(", ");
-            //stringBuilder.append(String.format("0x%08X", numeric_1.intValue()));
             stringBuilder.append(String.format("0x%X", numeric_1.intValue()));
         }
         if (modifier_1 != null) {

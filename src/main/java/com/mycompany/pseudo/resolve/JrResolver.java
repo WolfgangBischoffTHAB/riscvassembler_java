@@ -10,11 +10,11 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 
 /**
- * jr      ra    is resolved to     jalr x0, 0(x1)
+ * jr ra    is resolved to     jalr x0, 0(x1)
  */
 public class JrResolver  implements AsmInstructionListModifier {
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 

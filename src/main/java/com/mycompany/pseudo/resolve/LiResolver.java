@@ -14,12 +14,14 @@ import com.mycompany.data.Section;
 public class LiResolver implements AsmInstructionListModifier {
 
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
 
             boolean found = false;
+
             AsmLine foundAsmLine = null;
 
             int index = 0;
@@ -86,7 +88,8 @@ public class LiResolver implements AsmInstructionListModifier {
                 } else if (!upper_part_used && lower_part_used) {
 
                     // Case 1: CONSTANT fits into 12 lower bits.
-                    // For CASE 1, a addi instruction is generated since addi handles 12 bit sufficiently
+                    // For CASE 1, a addi instruction is generated since addi handles 12 bit
+                    // sufficiently
 
                     // data->instruction = I_ADDI;
                     // data->reg_rs1 = R_ZERO;
@@ -106,8 +109,10 @@ public class LiResolver implements AsmInstructionListModifier {
                     // Case 2: CONSTANT fits into the 20 upper bits.
 
                     //
-                    // lui - LUI (load upper immediate) is used to build 32-bit constants and uses the U-type format. LUI
-                    // places the U-immediate value in the top 20 bits of the destination register rd, filling in the lowest
+                    // lui - LUI (load upper immediate) is used to build 32-bit constants and uses
+                    // the U-type format. LUI
+                    // places the U-immediate value in the top 20 bits of the destination register
+                    // rd, filling in the lowest
                     // 12 bits with zeros.
                     //
 
@@ -141,16 +146,19 @@ public class LiResolver implements AsmInstructionListModifier {
                     // CASE 3 For CASE 3, a LUI, ADDI combination is generated so
                     // that the upper 20 bits and the lower 20 bits are used
 
-                    // the 20 bit part is incremented by 1, (then shifted left by 12 bits to get (data_2))
-                    //data_1 = data_1 + 1;
+                    // the 20 bit part is incremented by 1, (then shifted left by 12 bits to get
+                    // (data_2))
+                    // data_1 = data_1 + 1;
 
                     long twelve_bit_sign_extended = NumberParseUtil.sign_extend_12_bit_to_int32_t(value);
                     long udata = value - twelve_bit_sign_extended;
                     udata = udata >> 12;
 
                     //
-                    // lui - LUI (load upper immediate) is used to build 32-bit constants and uses the U-type format. LUI
-                    // places the U-immediate value in the top 20 bits of the destination register rd, filling in the lowest
+                    // lui - LUI (load upper immediate) is used to build 32-bit constants and uses
+                    // the U-type format. LUI
+                    // places the U-immediate value in the top 20 bits of the destination register
+                    // rd, filling in the lowest
                     // 12 bits with zeros.
                     //
 
@@ -167,9 +175,10 @@ public class LiResolver implements AsmInstructionListModifier {
                     // by filling the upper part of the register with FFFFF. The LUI
                     // can be optimized away
 
-                    //if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) <= 2048)) { // works for blinker.s
+                    // if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) <=
+                    // 2048)) { // works for blinker.s
 
-                    //if (twelve_bit_sign_extended > 0) { // works for memory.s
+                    // if (twelve_bit_sign_extended > 0) { // works for memory.s
                     if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) >= 2048)) {
 
                         AsmLine lui = new AsmLine();

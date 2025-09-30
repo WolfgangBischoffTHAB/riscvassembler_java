@@ -7,11 +7,14 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
+/**
+ * ret -> jalr zero, ra, 0x0
+ */
 public class RetResolver implements AsmInstructionListModifier {
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void modify(List<AsmLine<?>> asmLines, Map<String, Section> sectionMap) {
 

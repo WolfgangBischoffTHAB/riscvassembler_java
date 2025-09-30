@@ -24,8 +24,7 @@ int main()
 .LC0:
         .string "Resultant Matrix is:"
 
-# main:
-__main:
+main:
         addi    sp,sp,-16
         sw      ra,12(sp)
         sw      s0,8(sp)

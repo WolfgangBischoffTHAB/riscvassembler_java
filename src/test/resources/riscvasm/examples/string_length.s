@@ -2,9 +2,9 @@
 # file: string_length.s
 
 #.section .text
-#.global __main
+#.global main
 
-__main:
+main:
 
     lui     a0, %hi(.LC0)       # load the string address into a0
     addi    a0, a0, %lo(.LC0)   # load the string address into a0

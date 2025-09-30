@@ -9,7 +9,7 @@
 #           'end' < length(arr)
 
 # MAIN
-__main:
+main:
     addi sp, sp, -400
 # Store array values in contiguous memory at mem address 0x0:
 # {10, 80, 30, 90, 40, 50, 70}

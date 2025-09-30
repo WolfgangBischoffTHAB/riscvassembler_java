@@ -16,8 +16,6 @@ The memory can be inspected by opening the memory view. On windows it is CTRL + 
 
 The initial value of the stack pointer is 0x7FFFFFF0.
 
-
-
 ## Testsuite
 
 ```
@@ -236,6 +234,15 @@ riscv64-unknown-elf-gcc -I /usr/riscv64-linux-gnu/include -nostdlib hello.S -o h
 ```
 
 https://stackoverflow.com/questions/64745868/how-do-i-set-up-instruction-data-memory-address-when-using-riscv32-unknown-el
+
+# Adding a new Mnemonic
+
+1. Edit src\main\antlr4\riscvasm\RISCVASMLexer.g4 and add the instruction as a new token
+1. Edit src\main\antlr4\riscvasm\RISCVASMParser.g4 and add the new token to the mnemonic rule
+1. Build the project so that the antlr maven plugin generates the lexer and parser classes anew.
+1. Edit src\main\java\com\mycompany\data\Mnemonic.java and add the new instruction
+1. If you want to handle custom machine code, edit src\main\java\com\mycompany\decoder\Decoder.java and add an if-statement into the decode() function. Otherwise make sure that the decode function correctly converts the machine code into the new instruction. Therefore update the large switch statement.
+1. Update the CPU (e.g. src\main\java\com\mycompany\cpu\SingleCycleCPU.java) and add handling for the new instruction.
 
 # Next Steps
 

@@ -1,17 +1,15 @@
 package com.mycompany.decoder;
 
-import java.nio.ByteOrder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mycompany.assembler.BaseAssembler;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
@@ -33,6 +31,7 @@ public class Decoder {
 
     /**
      * decodes four byte of machine code into a ASMLine domain model
+     * 
      * @param data machine code
      * @return ASMLine object with decoded information
      */
@@ -59,7 +58,7 @@ public class Decoder {
         }
 
         // DEBUG
-        logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        //logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;
@@ -72,6 +71,8 @@ public class Decoder {
         int imm_11_5 = (data >> 25) & 0b1111111;
 
         int imm_31_12 = (data >> 12) & 0b11111111111111111111;
+
+        int shamt = (data >> 20) & 0b11111;
 
         int rd = (data >> 7) & 0b11111;
         int rs1 = (data >> 15) & 0b11111;
@@ -114,7 +115,8 @@ public class Decoder {
                                 break;
 
                             default:
-                                throw new RuntimeException("Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                throw new RuntimeException(
+                                        "Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
@@ -138,12 +140,14 @@ public class Decoder {
                                 break;
 
                             default:
-                                throw new RuntimeException("Unknown funct3: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                throw new RuntimeException(
+                                        "Unknown funct3: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
                     default:
-                        throw new RuntimeException("Unknown funct7: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        throw new RuntimeException(
+                                "Unknown funct7: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                 break;
@@ -156,7 +160,8 @@ public class Decoder {
                         break;
 
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
@@ -165,20 +170,28 @@ public class Decoder {
                 switch (funct3) {
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_ADDI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                         break;
                     case 0b001:
                         asmLine.mnemonic = Mnemonic.I_SLLI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
                         break;
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_XORI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                        break;
+                    case 0b101:
+                        asmLine.mnemonic = Mnemonic.I_SRAI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
                         break;
                     case 0b111:
                         asmLine.mnemonic = Mnemonic.I_ANDI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                         break;
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
-                decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
 
             case I_TYPE_3:
@@ -190,7 +203,8 @@ public class Decoder {
                         asmLine.mnemonic = Mnemonic.I_LW;
                         break;
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_3(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
@@ -204,7 +218,8 @@ public class Decoder {
                         asmLine.mnemonic = Mnemonic.I_SW;
                         break;
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
 
                 imm = (imm_11_5 << 5) | (imm_4_0 << 0);
@@ -235,7 +250,8 @@ public class Decoder {
                         break;
 
                     default:
-                        throw new RuntimeException("Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
 
                 int imm_12 = (data >> 31) & 0b1;
@@ -274,7 +290,8 @@ public class Decoder {
                 break;
 
             default:
-                throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data) + ". Unknown Instruction Type! opcode = " + opcode);
+                throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data)
+                        + ". Unknown Instruction Type! opcode = " + opcode);
         }
 
         return asmLine;
@@ -299,7 +316,8 @@ public class Decoder {
 
         asmLine.numeric_2 = (long) imm;
 
-        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
+        // the number negative if it was negative
         if ((imm & 0x800) > 0) {
             asmLine.numeric_2 = (long) twosComplement(imm | 0xFFFFF000);
             asmLine.numeric_2 *= -1;
@@ -324,7 +342,8 @@ public class Decoder {
 
         asmLine.offset_1 = (long) imm;
 
-        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
+        // the number negative if it was negative
         if ((imm & 0x800) > 0) {
             asmLine.offset_1 = (long) twosComplement(imm | 0xFFFFF000);
             asmLine.offset_1 *= -1;
@@ -338,7 +357,8 @@ public class Decoder {
 
         asmLine.offset_1 = (long) imm;
 
-        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
+        // the number negative if it was negative
         if ((imm & 0x800) > 0) {
             asmLine.offset_1 = (long) twosComplement(imm | 0xFFFFF000);
             asmLine.offset_1 *= -1;
@@ -359,7 +379,8 @@ public class Decoder {
 
         asmLine.numeric_2 = (long) imm;
 
-        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
+        // the number negative if it was negative
         if ((imm & 0x800) > 0) {
             asmLine.numeric_2 = (long) twosComplement(imm | 0xFFFFF000);
             asmLine.numeric_2 *= -1;
@@ -371,7 +392,8 @@ public class Decoder {
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.numeric_1 = (long) imm;
 
-        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make the number negative if it was negative
+        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
+        // the number negative if it was negative
         if ((imm & 0x800) > 0) {
             asmLine.numeric_1 = (long) twosComplement(imm | 0xFFFFF000);
             asmLine.numeric_1 *= -1;

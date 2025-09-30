@@ -203,7 +203,7 @@ quickSort:
 .word 5
 .word 3
 .word 1
-__main:
+main:
     addi sp, sp, 0xFFFFFFD0
     sw ra, 44(sp)
     sw s0, 40(sp)
