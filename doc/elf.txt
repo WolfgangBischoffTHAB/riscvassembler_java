@@ -151,3 +151,77 @@ addi sp, sp, -32 - fe010113
 addi x2, x2, -32 - fe010113
 
 
+# Symbol Table
+
+In order to find the address of the main method, the "main" symbol needs to be loaded
+from the symbol table.
+
+See https://gist.github.com/DhavalKapil/2243db1b732b211d0c16fd5d9140ab0b
+
+"There are two symbol tables: .dynsym and .symtab.
+
+The former (.dynsym) contains references to external sources (shared libraries). 
+
+The latter (.symtab) contains both external as well as local references.
+
+Only the .dynsym is needed for program execution as the dynamic linker 
+needs to resolve these references at run time. .symtab only helps in debugging and linking."
+
+See: https://wiki.osdev.org/ELF
+See: https://refspecs.linuxbase.org/elf/gabi4+/ch4.sheader.html
+See: https://wiki.osdev.org/ELF_Tutorial#ELF_Sections
+
+1. Read the ELF-header
+1. Retrieve the "Section header table offset" from the ELF-Header
+1. Retrieve the "Number of entries in the section header table"
+1. Iterate over all section headers
+
+
+```
+Figure 4-8: Section Header
+
+
+typedef struct {
+	Elf32_Word	sh_name;
+	Elf32_Word	sh_type;
+	Elf32_Word	sh_flags;
+	Elf32_Addr	sh_addr;
+	Elf32_Off	sh_offset;
+	Elf32_Word	sh_size;
+	Elf32_Word	sh_link;
+	Elf32_Word	sh_info;
+	Elf32_Word	sh_addralign;
+	Elf32_Word	sh_entsize;
+} Elf32_Shdr;
+
+typedef struct {
+	Elf64_Word	sh_name;
+	Elf64_Word	sh_type;
+	Elf64_Xword	sh_flags;
+	Elf64_Addr	sh_addr;
+	Elf64_Off	sh_offset;
+	Elf64_Xword	sh_size;
+	Elf64_Word	sh_link;
+	Elf64_Word	sh_info;
+	Elf64_Xword	sh_addralign;
+	Elf64_Xword	sh_entsize;
+} Elf64_Shdr;
+```
+
+```
+typedef struct
+{
+
+ Elf64_Word st_name;  /* (4 bytes) Symbol name  */
+ unsigned char st_info;  /* (1 byte) Symbol type and binding */
+ unsigned char st_other; /* (1 byte) Symbol visibility */
+ Elf64_Section st_shndx; /* (2 bytes) Section index */ 
+ Elf64_Addr st_value; /* (8 bytes) Symbol value */
+ Elf64_Xword st_size; /*  (8 bytes) Symbol size */
+
+} Elf64_Sym;
+```
+
+
+
+

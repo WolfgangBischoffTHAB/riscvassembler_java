@@ -49,33 +49,33 @@ public enum RISCVRegister implements Register {
     /** x1 */
     REG_RA(1),
     /** x2 */
-    REG_SP(2),
+    REG_SP(2), // Stack Pointer
     /** x3 */
-    REG_GP(3),
+    REG_GP(3), // Global Pointer
     /** x4 */
     REG_TP(4),
 
     /** x5 */
-    REG_T0(5),
+    REG_T0(5), // temp register
     /** x6 */
-    REG_T1(6),
+    REG_T1(6), // temp register
     /** x7 */
-    REG_T2(7),
+    REG_T2(7), // temp register
 
     /** x8 */
-    REG_S0(8),
+    REG_S0(8), // saved register 0 / frame pointer
     /** x8 */
-    REG_FP(8),
+    REG_FP(8), // saved register 0 / frame pointer
 
     /** x9 */
-    REG_S1(9),
+    REG_S1(9), // saved register 1
 
     /** x10 */
-    REG_A0(10),
+    REG_A0(10), // function argument 0 / return value 0
     /** x11 */
-    REG_A1(11),
+    REG_A1(11), // function argument 1 / return value 1	
     /** x12 */
-    REG_A2(12),
+    REG_A2(12), // function argument 2
     /** x13 */
     REG_A3(13),
     /** x14 */
@@ -85,10 +85,10 @@ public enum RISCVRegister implements Register {
     /** x16 */
     REG_A6(16),
     /** x17 */
-    REG_A7(17),
+    REG_A7(17), // function argument 7
 
     /** x18 */
-    REG_S2(18),
+    REG_S2(18), // saved register 2
     /** x19 */
     REG_S3(19),
     /** x20 */
@@ -106,16 +106,16 @@ public enum RISCVRegister implements Register {
     /** x26 */
     REG_S10(26),
     /** x27 */
-    REG_S11(27),
+    REG_S11(27), // saved register 11
 
     /** x28 */
-    REG_T3(28),
+    REG_T3(28), // temporary register 3
     /** x29 */
     REG_T4(29),
     /** x30 */
     REG_T5(30),
     /** x31 */
-    REG_T6(31),
+    REG_T6(31), // temporary register 6
 
     /** x0 */
     REG_X0(0),

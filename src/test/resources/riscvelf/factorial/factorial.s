@@ -1,3 +1,5 @@
+# https://en.wikichip.org/wiki/risc-v/registers
+
 	.file	"factorial.c"
 	.option nopic
 	.attribute arch, "rv32i2p0"

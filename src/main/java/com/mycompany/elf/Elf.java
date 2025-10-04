@@ -4,10 +4,255 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.decoder.Decoder;
+import com.mycompany.memory.Memory;
+
+
+// using Elf32_Addr = uint32_t; // Program address
+// using Elf32_Off = uint32_t;  // File offset
+// using Elf32_Half = uint16_t;
+// using Elf32_Word = uint32_t;
+// using Elf32_Sword = int32_t;
+ 
+// using Elf64_Addr = uint64_t;
+// using Elf64_Off = uint64_t;
+// using Elf64_Half = uint16_t;
+// using Elf64_Word = uint32_t;
+// using Elf64_Sword = int32_t;
+// using Elf64_Xword = uint64_t;
+// using Elf64_Sxword = int64_t;
+
+/**
+ * Section type.
+ * https://refspecs.linuxbase.org/elf/gabi4+/ch4.sheader.html
+ * Name Value
+ * SHT_NULL 0
+ * SHT_PROGBITS 1
+ * SHT_SYMTAB 2
+ * SHT_STRTAB 3
+ * SHT_RELA 4
+ * SHT_HASH 5
+ * SHT_DYNAMIC 6
+ * SHT_NOTE 7
+ * SHT_NOBITS 8
+ * SHT_REL 9
+ * SHT_SHLIB 10
+ * SHT_DYNSYM 11
+ * SHT_INIT_ARRAY 14
+ * SHT_FINI_ARRAY 15
+ * SHT_PREINIT_ARRAY 16
+ * SHT_GROUP 17
+ * SHT_SYMTAB_SHNDX 18
+ * SHT_LOOS 0x60000000
+ * SHT_HIOS 0x6fffffff
+ * SHT_LOPROC 0x70000000
+ * SHT_HIPROC 0x7fffffff
+ * SHT_LOUSER 0x80000000
+ * SHT_HIUSER 0xffffffff
+ */
+enum SH_TYPE {
+
+    SHT_NULL(0),
+
+    SHT_PROGBITS(1),
+
+    SHT_SYMTAB(2),
+
+    SHT_STRTAB(3),
+
+    SHT_RELA(4),
+
+    SHT_HASH(5),
+
+    SHT_DYNAMIC(6),
+
+    SHT_NOTE(7),
+
+    SHT_NOBITS(8),
+
+    SHT_REL(9),
+
+    SHT_SHLIB(10),
+
+    SHT_DYNSYM(11),
+
+    SHT_INIT_ARRAY(14),
+
+    SHT_FINI_ARRAY(15),
+
+    SHT_PREINIT_ARRAY(16),
+
+    SHT_GROUP(17),
+
+    SHT_SYMTAB_SHNDX(18),
+
+    SHT_LOOS(0x60000000),
+
+    SHT_HIOS(0x6fffffff),
+
+    SHT_LOPROC(0x70000000),
+
+    SHT_HIPROC(0x7fffffff),
+
+    SHT_LOUSER(0x80000000),
+
+    SHT_HIUSER(0xffffffff),
+
+    SHT_UNKNOWN_FIXME(0x12345678);
+
+    @SuppressWarnings("unused")
+    private int type_;
+
+    SH_TYPE(final int type_) {
+        this.type_ = type_;
+    }
+
+    public static SH_TYPE fromInt(final int type_in) {
+
+        switch (type_in) {
+            case 0:
+                return SHT_NULL;
+
+            case 1:
+                return SHT_PROGBITS;
+
+            case 2:
+                return SHT_SYMTAB;
+
+            case 3:
+                return SHT_STRTAB;
+
+            case 4:
+                return SHT_RELA;
+
+            case 5:
+                return SHT_HASH;
+
+            case 6:
+                return SHT_DYNAMIC;
+
+            case 7:
+                return SHT_NOTE;
+
+            case 8:
+                return SHT_NOBITS;
+
+            case 9:
+                return SHT_REL;
+
+            case 10:
+                return SHT_SHLIB;
+
+            case 11:
+                return SHT_DYNSYM;
+
+            case 14:
+                return SHT_INIT_ARRAY;
+
+            case 15:
+                return SHT_FINI_ARRAY;
+
+            case 16:
+                return SHT_PREINIT_ARRAY;
+
+            case 17:
+                return SHT_GROUP;
+
+            case 18:
+                return SHT_SYMTAB_SHNDX;
+
+            case 0x60000000:
+                return SHT_LOOS;
+
+            case 0x6fffffff:
+                return SHT_HIOS;
+
+            case 0x70000000:
+                return SHT_LOPROC;
+
+            case 0x7fffffff:
+                return SHT_HIPROC;
+
+            case 0x80000000:
+                return SHT_LOUSER;
+
+            case 0xffffffff:
+                return SHT_HIUSER;
+
+            default:
+                return SHT_UNKNOWN_FIXME;
+        }
+
+        //throw new RuntimeException("Unknown type: \"" + type_in + "\"");
+    }
+
+}
+
+/*
+ * typedef struct {
+ * Elf32_Word sh_name;
+ * Elf32_Word sh_type;
+ * Elf32_Word sh_flags;
+ * Elf32_Addr sh_addr;
+ * Elf32_Off sh_offset;
+ * Elf32_Word sh_size;
+ * Elf32_Word sh_link;
+ * Elf32_Word sh_info;
+ * Elf32_Word sh_addralign;
+ * Elf32_Word sh_entsize;
+ * } Elf32_Shdr;
+ * 
+ * typedef struct {
+ * Elf64_Word sh_name;
+ * Elf64_Word sh_type;
+ * Elf64_Xword sh_flags;
+ * Elf64_Addr sh_addr;
+ * Elf64_Off sh_offset;
+ * Elf64_Xword sh_size;
+ * Elf64_Word sh_link;
+ * Elf64_Word sh_info;
+ * Elf64_Xword sh_addralign;
+ * Elf64_Xword sh_entsize;
+ * } Elf64_Shdr;
+ */
+
+class Elf32_Shdr {
+
+    public static final int SIZE = 10 * 4; // 10 membery, 4 byte each
+
+    public int sh_name; // index into another table that stores the name as a string
+    public int sh_type;
+    public int sh_flags;
+    public int sh_addr;
+    public int sh_offset; // absolute offset from start of elf-file to he location where the entries are
+                          // stored
+    public int sh_size; // section's overall size in bytes
+    public int sh_link;
+    public int sh_info;
+    public int sh_addralign;
+    public int sh_entsize; // size in bytes of each entry
+
+    public void load(byte[] buffer, int offset) {
+
+        sh_name = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 0);
+        sh_type = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_flags = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_addr = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_offset = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_size = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_link = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_info = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_addralign = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+        sh_entsize = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
+
+    }
+
+}
 
 /**
  * EI_CLASS - identifies the file's class, or capacity.
@@ -284,19 +529,19 @@ class Elf32_Phdr {
  * // EI_ABIVERSION 8 ABI version
  * // EI_PAD 9 Start of padding bytes
  * // EI_NIDENT 16 Size of e_ident[]
- * Elf32_Half e_type; // Object file type // Offset(16)
- * Elf32_Half e_machine; // Architecture // Offset(18)
- * Elf32_Word e_version; // Object file version // Offset(20)
- * Elf32_Addr e_entry; // Entry point virtual address // Offset(24)
- * Elf32_Off e_phoff; // Program header table file offset
- * Elf32_Off e_shoff; // Section header table file offset
- * Elf32_Word e_flags; // Processor-specific flags
- * Elf32_Half e_ehsize; // ELF header size in bytes
- * Elf32_Half e_phentsize; // Program header table entry size
- * Elf32_Half e_phnum; // Program header table entry count
- * Elf32_Half e_shentsize; // Section header table entry size
- * Elf32_Half e_shnum; // Section header table entry count
- * Elf32_Half e_shstrndx; // Section header string table index
+ * Elf32_Half e_type; // Object file type // 2 Byte // Offset(16)
+ * Elf32_Half e_machine; // Architecture // 2 Byte // Offset(18)
+ * Elf32_Word e_version; // Object file version // 4 Byte // Offset(20)
+ * Elf32_Addr e_entry; // Entry point virtual address // 4 Byte // Offset(24)
+ * Elf32_Off e_phoff; // Program header table file offset // 4 Byte
+ * Elf32_Off e_shoff; // Section header table file offset // 4 Byte
+ * Elf32_Word e_flags; // Processor-specific flags // 4 Byte
+ * Elf32_Half e_ehsize; // ELF header size in bytes // 2 Byte
+ * Elf32_Half e_phentsize; // Program header table entry size // 2 Byte
+ * Elf32_Half e_phnum; // Program header table entry count // 2 Byte
+ * Elf32_Half e_shentsize; // Section header table entry size // 2 Byte
+ * Elf32_Half e_shnum; // Section header table entry count // 2 Byte
+ * Elf32_Half e_shstrndx; // Section header string table index // 2 Byte
  * } Elf32_Ehdr;
  */
 class Elf32_Ehdr {
@@ -322,32 +567,81 @@ class Elf32_Ehdr {
 
     public EI_TYPE e_type;
 
+    public int e_machine;
+
     public int e_version;
 
     public int e_entry;
 
     public int e_phoff;
 
+    public int e_shoff;
+
+    public int e_flags; // Processor-specific flags
+
+    public int e_ehsize; // ELF header size in bytes
+
+    public int e_phentsize; // Program header table entry size
+
+    public int e_phnum; // Program header table entry count
+
+    public int e_shentsize; // Section header table entry size
+
+    public int e_shnum; // Section header table entry count
+
+    public int e_shstrndx; // Section header string table index
+
     public Elf32_Phdr programHeader;
 
     public int load(byte[] buffer, int pos) {
 
         // int32_t (4 byte) magic number
-        magicNumbers1 = ByteArrayUtil.decodeInt32FromArrayLittleEndian(buffer, pos += 0);
-        // int8_t (1 byte) e_class (32/64 bit file)
-        e_class = EI_CLASS.fromInt(ByteArrayUtil.decodeInt8FromArray(buffer, pos += 4));
+        magicNumbers1 = ByteArrayUtil.decodeInt32FromArrayLittleEndian(buffer, pos);
+        pos += 4;
 
-        pos += 8;
+        // int8_t (1 byte) e_class (32/64 bit file)
+        e_class = EI_CLASS.fromInt(ByteArrayUtil.decodeInt8FromArray(buffer, pos));
+        pos += 12;
 
         // int16_t (2 byte) e_type (executable or other)
-        e_type = EI_TYPE.fromInt(ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos += 4));
+        e_type = EI_TYPE.fromInt(ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos));
+        pos += 2;
 
-        e_version = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos += 4);
+        // int16_t (2 byte) e_machine
+        e_machine = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos);
+        pos += 2;
 
-        e_entry = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos += 4);
+        // 4 byte
+        e_version = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos);
+        pos += 4;
+
+        // 4 byte, program flow entry point virtual address
+        e_entry = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos);
+        pos += 4;
 
         // int32_t (4 byte) e_phoff (program header offset)
-        e_phoff = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos += 4);
+        e_phoff = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos);
+        pos += 4;
+
+        // int32_t (4 byte) e_shoff (section header offset)
+        e_shoff = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos);
+        pos += 4;
+
+        e_flags = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, pos); // Processor-specific flags
+        pos += 4;
+
+        e_ehsize = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos); // ELF header size in bytes
+        pos += 2;
+        e_phentsize = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos); // Program header table entry size
+        pos += 2;
+        e_phnum = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos); // Program header table entry count
+        pos += 2;
+        e_shentsize = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos); // Section header table entry size
+        pos += 2;
+        e_shnum = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos); // Section header table entry count
+        pos += 2;
+        e_shstrndx = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos); // Section header string table index
+        pos += 2;
 
         // Flags: 1 = executable, 2 = writable, 4 = readable.
         return pos;
@@ -355,10 +649,15 @@ class Elf32_Ehdr {
 
 }
 
+
+
+
 /**
  * 
  */
 public class Elf {
+
+    private static final boolean DECODE = false;
 
     public String filename;
 
@@ -366,7 +665,17 @@ public class Elf {
 
     public byte[] buffer;
 
+    // public byte[] machine_code;
+
     public Elf32_Phdr programHeader;
+
+    public List<Elf32Sym> elf32SymList = new ArrayList<>();
+
+    public List<ElfSymbolTable> symbolTableList = new ArrayList<>();
+
+    public Memory memory;
+
+    // public String strtab;
 
     public void load() throws IOException {
 
@@ -388,6 +697,167 @@ public class Elf {
 
         if (elf32_Ehdr.e_type != EI_TYPE.ET_EXEC) {
             throw new RuntimeException("Not an executable elf file! " + filename);
+        }
+
+        // GOAL: Find main symbol
+        // 1. Retrieve the "Section header table offset" from the ELF-Header
+        int sectionHeaderTableOffset = elf32_Ehdr.e_shoff;
+
+        // 2. Retrieve the "Number of entries in the section header table"
+        int numberOfEntriesSectionHeaderTable = elf32_Ehdr.e_shnum;
+
+        //
+        // Iterate over sections in order to find the address of the main-function/symbol
+        //
+
+        // Elf32_Shdr symTabSectionHeader = new Elf32_Shdr();
+
+        for (int i = 0; i < numberOfEntriesSectionHeaderTable; i++) {
+
+            int sectionHeaderOffset = sectionHeaderTableOffset + i * Elf32_Shdr.SIZE;
+
+            Elf32_Shdr sectionHeader = new Elf32_Shdr();
+            sectionHeader.load(buffer, sectionHeaderOffset);
+
+            SH_TYPE type = SH_TYPE.fromInt(sectionHeader.sh_type);
+
+            System.out.println("------------------------------------------");
+            System.out.println("Name: " + sectionHeader.sh_name);
+            System.out.println("Type: " + type);
+            System.out.println("Size: " + sectionHeader.sh_size);
+            System.out.println("Offset: " + ByteArrayUtil.byteToHex(sectionHeader.sh_offset));
+
+            // https://wiki.osdev.org/ELF_Tutorial
+            // The String Table
+            // The string table conceptually is quite simple: it's just a number of consecutive 
+            // zero-terminated strings. String literals used in the program are stored in one of 
+            // the tables. There are a number of different string tables that may be present in 
+            // an ELF object such as .strtab (the default string table), .shstrtab (the section 
+            // string table) and .dynstr (string table for dynamic linking). Any time the loading 
+            // process needs access to a string, it uses an offset into one of the string tables. 
+            // The offset may point to the beginning of a zero-terminated string or somewhere in 
+            // the middle or even to the zero terminator itself, depending on usage and scenario. 
+            // The size of the string table itself is specified by sh_size in the corresponding 
+            // section header entry. The simplest program loader may copy all string tables into 
+            // memory, but a more complete solution would omit any that are not necessary during 
+            // runtime such, notably those not flagged with SHF_ALLOC in their respective section 
+            // header (such as .shstrtab, since section names aren't used in program runtime).
+            
+            // load the string table.
+            // The String table is a large string that is index by symbols in the symbol table.
+            //
+            // How indexing works is by treating the strtab as one large string and then 
+            // index to a individual character within this large string. The index is stored
+            // in the st_name field of a symbol in the symbol table. The substring is then 
+            // constructed up to the next zero-terminator.
+            //
+            // It is incorrect to split the symbol table into individual strings and put then
+            // into a hashmap! This is not how the indexing works! The indexes are pointing
+            // at substrings as described above!
+            if (type == SH_TYPE.SHT_STRTAB) {
+
+                // the entries of the section are stored at sh_offset
+                int sectionEntryOffset = sectionHeader.sh_offset;
+
+                int size = sectionHeader.sh_size;
+                // System.out.println(size);
+
+                String strtab = new String(buffer, sectionEntryOffset, size);
+                
+                // DEBUG
+                String temp = strtab;
+                temp = temp.replaceAll("\0", "\n");
+                System.out.println(temp);
+
+                ElfSymbolTable symbolTable = new ElfSymbolTable();
+                symbolTableList.add(symbolTable);
+                symbolTable.strtab = strtab;
+            }
+
+            // symbols which have a reference to the string tables
+            if (type == SH_TYPE.SHT_SYMTAB) {
+
+                // the entries of the section are stored at sh_offset
+                int sectionEntryOffset = sectionHeader.sh_offset;
+                System.out.println(ByteArrayUtil.byteToHex(sectionEntryOffset));
+
+                int sectionEntries = sectionHeader.sh_size / sectionHeader.sh_entsize;
+
+                int size = sectionHeader.sh_size;
+
+                String result = new String(buffer, sectionEntryOffset, size);
+            
+                // DEBUG
+                String temp = result;
+                temp = temp.replaceAll("\0", "\n");
+                System.out.println(temp);
+
+                for (int j = 0; j < sectionEntries; j++) {
+
+                    Elf32Sym elf32_Sym = new Elf32Sym();
+                    elf32SymList.add(elf32_Sym);
+                    elf32_Sym.load(buffer, sectionEntryOffset);
+
+                    // int st_name = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, sectionEntryOffset + 0);
+                    // int st_value = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, sectionEntryOffset + 4);
+                    // int st_size = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, sectionEntryOffset + 8);
+                    // int st_info = ByteArrayUtil.decodeInt8FromArray(buffer, sectionEntryOffset + 12);
+                    // int st_other = ByteArrayUtil.decodeInt8FromArray(buffer, sectionEntryOffset + 13);
+                    // int st_shndx = ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, sectionEntryOffset + 14);
+
+                    // System.out.println((j+1) + ")    +++++++++++++++++++++++++++++++++++");
+                    // System.out.println("    st_name: " + st_name);
+                    // System.out.println("    st_value: " + ByteArrayUtil.byteToHex(st_value));
+                    // System.out.println("    st_size: " + st_size);
+                    // System.out.println("    st_info: " + st_info);
+                    // System.out.println("    st_other: " + st_other);
+                    // System.out.println("    st_shndx: " + st_shndx);
+
+                    // // resolve the index to a string
+                    // if (st_name != 0) {
+                    //     System.out.println("    string_value: " + stringArray[st_shndx]);
+                    // }
+
+                    sectionEntryOffset += 16;
+                }
+
+            }
+        }
+
+        // DEBUG output the symbols in the symbol table
+        int elf32SymIndex = 0;
+        for (Elf32Sym elf32_Sym : elf32SymList) {
+
+            // DEBUG
+            //System.out.println((elf32SymIndex) + ")    +++++++++++++++++++++++++++++++++++");
+            System.out.print((elf32SymIndex) + ")");
+            System.out.print("    st_name: " + ByteArrayUtil.byteToHex(elf32_Sym.st_name) + " (" + elf32_Sym.st_name + ") ");
+            System.out.print("    st_value: " + ByteArrayUtil.byteToHex(elf32_Sym.st_value));
+            System.out.print("    st_size: " + elf32_Sym.st_size);
+            System.out.print("    st_info: " + elf32_Sym.st_info);
+            System.out.print("    st_other: " + elf32_Sym.st_other);
+            System.out.println("    st_shndx: " + elf32_Sym.st_shndx);
+
+            if (elf32_Sym.st_name != 0) {
+
+                String val = symbolTableList.get(0).strtab;
+
+                // start with the index and construct a string of all
+                // characters up to the next null-terminator character
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = elf32_Sym.st_name; i < val.length(); i++) {
+                    char c = val.charAt(i);
+                    if (c == '\0') {
+                        break;
+                    }
+                    stringBuilder.append(c);
+                }
+                System.out.println(stringBuilder.toString());
+
+                elf32_Sym.resolved_st_name = stringBuilder.toString();
+            }
+
+            elf32SymIndex++;
         }
 
         // Iterate over each 'program header' in the table and check
@@ -413,55 +883,76 @@ public class Elf {
         // it points onto the ELF-Header which is not executable. In this
         // case, add the entry-point offset from the ELF-header to point to
         // the machine code
-        if (machine_code_offset == 0) {
-            machine_code_offset += elf32_Ehdr.e_entry;
-            machine_code_offset -= programHeader.p_vaddr;
-        }
+        //if (machine_code_offset == 0) {
+        //    machine_code_offset += elf32_Ehdr.e_entry;
 
-        System.out.println("Loading machine code virtual address: " + programHeader.p_vaddr);
-        System.out.println("Loading machine code from elf-file offset: " + machine_code_offset);
+            // System.out.println("Loading machine code virtual address: " +
+            // programHeader.p_vaddr);
+            //machine_code_offset -= programHeader.p_vaddr;
+        //}
 
-        int instructionMachineCode = 0;
-        try {
-            int decodePos = machine_code_offset;
-            for (int i = 0; i < 65; i++) {
+        // create a machine_code buffer large enough to hold the application
+        // plus additional space for the stack! 
+        // TODO: the stack and the application memory should not be related
+        // to each other. Change how the stack pointer of the CPU is initialized: see App.java
+        // stack-pointer initialization
+        //machine_code = new byte[programHeader.p_memsz + 10000];
+        //System.arraycopy(buffer, machine_code_offset, machine_code, 0, programHeader.p_memsz);
 
-                instructionMachineCode = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, decodePos);
+        memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_memsz);
 
-                // if (instructionMachineCode == 0x93d71740) {
-                //     System.out.println("Test");
-                //     // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                // }
-                // if (instructionMachineCode == 0x4017d793) {
-                //     System.out.println("Test");
-                //     // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                // }
-                if (instructionMachineCode == 0x3a434347) {
-                    System.out.println("Test");
-                    // System.out.println(ByteArrayUtil.byteToHex(instruction));
+        if (DECODE) {
+
+            System.out.println(
+                    "Loading machine code from elf-file offset: " + ByteArrayUtil.byteToHex(machine_code_offset));
+
+            int instructionMachineCode = 0;
+            try {
+
+                int decodePos = machine_code_offset;
+
+                System.out.println("Programheader memsize: " + ByteArrayUtil.byteToHex(programHeader.p_memsz) + " "
+                        + programHeader.p_memsz);
+                System.out.println("Programheader filesize: " + ByteArrayUtil.byteToHex(programHeader.p_filesz) + " "
+                        + programHeader.p_filesz);
+                for (int i = 0; i < (programHeader.p_memsz / 4); i++) {
+
+                    instructionMachineCode = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, decodePos);
+
+                    // if (instructionMachineCode == 0x93d71740) {
+                    // System.out.println("Test");
+                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
+                    // }
+                    // if (instructionMachineCode == 0x4017d793) {
+                    // System.out.println("Test");
+                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
+                    // }
+                    // if (instructionMachineCode == 0x3a434347) {
+                    // System.out.println("Test");
+                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
+                    // }
+                    // if (instructionMachineCode == 0x4743433a) {
+                    // System.out.println("Test");
+                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
+                    // }
+
+                    AsmLine<?> asmLine = Decoder.decode(instructionMachineCode);
+                    System.out.println(ByteArrayUtil.byteToHex(decodePos) + ": " + asmLine);
+
+                    decodePos += 4;
                 }
-                if (instructionMachineCode == 0x4743433a) {
-                    System.out.println("Test");
-                    // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                }
-
-
-                
-                AsmLine<?> asmLine = Decoder.decode(instructionMachineCode);
-                System.out.println(asmLine);
-
-                decodePos += 4;
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(ByteArrayUtil.byteToHex(instructionMachineCode));
             }
-        } catch (Exception e) {
-            System.out.println(ByteArrayUtil.byteToHex(instructionMachineCode));
-            // srai a5, a5, 1
+
         }
 
     }
 
-    public byte[] getMachineCode() {
-        throw new UnsupportedOperationException("Unimplemented method 'getMachineCode'");
-    }
+    // public byte[] getMachineCode() {
+    //     return machine_code;
+    // }
 
     public void setFile(String filename) {
         this.filename = filename;

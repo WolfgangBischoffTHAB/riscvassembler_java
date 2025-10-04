@@ -19,6 +19,7 @@ public class Decoder {
     private static final int I_TYPE_1 = 0b1100111;
     private static final int I_TYPE_2 = 0b0010011;
     private static final int I_TYPE_3 = 0b0000011;
+    private static final int I_TYPE_4 = 0b1110011;
 
     private static final int S_TYPE = 0b0100011;
 
@@ -161,7 +162,7 @@ public class Decoder {
 
                     default:
                         throw new RuntimeException(
-                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                "Unknown I_TYPE_1! funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
@@ -190,7 +191,7 @@ public class Decoder {
                         break;
                     default:
                         throw new RuntimeException(
-                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                "Unknown I_TYPE_2! funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 break;
 
@@ -202,11 +203,26 @@ public class Decoder {
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_LW;
                         break;
+                    case 0b100:
+                        asmLine.mnemonic = Mnemonic.I_LBU;
+                        break;
                     default:
                         throw new RuntimeException(
-                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                "Unknown I_TYPE_3! funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeIType_3(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                break;
+
+            case I_TYPE_4:
+                switch (funct3) {
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_ECALL;
+                        break;
+                    default:
+                        throw new RuntimeException(
+                                "Unknown I_TYPE_4! funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                }
+                // decodeIType_4(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                 break;
 
             case S_TYPE:
@@ -292,6 +308,7 @@ public class Decoder {
             default:
                 throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data)
                         + ". Unknown Instruction Type! opcode = " + opcode);
+     
         }
 
         return asmLine;

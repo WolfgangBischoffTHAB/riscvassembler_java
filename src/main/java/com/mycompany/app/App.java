@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.assembler.BaseAssembler;
 import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
+import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.cpu.CPU;
 import com.mycompany.cpu.PipelinedCPU;
 //import com.mycompany.cpu.PipelinedCPU;
@@ -24,8 +25,13 @@ import com.mycompany.cpu.SingleCycleCPU;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 import com.mycompany.elf.Elf;
+import com.mycompany.elf.Elf32Sym;
+import com.mycompany.elf.ElfSymbolTable;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
+import com.mycompany.memory.DefaultMemory;
+import com.mycompany.memory.Memory;
 import com.mycompany.preprocessing.IncludePreprocessor;
+
 
 /**
  * Created with:
@@ -250,38 +256,60 @@ public class App {
         // the raw listener just prints the AST to the console
         // RawOutputListener listener = new RawOutputListener();
 
-        //
-        // assemble to machine code
-        //
+        int startAddress = 0;
 
-        byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
+        if (false) {
 
-        // //
-        // // elf to machinen code
-        // //
+            //
+            // assemble to machine code
+            //
 
-        // Elf elf = new Elf();
-        // elf.setFile("src/test/resources/riscvelf/factorial.out");
-        // elf.load();
-        // byte[] machineCode = elf.getMachineCode();
+            byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
-        if ((assembler.labelAddressMap == null) 
-            || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
-            throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL
-                    + "' label found! Do not know where to execute the application from!");
+            if ((assembler.labelAddressMap == null) 
+                || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
+                throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL
+                        + "' label found! Do not know where to execute the application from!");
+            }
+
+            startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL).intValue();
+
         }
 
+        DefaultMemory memory = new DefaultMemory();
+
+        //
+        // elf to machinen code
+        //
+
+        Elf elf = new Elf();
+        elf.memory = memory;
+        //elf.setFile("src/test/resources/riscvelf/factorial.out");
+        elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+        elf.load();
+        // byte[] machineCode = elf.getMachineCode();
+
         // DEBUG - output machine code as hex
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-        BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+        //BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+
+        Elf32Sym mainEntry = elf.elf32SymList.stream().filter(x -> {
+            if (x.resolved_st_name == null) {
+                return false;
+            }
+            return x.resolved_st_name.equalsIgnoreCase("main");
+        }).findFirst().get();
+
+        // organize this mess!
+        //startAddress = mainEntry.st_value - 0x10000 - 0x74;
+        startAddress = mainEntry.st_value;
 
         //
         // emulate
         //
 
-        int startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL).intValue();
-        CPU cpu = emulate(machineCode, startAddress);
+        CPU cpu = emulate(memory, startAddress);
 
         //
         // post emulation
@@ -297,33 +325,34 @@ public class App {
             }
 
             // DEBUG
-            BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
+            //BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
 
         }
 
         System.out.println("done");
     }
 
-    private static CPU emulate(final byte[] machineCode, final int main_entry_point_address) {
+    private static CPU emulate(final Memory memory, final int main_entry_point_address) {
 
         SingleCycleCPU cpu = new SingleCycleCPU();
         //PipelinedCPU cpu = new PipelinedCPU();
 
-        // THIS IS AN ERROR!
-        // THE PC SHOULD ONLY START AT ADDRESS 0 IF THIS APPLICATION
-        // DOES NOT DEFINE A MAIN ENTRY POINT!
-        // IF THE APPLICATION HAS A MAIN FUNCTION / MAIN ENTRY POINT,
-        // EXECUTION HAS TO START AT THE MAIN ENTRY POINT!
+        System.out.println(ByteArrayUtil.byteToHex(main_entry_point_address));
         cpu.pc = main_entry_point_address;
 
+        //
         // stack-pointer (sp, x2) register:
+        //
         // should not point into the source code (menomics in memory!)
         // because using the stack will then override the application code!
         //
         // stack should grow down, so set it to the highest memory address possible
-        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = MEMORY_SIZE_IN_BYTE - 4;
+        //cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = machineCode.length - 4;
+        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 0x20000;
 
+        //
         // frame-pointer (s0/fp, x8 register)
+        //
         cpu.registerFile[RISCVRegister.REG_FP.getIndex()] = 0;
 
         // ra - the initial return address is retrieved from the application loader
@@ -331,18 +360,20 @@ public class App {
         // Without loader, we set it to 0xCAFEBABE = 3405691582 dec
         cpu.registerFile[RISCVRegister.REG_RA.getIndex()] = 0xCAFEBABE;
 
-        cpu.memory = new byte[MEMORY_SIZE_IN_BYTE];
+        //cpu.memory = new byte[machineCode.length + 8];
         // cpu.memory[80] = 1;
         // cpu.memory[81] = 2;
         // cpu.memory[82] = 3;
         // cpu.memory[83] = 4;
 
-        System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
+        cpu.memory = memory;
 
-        cpu.memory[machineCode.length + 4] = (byte) 0xFF;
-        cpu.memory[machineCode.length + 5] = (byte) 0xFF;
-        cpu.memory[machineCode.length + 6] = (byte) 0xFF;
-        cpu.memory[machineCode.length + 7] = (byte) 0xFF;
+        //System.arraycopy(machineCode, 0, cpu.memory, 0, machineCode.length);
+
+        //cpu.memory[machineCode.length + 4] = (byte) 0xFF;
+        //cpu.memory[machineCode.length + 5] = (byte) 0xFF;
+        //cpu.memory[machineCode.length + 6] = (byte) 0xFF;
+        //cpu.memory[machineCode.length + 7] = (byte) 0xFF;
 
         // // FOR DEBUGGING MULTISTAGE PIPELINE APPS
         // // preload values into registers
