@@ -5,6 +5,10 @@ package com.mycompany.data;
  */
 public enum Mnemonic {
 
+    //
+    // RV32 I
+    //
+
     I_ADD(false),
     I_ADDI(false),
     // I_ADDIW(false), // This is 64 bits!!!
@@ -81,6 +85,12 @@ public enum Mnemonic {
 
     I_XOR(false),
     I_XORI(false),
+
+    //
+    // M Extension
+    //
+
+    I_REMU(false),
 
     //
     // Special instructions to add extended functionality to the emulator
@@ -214,6 +224,14 @@ public enum Mnemonic {
             return I_XOR;
         } else if (mnemonic.equalsIgnoreCase("XORI")) {
             return I_XORI;
+        }
+
+        //
+        // M Extensions
+        //
+
+        else if (mnemonic.equalsIgnoreCase("REMU")) {
+            return I_REMU;
         }
 
         throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");
@@ -373,6 +391,13 @@ public enum Mnemonic {
             case I_PUTS:
                 return "puts";
 
+            //
+            // M Extension
+            //
+
+            case I_REMU:
+                return "remu";
+ 
             default:
                 throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");
         }

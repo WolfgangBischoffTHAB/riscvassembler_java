@@ -54,15 +54,15 @@ import com.mycompany.data.Section;
  *
  * In this example, there are no labels.
  */
-public class LiCombiner implements AsmInstructionListModifier {
+public class LiCombiner<T extends Register> implements AsmInstructionListModifier<T> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
 
-        AsmLine<?> data_1 = null;
-        AsmLine<?> data_2 = null;
+        AsmLine<T> data_1 = null;
+        AsmLine<T> data_2 = null;
 
-        for (AsmLine<?> asmLine : asmLines) {
+        for (AsmLine<T> asmLine : asmLines) {
 
             data_2 = asmLine;
 
@@ -87,7 +87,7 @@ public class LiCombiner implements AsmInstructionListModifier {
                     if ((data_1.register_0 == data_2.register_0) && (data_2.register_0 == data_2.register_1)) {
 
                         // attach pseudo instruction
-                        AsmLine<Register> pseudoInstructionAsmLine = new AsmLine<>();
+                        AsmLine<T> pseudoInstructionAsmLine = new AsmLine<>();
                         pseudoInstructionAsmLine.section = data_1.section;
                         pseudoInstructionAsmLine.optimized = false;
                         pseudoInstructionAsmLine.mnemonic = Mnemonic.I_LI;

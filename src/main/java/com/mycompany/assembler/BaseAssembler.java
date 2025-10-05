@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
 import com.mycompany.optimize.BaseOptimizer;
@@ -52,7 +53,7 @@ public abstract class BaseAssembler {
     public static final boolean USE_CALL_OPTIMIZER = true;
     // public static final boolean USE_CALL_OPTIMIZER = false;
 
-    public List<AsmLine<?>> asmLines = new ArrayList<>();
+    public List<AsmLine<RISCVRegister>> asmLines = new ArrayList<>();
 
     public ParseTreeListener asmListener;
 
@@ -148,7 +149,7 @@ public abstract class BaseAssembler {
         // uart.s --> does not use combiner
         // square_and_print.s --> uses combiner
         //
-        LiCombiner liCombiner = new LiCombiner();
+        LiCombiner<RISCVRegister> liCombiner = new LiCombiner<>();
         liCombiner.modify(asmLines, sectionMap);
 
         // // DEBUG
@@ -269,7 +270,7 @@ public abstract class BaseAssembler {
         LiResolver liResolver = new LiResolver();
         liResolver.modify(asmLines, sectionMap);
 
-        LaResolver laResolver = new LaResolver();
+        LaResolver<RISCVRegister> laResolver = new LaResolver<>();
         laResolver.modify(asmLines, sectionMap);
 
         CallResolver callResolver = new CallResolver();
@@ -367,7 +368,7 @@ public abstract class BaseAssembler {
         // }
 
         if (USE_CALL_OPTIMIZER) {
-            CallOptimizer callOptimizer = new CallOptimizer();
+            CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
             callOptimizer.modify(asmLines, sectionMap);
         }
 
@@ -397,7 +398,8 @@ public abstract class BaseAssembler {
         // System.out.println("");
         // System.out.println("");
 
-        BaseOptimizer.updateAddresses(asmLines, sectionMap);
+        CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
+        callOptimizer.updateAddresses(asmLines, sectionMap);
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -406,7 +408,8 @@ public abstract class BaseAssembler {
         // }
 
         labelAddressMap = new HashMap<>();
-        BaseOptimizer.buildLabelTable(asmLines, labelAddressMap, sectionMap);
+
+        callOptimizer.buildLabelTable(asmLines, labelAddressMap, sectionMap);
 
         // DEBUG
         // BaseOptimizer.outputLabelAddressMap(labelAddressMap);
@@ -450,7 +453,7 @@ public abstract class BaseAssembler {
         // System.out.println(asmLine);
         // }
 
-        BaseOptimizer.resolveLabels(asmLines, labelAddressMap);
+        callOptimizer.resolveLabels(asmLines, labelAddressMap);
 
         // DEBUG output label address map
         System.out.println("\n\n\n");
@@ -571,7 +574,7 @@ public abstract class BaseAssembler {
     }
 
     // @Override
-    public List<AsmLine<?>> getAsmLines() {
+    public List<AsmLine<RISCVRegister>> getAsmLines() {
         return asmLines;
     }
 

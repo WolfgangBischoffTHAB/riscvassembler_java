@@ -1,8 +1,7 @@
 package com.mycompany.cpu;
 
 import com.mycompany.data.AsmLine;
-import com.mycompany.data.Mnemonic;
-import com.mycompany.decoder.Decoder;
+import com.mycompany.decoder.DelegatingDecoder;
 
 /**
  * According to Figure 7.47 on page 440 (pdf page 462) of
@@ -21,9 +20,11 @@ import com.mycompany.decoder.Decoder;
  */
 public class PipelinedCPUInstructionDecodeStage {
 
-    private AsmLine asmLineForDebugging;
+    public AsmLine<?> asmLineForDebugging;
 
-    public AsmLine step_read(PipelinedCPU pipelinedCPU, int instruction, DE_EX de_ex) {
+    public DelegatingDecoder delegatingDecoder;
+
+    public AsmLine<?> step_read(PipelinedCPU pipelinedCPU, int instruction, DE_EX de_ex) {
         return step(pipelinedCPU, instruction, de_ex);
     }
 
@@ -41,7 +42,7 @@ public class PipelinedCPUInstructionDecodeStage {
         System.out.println("[DECOD] " + asmLineForDebugging);
     }
 
-    public AsmLine step(PipelinedCPU cpu, final int instruction, DE_EX de_ex) {
+    public AsmLine<?> step(PipelinedCPU cpu, final int instruction, DE_EX de_ex) {
 
         // skip
         if (instruction == 0x00) {
@@ -49,7 +50,7 @@ public class PipelinedCPUInstructionDecodeStage {
             return null;
         }
 
-        AsmLine asmLine = Decoder.decode(instruction);
+        AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
         asmLineForDebugging = asmLine;
 
         if (asmLine.mnemonic == null) {

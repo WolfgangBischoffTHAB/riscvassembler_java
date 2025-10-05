@@ -31,14 +31,16 @@ import riscvasm.RISCVASMParserBaseListener;
  * This listener assembles AsmLineS from all informations it
  * finds inside the AST while visiting.
  */
+@SuppressWarnings("unchecked")
 public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener {
 
     public Map<String, Section> sectionMap;
 
     public Section currentSection;
 
-    public List<AsmLine<?>> asmLines;
+    public List<AsmLine<RISCVRegister>> asmLines;
 
+    @SuppressWarnings("rawtypes")
     private AsmLine asmLine = new AsmLine();
 
     private int sourceLine = 1;
@@ -111,6 +113,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         throw new RuntimeException("Not implemented yet!");
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void exitAsm_line(RISCVASMParser.Asm_lineContext ctx) {
 
@@ -155,6 +158,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
             if (index == 5) {
                 index = 2;
             }
+            @SuppressWarnings("rawtypes")
             ListIterator li = ctx.param().listIterator(ctx.param().size());
             while (li.hasPrevious()) {
 

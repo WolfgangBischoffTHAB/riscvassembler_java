@@ -7,17 +7,18 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
  * A nop pseudo instruction is implemented using a nonsense addi instruction
  */
-public class NopResolver implements AsmInstructionListModifier {
+public class NopResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
             if (asmLine.mnemonic != Mnemonic.I_NOP) {
                 continue;

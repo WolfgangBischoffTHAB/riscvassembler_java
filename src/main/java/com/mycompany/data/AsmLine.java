@@ -44,13 +44,13 @@ public class AsmLine<T extends Register> {
 
     public String stringValue;
 
-    public AsmLine<?> pseudoInstructionAsmLine = null;
-    public List<AsmLine<?>> pseudoInstructionChildren = new ArrayList<>();
+    public AsmLine<T> pseudoInstructionAsmLine = null;
+    public List<AsmLine<T>> pseudoInstructionChildren = new ArrayList<>();
 
     public boolean optimized = false;
 
-    public AsmLine<?> prev;
-    public AsmLine<?> next;
+    public AsmLine<T> prev;
+    public AsmLine<T> next;
 
     public ASTNode expr_0;
     public ASTNode expr_1;

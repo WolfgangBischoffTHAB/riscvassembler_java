@@ -8,21 +8,20 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
-public class LiResolver implements AsmInstructionListModifier {
+public class LiResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
 
             boolean found = false;
 
-            AsmLine foundAsmLine = null;
+            AsmLine<RISCVRegister> foundAsmLine = null;
 
             int index = 0;
 
@@ -168,7 +167,7 @@ public class LiResolver implements AsmInstructionListModifier {
                     // lui
                     //
 
-                    Register tempRegister = foundAsmLine.register_0;
+                    RISCVRegister tempRegister = foundAsmLine.register_0;
 
                     // since ADDI automatically performs sign extension, there is no
                     // need for a LUI instruction that performs sign extension manually

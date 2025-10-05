@@ -12,7 +12,6 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.MIPSRegister;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
-import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 
 import mipsasm.MIPSParser;
@@ -24,14 +23,16 @@ import mipsasm.MIPSParser.ParamContext;
 import mipsasm.MIPSParser.RegisterContext;
 import mipsasm.MIPSParserBaseListener;
 
+@SuppressWarnings("unchecked")
 public class MIPSASMExtractingOutputListener extends MIPSParserBaseListener {
 
     public Map<String, Section> sectionMap;
 
     public Section currentSection;
 
-    public List<AsmLine<?>> asmLines;
+    public List<AsmLine<MIPSRegister>> asmLines;
 
+    @SuppressWarnings("rawtypes")
     private AsmLine asmLine = new AsmLine();
 
     private int sourceLine = 1;
@@ -45,7 +46,7 @@ public class MIPSASMExtractingOutputListener extends MIPSParserBaseListener {
         asmLine.section = currentSection;
         asmLines.add(asmLine);
 
-        asmLine = new AsmLine();
+        asmLine = new AsmLine<MIPSRegister>();
         sourceLine++;
     }
 

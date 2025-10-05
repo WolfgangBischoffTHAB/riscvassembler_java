@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.assembler.BaseAssembler;
-import com.mycompany.assembler.MIPSAssembler;
+// import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.cpu.CPU;
@@ -137,7 +137,7 @@ public class App {
         // args[0] = inputFile;
         // mainMIPS(args);
     }
-
+/*
     public static void mainMIPS(String[] args) throws IOException {
 
         //
@@ -197,7 +197,7 @@ public class App {
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
     }
-
+ */
     public static void mainRISCV(String[] args) throws IOException {
 
         //
@@ -337,7 +337,9 @@ public class App {
         SingleCycleCPU cpu = new SingleCycleCPU();
         //PipelinedCPU cpu = new PipelinedCPU();
 
-        System.out.println(ByteArrayUtil.byteToHex(main_entry_point_address));
+        // DEBUG main entry point address
+        System.out.println("Main Entry Point: " + ByteArrayUtil.byteToHex(main_entry_point_address));
+
         cpu.pc = main_entry_point_address;
 
         //

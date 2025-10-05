@@ -72,6 +72,10 @@ DOT_OPTION : DOT O P T I O N ;
 DOT_SIZE : DOT S I Z E ;
 DOT_IDENT : DOT I D E N T ;
 
+//
+// RV32 I
+//
+
 I_ADD : A D D ;
 I_ADDI : A D D I ;
 I_AND : A N D ;
@@ -134,6 +138,12 @@ I_WFI : W F I ;
 
 I_XORI : X O R I ;
 I_XOR : X O R ;
+
+//
+// M-Extension (Integer Multiplication and Division)
+//
+
+I_REMU : R E M U ;
 
 REG_ZERO_ABI : Z E R O ;
 REG_RA_ABI : R A ;

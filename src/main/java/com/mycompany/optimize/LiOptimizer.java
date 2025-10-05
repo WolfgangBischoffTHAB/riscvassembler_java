@@ -11,10 +11,10 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
-public class LiOptimizer extends BaseOptimizer {
+public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
@@ -31,10 +31,10 @@ public class LiOptimizer extends BaseOptimizer {
             updateAddresses(asmLines, sectionMap);
 
             // find unoptimized li pseudo instruction
-            AsmLine<?> liPseudoAsmLine = null;
+            AsmLine<RISCVRegister> liPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
-            for (AsmLine<?> asmLine : asmLines) {
+            for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LI)
@@ -52,8 +52,8 @@ public class LiOptimizer extends BaseOptimizer {
             }
 
             // start with first child instruction
-            AsmLine<?> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
-            AsmLine<?> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
+            AsmLine<RISCVRegister> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
+            AsmLine<RISCVRegister> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
             // DEBUG
             System.out.println(liPseudoAsmLine);
@@ -174,7 +174,7 @@ public class LiOptimizer extends BaseOptimizer {
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
 
-                AsmLine<Register> asmLine = new AsmLine<>();
+                AsmLine<RISCVRegister> asmLine = new AsmLine<>();
                 asmLine.mnemonic = Mnemonic.I_ADDI;
                 asmLine.register_0 = secondAsmLine.register_0;
                 asmLine.register_1 = RISCVRegister.REG_ZERO;

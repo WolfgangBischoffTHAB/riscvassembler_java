@@ -10,10 +10,10 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
-public class MvResolver implements AsmInstructionListModifier {
+public class MvResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
         for (AsmLine asmLine : asmLines) {
 

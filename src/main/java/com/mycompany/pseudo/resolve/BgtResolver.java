@@ -6,6 +6,7 @@ import java.util.Map;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
+import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
@@ -20,10 +21,10 @@ import com.mycompany.data.Section;
  * BLE is not the correct instruction to use! BLT is correct including swapping
  * the parameters
  */
-public class BgtResolver implements AsmInstructionListModifier {
+public class BgtResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
         for (AsmLine asmLine : asmLines) {
 

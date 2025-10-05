@@ -34,18 +34,17 @@ import com.mycompany.data.Section;
  * For far calls we can combine jalr with auipc to reach anywhere in 32-bit memory space.
  * Use the call pseudoinstruction and the assembler will choose the correct instruction(s) for you.
  */
-public class CallResolver implements AsmInstructionListModifier {
+public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
         // Loop over the entire set of asmLines to replace all call instructions
         boolean done = false;
         while (!done) {
 
             boolean found = false;
-            AsmLine foundAsmLine = null;
+            AsmLine<RISCVRegister> foundAsmLine = null;
 
             int index = 0;
 
@@ -56,7 +55,7 @@ public class CallResolver implements AsmInstructionListModifier {
             // Java specifics: If a collection is modified while being iterated over, there will be an exception
             // To prevent concurrent modification exception, separate search from modification by storing
             // a AsmLine containing a call statement to a local variable
-            for (AsmLine<?> asmLine : asmLines) {
+            for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
                 if (asmLine.mnemonic != Mnemonic.I_CALL) {
                     index++;
@@ -110,7 +109,7 @@ public class CallResolver implements AsmInstructionListModifier {
                 // auipc
                 //
 
-                AsmLine auipc = new AsmLine();
+                AsmLine<RISCVRegister> auipc = new AsmLine<>();
                 asmLines.add(index, auipc);
                 foundAsmLine.pseudoInstructionChildren.add(auipc);
                 auipc.pseudoInstructionAsmLine = foundAsmLine;
@@ -131,7 +130,7 @@ public class CallResolver implements AsmInstructionListModifier {
                 // jalr
                 //
 
-                AsmLine jalr = new AsmLine();
+                AsmLine<RISCVRegister> jalr = new AsmLine<>();
                 asmLines.add(index, jalr);
                 foundAsmLine.pseudoInstructionChildren.add(jalr);
                 jalr.pseudoInstructionAsmLine = foundAsmLine;

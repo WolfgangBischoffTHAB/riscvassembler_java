@@ -9,7 +9,7 @@ import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.decoder.Decoder;
+import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.memory.Memory;
 
 public class SingleCycleCPU extends AbstractCPU {
@@ -20,6 +20,8 @@ public class SingleCycleCPU extends AbstractCPU {
 
     // public byte[] memory;
     public Memory memory;
+
+    public DelegatingDecoder delegatingDecoder = new DelegatingDecoder();
 
     /**
      * ctor
@@ -54,7 +56,7 @@ public class SingleCycleCPU extends AbstractCPU {
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
-        AsmLine<?> asmLine = Decoder.decode(instruction);
+        AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
 
         // DEBUG output ASM line
         logger.trace("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
@@ -720,6 +722,30 @@ public class SingleCycleCPU extends AbstractCPU {
 
                 logger.trace(stringBuilder.toString());
                 
+                pc += 4;
+                break;
+
+            //
+            // Extension M
+            //
+
+            case I_REMU:
+                // Unsigned remainder - https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/remu.html
+                // Calculate the remainder of unsigned division of xs1 by xs2, and store the result in xd.
+                logger.trace("mnemonic: REMU");
+
+                int reg1Value = readRegisterFile(asmLine.register_1.getIndex());
+                int reg2Value = readRegisterFile(asmLine.register_2.getIndex());
+
+                int remuResult = 0;
+                if (reg2Value == 0) {
+                    remuResult = 0;
+                } else {
+                    remuResult = reg1Value % reg2Value;
+                }
+
+                writeRegisterFile(asmLine.register_0.getIndex(), remuResult);
+
                 pc += 4;
                 break;
 

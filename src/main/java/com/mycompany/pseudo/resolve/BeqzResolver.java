@@ -7,15 +7,14 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
-public class BeqzResolver implements AsmInstructionListModifier {
+public class BeqzResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
-        for (AsmLine asmLine : asmLines) {
+        for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
             if (asmLine.mnemonic != Mnemonic.I_BEQZ) {
                 continue;

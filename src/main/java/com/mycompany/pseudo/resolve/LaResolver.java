@@ -7,24 +7,25 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
-public class LaResolver implements AsmInstructionListModifier {
+public class LaResolver<T extends Register> implements AsmInstructionListModifier<T> {
 
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
 
             boolean found = false;
-            AsmLine foundAsmLine = null;
+            AsmLine<T> foundAsmLine = null;
 
             int index = 0;
 
             // to prevent concurrent modification exception, separate search
             // from modification
-            for (AsmLine asmLine : asmLines) {
+            for (AsmLine<T> asmLine : asmLines) {
 
                 if (asmLine.mnemonic != Mnemonic.I_LA) {
                     index++;
@@ -61,7 +62,7 @@ public class LaResolver implements AsmInstructionListModifier {
 
                 foundAsmLine.optimized = true;
 
-                AsmLine auipc = new AsmLine();
+                AsmLine<T> auipc = new AsmLine<>();
                 asmLines.add(index, auipc);
                 foundAsmLine.pseudoInstructionChildren.add(auipc);
                 auipc.pseudoInstructionAsmLine = foundAsmLine;
@@ -87,7 +88,7 @@ public class LaResolver implements AsmInstructionListModifier {
                 // addi
                 //
 
-                AsmLine addi = new AsmLine();
+                AsmLine<T> addi = new AsmLine<>();
                 asmLines.add(index, addi);
                 foundAsmLine.pseudoInstructionChildren.add(addi);
                 addi.pseudoInstructionAsmLine = foundAsmLine;

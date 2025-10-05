@@ -7,6 +7,7 @@ import java.util.Map;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
@@ -20,11 +21,11 @@ import com.mycompany.data.Section;
  * A far call goes beyond +/-1Mb relative to the PC.
  * A near call remains within +/-1MB relative to the PC.
  */
-public class CallOptimizer extends BaseOptimizer {
+public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void modify(final List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(final List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {

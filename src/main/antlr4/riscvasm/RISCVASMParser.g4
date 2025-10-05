@@ -38,7 +38,10 @@ label :
     NUMERIC
     ;
 
+// RV32 I
+// M Extension
 mnemonic :
+    
     I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
     I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLE | I_BLT | I_BLTU | I_BNE | I_BNEZ | I_BRK |
     I_CALL | I_ECALL |
@@ -50,7 +53,10 @@ mnemonic :
     I_RET |
     I_SLT | I_SRA | I_SRAI | I_SRL | I_SRLI | I_SLL | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
     I_WFI |
-    I_XOR | I_XORI
+    I_XOR | I_XORI |
+
+    
+    I_REMU
     ;
 
 params :

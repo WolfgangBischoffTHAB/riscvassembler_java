@@ -10,6 +10,7 @@ import java.util.List;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.decoder.Decoder;
+import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.memory.Memory;
 
 
@@ -721,11 +722,12 @@ public class Elf {
 
             SH_TYPE type = SH_TYPE.fromInt(sectionHeader.sh_type);
 
-            System.out.println("------------------------------------------");
-            System.out.println("Name: " + sectionHeader.sh_name);
-            System.out.println("Type: " + type);
-            System.out.println("Size: " + sectionHeader.sh_size);
-            System.out.println("Offset: " + ByteArrayUtil.byteToHex(sectionHeader.sh_offset));
+            // // DEBUG
+            // System.out.println("------------------------------------------");
+            // System.out.println("Name: " + sectionHeader.sh_name);
+            // System.out.println("Type: " + type);
+            // System.out.println("Size: " + sectionHeader.sh_size);
+            // System.out.println("Offset: " + ByteArrayUtil.byteToHex(sectionHeader.sh_offset));
 
             // https://wiki.osdev.org/ELF_Tutorial
             // The String Table
@@ -764,10 +766,10 @@ public class Elf {
 
                 String strtab = new String(buffer, sectionEntryOffset, size);
                 
-                // DEBUG
-                String temp = strtab;
-                temp = temp.replaceAll("\0", "\n");
-                System.out.println(temp);
+                // // DEBUG
+                // String temp = strtab;
+                // temp = temp.replaceAll("\0", "\n");
+                // System.out.println(temp);
 
                 ElfSymbolTable symbolTable = new ElfSymbolTable();
                 symbolTableList.add(symbolTable);
@@ -779,7 +781,7 @@ public class Elf {
 
                 // the entries of the section are stored at sh_offset
                 int sectionEntryOffset = sectionHeader.sh_offset;
-                System.out.println(ByteArrayUtil.byteToHex(sectionEntryOffset));
+                // System.out.println(ByteArrayUtil.byteToHex(sectionEntryOffset));
 
                 int sectionEntries = sectionHeader.sh_size / sectionHeader.sh_entsize;
 
@@ -787,10 +789,10 @@ public class Elf {
 
                 String result = new String(buffer, sectionEntryOffset, size);
             
-                // DEBUG
-                String temp = result;
-                temp = temp.replaceAll("\0", "\n");
-                System.out.println(temp);
+                // // DEBUG
+                // String temp = result;
+                // temp = temp.replaceAll("\0", "\n");
+                // System.out.println(temp);
 
                 for (int j = 0; j < sectionEntries; j++) {
 
@@ -828,15 +830,15 @@ public class Elf {
         int elf32SymIndex = 0;
         for (Elf32Sym elf32_Sym : elf32SymList) {
 
-            // DEBUG
-            //System.out.println((elf32SymIndex) + ")    +++++++++++++++++++++++++++++++++++");
-            System.out.print((elf32SymIndex) + ")");
-            System.out.print("    st_name: " + ByteArrayUtil.byteToHex(elf32_Sym.st_name) + " (" + elf32_Sym.st_name + ") ");
-            System.out.print("    st_value: " + ByteArrayUtil.byteToHex(elf32_Sym.st_value));
-            System.out.print("    st_size: " + elf32_Sym.st_size);
-            System.out.print("    st_info: " + elf32_Sym.st_info);
-            System.out.print("    st_other: " + elf32_Sym.st_other);
-            System.out.println("    st_shndx: " + elf32_Sym.st_shndx);
+            // // DEBUG
+            // //System.out.println((elf32SymIndex) + ")    +++++++++++++++++++++++++++++++++++");
+            // System.out.print((elf32SymIndex) + ")");
+            // System.out.print("    st_name: " + ByteArrayUtil.byteToHex(elf32_Sym.st_name) + " (" + elf32_Sym.st_name + ") ");
+            // System.out.print("    st_value: " + ByteArrayUtil.byteToHex(elf32_Sym.st_value));
+            // System.out.print("    st_size: " + elf32_Sym.st_size);
+            // System.out.print("    st_info: " + elf32_Sym.st_info);
+            // System.out.print("    st_other: " + elf32_Sym.st_other);
+            // System.out.println("    st_shndx: " + elf32_Sym.st_shndx);
 
             if (elf32_Sym.st_name != 0) {
 
@@ -852,7 +854,7 @@ public class Elf {
                     }
                     stringBuilder.append(c);
                 }
-                System.out.println(stringBuilder.toString());
+                // System.out.println(stringBuilder.toString());
 
                 elf32_Sym.resolved_st_name = stringBuilder.toString();
             }
@@ -906,6 +908,8 @@ public class Elf {
             System.out.println(
                     "Loading machine code from elf-file offset: " + ByteArrayUtil.byteToHex(machine_code_offset));
 
+            DelegatingDecoder delegatingDecoder = new DelegatingDecoder();
+
             int instructionMachineCode = 0;
             try {
 
@@ -919,24 +923,7 @@ public class Elf {
 
                     instructionMachineCode = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, decodePos);
 
-                    // if (instructionMachineCode == 0x93d71740) {
-                    // System.out.println("Test");
-                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                    // }
-                    // if (instructionMachineCode == 0x4017d793) {
-                    // System.out.println("Test");
-                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                    // }
-                    // if (instructionMachineCode == 0x3a434347) {
-                    // System.out.println("Test");
-                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                    // }
-                    // if (instructionMachineCode == 0x4743433a) {
-                    // System.out.println("Test");
-                    // // System.out.println(ByteArrayUtil.byteToHex(instruction));
-                    // }
-
-                    AsmLine<?> asmLine = Decoder.decode(instructionMachineCode);
+                    AsmLine<?> asmLine = delegatingDecoder.decode(instructionMachineCode);
                     System.out.println(ByteArrayUtil.byteToHex(decodePos) + ": " + asmLine);
 
                     decodePos += 4;

@@ -8,9 +8,10 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
-public abstract class BaseOptimizer implements AsmInstructionListModifier {
+public abstract class BaseOptimizer<T extends Register> implements AsmInstructionListModifier<T> {
 
     /**
      * Iterates over all asm lines and updates the offset variable in the
@@ -21,7 +22,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      * @param asmLines
      * @param sectionMap
      */
-    public static void updateAddresses(final List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void updateAddresses(final List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
 
         int address = 0;
 
@@ -81,14 +82,14 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
         }
     }
 
-    public static void buildLabelTable(final List<AsmLine<?>> asmLines,
+    public void buildLabelTable(final List<AsmLine<T>> asmLines,
             final Map<String, Long> labelAddressMap, final Map<String, Section> sectionMap) {
 
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
             entry.getValue().currentOffset = 0;
         }
 
-        for (AsmLine<?> asmLine : asmLines) {
+        for (AsmLine<T> asmLine : asmLines) {
 
             // convert section name to offset
             Section section = sectionMap.get(asmLine.section.name);
@@ -190,11 +191,11 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      * @param asmLines
      * @param labelAddressMap
      */
-    public static void resolveLabels(List<AsmLine<?>> asmLines, Map<String, Long> labelAddressMap) {
+    public void resolveLabels(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> labelAddressMap) {
 
         // connect lines to each other for easier traversal
-        AsmLine<?> prev = null;
-        for (AsmLine<?> asmLine : asmLines) {
+        AsmLine<RISCVRegister> prev = null;
+        for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
             asmLine.prev = prev;
             if (prev != null) {
@@ -394,7 +395,7 @@ public abstract class BaseOptimizer implements AsmInstructionListModifier {
      * @param asmLines
      * @param map
      */
-    public static void resolveModifiers(List<AsmLine<?>> asmLines, Map<String, Long> map) {
+    public static void resolveModifiers(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> map) {
 
         int offset = 4;
 

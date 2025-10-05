@@ -12,11 +12,11 @@ import com.mycompany.data.Section;
 /**
  * converts pseudo instruction j to jal
  */
-public class JResolver implements AsmInstructionListModifier {
+public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void modify(List<AsmLine<?>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
 
         for (AsmLine asmLine : asmLines) {
 
