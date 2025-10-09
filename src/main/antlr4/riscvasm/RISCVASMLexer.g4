@@ -95,7 +95,10 @@ I_BNEZ : B N E Z ;
 I_BRK : B R K ;     // custom break point instruction 0x1f1f1f1f
 
 I_CALL : C A L L ;
+
 I_ECALL : E C A L L ;
+
+I_FENCE : F E N C E ;
 
 I_J : J ;
 I_JR : J R ;
@@ -111,7 +114,6 @@ I_LBU : L B U ;
 I_LI : L I ;
 I_LUI : L U I ;
 
-I_MUL : M U L ;
 I_MV : M V ;
 
 I_NOP : N O P ;
@@ -128,6 +130,8 @@ I_SRL : S R L ;
 I_SRLI : S R L I ;
 I_SLL : S L L ;
 I_SLLI : S L L I ;
+I_SLTU : S L T U ;
+I_SLTIU : S L T I U ;
 I_SUB : S U B ;
 I_SD : S D ;
 I_SW : S W ;
@@ -140,9 +144,28 @@ I_XORI : X O R I ;
 I_XOR : X O R ;
 
 //
+// Zifencei Extension for Instruction-Fetch Fence, Version 2.0
+//
+
+I_FENCEI : F E N C E DOT I ;
+
+//
+// Zicsr Extension (Command and Status Registers, CSR)
+//
+
+I_CSRRS : C S R R S ;
+
+//
 // M-Extension (Integer Multiplication and Division)
 //
 
+I_MUL : M U L ;
+I_MULH  : M U L H ;
+I_MULHSU : M U L H S U ;
+I_MULHU  : M U L H U ;
+I_DIV : D I V ;
+I_DIVU : D I V U ;
+I_REM : R E M ;
 I_REMU : R E M U ;
 
 REG_ZERO_ABI : Z E R O ;

@@ -37,6 +37,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
 
+    private static final int FENCE_TYPE = 0b0001111;
+
     private static final int R_TYPE = 0b0110011;
 
     private static final int I_TYPE_1 = 0b1100111;
@@ -95,6 +97,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int imm_11_5 = (data >> 25) & 0b1111111;
 
         int imm_31_12 = (data >> 12) & 0b11111111111111111111;
+        int imm_31_20 = (data >> 20) & 0b111111111111;
 
         int shamt = (data >> 20) & 0b11111;
 
@@ -102,7 +105,37 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int rs1 = (data >> 15) & 0b11111;
         int rs2 = (data >> 20) & 0b11111;
 
+        /**
+         * fm mode - https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/fence.html#_defining_extension
+         * 0000 - normal fence. 1000 - TSO - With FENCE RW,RW: exclude write-to-read ordering; 
+         */
+        int fm = (data >> 28) & 0b1111;
+        int pred = (data >> 24) & 0b1111;
+        int succ = (data >> 20) & 0b1111;
+
         switch (opcode) {
+
+            case FENCE_TYPE:
+
+                switch (funct3) {
+
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_FENCE;
+                        asmLine.register_1 = RISCVRegister.fromInt(rs1);
+                        asmLine.register_0 = RISCVRegister.fromInt(rd);
+                        break;
+
+                    case 0b001:
+                        asmLine.mnemonic = Mnemonic.I_FENCEI;
+                        // asmLine.register_1 = RISCVRegister.fromInt(rs1);
+                        // asmLine.register_0 = RISCVRegister.fromInt(rd);
+                        break;
+
+                    default:
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                }
+                break;
 
             case R_TYPE:
                 switch (funct7) {
@@ -120,6 +153,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                             case 0b010:
                                 asmLine.mnemonic = Mnemonic.I_SLT;
+                                break;
+
+                            case 0b011:
+                                asmLine.mnemonic = Mnemonic.I_SLTU;
                                 break;
 
                             case 0b100:
@@ -140,7 +177,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                             default:
                                 throw new RuntimeException(
-                                        "Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                        "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
@@ -171,7 +208,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                     default:
                         throw new RuntimeException(
-                                "Unknown funct7: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
                 decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                 break;
@@ -201,6 +238,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         asmLine.mnemonic = Mnemonic.I_SLLI;
                         decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
                         break;
+                    case 0b011:
+                        asmLine.mnemonic = Mnemonic.I_SLTIU;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
+                        break;
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_XORI;
                         decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
@@ -208,6 +249,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     case 0b101:
                         asmLine.mnemonic = Mnemonic.I_SRAI;
                         decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
+                        break;
+                    case 0b110:
+                        asmLine.mnemonic = Mnemonic.I_ORI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_31_20);
                         break;
                     case 0b111:
                         asmLine.mnemonic = Mnemonic.I_ANDI;
@@ -225,6 +270,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_LB;
                         break;
+                    case 0b001:
+                        asmLine.mnemonic = Mnemonic.I_LH;
+                        break;
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_LW;
                         break;
@@ -241,21 +289,38 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
             case I_TYPE_4:
                 switch (funct3) {
+
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_ECALL;
                         break;
+
+                    case 0b001:
+                        asmLine.mnemonic = Mnemonic.I_CSRRW;
+                        break;
+
+                    case 0b010:
+                        asmLine.mnemonic = Mnemonic.I_CSRRS;
+                        break;
+
+                    case 0b101:
+                        asmLine.mnemonic = Mnemonic.I_CSRRWI;
+                        break;
+
                     default:
                         throw new RuntimeException(
                                 "Unknown I_TYPE_4! funct3: " + funct3 + " in mnemonic "
                                         + ByteArrayUtil.byteToHex(data));
                 }
-                // decodeIType_4(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                decodeIType_4(asmLine, funct3, rd, rs1, imm_31_20);
                 break;
 
             case S_TYPE:
                 switch (funct3) {
                     case 0b000:
                         asmLine.mnemonic = Mnemonic.I_SB;
+                        break;
+                    case 0b001:
+                        asmLine.mnemonic = Mnemonic.I_SH;
                         break;
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_SW;
@@ -290,6 +355,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                     case 0b110:
                         asmLine.mnemonic = Mnemonic.I_BLTU;
+                        break;
+
+                    case 0b111:
+                        asmLine.mnemonic = Mnemonic.I_BGEU;
                         break;
 
                     default:
@@ -339,6 +408,12 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         }
 
         return asmLine;
+    }
+
+    private void decodeIType_4(AsmLine<Register> asmLine, int funct3, int rd, int rs2, int imm_31_20) {
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.numeric_1 = (long) imm_31_20;
+        asmLine.register_2 = RISCVRegister.fromInt(rs2);
     }
 
     private static void decodeIType_1(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {

@@ -8,6 +8,7 @@ public class ByteArrayUtil {
 
     public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static final char[] HEX_ARRAY_LOWERCASE = "0123456789abcdef".toCharArray();
+    private static ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);    
 
     private ByteArrayUtil() {
         // no instances of this class
@@ -244,6 +245,24 @@ public class ByteArrayUtil {
         return result;
     }
 
+    public static byte[] intToTwoByte(final int data, final ByteOrder byteOrder) {
+
+        short dataAsShort = (short) data;
+
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+        byteBuffer.order(byteOrder);
+        byteBuffer.putShort(dataAsShort);
+
+        return byteBuffer.array();
+    }
+
+    public static int twoByteToInt(final byte[] data, final ByteOrder byteOrder) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        byteBuffer.order(byteOrder);
+
+        return byteBuffer.getInt();
+    }
+
     public static byte[] intToFourByte(final int i, final ByteOrder byteOrder) {
         final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
         byteBuffer.order(byteOrder);
@@ -297,4 +316,14 @@ public class ByteArrayUtil {
         return ((array[pos + 0] & 0xFF) << 0);
     }
 
+    public static byte[] longToBytes(long x) {
+        buffer.putLong(0, x);
+        return buffer.array();
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        buffer.put(bytes, 0, bytes.length);
+        buffer.flip(); // need flip 
+        return buffer.getLong();
+    }
 }

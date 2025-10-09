@@ -1,0 +1,63 @@
+https://five-embeddev.com/riscv-user-isa-manual/Priv-v1.12/csr.html
+https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/csrrs.html
+
+csrrs -- Atomic Read and Set Bits in CSR
+
+The real instruction is: CSRRS rd, csr, rs1
+
+1. Read the value from the CRS register csr and store it into rd
+2. Modify the csr value by performing a bit-wise OR between csr and rs1
+3. Write back the result from step 2 into the CSR register csr
+
+The assembler pseudoinstruction to read a CSR, 		CSRR rd, csr 	is encoded as CSRRS rd, csr, x0. 
+The assembler pseudoinstruction to write a CSR, 	CSRW csr, rs1 	is encoded as CSRRW x0, csr, rs1, 
+while CSRWI csr, uimm, is encoded as CSRRWI x0, csr, uimm.
+
+Pseudo instruction 	CSRR rd, csr
+Real instruction 	CSRRS rd, csr, x0
+
+Pseudo instruction 	CSRW csr, rs1
+Real instruction	CSRRW x0, csr, rs1
+
+Example: https://luplab.gitlab.io/rvcodecjs/#q=F1402573&abi=false&isa=AUTO
+
+
+# CSRs
+
+Control and Status registers (CSR) are registers that a RISC-V CPU can support when the Zicsr extension is supported.
+https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr.html
+
+
+Machine Information Registers
+Number 	Privilege 	Name 			Description
+0xF11 	MRO 		mvendorid 		Vendor ID.
+0xF12 	MRO 		marchid			Architecture ID.
+0xF13 	MRO 		mimpid			Implementation ID.
+0xF14 	MRO 		mhartid			Hardware thread ID.
+0xF15 	MRO 		mconfigptr		Pointer to configuration data structure
+
+
+
+
+# csrrw
+
+0x30529073
+
+csrrw x0, mtvec, x5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## mhartid

@@ -38,25 +38,38 @@ label :
     NUMERIC
     ;
 
-// RV32 I
-// M Extension
+
+
 mnemonic :
+
+    // RV32 I
     
     I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
     I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLE | I_BLT | I_BLTU | I_BNE | I_BNEZ | I_BRK |
-    I_CALL | I_ECALL |
+    I_CALL | 
+    I_ECALL |
+    I_FENCE |
     I_J | I_JR | I_JAL | I_JALR |
     I_LA | I_LD | I_LW | I_LH | I_LB | I_LBU | I_LI | I_LUI |
-    I_MUL | I_MV |
+    I_MV |
     I_NOP | I_NOT |
     I_OR |
     I_RET |
-    I_SLT | I_SRA | I_SRAI | I_SRL | I_SRLI | I_SLL | I_SLLI | I_SUB | I_SD | I_SW | I_SH | I_SB |
+    I_SLT | I_SRA | I_SRAI | I_SRL | I_SRLI | I_SLL | I_SLLI | I_SLTU | I_SLTIU | I_SUB | I_SD | I_SW | I_SH | I_SB |
     I_WFI |
     I_XOR | I_XORI |
 
-    
-    I_REMU
+    // Zifencei Extension
+
+    I_FENCEI |
+
+    // Zicsr Extension
+
+    I_CSRRS |
+
+    // M Extension
+
+    I_MUL | I_MULH | I_MULHSU | I_MULHU | I_DIV | I_DIVU | I_REM | I_REMU | I_REMU
     ;
 
 params :

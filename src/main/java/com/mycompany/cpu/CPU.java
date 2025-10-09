@@ -1,7 +1,9 @@
 package com.mycompany.cpu;
 
+import java.io.IOException;
+
 public interface CPU {
 
-    boolean step();
+    boolean step() throws IOException;
 
 }

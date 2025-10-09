@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -59,6 +60,12 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+
     public static void main(String[] args) throws IOException {
 
         logger.debug("Start of Application");
@@ -80,7 +87,7 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
         // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
         // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
         // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
         // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
@@ -99,30 +106,33 @@ public class App {
         // "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
         // String inputFile =
         // "src/test/resources/riscvasm/examples/function_call_c_abi.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
 
         // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
 
         // String inputFile = "src/test/resources/projects/snake/Main.asm";
 
-        //String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/add.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
 
-        //String inputFile = "src/test/resources/riscvasm/examples/printf.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/printf.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
         // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/slti.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/slti.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
-        //String inputFile = "src/test/resources/riscvasm/examples/fib.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/fib.s";
         // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
 
-        String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+        // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
+        String inputFile = "src/test/resources/riscvasm/examples/div.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -256,15 +266,24 @@ public class App {
         // the raw listener just prints the AST to the console
         // RawOutputListener listener = new RawOutputListener();
 
-        int startAddress = 0;
 
-        if (false) {
+
+        DefaultMemory memory = new DefaultMemory();
+
+
+
+        int startAddress = 0;
+        int globalPointerValue = 0;
+
+        if (MACHINE_CODE_SOURCE_ASSEMBLY_FILE) {
 
             //
             // assemble to machine code
             //
 
             byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
+
+            memory.copy(0, machineCode, 0, machineCode.length);
 
             if ((assembler.labelAddressMap == null) 
                 || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
@@ -276,40 +295,145 @@ public class App {
 
         }
 
-        DefaultMemory memory = new DefaultMemory();
+        // read the machine code from an elf file
+        if (MACHINE_CODE_SOURCE_ELF_FILE) {
 
-        //
-        // elf to machinen code
-        //
+            //
+            // elf to machine code
+            //
 
-        Elf elf = new Elf();
-        elf.memory = memory;
-        //elf.setFile("src/test/resources/riscvelf/factorial.out");
-        elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-        elf.load();
-        // byte[] machineCode = elf.getMachineCode();
+            Elf elf = new Elf();
+            elf.memory = memory;
+            
+            //elf.setFile("src/test/resources/riscvelf/factorial.out");
+            //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-add");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-addi");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-and");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-andi");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-auipc");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-beq");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bge");
+            // OK:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bgeu");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-blt");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bltu");
+            // OK
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bne");
 
-        // DEBUG - output machine code as hex
-        //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-        //BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+            // TODO: Self modifying code!
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-fence_i");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-jal");
 
-        Elf32Sym mainEntry = elf.elf32SymList.stream().filter(x -> {
-            if (x.resolved_st_name == null) {
-                return false;
+            // TODO
+            elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-jalr");
+            // TODO:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lb");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lbu");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-ld_st");
+            // TODO:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lh");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lhu");
+
+            // OK
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lui");
+            
+            // TODO: out of bounds exception
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lw");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-ma_data");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-or");
+            // OK:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-ori");
+            // OK:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sb");
+            // TODO:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sh");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-simple");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sll");
+            // OK:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slli");
+            // OK
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slt");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slti");
+            // TODO:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sltiu");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sltu");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sra");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srai");
+            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srl");
+            // TODO:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srli");
+            // TODO:
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-st_ld");
+            // OK
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sub");
+            // TODO: out of bounds
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sw");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xor");
+            // OK
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xori");
+            
+            elf.load();
+            // byte[] machineCode = elf.getMachineCode();
+
+            // DEBUG - output machine code as hex
+            //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+            // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+            //BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+
+            //
+            // startAddress
+            //
+            // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
+            // the spice simulator uses the _start symbol
+            Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+            Elf32Sym mainEntryPointSymbol = null;
+            if (optionalSymbol.isPresent()) {
+                mainEntryPointSymbol = optionalSymbol.get();
+            } else {
+                optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+                if (optionalSymbol.isPresent()) {
+                    mainEntryPointSymbol = optionalSymbol.get();
+                }
             }
-            return x.resolved_st_name.equalsIgnoreCase("main");
-        }).findFirst().get();
+            startAddress = mainEntryPointSymbol.st_value;
 
-        // organize this mess!
-        //startAddress = mainEntry.st_value - 0x10000 - 0x74;
-        startAddress = mainEntry.st_value;
+            //
+            // set the global pointer register
+            //
+            globalPointerValue = elf.globalPointerValue;
+
+        }
 
         //
         // emulate
         //
 
-        CPU cpu = emulate(memory, startAddress);
+        CPU cpu = emulate(memory, startAddress, globalPointerValue);
 
         //
         // post emulation
@@ -332,7 +456,7 @@ public class App {
         System.out.println("done");
     }
 
-    private static CPU emulate(final Memory memory, final int main_entry_point_address) {
+    private static CPU emulate(final Memory memory, final int main_entry_point_address, int globalPointerValue) throws IOException {
 
         SingleCycleCPU cpu = new SingleCycleCPU();
         //PipelinedCPU cpu = new PipelinedCPU();
@@ -341,6 +465,15 @@ public class App {
         System.out.println("Main Entry Point: " + ByteArrayUtil.byteToHex(main_entry_point_address));
 
         cpu.pc = main_entry_point_address;
+        cpu.registerFile[RISCVRegister.REG_GP.getIndex()] = globalPointerValue;
+
+        //
+        // return address (ra, x1 register)
+        //
+        // the initial return address is retrieved from the application loader
+        // so that the app can return to that address
+        // Without loader, we set it to 0xCAFEBABE = 3405691582 dec
+        cpu.registerFile[RISCVRegister.REG_RA.getIndex()] = 0xCAFEBABE;
 
         //
         // stack-pointer (sp, x2) register:
@@ -356,11 +489,6 @@ public class App {
         // frame-pointer (s0/fp, x8 register)
         //
         cpu.registerFile[RISCVRegister.REG_FP.getIndex()] = 0;
-
-        // ra - the initial return address is retrieved from the application loader
-        // so that the app can return to that address
-        // Without loader, we set it to 0xCAFEBABE = 3405691582 dec
-        cpu.registerFile[RISCVRegister.REG_RA.getIndex()] = 0xCAFEBABE;
 
         //cpu.memory = new byte[machineCode.length + 8];
         // cpu.memory[80] = 1;

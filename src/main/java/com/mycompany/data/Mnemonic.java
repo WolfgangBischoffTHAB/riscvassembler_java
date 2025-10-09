@@ -37,7 +37,10 @@ public enum Mnemonic {
     I_BRK(false),   // custom breakpoint instruction
 
     I_CALL(true),
+
     I_ECALL(false),
+
+    I_FENCE(false),
 
     I_J(true),
     I_JR(false),
@@ -54,7 +57,6 @@ public enum Mnemonic {
     I_LI(true),
     I_LUI(false),
 
-    I_MUL(false),
     I_MV(true),
 
     I_NOP(true),
@@ -87,9 +89,30 @@ public enum Mnemonic {
     I_XORI(false),
 
     //
+    // Zifencei Extension for Instruction-Fetch Fence, Version 2.0
+    //
+
+    I_FENCEI(false),
+
+    //
+    // Zicsr Extension
+    //
+
+    I_CSRRS(false),
+    I_CSRRW(false),
+    I_CSRRWI(false),
+
+    //
     // M Extension
     //
 
+    I_MUL(false),
+    I_MULH(false),
+    I_MULHSU(false),
+    I_MULHU(false),
+    I_DIV(false),
+    I_DIVU(false),
+    I_REM(false),
     I_REMU(false),
 
     //
@@ -152,6 +175,8 @@ public enum Mnemonic {
             return I_CALL;
         } else if (mnemonic.equalsIgnoreCase("ECALL")) {
             return I_ECALL;
+        } else if (mnemonic.equalsIgnoreCase("FENCE")) {
+            return I_FENCE;
         } else if (mnemonic.equalsIgnoreCase("J")) {
             return I_J;
         } else if (mnemonic.equalsIgnoreCase("JR")) {
@@ -178,8 +203,6 @@ public enum Mnemonic {
             return I_LI;
         } else if (mnemonic.equalsIgnoreCase("LUI")) {
             return I_LUI;
-        } else if (mnemonic.equalsIgnoreCase("MUL")) {
-            return I_MUL;
         } else if (mnemonic.equalsIgnoreCase("MV")) {
             return I_MV;
         } else if (mnemonic.equalsIgnoreCase("NOP")) {
@@ -204,6 +227,8 @@ public enum Mnemonic {
             return I_SLL;
         } else if (mnemonic.equalsIgnoreCase("SLLI")) {
             return I_SLLI;
+        } else if (mnemonic.equalsIgnoreCase("SLTU")) {
+            return I_SLTU;
         } else if (mnemonic.equalsIgnoreCase("SUB")) {
             return I_SUB;
         }
@@ -227,9 +252,41 @@ public enum Mnemonic {
         }
 
         //
+        // Zifencei Extension for Instruction-Fetch Fence, Version 2.0
+        //
+
+        else if (mnemonic.equalsIgnoreCase("FENCE.I")) {
+            return I_FENCEI;
+        }
+
+        //
+        // Zicsr Extension
+        //
+
+        else if (mnemonic.equalsIgnoreCase("CSRRS")) {
+            return I_CSRRS;
+        } else if (mnemonic.equalsIgnoreCase("CSRRW")) {
+            return I_CSRRW;
+        } else if (mnemonic.equalsIgnoreCase("CSRRWI")) {
+            return I_CSRRWI;
+        }
+
+        //
         // M Extensions
         //
 
+        else if (mnemonic.equalsIgnoreCase("MUL")) {
+            return I_MUL;
+        } 
+        else if (mnemonic.equalsIgnoreCase("DIV")) {
+            return I_DIV;
+        }
+        else if (mnemonic.equalsIgnoreCase("DIVU")) {
+            return I_DIVU;
+        } 
+        else if (mnemonic.equalsIgnoreCase("REM")) {
+            return I_REM;
+        }
         else if (mnemonic.equalsIgnoreCase("REMU")) {
             return I_REMU;
         }
@@ -273,7 +330,7 @@ public enum Mnemonic {
                 return "bgez";
 
             case I_BGT:         // pseudo instruction, synthesized via BLT!
-                 return "bgt";
+                return "bgt";
             case I_BGTU:        // pseudo instruction, synthesized by BLTU
                 return "bgtu";
             case I_BGTZ:
@@ -305,8 +362,12 @@ public enum Mnemonic {
 
             case I_CALL:        // pseudo instruction
                 return "call";
+
             case I_ECALL:
                 return "ecall";
+
+            case I_FENCE:
+                return "fence";
 
             case I_J:           // pseudo instruction
                 return "j";
@@ -336,8 +397,6 @@ public enum Mnemonic {
             case I_LUI:
                 return "lui";
 
-            case I_MUL:
-                return "mul";
             case I_MV:
                 return "mv";
 
@@ -379,6 +438,10 @@ public enum Mnemonic {
                 return "sb";
             case I_SLT:         // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
                 return "slt";
+            case I_SLTU:
+                return "sltu";
+            case I_SLTIU:
+                return "sltiu";
 
             case I_WFI:
                 return "wfi";
@@ -392,8 +455,37 @@ public enum Mnemonic {
                 return "puts";
 
             //
+            // Zifencei Extension for Instruction-Fetch Fence, Version 2.0
+            //
+            case I_FENCEI:
+                return "fence.i";
+
+            //
+            // Zicsr Extension
+            //
+
+            case I_CSRRS:
+                return "cssrs";
+            case I_CSRRW:
+                return "cssrw";
+            case I_CSRRWI:
+                return "cssrwi";
+
+            //
             // M Extension
             //
+
+            case I_MUL:
+                return "mul";
+
+            case I_DIV:
+                return "div";
+
+            case I_DIVU:
+                return "divu";
+
+            case I_REM:
+                return "rem";
 
             case I_REMU:
                 return "remu";

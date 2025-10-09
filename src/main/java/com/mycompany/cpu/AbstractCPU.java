@@ -1,5 +1,7 @@
 package com.mycompany.cpu;
 
+import java.io.IOException;
+
 import com.mycompany.data.RISCVRegister;
 
 public abstract class AbstractCPU implements CPU {
@@ -7,7 +9,7 @@ public abstract class AbstractCPU implements CPU {
     public int[] registerFile = new int[32];
 
     @Override
-    public abstract boolean step();
+    public abstract boolean step() throws IOException;
     
     public int readRegisterFile(int index) {
 
@@ -26,6 +28,10 @@ public abstract class AbstractCPU implements CPU {
         if (register_index == RISCVRegister.REG_ZERO.getIndex()) {
             return;
         }
+
+        //if (register_index == 10) {
+        //     System.out.println("test");
+        // }
 
         // // DEBUG monitor the stack pointer
         // if (register_index == RISCVRegister.REG_SP.getIndex()) {

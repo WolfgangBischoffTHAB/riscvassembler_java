@@ -21,4 +21,8 @@ public interface Memory {
 
     int readWord(int pc, ByteOrder byteOrder);
 
+    MemoryBlock getMemoryBlockForAddress(int i);
+
+    void print(int startAddress, int endAddress, ByteOrder byteOrder);
+
 }

@@ -14,14 +14,17 @@ public class MDecoder implements Decoder {
 
     @Override
     public AsmLine<?> decode(int data) {
-
+        
+        int funct7 = (data >> 25) & 0b1111111;
+        if (funct7 != 1) {
+            return null;
+        }
         int opcode = (data >> 0) & 0b1111111;
         if (opcode != M_TYPE) {
             return null;
         }
 
         int funct3 = (data >> 12) & 0b111;
-        int funct7 = (data >> 25) & 0b1111111;
 
         int rd = (data >> 7) & 0b11111;
         int rs1 = (data >> 15) & 0b11111;
@@ -32,8 +35,39 @@ public class MDecoder implements Decoder {
         switch (funct3) {
 
             case 0b000:
+                asmLine.mnemonic = Mnemonic.I_MUL;
+                break;
+
+            case 0b001:
+                asmLine.mnemonic = Mnemonic.I_MULH;
+                break;
+
+            case 0b010:
+                asmLine.mnemonic = Mnemonic.I_MULHSU;
+                break;
+
+            case 0b011:
+                asmLine.mnemonic = Mnemonic.I_MULHU;
+                break;
+
+            case 0b100:
+                asmLine.mnemonic = Mnemonic.I_DIV;
+                break;
+            
+            case 0b101:
+                asmLine.mnemonic = Mnemonic.I_DIVU;
+                break;
+
+            case 0b110:
+                asmLine.mnemonic = Mnemonic.I_REM;
+                break;
+
+            case 0b111:
                 asmLine.mnemonic = Mnemonic.I_REMU;
                 break;
+
+            default:
+                return null;
         }
 
         asmLine.register_0 = RISCVRegister.fromInt(rd);
