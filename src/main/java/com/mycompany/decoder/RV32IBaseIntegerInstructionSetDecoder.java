@@ -99,6 +99,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int imm_31_12 = (data >> 12) & 0b11111111111111111111;
         int imm_31_20 = (data >> 20) & 0b111111111111;
 
+        int shtyp = (data >> 25) & 0b11111;
         int shamt = (data >> 20) & 0b11111;
 
         int rd = (data >> 7) & 0b11111;
@@ -238,16 +239,29 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         asmLine.mnemonic = Mnemonic.I_SLLI;
                         decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
                         break;
+                    case 0b010:
+                        asmLine.mnemonic = Mnemonic.I_SLTI;
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                        break;
                     case 0b011:
                         asmLine.mnemonic = Mnemonic.I_SLTIU;
-                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
+                        decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                         break;
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_XORI;
                         decodeIType_2(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                         break;
                     case 0b101:
-                        asmLine.mnemonic = Mnemonic.I_SRAI;
+                        switch (shtyp) {
+                            case 0x00:
+                                asmLine.mnemonic = Mnemonic.I_SRLI;
+                                break;
+                            case 0x20:
+                                asmLine.mnemonic = Mnemonic.I_SRAI;
+                                break;
+                            default:
+                                throw new RuntimeException("Unknown shtyp! " + shtyp);
+                        }
                         decodeIType_2(asmLine, funct3, funct7, rd, rs1, shamt);
                         break;
                     case 0b110:
@@ -278,6 +292,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         break;
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_LBU;
+                        break;
+                    case 0b101:
+                        asmLine.mnemonic = Mnemonic.I_LHU;
                         break;
                     default:
                         throw new RuntimeException(

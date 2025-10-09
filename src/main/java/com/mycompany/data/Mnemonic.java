@@ -51,6 +51,7 @@ public enum Mnemonic {
     // I_LD(false), // This is 64 bits!!!
     I_LW(false),
     I_LH(false),
+    I_LHU(false),
     I_LB(false),
     I_LBU(false),
     I_LBW(false),
@@ -195,6 +196,8 @@ public enum Mnemonic {
             return I_LW;
         } else if (mnemonic.equalsIgnoreCase("LH")) {
             return I_LH;
+        } else if (mnemonic.equalsIgnoreCase("LHU")) {
+            return I_LHU;
         } else if (mnemonic.equalsIgnoreCase("LB")) {
             return I_LB;
         } else if (mnemonic.equalsIgnoreCase("LBU")) {
@@ -227,6 +230,8 @@ public enum Mnemonic {
             return I_SLL;
         } else if (mnemonic.equalsIgnoreCase("SLLI")) {
             return I_SLLI;
+        } else if (mnemonic.equalsIgnoreCase("SLTI")) {
+            return I_SLTI;
         } else if (mnemonic.equalsIgnoreCase("SLTU")) {
             return I_SLTU;
         } else if (mnemonic.equalsIgnoreCase("SUB")) {
@@ -380,7 +385,6 @@ public enum Mnemonic {
 
             case I_LA:          // pseudo instruction
                 return "la";
-
             // // This is 64 bits!
             // case I_LD:          // pseudo instruction
             //     return "ld";
@@ -388,6 +392,8 @@ public enum Mnemonic {
                 return "lw";
             case I_LH:          // pseudo instruction
                 return "lh";
+            case I_LHU:          // pseudo instruction
+                return "lhu";
             case I_LB:          // pseudo instruction
                 return "lb";
             case I_LBU:
@@ -440,6 +446,8 @@ public enum Mnemonic {
                 return "slt";
             case I_SLTU:
                 return "sltu";
+            case I_SLTI:
+                return "slti";
             case I_SLTIU:
                 return "sltiu";
 

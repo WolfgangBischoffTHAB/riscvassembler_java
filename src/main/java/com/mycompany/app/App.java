@@ -330,70 +330,66 @@ public class App {
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bltu");
             // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bne");
-
             // TODO: Self modifying code!
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-fence_i");
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-jal");
-
-            // TODO
-            elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-jalr");
-            // TODO:
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lb");
-            // TODO:
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-jalr");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lb");
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lbu");
-            // TODO:
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-ld_st");
-            // TODO:
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lh");
-            // TODO:
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lh");
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lhu");
-
             // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lui");
-            
-            // TODO: out of bounds exception
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lw");
-            // TODO:
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-ma_data");
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-or");
-            // OK:
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-ori");
-            // OK:
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sb");
-            // TODO:
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sh");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sh");
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-simple");
-            // TODO:
-            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sll");
-            // OK:
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slli");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slt");
-            // TODO:
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sll");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slli");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slt");
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-slti");
-            // TODO:
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sltiu");
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sltiu");
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sltu");
-            // TODO:
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sra");
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srai");
-            // TODO:
+            // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srl");
-            // TODO:
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srli");
-            // TODO:
+            // OK
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srli");
+            // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-st_ld");
             // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sub");
-            // TODO: out of bounds
+            // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sw");
             // OK
-            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xor");
+            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xor");
             // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xori");
             

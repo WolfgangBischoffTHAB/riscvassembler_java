@@ -50,7 +50,7 @@ mnemonic :
     I_ECALL |
     I_FENCE |
     I_J | I_JR | I_JAL | I_JALR |
-    I_LA | I_LD | I_LW | I_LH | I_LB | I_LBU | I_LI | I_LUI |
+    I_LA | I_LD | I_LW | I_LH | I_LHU | I_LB | I_LBU | I_LI | I_LUI |
     I_MV |
     I_NOP | I_NOT |
     I_OR |

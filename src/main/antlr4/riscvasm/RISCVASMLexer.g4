@@ -109,6 +109,7 @@ I_LA : L A ;
 I_LD : L D ;
 I_LW : L W ;
 I_LH : L H ;
+I_LHU : L H U ;
 I_LB : L B ;
 I_LBU : L B U ;
 I_LI : L I ;
