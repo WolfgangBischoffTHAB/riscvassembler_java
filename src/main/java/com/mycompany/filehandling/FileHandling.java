@@ -6,6 +6,8 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.management.RuntimeErrorException;
+
 public class FileHandling {
 
     public static final int STDIN = 0;
@@ -45,10 +47,13 @@ public class FileHandling {
     }
 
     public int getc(int fileHandle) throws IOException {
+
         if (!fileMap.containsKey(fileHandle)) {
             throw new RuntimeException("no handle!");
         }
         FileDescriptor fileDescriptor = fileMap.get(fileHandle);
+
+        // if the file has not been opened, open it
         if (fileDescriptor.fileInputStream == null) {
 
             String fileMode = fileDescriptor.filemode;
@@ -56,7 +61,10 @@ public class FileHandling {
                 fileMode = "r";
             }
             fileDescriptor.fileInputStream = new RandomAccessFile(PWD + fileDescriptor.filepath, fileMode);
+            fileDescriptor.seekPosition = 0;
         }
+
+        // increment one character
         fileDescriptor.seekPosition++;
 
         return fileDescriptor.fileInputStream.read();
@@ -77,6 +85,8 @@ public class FileHandling {
      * SEEK_CUR	Aktuelle Position im Stream setzt den Ursprung.
      * SEEK_END	Das Ende des Streams wird als Ursprung gewählt.
      * @throws IOException 
+     * 
+     * @return Returns an int value which is zero if successful and non-zero if an error occurred.
      */
     public int fseek(int fileHandle, int newSeekPosition, int seekMode) {
         if (!fileMap.containsKey(fileHandle)) {
@@ -86,8 +96,13 @@ public class FileHandling {
 
         // int offset = newSeekPosition - fileDescriptor.seekPosition;
 
+        if (seekMode != 0) {
+            throw new RuntimeException("Only implemented for SEEKT_SET");
+        }
+
         try {
             fileDescriptor.fileInputStream.seek(newSeekPosition);
+            fileDescriptor.seekPosition = newSeekPosition;
         } catch (Exception e) {
             e.printStackTrace();
             return EOF;

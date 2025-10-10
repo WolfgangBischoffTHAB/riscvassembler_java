@@ -1062,7 +1062,7 @@ public class SingleCycleCPU extends AbstractCPU {
                         // System.out.println("fseek() seekMode = " + seekMode);
 
                         // origin Beschreibung
-                        // SEEK_SET Der Start des Streams markiert den Ursprung.
+                        // SEEK_SET (0) Der Start des Streams markiert den Ursprung.
                         // SEEK_CUR Aktuelle Position im Stream setzt den Ursprung.
                         // SEEK_END Das Ende des Streams wird als Ursprung gewählt.
 
@@ -1144,7 +1144,7 @@ public class SingleCycleCPU extends AbstractCPU {
 
                             inputValue = inputValue.substring(0, Math.min(addressA1, inputValueLength));
 
-                            System.out.println("inputValue: \"" + inputValue + "\"");
+                            logger.trace("inputValue: \"" + inputValue + "\"");
 
                             for (int i = 0; i < inputValue.length(); i++) {
                                 char inputValueAsChar = inputValue.charAt(i);
