@@ -496,77 +496,108 @@ public enum RISCVRegister implements Register {
         switch (register) {
 
             /** x0 */
+            case REG_X0:
             case REG_ZERO:
                 return "zero";
 
             /** x1 */
+            case REG_X1:
             case REG_RA:
                 return "ra";
 
             /** x2 */
+            case REG_X2:
             case REG_SP:
                 return "sp";
 
             /** x3 */
+            case REG_X3:
             case REG_GP:
                 return "gp";
-
+            case REG_X4:
             case REG_TP:
                 return "tp";
+            case REG_X5:
             case REG_T0:
                 return "t0";
+            case REG_X6:
             case REG_T1:
                 return "t1";
+            case REG_X7:
             case REG_T2:
                 return "t2";
             case REG_S0:
                 return "s0";
-            // case REG_FP:
-            //     return "fp";
+            case REG_X8:
+            case REG_FP:
+                return "fp";
+            case REG_X9:
             case REG_S1:
                 return "s1";
+            case REG_X10:
             case REG_A0:
                 return "a0";
+            case REG_X11:
             case REG_A1:
                 return "a1";
+            case REG_X12:
             case REG_A2:
                 return "a2";
+            case REG_X13:
             case REG_A3:
                 return "a3";
+            case REG_X14:
             case REG_A4:
                 return "a4";
+            case REG_X15:
             case REG_A5:
                 return "a5";
+            case REG_X16:
             case REG_A6:
                 return "a6";
+            case REG_X17:
             case REG_A7:
                 return "a7";
+            case REG_X18:
             case REG_S2:
                 return "s2";
+            case REG_X19:
             case REG_S3:
                 return "s3";
+            case REG_X20:
             case REG_S4:
                 return "s4";
+            case REG_X21:
             case REG_S5:
                 return "s5";
+            case REG_X22:
             case REG_S6:
                 return "s6";
+            case REG_X23:
             case REG_S7:
                 return "s7";
+            case REG_X24:
             case REG_S8:
                 return "s8";
+            case REG_X25:
             case REG_S9:
                 return "s9";
+            case REG_X26:
             case REG_S10:
                 return "s10";
+            case REG_X27:
             case REG_S11:
                 return "s11";
+            case REG_X28:
             case REG_T3:
                 return "t3";
+            case REG_X29:
             case REG_T4:
                 return "t4";
+            case REG_X30:
             case REG_T5:
                 return "t5";
+            case REG_X31:
             case REG_T6:
                 return "t6";
             default:

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.management.RuntimeErrorException;
@@ -37,6 +38,12 @@ public class SingleCycleCPU extends AbstractCPU {
     // Zicsr extension register id
     private int heartIdCSRRegister = 0x00;
 
+    private boolean singleStepping;
+
+    private boolean debugASMLineOutput;
+
+    private Random random = new Random();
+
     /**
      * ctor
      */
@@ -46,7 +53,8 @@ public class SingleCycleCPU extends AbstractCPU {
 
     /**
      * https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     public boolean step() throws IOException {
 
@@ -59,8 +67,9 @@ public class SingleCycleCPU extends AbstractCPU {
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         // FETCH - use PC to load instruction from memory
-        // final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc + 1], memory[pc + 2],
-        //         memory[pc + 3], byteOrder);
+        // final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc
+        // + 1], memory[pc + 2],
+        // memory[pc + 3], byteOrder);
 
         logger.trace("PC: " + ByteArrayUtil.byteToHex(pc));
         if (pc == 0x80002004) {
@@ -81,14 +90,22 @@ public class SingleCycleCPU extends AbstractCPU {
         AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
 
         // DEBUG output ASM line
-        logger.info("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
-                + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
-        
+        // debugASMLineOutput = true;
+        if (debugASMLineOutput) {
+            logger.info("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
+                    + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
+        }
+        if (singleStepping) {
+            printMemoryAroundPC();
+            System.out.println("");
+        }
+
         // logger.info(asmLine.toString());
 
         if (asmLine.mnemonic == null) {
             logger.trace(asmLine.toString());
-            throw new RuntimeException("Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(instruction));
+            throw new RuntimeException(
+                    "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(instruction));
         }
 
         // https://projectf.io/posts/riscv-cheat-sheet/
@@ -113,11 +130,16 @@ public class SingleCycleCPU extends AbstractCPU {
         int c;
         int fileHandle;
 
+        int immValSignExtended;
+
+        int csrId;
+        int csrValue; 
+
         switch (asmLine.mnemonic) {
 
             case I_ADD:
                 logger.trace("add: " + asmLine);
-                
+
                 writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
                         + readRegisterFile(asmLine.register_2.getIndex()));
                 pc += 4;
@@ -126,15 +148,15 @@ public class SingleCycleCPU extends AbstractCPU {
             case I_ADDI:
                 // rd = rs1 + imm
                 logger.trace("addi: " + asmLine);
-                
+
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
                 int immediate_value = asmLine.numeric_2.intValue();
-                
+
                 logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
                 logger.trace("1st Register Value: " + first_register_value);
                 logger.trace("2nd Immediate Value: " + immediate_value);
                 logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
-                
+
                 int result = first_register_value + immediate_value;
 
                 // System.out.println("New: " + ByteArrayUtil.byteToHex(result));
@@ -146,7 +168,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_AND:
-                logger.info("and: " + asmLine);
+                logger.trace("and: " + asmLine);
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
                 writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
                         & readRegisterFile(asmLine.register_2.getIndex()));
@@ -174,11 +196,14 @@ public class SingleCycleCPU extends AbstractCPU {
             case I_LUI:
                 // rd <- imm20 << 12
 
-                // LUI (load upper immediate) is used to build 32-bit constants and uses the U-type format. 
-                // LUI places the 32-bit U-immediate value into the destination register rd, filling 
+                // LUI (load upper immediate) is used to build 32-bit constants and uses the
+                // U-type format.
+                // LUI places the 32-bit U-immediate value into the destination register rd,
+                // filling
                 // in the lowest 12 bits with zeros.
                 writeRegisterFile(asmLine.register_0.getIndex(), (asmLine.numeric_1.intValue() << 12L));
-                //writeRegisterFile(asmLine.register_0.getIndex(), asmLine.numeric_1.intValue());
+                // writeRegisterFile(asmLine.register_0.getIndex(),
+                // asmLine.numeric_1.intValue());
                 pc += 4;
                 break;
 
@@ -199,7 +224,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 // registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 writeRegisterFile(asmLine.register_0.getIndex(), pc + 4);
 
-                //System.out.println("instruction: " + ByteArrayUtil.byteToHex(instruction));
+                // System.out.println("instruction: " + ByteArrayUtil.byteToHex(instruction));
 
                 int imm_10_1 = (instruction >> (9 + 12)) & 0b1111111111;
                 int imm_11 = (instruction >> (8 + 12)) & 0b1;
@@ -207,34 +232,37 @@ public class SingleCycleCPU extends AbstractCPU {
                 int imm_20 = (instruction >> (19 + 12)) & 0b1;
 
                 int jumpDistance = (imm_20 << 20) + (imm_19_12 << 12) + (imm_11 << 11) + (imm_10_1 << 1);
-                //jumpDistance <<= 11;
+                // jumpDistance <<= 11;
 
-                //int jumpDistance = (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
-                //System.out.println("jumpDistance: " + ByteArrayUtil.byteToHex(jumpDistance));
+                // int jumpDistance = (int)
+                // NumberParseUtil.sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
+                // System.out.println("jumpDistance: " + ByteArrayUtil.byteToHex(jumpDistance));
 
                 jumpDistance = (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(jumpDistance);
 
                 pc += jumpDistance;
 
-                //System.out.println("newPC: " + ByteArrayUtil.byteToHex(pc));
+                // System.out.println("newPC: " + ByteArrayUtil.byteToHex(pc));
 
                 break;
 
             case I_JALR:
-                // format:  jalr rd, imm(rs1)
+                // format: jalr rd, imm(rs1)
                 // example: jalr x0, 0(x0)
                 //
-                // format: jalr	t0, t1 ---> jalr t0, t1, 0 ---> jalr t0, 0(t1)
+                // format: jalr t0, t1 ---> jalr t0, t1, 0 ---> jalr t0, 0(t1)
                 //
                 // rd = pc + 4
                 // pc = rs1 + imm
                 logger.trace("jalr: " + asmLine);
 
                 // DEBUG
-                logger.trace("register_1 content: " + ByteArrayUtil.byteToHex(readRegisterFile(asmLine.register_1.getIndex())));
+                logger.trace("register_1 content: "
+                        + ByteArrayUtil.byteToHex(readRegisterFile(asmLine.register_1.getIndex())));
 
                 // pc = rs1 + imm
-                int immValSignExtended = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+                immValSignExtended = (int) NumberParseUtil
+                        .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
                 int pcReplacement = readRegisterFile(asmLine.register_1.getIndex()) + immValSignExtended;
 
                 // rd = pc + 4;
@@ -278,6 +306,18 @@ public class SingleCycleCPU extends AbstractCPU {
                 // Implementation
                 if (blt_a < blt_b) {
                     logger.trace("blt " + blt_a + " < " + blt_b + ". Branch is taken!");
+
+                    //pc += asmLine.numeric_2.intValue();
+
+                    // The offset is sign-extended and added to the address of the branch
+                    // instruction to give the target address.
+                    //immValSignExtended = (int) NumberParseUtil
+                    //        .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+
+                    // logger.info("I_BGE: " + immValSignExtended);
+
+                    //pc += immValSignExtended;
+
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     logger.trace("blt " + blt_a + " < " + blt_b + ". Branch is NOT taken!");
@@ -294,6 +334,16 @@ public class SingleCycleCPU extends AbstractCPU {
                 logger.trace("bge " + register_0_value + " >= " + register_1_value);
                 // Implementation
                 if (register_0_value >= register_1_value) {
+
+                    // The offset is sign-extended and added to the address of the branch
+                    // instruction to give the target address.
+                    //immValSignExtended = (int) NumberParseUtil
+                    //        .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+
+                    // logger.info("I_BGE: " + immValSignExtended);
+
+                    //pc += immValSignExtended;
+
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     pc += 4;
@@ -418,7 +468,8 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_LH:
-                // LH loads a 16-bit value from memory, then sign-extends to 32-bits before storing in rd
+                // LH loads a 16-bit value from memory, then sign-extends to 32-bits before
+                // storing in rd
 
                 // compute memory address to load from (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
@@ -428,7 +479,8 @@ public class SingleCycleCPU extends AbstractCPU {
                 let[0] = (byte) memory.getByte(addr + 0);
                 let[1] = (byte) memory.getByte(addr + 1);
 
-                // WB: I do not know why it works with BigEndian here although the ELF if little endian!
+                // WB: I do not know why it works with BigEndian here although the ELF if little
+                // endian!
                 int lhVal = ByteArrayUtil.decodeInt16FromArrayBigEndian(let, 0);
                 int lhValSignExtended = (int) NumberParseUtil.sign_extend_16_bit_to_int32_t(lhVal);
 
@@ -442,7 +494,8 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_LHU:
-                // LH loads a 16-bit value from memory, then sign-extends to 32-bits before storing in rd
+                // LH loads a 16-bit value from memory, then sign-extends to 32-bits before
+                // storing in rd
 
                 // compute memory address to load from (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
@@ -452,9 +505,11 @@ public class SingleCycleCPU extends AbstractCPU {
                 let[0] = (byte) memory.getByte(addr + 0);
                 let[1] = (byte) memory.getByte(addr + 1);
 
-                // WB: I do not know why it works with BigEndian here although the ELF if little endian!
+                // WB: I do not know why it works with BigEndian here although the ELF if little
+                // endian!
                 int lhuVal = ByteArrayUtil.decodeInt16FromArrayBigEndian(let, 0);
-                // int lhValSignExtended = (int) NumberParseUtil.sign_extend_16_bit_to_int32_t(lhVal);
+                // int lhValSignExtended = (int)
+                // NumberParseUtil.sign_extend_16_bit_to_int32_t(lhVal);
 
                 System.out.println(ByteArrayUtil.byteToHex(lhuVal));
 
@@ -520,20 +575,20 @@ public class SingleCycleCPU extends AbstractCPU {
             // break;
 
             case I_SB:
-                System.out.println("GP: " + readRegisterFile(RISCVRegister.REG_GP.getIndex()));
+                logger.trace("GP: " + readRegisterFile(RISCVRegister.REG_GP.getIndex()));
 
                 // compute memory address to store to (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
-                System.out.println("Address: " + ByteArrayUtil.byteToHex(addr));
+                logger.trace("Address: " + ByteArrayUtil.byteToHex(addr));
 
                 // retrieve the value to write into the address
                 value = readRegisterFile(asmLine.register_0.getIndex());
-                System.out.println("Value: " + ByteArrayUtil.byteToHex(value));
+                logger.trace("Value: " + ByteArrayUtil.byteToHex(value));
 
-                memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
+                // memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
                 memory.storeByte(addr + 0, (byte) (value & 0xFF));
-                memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
-            
+                // memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
+
                 // Increment PC
                 pc += 4;
                 break;
@@ -604,13 +659,14 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_SLTIU:
-                //throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+                // throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
                 // https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/sltiu.html
 
                 // sltiu rd, rs1, imm
 
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
-                //register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
+                // register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) &
+                // 0x00000000ffffffffL;
                 long immediate_value_long = asmLine.numeric_2.intValue() & 0x00000000ffffffffL;
 
                 if (register_1_value_l < immediate_value_long) {
@@ -639,7 +695,7 @@ public class SingleCycleCPU extends AbstractCPU {
 
                 long par1 = readRegisterFile(asmLine.register_1.getIndex());
                 long par2 = ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
-                
+
                 logger.trace(ByteArrayUtil.byteToHex((int) par1));
                 logger.trace(ByteArrayUtil.byteToHex((int) par2));
 
@@ -670,7 +726,7 @@ public class SingleCycleCPU extends AbstractCPU {
 
                 immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
 
-                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL; 
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
                 value_l = register_1_value_l >> immediate_value;
                 writeRegisterFile(asmLine.register_0.getIndex(), (int) value_l);
 
@@ -703,7 +759,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 // simply the low XLEN bits of the result.
                 // sub rd,rs1,rs2
                 // x[rd] = x[rs1] - x[rs2]
-                
+
                 // registerFile[asmLine.register_0.getIndex()] =
                 // registerFile[asmLine.register_1.getIndex()]
                 // - registerFile[asmLine.register_2.getIndex()];
@@ -713,9 +769,10 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_SLL:
-                int shiftValue = readRegisterFile(asmLine.register_2.getIndex());   
+                int shiftValue = readRegisterFile(asmLine.register_2.getIndex());
 
-                //immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+                // immediate_value = (int)
+                // NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
 
                 value = readRegisterFile(asmLine.register_1.getIndex()) << shiftValue;
                 writeRegisterFile(asmLine.register_0.getIndex(), value);
@@ -743,14 +800,15 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_SLTU:
-                //https://msyksphinz-self.github.io/riscv-isadoc/#_sltu
+                // https://msyksphinz-self.github.io/riscv-isadoc/#_sltu
                 //
-                // Place the value 1 in register rd if register rs1 is less than 
-                // register rs2 when both are treated as unsigned numbers, else 0 is written to rd.
+                // Place the value 1 in register rd if register rs1 is less than
+                // register rs2 when both are treated as unsigned numbers, else 0 is written to
+                // rd.
                 //
                 // sltu rd,rs1,rs2
                 // x[rd] = x[rs1] <u x[rs2]
-                
+
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
                 register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
 
@@ -806,8 +864,8 @@ public class SingleCycleCPU extends AbstractCPU {
                 // Shift right arithmetic
                 // format: sra rd, rs1, rs2
 
-                value = readRegisterFile(asmLine.register_1.getIndex())
-                        >> readRegisterFile(asmLine.register_2.getIndex());
+                value = readRegisterFile(asmLine.register_1.getIndex()) >> readRegisterFile(
+                        asmLine.register_2.getIndex());
                 writeRegisterFile(asmLine.register_0.getIndex(), value);
 
                 // Increment PC
@@ -836,6 +894,10 @@ public class SingleCycleCPU extends AbstractCPU {
                 // a7 describes the service that is called by the ecall
                 int regA7Value = readRegisterFile(RISCVRegister.REG_A7.getIndex());
                 switch (regA7Value) {
+
+                    case 0:
+                        logger.warn("Unknown ECALL 0!");
+                        break;
 
                     case 92: // 92dec (pfnStreamWriteBufFunc)
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -896,9 +958,9 @@ public class SingleCycleCPU extends AbstractCPU {
                         // memory.storeByte(addressA0 + 6, (byte) 0x34);
                         // memory.storeByte(addressA0 + 7, (byte) 0x12);
 
-                        //writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 18);
-                        //writeRegisterFile(RISCVRegister.REG_A1.getIndex(), 18);
-                        //writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 18);
+                        // writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 18);
+                        // writeRegisterFile(RISCVRegister.REG_A1.getIndex(), 18);
+                        // writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 18);
                         break;
 
                     case 0x5F: // 95dec (localtime)
@@ -909,10 +971,12 @@ public class SingleCycleCPU extends AbstractCPU {
 
                         byte[] timeInMillisAsArray2 = new byte[8];
 
-                        //timeInMillisAsArray2[7] = (byte) (((int) memory.getByte(addressA0 + 0)) & 0xFF);
-                        //System.out.println("[7]: " + (byte) timeInMillisAsArray2[7]);
-                        //timeInMillisAsArray2[6] = (byte) (((int) memory.getByte(address_A0 + 1)) & 0xFF);
-                        //System.out.println("[6]: " + (byte) (int) timeInMillisAsArray2[6]);
+                        // timeInMillisAsArray2[7] = (byte) (((int) memory.getByte(addressA0 + 0)) &
+                        // 0xFF);
+                        // System.out.println("[7]: " + (byte) timeInMillisAsArray2[7]);
+                        // timeInMillisAsArray2[6] = (byte) (((int) memory.getByte(address_A0 + 1)) &
+                        // 0xFF);
+                        // System.out.println("[6]: " + (byte) (int) timeInMillisAsArray2[6]);
 
                         timeInMillisAsArray2[7] = (byte) memory.getByte(addressA0 + 0);
                         timeInMillisAsArray2[6] = (byte) memory.getByte(addressA0 + 1);
@@ -928,18 +992,19 @@ public class SingleCycleCPU extends AbstractCPU {
 
                         // struct tm
                         // {
-                        //     int tm_sec;   // seconds after the minute - [0, 60] including leap second
-                        //     int tm_min;   // minutes after the hour - [0, 59]
-                        //     int tm_hour;  // hours since midnight - [0, 23]
-                        //     int tm_mday;  // day of the month - [1, 31]
-                        //     int tm_mon;   // months since January - [0, 11]
-                        //     int tm_year;  // years since 1900
-                        //     int tm_wday;  // days since Sunday - [0, 6]
-                        //     int tm_yday;  // days since January 1 - [0, 365]
-                        //     int tm_isdst; // daylight savings time flag
+                        // int tm_sec; // seconds after the minute - [0, 60] including leap second
+                        // int tm_min; // minutes after the hour - [0, 59]
+                        // int tm_hour; // hours since midnight - [0, 23]
+                        // int tm_mday; // day of the month - [1, 31]
+                        // int tm_mon; // months since January - [0, 11]
+                        // int tm_year; // years since 1900
+                        // int tm_wday; // days since Sunday - [0, 6]
+                        // int tm_yday; // days since January 1 - [0, 365]
+                        // int tm_isdst; // daylight savings time flag
                         // };
 
-                        // divide the total milliseconds by 3,600,000 to get the total hours, then find the remainder
+                        // divide the total milliseconds by 3,600,000 to get the total hours, then find
+                        // the remainder
                         int hours = (int) (timeInMillisUTC / 3600000L);
                         hours = hours % 24;
                         // System.out.println("hh: " + hours);
@@ -977,14 +1042,14 @@ public class SingleCycleCPU extends AbstractCPU {
                         memory.storeByte(resultAddress + 9, (byte) temp[1]);
                         memory.storeByte(resultAddress + 10, (byte) temp[2]);
                         memory.storeByte(resultAddress + 11, (byte) temp[3]);
-                        
+
                         // System.out.println("done");
                         break;
 
                     case 0x60: // 96dec (test_func)
                         System.out.println("test_func()");
                         // https://msyksphinz-self.github.io/riscv-isadoc/#_ecall
-                        //writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 15);
+                        // writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 15);
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 14);
                         break;
 
@@ -996,35 +1061,35 @@ public class SingleCycleCPU extends AbstractCPU {
                         int seekMode = readRegisterFile(RISCVRegister.REG_A2.getIndex());
                         // System.out.println("fseek() seekMode = " + seekMode);
 
-                        // origin	Beschreibung
-                        // SEEK_SET	Der Start des Streams markiert den Ursprung.
-                        // SEEK_CUR	Aktuelle Position im Stream setzt den Ursprung.
-                        // SEEK_END	Das Ende des Streams wird als Ursprung gewählt.
+                        // origin Beschreibung
+                        // SEEK_SET Der Start des Streams markiert den Ursprung.
+                        // SEEK_CUR Aktuelle Position im Stream setzt den Ursprung.
+                        // SEEK_END Das Ende des Streams wird als Ursprung gewählt.
 
                         int fseekResult = fileHandling.fseek(fileHandle, newSeekPosition, seekMode);
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), fseekResult);
                         break;
 
                     case 98: // 98dec (getc)
-                        //System.out.println("getc()");
+                        // System.out.println("getc()");
                         fileHandle = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                        //System.out.println("getc() addressA0=" + fileHandle);
+                        // System.out.println("getc() addressA0=" + fileHandle);
                         int resultChar = fileHandling.getc(fileHandle);
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), resultChar);
                         break;
 
                     case 99: // 99dec (fopen)
-                        System.out.println("fopen()");
+                        logger.trace("fopen()");
 
                         // path to file as string is stored via the address in addressA0
                         addressA0 = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         String filepath = toStringFromAddress(addressA0);
-                        System.out.println("fopen() filepath=\"" + filepath + "\"");
+                        logger.trace("fopen() filepath=\"" + filepath + "\"");
 
                         // file mode as string is stored via the address in addressA1
                         addressA1 = readRegisterFile(RISCVRegister.REG_A1.getIndex());
                         String filemode = toStringFromAddress(addressA1);
-                        System.out.println("fopen() filemode=\"" + filemode + "\"");
+                        logger.trace("fopen() filemode=\"" + filemode + "\"");
 
                         fileHandle = fileHandling.fopen(filepath, filemode);
 
@@ -1033,7 +1098,7 @@ public class SingleCycleCPU extends AbstractCPU {
                         break;
 
                     case 100: // 100dec (ftell)
-                        System.out.println("ftell()");
+                        logger.trace("ftell()");
 
                         // first parameter is the fileHandle
                         fileHandle = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -1044,13 +1109,13 @@ public class SingleCycleCPU extends AbstractCPU {
                         break;
 
                     case 101: // 101dec (putchar)
-                        // System.out.println("putchar()");
+                        logger.trace("putchar()");
                         register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         System.out.print((char) register_1_value);
                         break;
 
                     case 102: // 102dec (fclose)
-                        System.out.println("fclose()");
+                        logger.trace("fclose()");
 
                         // first parameter is the fileHandle
                         fileHandle = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -1061,7 +1126,7 @@ public class SingleCycleCPU extends AbstractCPU {
                         break;
 
                     case 103: // 103dec (fgets)
-                        // System.out.println("fgets()");
+                        logger.trace("fgets()");
 
                         // first parameter is the byte buffer to fill
                         addressA0 = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -1073,7 +1138,7 @@ public class SingleCycleCPU extends AbstractCPU {
                         addressA2 = readRegisterFile(RISCVRegister.REG_A2.getIndex());
 
                         if (addressA2 == FileHandling.STDIN) {
-                            
+
                             String inputValue = getInput();
                             int inputValueLength = inputValue.length();
 
@@ -1098,14 +1163,18 @@ public class SingleCycleCPU extends AbstractCPU {
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), addressA0);
                         break;
 
-                    case 0:
-                        logger.warn("Unknown ECALL 0!");
+                    // rand()
+                    case 104:
+                        int min = 0;
+                        int max = 32767;
+                        int randomValue = random.nextInt(max + 1 - min) + min;
+                        writeRegisterFile(RISCVRegister.REG_A5.getIndex(), randomValue);
                         break;
 
                     default:
                         throw new RuntimeException("ECALL " + regA7Value + " NOT IMPLEMENTED!");
-                    }
                 }
+            }
                 pc += 4;
                 break;
 
@@ -1113,25 +1182,21 @@ public class SingleCycleCPU extends AbstractCPU {
                 pc += 4;
                 break;
 
-            // case I_EBREAK:
-            // break;
-            // case I_CSRRW:
-            // break;
-            // case I_CSRRS:
-            // break;
-            // case I_CSRRC:
-            // break;
-            // case I_CSRRWI:
-            // break;
-            // case I_CSRRSI:
-            // break;
-            // case I_CSRRCI:
-            // break;
+            case I_EBREAK:
+                logger.info("I_EBREAK");
 
-            case I_NOP:
-                // logger.trace("mnemonic: NOP");
+                //singleStepping = true;
+                // debugASMLineOutput = true;
+
+                printMemoryAroundPC();
+
                 pc += 4;
                 break;
+
+            // case I_NOP:
+            // // logger.trace("mnemonic: NOP");
+            // pc += 4;
+            // break;
 
             case I_BRK:
                 // logger.trace("mnemonic: BRK");
@@ -1158,7 +1223,12 @@ public class SingleCycleCPU extends AbstractCPU {
                 }
 
                 logger.trace(stringBuilder.toString());
-                
+
+                pc += 4;
+                break;
+
+            case I_MRET:
+                logger.warn("I_MRET Not implemented yet!");
                 pc += 4;
                 break;
 
@@ -1175,66 +1245,93 @@ public class SingleCycleCPU extends AbstractCPU {
             // Ziscr Extension
             //
 
+            // break;
+            // case I_CSRRW:
+            // break;
+            // case I_CSRRC:
+            // break;
+            // case I_CSRRWI:
+            // break;
+            // case I_CSRRSI:
+            // break;
+            // case I_CSRRCI:
+            // break;
+
             /**
              * 1. Read the value from the CRS register csr and store it into rd
              * 2. Modify the csr value by performing a bit-wise OR between csr and rd
              * 3. Write back the result from step 2 into the CSR register csr
              */
             case I_CSRRS:
+                // https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/csrrs.html
+                
                 logger.trace("mnemonic: I_CSRRS");
 
                 // System.out.println(asmLine.numeric_1);
 
-                int csrValue = 0;
-
                 // 1. Read the value from the CRS register csr and store it into rd
 
-                // https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr.html
-                switch (asmLine.numeric_1.intValue()) {
+                csrId = asmLine.numeric_1.intValue();
+                csrValue = readCSRById(csrId);
 
-                    // Number 	Privilege 	Name 			Description
-                    // 0xF11 	MRO 		mvendorid 		Vendor ID.
-                    case 0xF11:
-                        break;
-                    
-                    // 0xF12 	MRO 		marchid			Architecture ID.
-                    case 0xF12:
-                        break;
-                    
-                    // 0xF13 	MRO 		mimpid			Implementation ID.
-                    case 0xF13:
-                        break;
-                    
-                    // 0xF14 	MRO 		mhartid			Hardware thread ID.
-                    case 0xF14:
-                        // System.out.println(asmLine.numeric_1);
-                        csrValue = heartIdCSRRegister;
-                        break;
-                    
-                    // 0xF15 	MRO 		mconfigptr		Pointer to configuration data structure
-                    case 0xF15:
-                        break;
-
-                }
-                
                 // 1. Read the value from the CRS register csr and store it into rd
                 writeRegisterFile(asmLine.register_0.getIndex(), csrValue);
-                
+
                 // 2. Modify the csr value by performing a bit-wise OR between csr and rd
                 int newCsrValue = csrValue | readRegisterFile(asmLine.register_2.getIndex());
 
                 // 3. Write back the result from step 2 into the CSR register csr
-                //writeRegisterFile(asmLine.register_1.getIndex(), newCsrValue);
+                // writeRegisterFile(asmLine.register_1.getIndex(), newCsrValue);
                 heartIdCSRRegister = newCsrValue;
 
                 pc += 4;
                 break;
 
             case I_CSRRW:
+                // https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/csrrw.html
+                
+                // 0. If xd=x0, then the instruction shall not read the CSR and shall not cause 
+                // any of the side effects that might occur on a CSR read.
+                if (asmLine.register_0 == RISCVRegister.REG_X0) {
+                    pc += 4;
+                    break;
+                }
+
+                // 1. Read the old value of the CSR, zero-extends the value to XLEN bits
+                csrId = asmLine.numeric_1.intValue();
+                csrValue = readCSRById(csrId);
+
+                // write csrValue to integer register xd
+                writeRegisterFile(asmLine.register_0.getIndex(), csrValue);
+
+                // The initial value in xs1 is written to the CSR.
+                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
+                writeCSRById(asmLine.numeric_1.intValue(), (int) register_2_value_l);
+
                 pc += 4;
                 break;
 
             case I_CSRRWI:
+                // https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/csrrwi.html
+
+                // 0. If xd=x0, then the instruction shall not read the CSR and shall not cause 
+                // any of the side effects that might occur on a CSR read.
+                if (asmLine.register_0 == RISCVRegister.REG_X0) {
+                    pc += 4;
+                    break;
+                }
+
+                // 1. Read the old value of the CSR, zero-extends the value to XLEN bits
+                csrId = asmLine.numeric_1.intValue();
+                csrValue = readCSRById(csrId);
+
+                // write csrValue to integer register xd
+                writeRegisterFile(asmLine.register_0.getIndex(), csrValue);
+
+                // The initial value in xs1 is written to the CSR.
+                register_2_value_l = asmLine.numeric_2;
+                writeCSRById(asmLine.numeric_1.intValue(), (int) register_2_value_l);
+
                 pc += 4;
                 break;
 
@@ -1248,11 +1345,27 @@ public class SingleCycleCPU extends AbstractCPU {
 
             case I_MUL:
                 logger.trace("mul");
-                // registerFile[asmLine.register_0.getIndex()] =
-                // registerFile[asmLine.register_1.getIndex()]
-                // * registerFile[asmLine.register_2.getIndex()];
                 writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
                         * readRegisterFile(asmLine.register_2.getIndex()));
+                pc += 4;
+                break;
+
+            case I_MULH:
+                logger.trace("mulh: " + asmLine);
+
+                // MUL performs an XLEN-bit×XLEN-bit multiplication of rs1 by rs2 and places the
+                // lower XLEN bits in the destination register. MULH, MULHU, and MULHSU perform
+                // the same multiplication but return the upper XLEN bits of the full 2×XLEN-bit
+                // product, for signed×signed, unsigned×unsigned, and rs1×unsigned rs2
+                // multiplication.
+
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
+
+                long mulhResult = register_1_value_l * register_2_value_l;
+                int mulhResultShifted = (int) ((mulhResult >> 32) & 0xFFFFFFFF);
+
+                writeRegisterFile(asmLine.register_0.getIndex(), mulhResultShifted);
                 pc += 4;
                 break;
 
@@ -1261,13 +1374,14 @@ public class SingleCycleCPU extends AbstractCPU {
 
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
                 register_2_value = readRegisterFile(asmLine.register_2.getIndex());
-                
+
                 int divResult = 0;
                 if (register_2_value == 0) {
                     // https://projectf.io/posts/riscv-multiply-divide/
-                    // RISC-V doesn’t raise an exception on divide by zero. 
-                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal. 
-                    // For unsigned numbers, this is the largest integer; for signed numbers, this is -1.
+                    // RISC-V doesn’t raise an exception on divide by zero.
+                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal.
+                    // For unsigned numbers, this is the largest integer; for signed numbers, this
+                    // is -1.
                     divResult = 0xFFFFFFFF;
                 } else {
                     divResult = register_1_value / register_2_value;
@@ -1285,21 +1399,22 @@ public class SingleCycleCPU extends AbstractCPU {
                 // register_2_value = readRegisterFile(asmLine.register_2.getIndex());
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
                 register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
-                
-                //int divuResult = 0;
+
+                // int divuResult = 0;
                 long divuResult = 0L;
-                //if (register_2_value == 0) {
+                // if (register_2_value == 0) {
                 if (register_2_value_l == 0) {
                     // https://projectf.io/posts/riscv-multiply-divide/
-                    // RISC-V doesn’t raise an exception on divide by zero. 
-                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal. 
-                    // For unsigned numbers, this is the largest integer; for signed numbers, this is -1.
+                    // RISC-V doesn’t raise an exception on divide by zero.
+                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal.
+                    // For unsigned numbers, this is the largest integer; for signed numbers, this
+                    // is -1.
                     divuResult = 0xFFFFFFFF;
                 } else {
                     divuResult = register_1_value_l / register_2_value_l;
                 }
 
-                writeRegisterFile(asmLine.register_0.getIndex(), (int)divuResult);
+                writeRegisterFile(asmLine.register_0.getIndex(), (int) divuResult);
 
                 pc += 4;
                 break;
@@ -1311,9 +1426,10 @@ public class SingleCycleCPU extends AbstractCPU {
                 int remResult = 0;
                 if (register_2_value == 0) {
                     // https://projectf.io/posts/riscv-multiply-divide/
-                    // RISC-V doesn’t raise an exception on divide by zero. 
-                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal. 
-                    // For unsigned numbers, this is the largest integer; for signed numbers, this is -1.
+                    // RISC-V doesn’t raise an exception on divide by zero.
+                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal.
+                    // For unsigned numbers, this is the largest integer; for signed numbers, this
+                    // is -1.
                     remResult = 0xFFFFFFFF;
                 } else {
                     remResult = register_1_value % register_2_value;
@@ -1325,8 +1441,10 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_REMU:
-                // Unsigned remainder - https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/remu.html
-                // Calculate the remainder of unsigned division of xs1 by xs2, and store the result in xd.
+                // Unsigned remainder -
+                // https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/remu.html
+                // Calculate the remainder of unsigned division of xs1 by xs2, and store the
+                // result in xd.
                 logger.trace("mnemonic: REMU");
 
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
@@ -1335,9 +1453,10 @@ public class SingleCycleCPU extends AbstractCPU {
                 int remuResult = 0;
                 if (register_2_value == 0) {
                     // https://projectf.io/posts/riscv-multiply-divide/
-                    // RISC-V doesn’t raise an exception on divide by zero. 
-                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal. 
-                    // For unsigned numbers, this is the largest integer; for signed numbers, this is -1.
+                    // RISC-V doesn’t raise an exception on divide by zero.
+                    // The result of dividing by zero is all 1s, 0xFFFFFFFF in hexadecimal.
+                    // For unsigned numbers, this is the largest integer; for signed numbers, this
+                    // is -1.
                     remuResult = 0xFFFFFFFF;
                 } else {
                     remuResult = register_1_value % register_2_value;
@@ -1349,29 +1468,107 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             default:
-                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic);
+                throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic + " machine code: " + ByteArrayUtil.byteToHex(instruction));
         }
 
         return true;
     }
 
-    /**
-     * prints a zero terminated string starting at the address
-     * @param startAddress read a zero terminated string starting at this address
-     */
-    private void printStringFromAddress(int startAddress) {
-        int c = 'a';
-        do {
-            c = memory.getByte(startAddress++);
-            if ((c != '\0') && (c != 0x0A)) {
-                System.out.print((char)c);
-            }
-        } while ((c != '\0') && (c != 0x0A));
-        System.out.println();
+    private void writeCSRById(int index, int register_2_value_l) {
+        // // TODO Auto-generated method stub
+        // throw new UnsupportedOperationException("Unimplemented method 'readCSRById'");
+        logger.warn("Has to be implemented!");
+    }
+
+    private int readCSRById(int csrId) {
+
+        int csrValue = 0;
+
+        // https://www.five-embeddev.com/riscv-user-isa-manual/latest-adoc/zicsr.html
+        switch (csrId) {
+
+            case 0x180:
+                break;
+
+            case 0x300:
+                break;
+
+            case 0x302:
+                break;
+
+            case 0x303:
+                break;
+
+            case 0x304:
+                break;
+
+            // mtvec 0x305 == 773dec
+            case 0x305:
+                break;
+
+            case 0x341:
+                break;
+
+            case 0x3A0:
+                break;
+
+            case 0x3B0:
+                break;
+
+            // Number Privilege Name Description
+            // 0xF11 MRO mvendorid Vendor ID.
+            case 0xF11:
+                break;
+
+            // 0xF12 MRO marchid Architecture ID.
+            case 0xF12:
+                break;
+
+            // 0xF13 MRO mimpid Implementation ID.
+            case 0xF13:
+                break;
+
+            // 0xF14 MRO mhartid Hardware thread ID.
+            case 0xF14:
+                // System.out.println(asmLine.numeric_1);
+                csrValue = heartIdCSRRegister;
+                break;
+
+            // 0xF15 MRO mconfigptr Pointer to configuration data structure
+            case 0xF15:
+                break;
+
+            case 0x744:
+                break;
+
+            default:
+                throw new RuntimeException("Unknown CSR with id: " + ByteArrayUtil.byteToHex(csrId));
+
+        }
+        return csrValue;
+    }
+
+    private void printMemoryAroundPC() {
+        logger.info("---------------------------------------------------------------------");
+        memory.print(pc - 5 * 4, pc + 5 * 4, ByteOrder.LITTLE_ENDIAN, pc);
     }
 
     /**
      * prints a zero terminated string starting at the address
+     * 
+     * @param startAddress read a zero terminated string starting at this address
+     */
+    private void printStringFromAddress(int startAddress) {
+        int c = 0xFF;
+        do {
+            c = memory.getByte(startAddress++);
+            System.out.print((char) c);
+        } while (c != '\0');
+    }
+
+    /**
+     * prints a zero terminated string starting at the address
+     * 
      * @param startAddress read a zero terminated string starting at this address
      */
     private String toStringFromAddress(int startAddress) {
@@ -1380,7 +1577,7 @@ public class SingleCycleCPU extends AbstractCPU {
         do {
             c = memory.getByte(startAddress++);
             if ((c != '\0') && (c != 0x0A)) {
-                stringBuilder.append((char)c);
+                stringBuilder.append((char) c);
             }
         } while ((c != '\0') && (c != 0x0A));
         return stringBuilder.toString();
@@ -1388,7 +1585,7 @@ public class SingleCycleCPU extends AbstractCPU {
 
     private static String getInput() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        //return reader.lines().collect(Collectors.joining("\n"));
+        // return reader.lines().collect(Collectors.joining("\n"));
         return reader.readLine();
     }
 

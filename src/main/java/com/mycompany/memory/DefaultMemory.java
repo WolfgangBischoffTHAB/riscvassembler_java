@@ -30,7 +30,15 @@ public class DefaultMemory implements Memory {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
+        // address is the location in the destination buffer. 
+        // sIt is a local offset from the start of the current buffet
         int addr = targetAddress - addressAligned;
+
+        // if the data does not fit in the buffer, explode like its 1995
+        if ((addr + sizeInBytes) > memoryBlock.size) {
+            throw new RuntimeException("Data does not fit!");
+        }
+        
         System.arraycopy(srcBuffer, offsetInSrcBuffer, memoryBlock.memory, addr, sizeInBytes);
     }
 
@@ -148,9 +156,9 @@ public class DefaultMemory implements Memory {
         return memoryBlock;
     }
 
-    public void print(int startAddress, int endAddress, ByteOrder byteOrder) {
+    public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
         MemoryBlock memoryBlock = getMemoryBlockForAddress(startAddress);
-        memoryBlock.print(startAddress, endAddress, byteOrder);
+        memoryBlock.print(startAddress, endAddress, byteOrder, highlightAddress);
     }
 
 }

@@ -34,18 +34,19 @@ public enum Mnemonic {
     I_BNEU(false),
     I_BNEZ(true),
 
-    I_BRK(false),   // custom breakpoint instruction
+    I_BRK(false), // custom breakpoint instruction
 
     I_CALL(true),
 
     I_ECALL(false),
+    I_EBREAK(false),
 
     I_FENCE(false),
 
     I_J(true),
     I_JR(false),
     I_JALR(false),
-    I_JAL(false),       // rd <- pc + 4; pc <- pc + imm20
+    I_JAL(false), // rd <- pc + 4; pc <- pc + imm20
 
     I_LA(true),
     // I_LD(false), // This is 64 bits!!!
@@ -59,6 +60,7 @@ public enum Mnemonic {
     I_LUI(false),
 
     I_MV(true),
+    I_MRET(false),
 
     I_NOP(true),
     I_NOT(false),
@@ -123,16 +125,18 @@ public enum Mnemonic {
     I_PUTS(true),
 
     I_UNKNOWN(true);
+    
+ 
 
     private boolean pseudo;
 
-	Mnemonic(final boolean pseudo) {
-		this.pseudo = pseudo;
-	}
+    Mnemonic(final boolean pseudo) {
+        this.pseudo = pseudo;
+    }
 
-	public boolean isPseudo() {
-		return pseudo;
-	}
+    public boolean isPseudo() {
+        return pseudo;
+    }
 
     public static Mnemonic fromString(final String mnemonic) {
 
@@ -142,7 +146,7 @@ public enum Mnemonic {
             return I_ADDI;
         }
         // else if (mnemonic.equalsIgnoreCase("ADDIW")) {
-        //     return I_ADDIW;
+        // return I_ADDIW;
         // }
         else if (mnemonic.equalsIgnoreCase("AND")) {
             return I_AND;
@@ -176,6 +180,8 @@ public enum Mnemonic {
             return I_CALL;
         } else if (mnemonic.equalsIgnoreCase("ECALL")) {
             return I_ECALL;
+        } else if (mnemonic.equalsIgnoreCase("EBREAK")) {
+            return I_EBREAK;
         } else if (mnemonic.equalsIgnoreCase("FENCE")) {
             return I_FENCE;
         } else if (mnemonic.equalsIgnoreCase("J")) {
@@ -190,7 +196,7 @@ public enum Mnemonic {
             return I_LA;
         }
         // else if (mnemonic.equalsIgnoreCase("LD")) { // 64 bits!!!
-        //     return I_LD;
+        // return I_LD;
         // }
         else if (mnemonic.equalsIgnoreCase("LW")) {
             return I_LW;
@@ -208,6 +214,8 @@ public enum Mnemonic {
             return I_LUI;
         } else if (mnemonic.equalsIgnoreCase("MV")) {
             return I_MV;
+        } else if (mnemonic.equalsIgnoreCase("MRET")) {
+            return I_MRET;
         } else if (mnemonic.equalsIgnoreCase("NOP")) {
             return I_NOP;
         } else if (mnemonic.equalsIgnoreCase("NOT")) {
@@ -238,7 +246,7 @@ public enum Mnemonic {
             return I_SUB;
         }
         // else if (mnemonic.equalsIgnoreCase("SD")) { // 64 bits !!!
-        //     return I_SD;
+        // return I_SD;
         // }
         else if (mnemonic.equalsIgnoreCase("SW")) {
             return I_SW;
@@ -282,17 +290,13 @@ public enum Mnemonic {
 
         else if (mnemonic.equalsIgnoreCase("MUL")) {
             return I_MUL;
-        } 
-        else if (mnemonic.equalsIgnoreCase("DIV")) {
+        } else if (mnemonic.equalsIgnoreCase("DIV")) {
             return I_DIV;
-        }
-        else if (mnemonic.equalsIgnoreCase("DIVU")) {
+        } else if (mnemonic.equalsIgnoreCase("DIVU")) {
             return I_DIVU;
-        } 
-        else if (mnemonic.equalsIgnoreCase("REM")) {
+        } else if (mnemonic.equalsIgnoreCase("REM")) {
             return I_REM;
-        }
-        else if (mnemonic.equalsIgnoreCase("REMU")) {
+        } else if (mnemonic.equalsIgnoreCase("REMU")) {
             return I_REMU;
         }
 
@@ -307,7 +311,7 @@ public enum Mnemonic {
             case I_ADDI:
                 return "addi";
             // case I_ADDIW: // This is 64 bits!
-            //     return "addiw";
+            // return "addiw";
             case I_AND:
                 return "and";
             case I_ANDI:
@@ -316,65 +320,67 @@ public enum Mnemonic {
                 return "auipc";
 
             // Note: BGT, BGTU, BLE, and BLEU can be synthesized by reversing the operands
-            //    to BLT, BLTU, BGE, and BGEU, respectively.
+            // to BLT, BLTU, BGE, and BGEU, respectively.
             //
             // https://docs.openhwgroup.org/projects/cva6-user-manual/01_cva6_user/RISCV_Instructions_RV32I.html
 
-            case I_BEQ:         // Branch Equal
+            case I_BEQ: // Branch Equal
                 return "beq";
-            // case I_BEQU:        // does not exist!
-            //     return "bequ";
-            case I_BEQZ:        // pseudo instruction (Branch if == zero)
+            // case I_BEQU: // does not exist!
+            // return "bequ";
+            case I_BEQZ: // pseudo instruction (Branch if == zero)
                 return "beqz";
 
             case I_BGE:
                 return "bge";
-            case I_BGEU:        // Branch Greater or Equal Unsigned
+            case I_BGEU: // Branch Greater or Equal Unsigned
                 return "bgeu";
-            case I_BGEZ:        // pseudo instruction
+            case I_BGEZ: // pseudo instruction
                 return "bgez";
 
-            case I_BGT:         // pseudo instruction, synthesized via BLT!
+            case I_BGT: // pseudo instruction, synthesized via BLT!
                 return "bgt";
-            case I_BGTU:        // pseudo instruction, synthesized by BLTU
+            case I_BGTU: // pseudo instruction, synthesized by BLTU
                 return "bgtu";
             case I_BGTZ:
-                return "bgtz";  // pseudo instruction
+                return "bgtz"; // pseudo instruction
 
-            case I_BLE:         // pseudo instruction (synthesized by BGE)
+            case I_BLE: // pseudo instruction (synthesized by BGE)
                 return "ble";
-            case I_BLEU:        // pseudo instruction (synthesized by BGEU)
+            case I_BLEU: // pseudo instruction (synthesized by BGEU)
                 return "bleu";
-            case I_BLEZ:        // pseudo instruction
+            case I_BLEZ: // pseudo instruction
                 return "blez";
 
             case I_BLT:
                 return "blt";
-            case I_BLTU:        // Branch Less Than Unsigned
+            case I_BLTU: // Branch Less Than Unsigned
                 return "bltu";
-            case I_BLTZ:        // pseudo instruction
+            case I_BLTZ: // pseudo instruction
                 return "bltz";
 
             case I_BNE:
                 return "bne";
-            case I_BNEU:        // pseudo instruction
+            case I_BNEU: // pseudo instruction
                 return "bneu";
-            case I_BNEZ:        // pseudo instruction
+            case I_BNEZ: // pseudo instruction
                 return "bnez";
 
-            case I_BRK:         // custom breakpoint instruction
+            case I_BRK: // custom breakpoint instruction
                 return "brk";
 
-            case I_CALL:        // pseudo instruction
+            case I_CALL: // pseudo instruction
                 return "call";
 
             case I_ECALL:
                 return "ecall";
+            case I_EBREAK:
+                return "ebreak";
 
             case I_FENCE:
                 return "fence";
 
-            case I_J:           // pseudo instruction
+            case I_J: // pseudo instruction
                 return "j";
             case I_JR:
                 return "jr";
@@ -383,28 +389,30 @@ public enum Mnemonic {
             case I_JAL:
                 return "jal";
 
-            case I_LA:          // pseudo instruction
+            case I_LA: // pseudo instruction
                 return "la";
             // // This is 64 bits!
-            // case I_LD:          // pseudo instruction
-            //     return "ld";
-            case I_LW:          // pseudo instruction
+            // case I_LD: // pseudo instruction
+            // return "ld";
+            case I_LW: // pseudo instruction
                 return "lw";
-            case I_LH:          // pseudo instruction
+            case I_LH: // pseudo instruction
                 return "lh";
-            case I_LHU:          // pseudo instruction
+            case I_LHU: // pseudo instruction
                 return "lhu";
-            case I_LB:          // pseudo instruction
+            case I_LB: // pseudo instruction
                 return "lb";
             case I_LBU:
                 return "lbu";
-            case I_LI:          // pseudo instruction
+            case I_LI: // pseudo instruction
                 return "li";
             case I_LUI:
                 return "lui";
 
             case I_MV:
                 return "mv";
+            case I_MRET:
+                return "mret";
 
             case I_NOP:
                 return "nop";
@@ -416,7 +424,7 @@ public enum Mnemonic {
             case I_ORI:
                 return "ori";
 
-            case I_RET:         // pseudo instruction
+            case I_RET: // pseudo instruction
                 return "ret";
 
             case I_SRA:
@@ -434,15 +442,15 @@ public enum Mnemonic {
             case I_SUB:
                 return "sub";
             // // This is 64 bits!
-            // case I_SD:          // pseudo instruction
-            //     return "sd";
-            case I_SW:          // pseudo instruction
+            // case I_SD: // pseudo instruction
+            // return "sd";
+            case I_SW: // pseudo instruction
                 return "sw";
-            case I_SH:          // pseudo instruction
+            case I_SH: // pseudo instruction
                 return "sh";
-            case I_SB:          // pseudo instruction
+            case I_SB: // pseudo instruction
                 return "sb";
-            case I_SLT:         // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
+            case I_SLT: // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
                 return "slt";
             case I_SLTU:
                 return "sltu";
@@ -473,11 +481,11 @@ public enum Mnemonic {
             //
 
             case I_CSRRS:
-                return "cssrs";
+                return "csrrs";
             case I_CSRRW:
-                return "cssrw";
+                return "csrrw";
             case I_CSRRWI:
-                return "cssrwi";
+                return "csrrwi";
 
             //
             // M Extension
@@ -485,6 +493,9 @@ public enum Mnemonic {
 
             case I_MUL:
                 return "mul";
+
+            case I_MULH:
+                return "mulh";
 
             case I_DIV:
                 return "div";
@@ -497,7 +508,7 @@ public enum Mnemonic {
 
             case I_REMU:
                 return "remu";
- 
+
             default:
                 throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");
         }

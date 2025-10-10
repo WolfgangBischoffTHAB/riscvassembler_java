@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.ByteArrayUtil;
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
@@ -44,6 +45,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     private static final int I_TYPE_1 = 0b1100111;
     private static final int I_TYPE_2 = 0b0010011;
     private static final int I_TYPE_3 = 0b0000011;
+    /** 0b1110011 */
     private static final int I_TYPE_4 = 0b1110011;
 
     private static final int S_TYPE = 0b0100011;
@@ -308,19 +310,38 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 switch (funct3) {
 
                     case 0b000:
-                        asmLine.mnemonic = Mnemonic.I_ECALL;
+                        switch (imm_31_20) {
+
+                            case 0x00:
+                                asmLine.mnemonic = Mnemonic.I_ECALL;
+                                break;
+
+                            case 0x01:
+                                asmLine.mnemonic = Mnemonic.I_EBREAK;
+                                break;
+
+                            case 0x302:
+                                asmLine.mnemonic = Mnemonic.I_MRET;
+                                break;
+
+                            default:
+                                throw new RuntimeException("Unknown mnemonic! imm_31_20 = " + ByteArrayUtil.byteToHex(imm_31_20));
+                        }
                         break;
 
                     case 0b001:
                         asmLine.mnemonic = Mnemonic.I_CSRRW;
+                        decodeIType_4_Register(asmLine, funct3, rd, rs1, imm_31_20);
                         break;
 
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_CSRRS;
+                        decodeIType_4_Register(asmLine, funct3, rd, rs1, imm_31_20);
                         break;
 
                     case 0b101:
                         asmLine.mnemonic = Mnemonic.I_CSRRWI;
+                        decodeIType_4_Immediate(asmLine, funct3, rd, rs1, imm_31_20);
                         break;
 
                     default:
@@ -328,7 +349,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 "Unknown I_TYPE_4! funct3: " + funct3 + " in mnemonic "
                                         + ByteArrayUtil.byteToHex(data));
                 }
-                decodeIType_4(asmLine, funct3, rd, rs1, imm_31_20);
                 break;
 
             case S_TYPE:
@@ -385,10 +405,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                 int imm_12 = (data >> 31) & 0b1;
                 imm_11 = (data >> 7) & 0b1;
-                int imm_10_5 = (data >> 25) & 0b1111111;
+                int imm_10_5 = (data >> 25) & 0b11_1111;
                 int imm4_1 = (data >> 8) & 0b1111;
 
-                imm = (imm_12 << 11) | (imm_11 << 10) | (imm_10_5) << 5 | (imm4_1 << 1);
+                imm = (imm_12 << 12) | (imm_11 << 11) | (imm_10_5) << 5 | (imm4_1 << 1);
                 decodeBType(asmLine, funct3, funct7, rs1, rs2, imm);
                 break;
 
@@ -427,10 +447,16 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         return asmLine;
     }
 
-    private void decodeIType_4(AsmLine<Register> asmLine, int funct3, int rd, int rs2, int imm_31_20) {
+    private void decodeIType_4_Register(AsmLine<Register> asmLine, int funct3, int rd, int rs2, int imm_31_20) {
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.numeric_1 = (long) imm_31_20;
         asmLine.register_2 = RISCVRegister.fromInt(rs2);
+    }
+
+    private void decodeIType_4_Immediate(AsmLine<Register> asmLine, int funct3, int rd, int rs2, int imm_31_20) {
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.numeric_1 = (long) imm_31_20;
+        asmLine.numeric_2 = (long) rs2;
     }
 
     private static void decodeIType_1(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
@@ -517,9 +543,11 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
         // the number negative if it was negative
-        if ((imm & 0x800) > 0) {
-            asmLine.numeric_2 = (long) twosComplement(imm | 0xFFFFF000);
-            asmLine.numeric_2 *= -1;
+        //if ((imm & 0x800) > 0) {
+        if ((imm & 0x1000) > 0) {
+            asmLine.numeric_2 = NumberParseUtil.sign_extend_13_bit_to_int32_t(imm);
+            // asmLine.numeric_2 = (long) twosComplement(e);
+            // asmLine.numeric_2 *= -1;
         }
     }
 

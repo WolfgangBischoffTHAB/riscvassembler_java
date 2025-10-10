@@ -97,6 +97,7 @@ I_BRK : B R K ;     // custom break point instruction 0x1f1f1f1f
 I_CALL : C A L L ;
 
 I_ECALL : E C A L L ;
+I_EBREAK : E B R E A K ;
 
 I_FENCE : F E N C E ;
 

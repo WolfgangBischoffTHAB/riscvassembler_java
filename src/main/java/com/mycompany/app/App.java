@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Base64.Decoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +20,21 @@ import com.mycompany.assembler.BaseAssembler;
 // import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.cpu.CPU;
 import com.mycompany.cpu.PipelinedCPU;
 //import com.mycompany.cpu.PipelinedCPU;
 import com.mycompany.cpu.SingleCycleCPU;
+import com.mycompany.data.AsmInstruction;
+import com.mycompany.data.AsmLine;
+import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
+import com.mycompany.decoder.RV32IBaseIntegerInstructionSetDecoder;
 import com.mycompany.elf.Elf;
 import com.mycompany.elf.Elf32Sym;
 import com.mycompany.elf.ElfSymbolTable;
+import com.mycompany.encoder.RISCVEncoder;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
 import com.mycompany.memory.DefaultMemory;
 import com.mycompany.memory.Memory;
@@ -67,6 +74,22 @@ public class App {
     // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
 
     public static void main(String[] args) throws IOException {
+
+        // RV32IBaseIntegerInstructionSetDecoder decoder = new RV32IBaseIntegerInstructionSetDecoder();
+        // AsmLine asmLine = decoder.decode(0xE0E7D863);
+        // int imm = asmLine.numeric_2.intValue();
+        // int immValSignExtended = (int) NumberParseUtil
+        //                     .sign_extend_12_bit_to_int32_t(imm);
+        // System.out.println(asmLine);
+
+        // AsmLine asmLine = new AsmLine<>();
+        // asmLine.mnemonic = Mnemonic.I_BGE;
+        // asmLine.register_0 = RISCVRegister.REG_X15;
+        // asmLine.register_1 = RISCVRegister.REG_X14;
+        // asmLine.numeric_2 = (long) -2544;
+        // RISCVEncoder encoder = new RISCVEncoder();
+        // long machineCode = encoder.encode(asmLine, null, null, 100);
+        // System.out.println(ByteArrayUtil.byteToHex((int) machineCode));
 
         logger.debug("Start of Application");
 
@@ -306,7 +329,7 @@ public class App {
             elf.memory = memory;
             
             //elf.setFile("src/test/resources/riscvelf/factorial.out");
-            //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
             
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-add");

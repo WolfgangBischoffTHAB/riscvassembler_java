@@ -408,7 +408,27 @@ enum SEGMENT_TYPE {
 
     PT_LOPROC(0x70000000),
 
-    PT_HIPROC(0x7fffffff);
+    PT_HIPROC(0x7fffffff),
+
+    // x86-64 program header types.
+    // These all contain stack unwind tables.
+    PT_GNU_EH_FRAME(0x6474e550),
+    PT_SUNW_EH_FRAME(0x6474e550),
+    PT_SUNW_UNWIND(0x6464e550),
+    PT_GNU_STACK(0x6474e551), // Indicates stack executability.
+    PT_GNU_RELRO(0x6474e552), // Read-only after relocation.
+    // ARM program header types.
+    // PT_ARM_ARCHEXT(0x70000000), // Platform architecture compatibility info
+    // These all contain stack unwind tables.
+    PT_ARM_EXIDX(0x70000001),
+    PT_ARM_UNWIND(0x70000001),
+    // MIPS program header types.
+    // PT_MIPS_REGINFO(0x70000000), // Register usage information.
+    PT_MIPS_RTPROC(0x70000001), // Runtime procedure table.
+    PT_MIPS_OPTIONS(0x70000002), // Options segment.
+    PT_MIPS_ABIFLAGS(0x70000003); // Abiflags segment.
+
+    ;
 
     @SuppressWarnings("unused")
     private int type_;
@@ -455,6 +475,37 @@ enum SEGMENT_TYPE {
 
             case 0x7fffffff:
                 return PT_HIPROC;
+
+            // x86-64 program header types.
+            // These all contain stack unwind tables.
+            case 0x6474e550:
+                return PT_GNU_EH_FRAME;
+
+            // case 0x6474e550:
+            // return PT_SUNW_EH_FRAME;
+            case 0x6464e550:
+                return PT_SUNW_UNWIND;
+            case 0x6474e551:
+                return PT_GNU_STACK;
+            case 0x6474e552:
+                return PT_GNU_RELRO;
+            // // ARM program header types.
+            // case 0x70000000:
+            // return PT_ARM_ARCHEXT;
+            // These all contain stack unwind tables.
+            // case 0x70000001:
+            // return PT_ARM_EXIDX;
+            // case 0x70000001:
+            // return PT_ARM_UNWIND;
+            // MIPS program header types.
+            // case 0x70000000:
+            // return PT_MIPS_REGINFO;
+            case 0x70000001:
+                return PT_MIPS_RTPROC;
+            case 0x70000002:
+                return PT_MIPS_OPTIONS;
+            case 0x70000003:
+                return PT_MIPS_ABIFLAGS;
         }
 
         throw new RuntimeException("Unknown type: \"" + type_in + "\"");
@@ -695,7 +746,8 @@ public class Elf {
         int pos = 0;
         buffer = Files.readAllBytes(Paths.get(filename));
 
-        // load the overall, top-level ELF-header that has offsets to all other parts of the elf file
+        // load the overall, top-level ELF-header that has offsets to all other parts of
+        // the elf file
         Elf32_Ehdr elf32_Ehdr = new Elf32_Ehdr();
         pos = elf32_Ehdr.load(buffer, pos);
 
@@ -985,7 +1037,7 @@ public class Elf {
             // the executable flag
             if (programHeader.p_type != SEGMENT_TYPE.PT_LOAD) {
 
-                //throw new RuntimeException("Not an loadable program header!");
+                // throw new RuntimeException("Not an loadable program header!");
                 System.out.println("Not an loadable program header!");
 
                 // next program header
@@ -998,7 +1050,7 @@ public class Elf {
             // OTHERWISE THE RISC-V TESTSUITE ELF FILES WILL NOT RUN CORRECTLY
             if (NOT_LOAD_NON_EXECUTABLE_PROGRAM_HEADERS && (programHeader.p_flags & Elf32_Ehdr.PF_X) == 0) {
 
-                //throw new RuntimeException("Not an executable program header!");
+                // throw new RuntimeException("Not an executable program header!");
                 System.out.println("Not an executable program header!");
 
                 // next program header
@@ -1031,28 +1083,31 @@ public class Elf {
             // System.arraycopy(buffer, machine_code_offset, machine_code, 0,
             // programHeader.p_memsz);
 
+            System.out.println("-----------------");
             System.out.println("p_paddr: " + ByteArrayUtil.byteToHex(programHeader.p_paddr));
             System.out.println("machine_code_offset: " + ByteArrayUtil.byteToHex(machine_code_offset));
             System.out.println("p_memsz (size_in_bytes): " + ByteArrayUtil.byteToHex(programHeader.p_memsz));
 
-            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_memsz);
+            // memory.copy(programHeader.p_paddr, buffer, machine_code_offset,
+            // programHeader.p_memsz);
+            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_filesz);
 
             // DEBUG
 
             // fence.i
-            //MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80002000);
-            //tempMemoryBlock.print(0x80000000, 0x80000290, ByteOrder.LITTLE_ENDIAN);
-            //tempMemoryBlock.print(0x80002000, 0x8000201e, ByteOrder.LITTLE_ENDIAN);
+            // MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80002000);
+            // tempMemoryBlock.print(0x80000000, 0x80000290, ByteOrder.LITTLE_ENDIAN);
+            // tempMemoryBlock.print(0x80002000, 0x8000201e, ByteOrder.LITTLE_ENDIAN);
 
             // // ori
             // MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80000000);
             // tempMemoryBlock.print(0x80000000, 0x800003ba, ByteOrder.LITTLE_ENDIAN);
 
             // lb
-            //MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80000000);
-            //tempMemoryBlock.print(0x80002000, 0x80002010, ByteOrder.LITTLE_ENDIAN);
-            
-            //tempMemoryBlock.print(0x80000000, 0x80000008);
+            // MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80000000);
+            // tempMemoryBlock.print(0x80002000, 0x80002010, ByteOrder.LITTLE_ENDIAN);
+
+            // tempMemoryBlock.print(0x80000000, 0x80000008);
 
             // DEBUG
             if (DECODE) {

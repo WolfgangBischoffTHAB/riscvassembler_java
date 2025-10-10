@@ -23,6 +23,6 @@ public interface Memory {
 
     MemoryBlock getMemoryBlockForAddress(int i);
 
-    void print(int startAddress, int endAddress, ByteOrder byteOrder);
+    void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress);
 
 }

@@ -4,11 +4,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+import ch.qos.logback.core.util.StringUtil;
+
 public class ByteArrayUtil {
 
     public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static final char[] HEX_ARRAY_LOWERCASE = "0123456789abcdef".toCharArray();
-    private static ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);    
+    
 
     private ByteArrayUtil() {
         // no instances of this class
@@ -96,6 +98,13 @@ public class ByteArrayUtil {
 
     public static String byteToHex(final int data) {
         return "0x" + String.format("%1$02X", data);
+    }
+
+    public static String byteToHex(final int data, final String prefix, final String format) {
+        if (StringUtil.isNullOrEmpty(prefix)) {
+            return String.format(format, data);
+        }
+        return "0x" + String.format(format, data);
     }
 
     public static String byteToHex(final byte data) {
@@ -317,11 +326,13 @@ public class ByteArrayUtil {
     }
 
     public static byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.putLong(0, x);
         return buffer.array();
     }
 
     public static long bytesToLong(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.put(bytes, 0, bytes.length);
         buffer.flip(); // need flip 
         return buffer.getLong();
