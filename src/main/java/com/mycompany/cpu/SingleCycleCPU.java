@@ -6,13 +6,9 @@ import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.util.Calendar;
 import java.util.Random;
-import java.util.stream.Collectors;
-
-import javax.management.RuntimeErrorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.HandlerBase;
 
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
@@ -23,6 +19,8 @@ import com.mycompany.filehandling.FileHandling;
 import com.mycompany.memory.Memory;
 
 public class SingleCycleCPU extends AbstractCPU {
+
+    private static final int RVV_CSR_VLENB = 0xFFF;
 
     private static final Logger logger = LoggerFactory.getLogger(SingleCycleCPU.class);
 
@@ -95,12 +93,14 @@ public class SingleCycleCPU extends AbstractCPU {
             logger.info("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
                     + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
         }
+
+        singleStepping = true;
         if (singleStepping) {
-            printMemoryAroundPC();
+            printMemoryAroundPC(5);
             System.out.println("");
         }
 
-        // logger.info(asmLine.toString());
+        //logger.info(ByteArrayUtil.byteToHex(pc) + ": " + asmLine.toString());
 
         if (asmLine.mnemonic == null) {
             logger.trace(asmLine.toString());
@@ -127,7 +127,6 @@ public class SingleCycleCPU extends AbstractCPU {
         int addressA0;
         int addressA1;
         int addressA2;
-        int c;
         int fileHandle;
 
         int immValSignExtended;
@@ -484,7 +483,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 int lhVal = ByteArrayUtil.decodeInt16FromArrayBigEndian(let, 0);
                 int lhValSignExtended = (int) NumberParseUtil.sign_extend_16_bit_to_int32_t(lhVal);
 
-                System.out.println(ByteArrayUtil.byteToHex(lhVal));
+                // System.out.println(ByteArrayUtil.byteToHex(lhVal));
 
                 // WRITE BACK STAGE
                 // place read value into the destination register
@@ -511,7 +510,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 // int lhValSignExtended = (int)
                 // NumberParseUtil.sign_extend_16_bit_to_int32_t(lhVal);
 
-                System.out.println(ByteArrayUtil.byteToHex(lhuVal));
+                // System.out.println(ByteArrayUtil.byteToHex(lhuVal));
 
                 // WRITE BACK STAGE
                 // place read value into the destination register
@@ -845,12 +844,12 @@ public class SingleCycleCPU extends AbstractCPU {
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
                 register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
 
-                logger.info(ByteArrayUtil.byteToHex((int) register_1_value_l));
-                logger.info(ByteArrayUtil.byteToHex((int) register_2_value_l));
+                logger.trace(ByteArrayUtil.byteToHex((int) register_1_value_l));
+                logger.trace(ByteArrayUtil.byteToHex((int) register_2_value_l));
 
                 value_l = register_1_value_l >> register_2_value_l;
 
-                logger.info(ByteArrayUtil.byteToHex((int) value_l));
+                logger.trace(ByteArrayUtil.byteToHex((int) value_l));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), (int) value_l);
 
@@ -894,6 +893,23 @@ public class SingleCycleCPU extends AbstractCPU {
                 // a7 describes the service that is called by the ecall
                 int regA7Value = readRegisterFile(RISCVRegister.REG_A7.getIndex());
                 switch (regA7Value) {
+
+                    // ???
+                    case 0x50: // 80dec
+                        logger.trace("putchar()");
+                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        System.out.print((char) register_1_value);
+                        break;
+
+                    case 0xD6: // (214dec)
+                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        System.out.print((char) register_1_value);
+                        break;
+
+                    case 0x40: // (64dec)
+                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        System.out.print((char) register_1_value);
+                        break;
 
                     case 0:
                         logger.warn("Unknown ECALL 0!");
@@ -1172,7 +1188,9 @@ public class SingleCycleCPU extends AbstractCPU {
                         break;
 
                     default:
-                        throw new RuntimeException("ECALL " + regA7Value + " NOT IMPLEMENTED!");
+                        singleStepping = true;
+                        printMemoryAroundPC(10);
+                        throw new RuntimeException("ECALL " + ByteArrayUtil.byteToHex(regA7Value) + " (" + regA7Value + ") NOT IMPLEMENTED!");
                 }
             }
                 pc += 4;
@@ -1188,7 +1206,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 //singleStepping = true;
                 // debugASMLineOutput = true;
 
-                printMemoryAroundPC();
+                printMemoryAroundPC(5);
 
                 pc += 4;
                 break;
@@ -1467,6 +1485,47 @@ public class SingleCycleCPU extends AbstractCPU {
                 pc += 4;
                 break;
 
+            //
+            // V-Extension (RVV Vector Extension)
+            //
+
+            // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
+            case I_VSETVLI:
+                logger.warn("I_VSETVLI not implemented!");
+                // int upperOpCode = (instruction >> 25) & 0b111111;
+                // switch (upperOpCode) {
+                //     case 0b011001: // one of vmsne{.vv, .vx, .vi}
+                //         logger.warn("I_VMSNE not implemented! ASMLine: " + asmLine.toString());
+                //         break;
+
+                //     default: // I_VSETVLI
+                //         logger.warn("I_VSETVLI not implemented!");
+                //         break;
+                // }
+                pc += 4;
+                break;
+
+            case I_VLE32_V:
+                logger.warn("I_VLE32_V not implemented!");
+                pc += 4;
+                break;
+
+            case I_VSE32_V:
+                logger.warn("I_VSE32_V not implemented! " + asmLine);
+                pc += 4;
+                break;
+
+            // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
+            case I_VMSNE_VI:
+                logger.warn("I_VMSNE_VI not implemented! " + asmLine);
+                pc += 4;
+                break;
+
+            case I_VADD_VV:
+                logger.warn("I_VADD_VV not implemented! " + asmLine);
+                pc += 4;
+                break;
+
             default:
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic + " machine code: " + ByteArrayUtil.byteToHex(instruction));
         }
@@ -1541,6 +1600,10 @@ public class SingleCycleCPU extends AbstractCPU {
             case 0x744:
                 break;
 
+            case RVV_CSR_VLENB:
+                csrValue = 32;
+                break;
+
             default:
                 throw new RuntimeException("Unknown CSR with id: " + ByteArrayUtil.byteToHex(csrId));
 
@@ -1548,9 +1611,11 @@ public class SingleCycleCPU extends AbstractCPU {
         return csrValue;
     }
 
-    private void printMemoryAroundPC() {
+    private void printMemoryAroundPC(int displayDistance) {
         logger.info("---------------------------------------------------------------------");
-        memory.print(pc - 5 * 4, pc + 5 * 4, ByteOrder.LITTLE_ENDIAN, pc);
+
+        int start = Math.max(0x00, pc - displayDistance * 4);
+        memory.print(start, pc + displayDistance * 4, ByteOrder.LITTLE_ENDIAN, pc);
     }
 
     /**

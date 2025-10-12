@@ -86,9 +86,11 @@ I_BEQ : B E Q ;
 I_BEQZ : B E Q Z ;
 I_BGE : B G E ;
 I_BGT : B G T ;
+I_BGTU : B G T U ;
 I_BLT : B L T ;
 I_BLTU : B L T U ;
 I_BLE : B L E ;
+I_BLEU : B L E U ;
 I_BNE : B N E ;
 I_BNEZ : B N E Z ;
 
@@ -155,7 +157,27 @@ I_FENCEI : F E N C E DOT I ;
 // Zicsr Extension (Command and Status Registers, CSR)
 //
 
-I_CSRRS : C S R R S ;
+// https://www.csl.cornell.edu/courses/ece6745/handouts/ece6745-tinyrv-isa.txt
+// Read CSR
+I_CSRR : C S R R ;      // pseudo instruction of CSRRS with rs1 = x0. Resolved to CSRRS rd, csr, x0
+I_CSRRS : C S R R S ;   // CSRRS rd, csr, rs1
+// Read CSR immediate
+I_CSRWI : C S R W I ;   // pseudo instruction. Implemented by csrrwi x0, csr, imm
+I_CSRRWI : C S R R W I ;
+// Write CSR
+I_CSRW : C S R W ;      // pseudo instruction. Implemented by csrrw x0, csr, rs
+I_CSRRW : C S R R W ;
+// Set Bits in CSR
+I_CSRS : C S R S ;      // pseudo instruction. Implemented by csrrs x0, csr, rs
+// Set Bits in CSR immediate
+I_CSRSI : C S R S I ;   // pseudo instruction. Implemented by csrrsi x0, csr, imm
+I_CSRRSI : C S R R S I ;
+// Clear Bits in CSR
+I_CSRC : C S R C ;      // pseudo instruction. Implemented by csrrc x0, csr, rs
+I_CSRRC : C S R R C ;
+// Clear bits in CSR, immediate
+I_CSRCI : C S R C I ;   // pseudo instruction. Implemented by csrrci x0, csr, imm
+I_CSRRCI : C S R R C I ;
 
 //
 // M-Extension (Integer Multiplication and Division)
@@ -169,6 +191,17 @@ I_DIV : D I V ;
 I_DIVU : D I V U ;
 I_REM : R E M ;
 I_REMU : R E M U ;
+
+//
+// V-Extension (Vector Extension, RVV)
+//
+
+I_VSETVLI : V S E T V L I ;
+I_VSETVL : V S E T V L ;
+I_VLE32_V : V L E '3' '2' DOT V ;
+I_VMSNE_VI : V M S N E DOT V I ;
+I_VADD_VV : V A D D DOT V V ;
+I_VSE32_V : V S E '3' '2' DOT V ;
 
 REG_ZERO_ABI : Z E R O ;
 REG_RA_ABI : R A ;
@@ -246,6 +279,38 @@ REG_T3 : X '2' '8' ; // 28, Temporary
 REG_T4 : X '2' '9' ; // 29, Temporary
 REG_T5 : X '3' '0' ; // 30, Temporary
 REG_T6 : X '3' '1' ; // 31, Temporary
+
+//
+// RVV
+//
+
+REG_V0 : V '0' ;
+REG_V0_T : V '0' DOT T ;
+REG_V1 : V '1' ;
+REG_V1_T : V '1' DOT T ;
+REG_V2 : V '2' ;
+REG_V2_T : V '2' DOT T ;
+
+// Selected element width (SEW) setting
+RVV_SEW_E8 : E '8' ;
+RVV_SEW_E16 : E '1' '6' ;
+RVV_SEW_E32 : E '3' '2' ;
+RVV_SEW_E64 : E '6' '4' ;
+
+// RVV LMUL
+RVV_LMUL_MF8 : M F '8' ;
+RVV_LMUL_MF4 : M F '4' ;
+RVV_LMUL_MF2 : M F '2' ;
+RVV_LMUL_M1 : M '1' ;
+RVV_LMUL_M2 : M '2' ;
+RVV_LMUL_M4 : M '4' ;
+RVV_LMUL_M8 : M '8' ;
+
+// RVV tail
+RVV_TAIL_TA : T A ;
+RVV_TAIL_TU : T U ;
+RVV_TAIL_MA : M A ;
+RVV_TAIL_MU : M U ;
 
 ASTERISK : '*' ;
 PLUS : '+' ;

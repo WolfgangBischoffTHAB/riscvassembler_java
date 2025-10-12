@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.management.RuntimeErrorException;
+
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
@@ -67,6 +69,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             case I_BGE:
                 return encodeBGE(byteArrayOutStream, asmLine);
+
+            case I_BGEU:
+                return encodeBGEU(byteArrayOutStream, asmLine);
 
             case I_BLT:
                 return encodeBLT(byteArrayOutStream, asmLine);
@@ -161,6 +166,30 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeXORI(byteArrayOutStream, asmLine);
 
             //
+            // Zicsr Extension
+            //
+
+            // I_CSRR(true),
+            case I_CSRRS:
+                return encodeCSRRS(byteArrayOutStream, asmLine);
+            // I_CSRWI(true),
+            case I_CSRRWI:
+                return encodeCSRRWI(byteArrayOutStream, asmLine);
+            // I_CSRW(true),
+            case I_CSRRW:
+                return encodeCSRRW(byteArrayOutStream, asmLine);
+            // I_CSRS(true),
+            // I_CSRSI(true),
+            case I_CSRRSI:
+                return encodeCSRRSI(byteArrayOutStream, asmLine);
+            // I_CSRC(true),
+            case I_CSRRC:
+                return encodeCSRRC(byteArrayOutStream, asmLine);
+            // I_CSRCI(true),
+            case I_CSRRCI:
+                return encodeCSRRCI(byteArrayOutStream, asmLine);
+
+            //
             // M extension
             //
 
@@ -173,13 +202,359 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             case I_REMU:
                 return encodeREMU(byteArrayOutStream, asmLine);
 
+            //
+            // V Extension - https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
+            //
+
+            case I_VSETVLI:
+                return encodeVSETVLI(byteArrayOutStream, asmLine);
+            case I_VSETVL:
+                return encodeVSETVL(byteArrayOutStream, asmLine);
+            case I_VLE32_V:
+                return encodeVLE32_V(byteArrayOutStream, asmLine);
+            case I_VSE32_V:
+                return encodeVSE32_V(byteArrayOutStream, asmLine);
+            case I_VMSNE_VI: // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
+                return encodeVMSNE(byteArrayOutStream, asmLine);
+            case I_VADD_VV:
+                return encodeVADD(byteArrayOutStream, asmLine);
+
             case I_UNKNOWN:
             default:
                 throw new RuntimeException("Unknown mnemonic: " + asmLine);
         }
     }
 
+    /**
+     * https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
+     * vadd.vv vd, vs2, vs1, vm
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException 
+     */
+    private int encodeVADD(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3 = 0b111;
+        byte opcode = 0b1010111;
+        byte upperOpCode = 0b111111;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte vs2 = (byte) asmLine.register_1.getIndex();
+
+        int result = 0;
+
+        switch (asmLine.mnemonic) {
+
+            case I_VADD_VV:
+                upperOpCode = 0b000000;
+                funct3 = 0b000;
+                byte vs1 = (byte) asmLine.register_2.getIndex();
+                byte vm = (byte) ((asmLine.register_3 != null) ? 1 : 0);
+
+                result = ((opcode & 0b1111111) << 0) |          // 0
+                    ((vd & 0b11111) << 7) |                     // 7
+                    ((funct3 & 0b111) << (7 + 5)) |             // 12
+                    ((vs1 & 0b11111) << (7 + 5 + 3)) |          // 15
+                    ((vs2 & 0b11111) << (7 + 5 + 3 + 5)) |      // 20
+                    ((vm & 0b11111) << (7 + 5 + 3 + 5 + 5)) |   // 25
+                    ((upperOpCode) << (7 + 5 + 3 + 5 + 5 + 1)); // 26
+                break;
+
+            default:
+                throw new RuntimeException("Not implemented yet!");
+        }
+        
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    /**
+     * https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
+     * 
+     * vmsne.vv vd, vs2, vs1, vm
+     * vmsne.vx vd, vs2, rs1, vm
+     * vmsne.vi vd, vs2, imm, vm
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException 
+     */
+    private int encodeVMSNE(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+        
+        byte funct3 = 0b111;
+        byte opcode = 0b1010111;
+        byte upperOpCode = 0b111111;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte vs2 = (byte) asmLine.register_1.getIndex();
+
+        int result = 0;
+
+        switch (asmLine.mnemonic) {
+
+            case I_VMSNE_VI:
+                upperOpCode = 0b011001;
+                funct3 = 0b011;
+                byte imm = (byte) asmLine.numeric_2.byteValue();
+
+                byte vm = 0;
+                if (asmLine.register_3 != null) {
+                    vm = 1;
+                }
+
+                result = ((opcode & 0b1111111) << 0) |          // 0
+                    ((vd & 0b11111) << 7) |                     // 7
+                    ((funct3 & 0b111) << (7 + 5)) |             // 12
+                    ((imm & 0b11111) << (7 + 5 + 3)) |          // 15
+                    ((vs2 & 0b11111) << (7 + 5 + 3 + 5)) |      // 20
+                    ((vm & 0b11111) << (7 + 5 + 3 + 5 + 5)) |   // 25
+                    ((upperOpCode) << (7 + 5 + 3 + 5 + 5 + 1)); // 26
+                break;
+
+            default:
+                throw new RuntimeException("Not implemented yet!");
+        }
+
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    /**
+     * https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
+     * 
+     * 
+     * 
+     * vle8.v vd, (rs1), vm # 8-bit unit-stride load with width == '000'
+     * vle16.v vd, (rs1), vm # 16-bit unit-stride load with width == '101'
+     * vle32.v vd, (rs1), vm # 32-bit unit-stride load with width == '110'
+     * vle64.v vd, (rs1), vm # 64-bit unit-stride load with width == '111'
+     * 
+     * Option 1:
+     * vle32.v v0, 0(a3)
+     * 
+     * Option 2:
+     * vle32.v v2, 0(a2), v0.t
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
+    private int encodeVLE32_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3 = 0b110; // for 32 bit
+        byte opcode = 0b0000111;
+
+        // How to encode the offset? Is there an offset allowed?
+        long offset = asmLine.offset_1;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        byte rs2 = 0;
+        boolean has_rs2 = false;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+            has_rs2 = true;
+            rs2 = (byte) asmLine.register_2.getIndex();
+        }
+
+        int result = ((opcode & 0b1111111) << 0) |
+                ((vd & 0b11111) << 7) |
+                ((funct3 & 0b111) << (7 + 5)) |
+                ((rs1 & 0b11111) << (7 + 5 + 3)) |
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));
+
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    /**
+     * https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html#vse-eew
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException 
+     */
+    private int encodeVSE32_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte width = 0b110; // for 32 bit
+        byte opcode = 0b0100111;
+
+        byte vs3 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+        }
+
+        int result = ((opcode & 0b1111111) << 0) |      // 0
+                ((vs3 & 0b11111) << 7) |                // 7
+                ((width & 0b111) << (7 + 5)) |          // 12
+                ((rs1 & 0b11111) << (7 + 5 + 3)) |      // 15
+                ((0b00000) << (7 + 5 + 3 + 5)) |        // 20
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));    // 25
+
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    /**
+     * vsetvl rd, rs1, rs2 # rd = new vl, rs1 = AVL, rs2 = new vtype value
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
+    private int encodeVSETVL(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3 = 0b111;
+        byte opcode = 0b1010111;
+
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
+
+        byte funct7 = 0b1000000;
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeVSETVLI(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte opcode = 0b1010111;
+        byte funct3 = 0b111;
+
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rd = (byte) asmLine.register_1.getIndex();
+
+        // mask agnostic
+        byte vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
+
+        // tail agnostic
+        byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
+
+        // selected element width
+        byte sew = 4;
+        if (asmLine.rvvSew.equalsIgnoreCase("e8")) {
+            sew = 0;
+        } else if (asmLine.rvvSew.equalsIgnoreCase("e16")) {
+            sew = 1;
+        } else if (asmLine.rvvSew.equalsIgnoreCase("e32")) {
+            sew = 2;
+        } else if (asmLine.rvvSew.equalsIgnoreCase("e64")) {
+            sew = 3;
+        }
+
+        byte lmul = 4; // reserved
+        if (asmLine.rvvLmul != null) {
+            if (asmLine.rvvLmul.equalsIgnoreCase("mf8")) { // multiplier fractional
+                lmul = 5;
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("mf4")) { // multiplier fractional
+                lmul = 6;
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("mf2")) { // multiplier fractional
+                lmul = 7;
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) {
+                lmul = 0;
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) {
+                lmul = 1;
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) {
+                lmul = 2;
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) {
+                lmul = 3;
+            }
+        }
+
+        // I do not know how zimm is defined. The RISCV V-Extension spec does not say!
+        // For now, I assume zimm is vtypei. vtypei is defined.
+        int zimm_10_0 = ((vma & 0b1) << 7) | ((vta & 0b1) << 6) | ((sew & 0b111) << 3) | ((lmul & 0b111) << 0);
+
+        byte vill = 0b0; // illegal bit ??? What does it do? I think since
+        // vsetvli, vsetivli and vsetvl all have the same opcode and funct3,
+        // the uppermost bits (including vill) are used to distinguish vsetvli, vsetivli
+        // and vsetvl
+
+        int result = ((vill & 0b1) << 31) | ((zimm_10_0 & 0b11111111111) << 20) | ((rs1 & 0b11111) << 15)
+                | ((funct3 & 0b111) << 12) | ((rd & 0b11111) << 7) | ((opcode & 0b1111111) << 0);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeCSRRCI(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'encodeCSRRCI'");
+    }
+
+    private int encodeCSRRC(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'encodeCSRRC'");
+    }
+
+    private int encodeCSRRSI(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'encodeCSRRSI'");
+    }
+
+    private int encodeCSRRW(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'encodeCSRRW'");
+    }
+
+    private int encodeCSRRWI(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'encodeCSRRWI'");
+    }
+
+    /**
+     * csrrs rd, csr, rs1
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
+    private int encodeCSRRS(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
+
+        byte funct3 = 0b010;
+        short csr = asmLine.numeric_1.shortValue();
+        byte opcode = 0b1110011;
+
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
+
+        int result = encodeIType(csr, rs2, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     private int encodeMUL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+
         byte funct7 = 0b0000001;
         byte funct3 = 0b000;
         byte opcode = 0b0110011;
@@ -212,7 +587,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     }
 
     private int encodeREMU(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
-        
+
         byte funct7 = 0b0000001;
         byte funct3 = 0b111;
         byte opcode = 0b0110011;
@@ -535,6 +910,34 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
+    /**
+     * bgeu
+     * Branch Greater or Equal Unsigned
+     * bgeu rs1, rs2, imm
+     * if(rs1 ≥ rs2) pc += imm
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
+    private int encodeBGEU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
+
+        byte funct3 = 0b111;
+        byte opcode = 0b1100011;
+
+        byte rs1 = (byte) asmLine.register_0.getIndex();
+        byte rs2 = (byte) asmLine.register_1.getIndex();
+        short imm = asmLine.numeric_2.shortValue();
+
+        int result = encodeBType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     private int encodeBLT(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct3 = 0b100;
         byte opcode = 0b1100011;
@@ -588,6 +991,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
      * @return size of the encoded instruction in bytes
      */
     private int encodeJAL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        
+        System.out.println(asmLine.toString());
+
         byte opcode = 0b1101111;
 
         byte rd = (byte) asmLine.register_0.getIndex();

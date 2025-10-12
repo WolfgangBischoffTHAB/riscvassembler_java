@@ -36,9 +36,12 @@ import com.mycompany.pseudo.combine.LiCombiner;
 import com.mycompany.pseudo.resolve.BeqzResolver;
 import com.mycompany.pseudo.resolve.BgezResolver;
 import com.mycompany.pseudo.resolve.BgtResolver;
+import com.mycompany.pseudo.resolve.BgtuResolver;
 import com.mycompany.pseudo.resolve.BleResolver;
+import com.mycompany.pseudo.resolve.BleuResolver;
 import com.mycompany.pseudo.resolve.BnezResolver;
 import com.mycompany.pseudo.resolve.CallResolver;
+import com.mycompany.pseudo.resolve.CsrrResolver;
 import com.mycompany.pseudo.resolve.JResolver;
 import com.mycompany.pseudo.resolve.JrResolver;
 import com.mycompany.pseudo.resolve.LaResolver;
@@ -295,8 +298,14 @@ public abstract class BaseAssembler {
         BleResolver bleResolver = new BleResolver();
         bleResolver.modify(asmLines, sectionMap);
 
+        BleuResolver bleuResolver = new BleuResolver();
+        bleuResolver.modify(asmLines, sectionMap);
+
         BgtResolver bgtResolver = new BgtResolver();
         bgtResolver.modify(asmLines, sectionMap);
+
+        BgtuResolver bgtuResolver = new BgtuResolver();
+        bgtuResolver.modify(asmLines, sectionMap);
 
         BnezResolver bnezResolver = new BnezResolver();
         bnezResolver.modify(asmLines, sectionMap);
@@ -315,6 +324,9 @@ public abstract class BaseAssembler {
 
         RetResolver retResolver = new RetResolver();
         retResolver.modify(asmLines, sectionMap);
+
+        CsrrResolver csrrResolver = new CsrrResolver();
+        csrrResolver.modify(asmLines, sectionMap);
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {
@@ -507,11 +519,8 @@ public abstract class BaseAssembler {
                 // save the line for later error output
                 errorAsmLine = asmLine;
 
-                // // DEBUG
-                // //System.out.println(asmLine);
-                // if (asmLine.label != null) {
-                // System.out.println("Label: " + asmLine.label);
-                // }
+                // DEBUG
+                System.out.println(asmLine);
 
                 currentAddress = asmLine.section.address;
                 asmLine.section.address += encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap,
@@ -530,10 +539,7 @@ public abstract class BaseAssembler {
 
         byte[] byteArray = encoder.getByteArrayOutStream().toByteArray();
 
-        //
         // DEBUG output the byte array to the console
-        //
-
         // //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         // outputHexMachineCode(byteArray, byteOrder);

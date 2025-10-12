@@ -17,22 +17,37 @@ public class AsmLine<T extends Register> {
     public T register_0 = null;
     public T register_1 = null;
     public T register_2 = null;
+    public T register_3 = null;
+    public T register_4 = null;
+    public T register_5 = null;
 
     public Long numeric_0 = null;
     public Long numeric_1 = null;
     public Long numeric_2 = null;
+    public Long numeric_3 = null;
+    public Long numeric_4 = null;
+    public Long numeric_5 = null;
 
     public Long offset_0 = null;
     public Long offset_1 = null;
     public Long offset_2 = null;
+    public Long offset_3 = null;
+    public Long offset_4 = null;
+    public Long offset_5= null;
 
     public String offsetLabel_0 = null;
     public String offsetLabel_1 = null;
     public String offsetLabel_2 = null;
+    public String offsetLabel_3 = null;
+    public String offsetLabel_4 = null;
+    public String offsetLabel_5 = null;
 
     public String identifier_0 = null;
     public String identifier_1 = null;
     public String identifier_2 = null;
+    public String identifier_3 = null;
+    public String identifier_4 = null;
+    public String identifier_5 = null;
 
     public AsmInstruction asmInstruction = null;
 
@@ -41,6 +56,9 @@ public class AsmLine<T extends Register> {
     public Modifier modifier_0;
     public Modifier modifier_1;
     public Modifier modifier_2;
+    public Modifier modifier_3;
+    public Modifier modifier_4;
+    public Modifier modifier_5;
 
     public String stringValue;
 
@@ -55,6 +73,17 @@ public class AsmLine<T extends Register> {
     public ASTNode expr_0;
     public ASTNode expr_1;
     public ASTNode expr_2;
+    public ASTNode expr_3;
+    public ASTNode expr_4;
+    public ASTNode expr_5;
+
+    // RISCV V-Extension (RVV Vektor Extension)
+    public String rvvSew;
+    public String rvvLmul;
+    public String rvvTail;
+    public String rvvMask;
+
+    public boolean rvvMasking;
 
     public String toString() {
 
@@ -223,6 +252,15 @@ public class AsmLine<T extends Register> {
                 stringBuilder.append(", ");
                 stringBuilder.append(Register.toStringAbi(register_2));
             }
+        }
+
+        //
+        // V-Extension (RVV Vektor Extension)
+        //
+
+        if (rvvMasking) {
+            stringBuilder.append(", ");
+            stringBuilder.append(1);
         }
 
         if (pseudoInstructionAsmLine != null) {

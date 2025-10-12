@@ -10,11 +10,6 @@ public class DelegatingDecoder implements Decoder {
 
     @Override
     public AsmLine<?> decode(int instruction) {
-
-        // if (instruction == 0x2F777B3) {
-        //     System.out.println("test");
-        // }
-
         AsmLine<?> asmLine = mDecoder.decode(instruction);
         if (asmLine != null) {
             return asmLine;

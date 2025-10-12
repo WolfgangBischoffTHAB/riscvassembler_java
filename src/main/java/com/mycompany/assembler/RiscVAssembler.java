@@ -60,9 +60,7 @@ public class RiscVAssembler extends BaseAssembler {
 
     @Override
     public Parser getParser(CommonTokenStream asmTokens) {
-
         parser = new RISCVASMParser(asmTokens);
-
         return parser;
     }
 

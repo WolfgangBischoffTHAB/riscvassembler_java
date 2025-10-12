@@ -67,11 +67,11 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
 
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
 
     public static void main(String[] args) throws IOException {
 
@@ -155,7 +155,10 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
         // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
-        String inputFile = "src/test/resources/riscvasm/examples/div.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/div.s";
+
+        //String inputFile = "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
+        String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -255,6 +258,7 @@ public class App {
         // the first step is always to let the preprocessor resolve .include
         // instructions. Let the compiler run on the combined file in a second step!
 
+        // write preprocessed output into the INTERMEDIATE_FILE which is a hardcoded fixed file
         String inputFile = args[0];
         String outputFile = INTERMEDIATE_FILE;
         preprocess(inputFile, outputFile);
@@ -275,6 +279,7 @@ public class App {
 
         RiscVAssembler assembler = new RiscVAssembler(sectionMap, dummySection);
 
+        // use the fixed, hardcoded intermediate file which is the result of preprocessing
         String asmInputFile = INTERMEDIATE_FILE;
 
         // // set up the visitor
@@ -289,11 +294,7 @@ public class App {
         // the raw listener just prints the AST to the console
         // RawOutputListener listener = new RawOutputListener();
 
-
-
         DefaultMemory memory = new DefaultMemory();
-
-
 
         int startAddress = 0;
         int globalPointerValue = 0;
@@ -329,7 +330,11 @@ public class App {
             elf.memory = memory;
             
             //elf.setFile("src/test/resources/riscvelf/factorial.out");
-            elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+
+            // https://github.com/riscv-ovpsim/imperas-riscv-tests/blob/v20230724/riscv-ovpsim/examples/fibonacci/fibonacci.RISCV32.elf
+            //elf.setFile("C:/Users/lapto/Downloads/fibonacci.RISCV32.elf");
             
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-add");

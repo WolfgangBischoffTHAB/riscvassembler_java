@@ -27,8 +27,11 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
             asmLine.mnemonic = Mnemonic.I_JAL;
             asmLine.register_0 = RISCVRegister.REG_ZERO;
 
-            asmLine.offset_0 = null;
-            //asmLine.identifier_1 = asmLine.identifier_0;
+            // TODO: why was this used?
+            //asmLine.offset_0 = null;
+            
+            // This is needed for e.g.:      j .L18
+            asmLine.identifier_1 = asmLine.identifier_0;
 
             asmLine.identifier_0 = null;
         }

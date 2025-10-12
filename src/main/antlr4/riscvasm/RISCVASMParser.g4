@@ -32,20 +32,26 @@ asm_line :
     )?
     ;
 
+function_prototype :
+    IDENTIFIER
+    OPENING_BRACKET
+    CLOSING_BRACKET
+    ;
+
 label :
+    function_prototype
+    |
     IDENTIFIER
     |
     NUMERIC
     ;
-
-
 
 mnemonic :
 
     // RV32 I
     
     I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
-    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BLE | I_BLT | I_BLTU | I_BNE | I_BNEZ | I_BRK |
+    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BGTU | I_BLE | I_BLEU | I_BLT | I_BLTU | I_BNE | I_BNEZ | I_BRK |
     I_CALL | 
     I_ECALL | I_EBREAK |
     I_FENCE |
@@ -65,20 +71,64 @@ mnemonic :
 
     // Zicsr Extension
 
-    I_CSRRS |
+    I_CSRR | I_CSRRS | I_CSRWI | I_CSRRWI | I_CSRW | I_CSRRW | 
+    I_CSRS           | I_CSRSI | I_CSRRSI | I_CSRC | I_CSRRC |
+    I_CSRCI | I_CSRRCI |
 
     // M Extension
 
-    I_MUL | I_MULH | I_MULHSU | I_MULHU | I_DIV | I_DIVU | I_REM | I_REMU | I_REMU
+    I_MUL | I_MULH | I_MULHSU | I_MULHU | I_DIV | I_DIVU | I_REM | I_REMU | I_REMU |
+
+    // V Extension (RVV Vektor extension)
+
+    I_VSETVLI | I_VLE32_V | I_VMSNE_VI | I_VADD_VV | I_VSE32_V
+
+    ;
+
+// RVV selected element width (SEW)
+rvv_sew :
+    RVV_SEW_E8 |
+    RVV_SEW_E16 |
+    RVV_SEW_E32 |
+    RVV_SEW_E64
+    ;
+
+// RVV lmul
+rvv_lmul : 
+    RVV_LMUL_MF8 |
+    RVV_LMUL_MF4 |
+    RVV_LMUL_MF2 |
+    RVV_LMUL_M1  |
+    RVV_LMUL_M2  |
+    RVV_LMUL_M4  |
+    RVV_LMUL_M8  |
+    ;
+
+rvv_tail :
+    RVV_TAIL_TA |
+    RVV_TAIL_TU
+    ;
+
+rvv_mask :
+    RVV_TAIL_MA |
+    RVV_TAIL_MU
     ;
 
 params :
+    | param COMMA param COMMA rvv_type {
+    }
+    | param COMMA param COMMA param COMMA param COMMA? {
+    }
     | param COMMA param COMMA param COMMA? {
     }
     | param COMMA param COMMA? {
     }
     | param COMMA? {
     }
+    ;
+
+rvv_type :
+    rvv_sew (COMMA rvv_lmul)? COMMA rvv_tail COMMA rvv_mask COMMA?
     ;
 
 param :
@@ -193,7 +243,18 @@ register :
     REG_T3 |
     REG_T4 |
     REG_T5 |
-    REG_T6
+    REG_T6 |
+
+    //
+    // V-Extension (RVV vector extension)
+    //
+
+    REG_V0 |
+    REG_V0_T |
+    REG_V1 |
+    REG_V1_T |
+    REG_V2 |
+    REG_V2_T
     ;
 
 assembler_instruction :

@@ -101,9 +101,19 @@ public enum Mnemonic {
     // Zicsr Extension
     //
 
+    I_CSRR(true),
     I_CSRRS(false),
-    I_CSRRW(false),
+    I_CSRWI(true),
     I_CSRRWI(false),
+    I_CSRW(true),
+    I_CSRRW(false),
+    I_CSRS(true),
+    I_CSRSI(true),
+    I_CSRRSI(false),
+    I_CSRC(true),
+    I_CSRRC(false),
+    I_CSRCI(true),
+    I_CSRRCI(false),
 
     //
     // M Extension
@@ -117,6 +127,17 @@ public enum Mnemonic {
     I_DIVU(false),
     I_REM(false),
     I_REMU(false),
+
+    //
+    // V-Extension (Vector Extension, RVV)
+    //
+
+    I_VSETVLI(false),
+    I_VSETVL(false),
+    I_VLE32_V(false),
+    I_VMSNE_VI(false),
+    I_VADD_VV(false),
+    I_VSE32_V(false),
 
     //
     // Special instructions to add extended functionality to the emulator
@@ -162,12 +183,16 @@ public enum Mnemonic {
             return I_BGE;
         } else if (mnemonic.equalsIgnoreCase("BGT")) {
             return I_BGT;
+        } else if (mnemonic.equalsIgnoreCase("BGTU")) {
+            return I_BGTU;
         } else if (mnemonic.equalsIgnoreCase("BLT")) {
             return I_BLT;
         } else if (mnemonic.equalsIgnoreCase("BLTU")) {
             return I_BLTU;
         } else if (mnemonic.equalsIgnoreCase("BLE")) {
             return I_BLE;
+        } else if (mnemonic.equalsIgnoreCase("BLEU")) {
+            return I_BLEU;
         } else if (mnemonic.equalsIgnoreCase("BNE")) {
             return I_BNE;
         } else if (mnemonic.equalsIgnoreCase("BNEZ")) {
@@ -276,12 +301,32 @@ public enum Mnemonic {
         // Zicsr Extension
         //
 
-        else if (mnemonic.equalsIgnoreCase("CSRRS")) {
+        else if (mnemonic.equalsIgnoreCase("CSRR")) {
+            return I_CSRR;
+        } else if (mnemonic.equalsIgnoreCase("CSRRS")) {
             return I_CSRRS;
-        } else if (mnemonic.equalsIgnoreCase("CSRRW")) {
-            return I_CSRRW;
+        } else if (mnemonic.equalsIgnoreCase("CSRWI")) {
+            return I_CSRWI;
         } else if (mnemonic.equalsIgnoreCase("CSRRWI")) {
             return I_CSRRWI;
+        } else if (mnemonic.equalsIgnoreCase("CSRW")) {
+            return I_CSRW;
+        } else if (mnemonic.equalsIgnoreCase("CSRRW")) {
+            return I_CSRRW;
+        } else if (mnemonic.equalsIgnoreCase("CSRS")) {
+            return I_CSRS;
+        } else if (mnemonic.equalsIgnoreCase("CSRSI")) {
+            return I_CSRSI;
+        } else if (mnemonic.equalsIgnoreCase("CSRRSI")) {
+            return I_CSRRSI;
+        } else if (mnemonic.equalsIgnoreCase("CSRC")) {
+            return I_CSRC;
+        } else if (mnemonic.equalsIgnoreCase("CSRRC")) {
+            return I_CSRRC;
+        } else if (mnemonic.equalsIgnoreCase("CSRCI")) {
+            return I_CSRCI;
+        } else if (mnemonic.equalsIgnoreCase("CSRRCI")) {
+            return I_CSRRCI;
         }
 
         //
@@ -298,6 +343,22 @@ public enum Mnemonic {
             return I_REM;
         } else if (mnemonic.equalsIgnoreCase("REMU")) {
             return I_REMU;
+        }
+
+        //
+        // V Extension (RVV Vektor extension)
+        //
+
+        else if (mnemonic.equalsIgnoreCase("VSETVLI")) {
+            return I_VSETVLI;
+        } else if (mnemonic.equalsIgnoreCase("VLE32.V")) {
+            return I_VLE32_V;
+        } else if (mnemonic.equalsIgnoreCase("VMSNE.VI")) {
+            return I_VMSNE_VI;
+        } else if (mnemonic.equalsIgnoreCase("VADD.VV")) {
+            return I_VADD_VV;
+        } else if (mnemonic.equalsIgnoreCase("VSE32.V")) {
+            return I_VSE32_V;
         }
 
         throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");
@@ -480,12 +541,32 @@ public enum Mnemonic {
             // Zicsr Extension
             //
 
+            case I_CSRR:
+                return "csrr";
             case I_CSRRS:
                 return "csrrs";
-            case I_CSRRW:
-                return "csrrw";
+            case I_CSRWI:
+                return "csrwi";
             case I_CSRRWI:
                 return "csrrwi";
+            case I_CSRW:
+                return "csrw";
+            case I_CSRRW:
+                return "csrrw";
+            case I_CSRS:
+                return "csrs";
+            case I_CSRSI:
+                return "csrsi";
+            case I_CSRRSI:
+                return "csrrsi";
+            case I_CSRC:
+                return "csrc";
+            case I_CSRRC:
+                return "csrrc";
+            case I_CSRCI:
+                return "csrci";
+            case I_CSRRCI:
+                return "csrrci";
 
             //
             // M Extension
@@ -493,21 +574,31 @@ public enum Mnemonic {
 
             case I_MUL:
                 return "mul";
-
             case I_MULH:
                 return "mulh";
-
             case I_DIV:
                 return "div";
-
             case I_DIVU:
                 return "divu";
-
             case I_REM:
                 return "rem";
-
             case I_REMU:
                 return "remu";
+
+            //
+            // V Extension (RVV Vektor extension)
+            //
+
+            case I_VSETVLI:
+                return "vsetvli";
+            case I_VLE32_V:
+                return "vle32.v";
+            case I_VMSNE_VI:
+                return "vmsne.vi";
+            case I_VADD_VV:
+                return "vadd.vv";
+            case I_VSE32_V:
+                return "vse32.v";
 
             default:
                 throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");

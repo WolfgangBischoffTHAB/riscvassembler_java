@@ -6,7 +6,11 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
 
+import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.ASTNode;
@@ -34,6 +38,8 @@ import riscvasm.RISCVASMParserBaseListener;
 @SuppressWarnings("unchecked")
 public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener {
 
+    private static final Logger logger = LoggerFactory.getLogger(RISCASMExtractingOutputListener.class);
+
     public Map<String, Section> sectionMap;
 
     public Section currentSection;
@@ -49,8 +55,37 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     public Stack<ASTNode> exprStack = new Stack<>();
 
+    //
+    // RISC V Extension (RVV Vector extension)
+    //
+
     @Override
-    public void enterExpr(RISCVASMParser.ExprContext ctx) {
+    public void exitRvv_type(RISCVASMParser.Rvv_typeContext ctx) {
+        logger.info("exitRvv_type: " + ctx.getText());
+    }
+
+    @Override
+    public void exitRvv_sew(RISCVASMParser.Rvv_sewContext ctx) {
+        logger.info("exitRvv_sew: " + ctx.getText());
+        asmLine.rvvSew = ctx.getText();
+    }
+
+    @Override
+    public void exitRvv_lmul(RISCVASMParser.Rvv_lmulContext ctx) {
+        logger.info("exitRvv_lmul: " + ctx.getText());
+        asmLine.rvvLmul = ctx.getText();
+    }
+
+    @Override
+    public void exitRvv_tail(RISCVASMParser.Rvv_tailContext ctx) {
+        logger.info("exitRvv_tail: " + ctx.getText());
+        asmLine.rvvTail = ctx.getText();
+    }
+
+    @Override
+    public void exitRvv_mask(RISCVASMParser.Rvv_maskContext ctx) {
+        logger.info("exitRvv_mask: " + ctx.getText());
+        asmLine.rvvMask = ctx.getText();
     }
 
     @Override
@@ -143,26 +178,38 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         boolean isHexNumeric = false;
         boolean isStringLiteral = false;
 
+        boolean skipNode = false;
+
         try {
 
-            // loop over all parameters in forward direction
-            // int index = 0;
-            // for (ParamContext paramContext : ctx.param()) {
+            System.out.println(ctx.getText());
 
-            // iterate in reverse direction
-
+            // ignore commas between parameters
             int index = ctx.children.size();
-            if (index == 3) {
-                index = 1;
-            }
-            if (index == 5) {
-                index = 2;
-            }
-            @SuppressWarnings("rawtypes")
-            ListIterator li = ctx.param().listIterator(ctx.param().size());
-            while (li.hasPrevious()) {
+            //index = (index / 2) + 1;
+            //index = (index + 1) / 2;
+            index /= 2;
 
-                ParamContext paramContext = (ParamContext) li.previous();
+            // check if this is a RVV extension command by looking for the type subnode
+            RuleContext rContext = (RuleContext) ctx.getChild(ctx.getChildCount() - 1);
+            if (rContext.getRuleIndex() == RISCVASMParser.RULE_rvv_type) {
+                logger.info(rContext.getText());
+                skipNode = true;
+            }
+
+            // iterate over all parameters in reverse direction
+
+            @SuppressWarnings("rawtypes")
+            ListIterator listIterator = ctx.param().listIterator(ctx.param().size());
+            while (listIterator.hasPrevious()) {
+
+                if (skipNode) {
+                    skipNode = false;
+                    index--;
+                    continue;
+                }
+
+                ParamContext paramContext = (ParamContext) listIterator.previous();
 
                 OffsetContext offsetContext = paramContext.offset();
                 if (offsetContext != null) {
@@ -184,6 +231,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 case 2:
                                     asmLine.offset_2 = NumberParseUtil.parseLong(numeric);
                                     break;
+                                case 3:
+                                    asmLine.offset_3 = NumberParseUtil.parseLong(numeric);
+                                    break;
+                                case 4:
+                                    asmLine.offset_4 = NumberParseUtil.parseLong(numeric);
+                                    break;
+                                case 5:
+                                    asmLine.offset_5 = NumberParseUtil.parseLong(numeric);
+                                    break;
                             }
                         }
                     }
@@ -199,6 +255,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 break;
                             case 2:
                                 asmLine.modifier_2 = Modifier.fromString(modifier.getText());
+                                break;
+                            case 3:
+                                asmLine.modifier_3 = Modifier.fromString(modifier.getText());
+                                break;
+                            case 4:
+                                asmLine.modifier_4 = Modifier.fromString(modifier.getText());
+                                break;
+                            case 5:
+                                asmLine.modifier_5 = Modifier.fromString(modifier.getText());
                                 break;
                         }
                     }
@@ -227,6 +292,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 case 2:
                                     asmLine.offset_2 = data;
                                     break;
+                                case 3:
+                                    asmLine.offset_3 = data;
+                                    break;
+                                case 4:
+                                    asmLine.offset_4 = data;
+                                    break;
+                                case 5:
+                                    asmLine.offset_5 = data;
+                                    break;
                             }
 
                         } else {
@@ -240,6 +314,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                     break;
                                 case 2:
                                     asmLine.offsetLabel_2 = offset;
+                                    break;
+                                case 3:
+                                    asmLine.offsetLabel_3 = offset;
+                                    break;
+                                case 4:
+                                    asmLine.offsetLabel_4 = offset;
+                                    break;
+                                case 5:
+                                    asmLine.offsetLabel_5 = offset;
                                     break;
                             }
 
@@ -273,6 +356,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                             case 2:
                                 asmLine.register_2 = RISCVRegister.fromString(registerContext.getText());
                                 break;
+                            case 3:
+                                asmLine.register_3 = RISCVRegister.fromString(registerContext.getText());
+                                break;
+                            case 4:
+                                asmLine.register_4 = RISCVRegister.fromString(registerContext.getText());
+                                break;
+                            case 5:
+                                asmLine.register_5 = RISCVRegister.fromString(registerContext.getText());
+                                break;
                         }
 
                     } else if (numericTerminalNode != null) {
@@ -294,6 +386,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                     break;
                                 case 2:
                                     asmLine.numeric_2 = NumberParseUtil.parseLong(numeric);
+                                    break;
+                                case 3:
+                                    asmLine.numeric_3 = NumberParseUtil.parseLong(numeric);
+                                    break;
+                                case 4:
+                                    asmLine.numeric_4 = NumberParseUtil.parseLong(numeric);
+                                    break;
+                                case 5:
+                                    asmLine.numeric_5 = NumberParseUtil.parseLong(numeric);
                                     break;
                             }
                         }
@@ -320,6 +421,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 case 2:
                                     asmLine.numeric_2 = value;
                                     break;
+                                case 3:
+                                    asmLine.numeric_3 = value;
+                                    break;
+                                case 4:
+                                    asmLine.numeric_4 = value;
+                                    break;
+                                case 5:
+                                    asmLine.numeric_5 = value;
+                                    break;
                             }
                         }
 
@@ -342,6 +452,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                             case 2:
                                 asmLine.identifier_2 = identifier;
                                 break;
+                            case 3:
+                                asmLine.identifier_3 = identifier;
+                                break;
+                            case 4:
+                                asmLine.identifier_4 = identifier;
+                                break;
+                            case 5:
+                                asmLine.identifier_5 = identifier;
+                                break;
                         }
 
                     } else {
@@ -358,6 +477,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 break;
                             case 2:
                                 asmLine.expr_2 = exprASTNode;
+                                break;
+                            case 3:
+                                asmLine.expr_3 = exprASTNode;
+                                break;
+                            case 4:
+                                asmLine.expr_4 = exprASTNode;
+                                break;
+                            case 5:
+                                asmLine.expr_5 = exprASTNode;
                                 break;
                         }
 
@@ -382,6 +510,15 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                         case 2:
                             // asmLine.exprContext_2 = exprContext;
                             break;
+                        case 3:
+                            // asmLine.exprContext_3 = exprContext;
+                            break;
+                        case 4:
+                            // asmLine.exprContext_4 = exprContext;
+                            break;
+                        case 5:
+                            // asmLine.exprContext_5 = exprContext;
+                            break;
                     }
                 }
 
@@ -391,7 +528,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                 isHexNumeric = false;
                 isStringLiteral = false;
 
-                // index++;
                 index--;
             }
 

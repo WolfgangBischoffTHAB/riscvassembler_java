@@ -13,13 +13,15 @@ import com.mycompany.data.Register;
 /**
  * RV32I Base Integer Instruction Set, Version 2.1
  * 
- * Decodes opcodes in defined in https://github.com/riscv/riscv-opcodes/blob/master/extensions/rv_i
+ * Decodes opcodes in defined in
+ * https://github.com/riscv/riscv-opcodes/blob/master/extensions/rv_i
  * 
  * https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/chapters/rv32.html
  * 
  * https://riscv.atlassian.net/wiki/spaces/CSC/pages/15761503/Extension+Naming+Convention
- * All RISC-V standard extensions that are not a single capital letter start with either a 
- * - S (Privileged ISA extension) or a 
+ * All RISC-V standard extensions that are not a single capital letter start
+ * with either a
+ * - S (Privileged ISA extension) or a
  * - Z (Unprivileged ISA extension).
  * 
  * https://riscv.atlassian.net/wiki/spaces/HOME/pages/16154683/RISC-V+extension+and+feature+support+in+the+Open+Source+SW+Ecosystem
@@ -56,6 +58,13 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     private static final int U_TYPE_2 = 0b0110111;
 
     private static final int J_TYPE = 0b1101111;
+
+    /** 0b1010111 */
+    private static final int V_EXTENSION_OPERATION = 0b1010111;
+    /** 0b0000111 */
+    private static final int V_EXTENSION_LOAD = 0b0000111;
+    /** 0b0100111 */
+    private static final int V_EXTENSION_STORE = 0b0100111;
 
     /**
      * decodes four byte of machine code into a ASMLine domain model
@@ -109,12 +118,16 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int rs2 = (data >> 20) & 0b11111;
 
         /**
-         * fm mode - https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/fence.html#_defining_extension
-         * 0000 - normal fence. 1000 - TSO - With FENCE RW,RW: exclude write-to-read ordering; 
+         * fm mode -
+         * https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/fence.html#_defining_extension
+         * 0000 - normal fence. 1000 - TSO - With FENCE RW,RW: exclude write-to-read
+         * ordering;
          */
         int fm = (data >> 28) & 0b1111;
         int pred = (data >> 24) & 0b1111;
         int succ = (data >> 20) & 0b1111;
+
+        int vm = 0;
 
         switch (opcode) {
 
@@ -325,7 +338,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 break;
 
                             default:
-                                throw new RuntimeException("Unknown mnemonic! imm_31_20 = " + ByteArrayUtil.byteToHex(imm_31_20));
+                                throw new RuntimeException(
+                                        "Unknown mnemonic! imm_31_20 = " + ByteArrayUtil.byteToHex(imm_31_20));
                         }
                         break;
 
@@ -438,6 +452,106 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 asmLine.mnemonic = Mnemonic.I_JAL;
                 break;
 
+            case V_EXTENSION_OPERATION:
+
+                int upperOpCode = (data >> 26) & 0b111111;
+                switch (upperOpCode) {
+
+                    // one of vmadd{.vv, .vx, .vi}
+                    // Vector single-width integer add.
+                    // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
+                    case 0b000000:
+
+                        switch (funct3) {
+                            case 0b000:
+                                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                asmLine.register_2 = RISCVRegister.fromIntRVV(rs1);
+                                asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                // masking enabled / disabled
+                                vm = (data >> 25) & 0b1;
+                                if (vm == 1) {
+                                    asmLine.rvvMasking = true;
+                                }
+
+                                asmLine.mnemonic = Mnemonic.I_VADD_VV;
+                                break;
+
+                            default:
+                                throw new RuntimeException("No implemented yet!");
+                        }
+                        break;
+
+                    // one of vmsne{.vv, .vx, .vi}
+                    // Integer compare instruction to set bit if not equal.
+                    // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
+                    case 0b011001:
+
+                        switch (funct3) {
+                            case 0b011:
+                                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                long imm_19_15 = (data >> 15) & 0b11111;
+                                asmLine.numeric_2 = imm_19_15;
+
+                                asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
+
+                                asmLine.mnemonic = Mnemonic.I_VMSNE_VI;
+                                break;
+
+                            default:
+                                throw new RuntimeException("No implemented yet!");
+                        }
+                        break;
+
+                    default: 
+                        // I_VSETVLI
+                        decode_RVV_VSETVLI(data, asmLine, rd, rs1);
+                        break;
+                }
+                break;
+
+            case V_EXTENSION_LOAD:
+
+                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                asmLine.register_1 = RISCVRegister.fromInt(rs1);
+
+                // masking enabled / disabled
+                vm = (data >> 25) & 0b1;
+                if (vm == 1) {
+                    //asmLine.register_2 = RISCVRegister.fromInt(rs1);
+                }
+
+                switch (funct3) {
+                    case 0b110:
+                        asmLine.mnemonic = Mnemonic.I_VLE32_V;
+                        break;
+                    default:
+                        throw new RuntimeException("Not implemented yet!");
+                }
+                break;
+
+            case V_EXTENSION_STORE:
+                logger.trace("RVV store " + asmLine);
+                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                asmLine.register_1 = RISCVRegister.fromInt(rs1);
+
+                // masking enabled / disabled
+                vm = (data >> 25) & 0b1;
+                if (vm == 1) {
+                    //asmLine.register_2 = RISCVRegister.fromInt(rs1);
+                }
+
+                switch (funct3) {
+                    case 0b110:
+                        asmLine.mnemonic = Mnemonic.I_VSE32_V;
+                        break;
+                    default:
+                        throw new RuntimeException("Not implemented yet!");
+                }
+                break;
+
             default:
                 throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data)
                         + ". Unknown Instruction Type! opcode = " + opcode);
@@ -445,6 +559,72 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         }
 
         return asmLine;
+    }
+
+    private void decode_RVV_VSETVLI(final int data, AsmLine<Register> asmLine, int rd, int rs1) {
+
+        asmLine.register_4 = RISCVRegister.fromInt(rd);
+        asmLine.register_5 = RISCVRegister.fromInt(rs1);
+
+        int vtype = (data >> 10) & 0b11111111111;
+        int vlmul = (vtype >> 0) & 0b111;
+        int vsew = (vtype >> 3) & 0b111;
+        int vta = (vtype >> 6) & 0b1;
+        int vma = (vtype >> 7) & 0b1;
+
+        // selected element width
+        switch (vsew) {
+            case 0:
+                asmLine.rvvSew = "e8";
+                break;
+            case 1:
+                asmLine.rvvSew = "e16";
+                break;
+            case 2:
+                asmLine.rvvSew = "e32";
+                break;
+            case 3:
+                asmLine.rvvSew = "e64";
+                break;
+            default:
+                asmLine.rvvSew = "undef";
+                break;
+        }
+
+        // mode
+        switch (vlmul) {
+            case 5:
+                asmLine.rvvLmul = "mf8";
+                break;
+            case 6:
+                asmLine.rvvLmul = "mf4";
+                break;
+            case 7:
+                asmLine.rvvLmul = "mf2";
+                break;
+            case 0:
+                asmLine.rvvLmul = "m1";
+                break;
+            case 1:
+                asmLine.rvvLmul = "m2";
+                break;
+            case 2:
+                asmLine.rvvLmul = "m4";
+                break;
+            case 3:
+                asmLine.rvvLmul = "m8";
+                break;
+            default:
+                asmLine.rvvLmul = "undef";
+                break;
+        }
+
+        // tail agnostic
+        asmLine.rvvTail = ((vta == 1) ? "ta" : "tu");
+        // mask agnostic
+        asmLine.rvvMask = ((vma == 1) ? "ma" : "mu");
+
+        asmLine.mnemonic = Mnemonic.I_VSETVLI;
     }
 
     private void decodeIType_4_Register(AsmLine<Register> asmLine, int funct3, int rd, int rs2, int imm_31_20) {
@@ -543,7 +723,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
         // the number negative if it was negative
-        //if ((imm & 0x800) > 0) {
+        // if ((imm & 0x800) > 0) {
         if ((imm & 0x1000) > 0) {
             asmLine.numeric_2 = NumberParseUtil.sign_extend_13_bit_to_int32_t(imm);
             // asmLine.numeric_2 = (long) twosComplement(e);
