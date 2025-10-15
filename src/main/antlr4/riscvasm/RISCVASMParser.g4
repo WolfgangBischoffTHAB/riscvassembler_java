@@ -81,7 +81,7 @@ mnemonic :
 
     // V Extension (RVV Vektor extension)
 
-    I_VSETVLI | I_VLE32_V | I_VMSNE_VI | I_VADD_VV | I_VSE32_V
+    I_VSETVLI | I_VLE32_V | I_VMSNE_VI | I_VADD_VV | I_VSE32_V | I_VMV_V_I
 
     ;
 

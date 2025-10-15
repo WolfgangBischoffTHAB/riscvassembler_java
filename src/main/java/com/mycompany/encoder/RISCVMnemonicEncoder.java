@@ -218,11 +218,32 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeVMSNE(byteArrayOutStream, asmLine);
             case I_VADD_VV:
                 return encodeVADD(byteArrayOutStream, asmLine);
+            case I_VMV_V_I:
+                return encodeVMV_V_I(byteArrayOutStream, asmLine);
 
             case I_UNKNOWN:
             default:
                 throw new RuntimeException("Unknown mnemonic: " + asmLine);
         }
+    }
+
+    private int encodeVMV_V_I(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3 = 0b011;
+        byte opcode = 0b1010111;
+        byte upperOpCode = 0b010111;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte vs2 = (byte) 0x00;
+        byte imm = (byte) asmLine.numeric_1.byteValue();
+        byte vm = (byte) 1;
+
+        int result = encodeVectorArithmeticInstruction(funct3, opcode, upperOpCode, vd, vs2, imm, vm);
+        
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
     }
 
     /**
@@ -245,31 +266,37 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         int result = 0;
 
-        switch (asmLine.mnemonic) {
+        // switch (asmLine.mnemonic) {
 
-            case I_VADD_VV:
+        //     case I_VADD_VV:
                 upperOpCode = 0b000000;
                 funct3 = 0b000;
                 byte vs1 = (byte) asmLine.register_2.getIndex();
                 byte vm = (byte) ((asmLine.register_3 != null) ? 1 : 0);
 
-                result = ((opcode & 0b1111111) << 0) |          // 0
-                    ((vd & 0b11111) << 7) |                     // 7
-                    ((funct3 & 0b111) << (7 + 5)) |             // 12
-                    ((vs1 & 0b11111) << (7 + 5 + 3)) |          // 15
-                    ((vs2 & 0b11111) << (7 + 5 + 3 + 5)) |      // 20
-                    ((vm & 0b11111) << (7 + 5 + 3 + 5 + 5)) |   // 25
-                    ((upperOpCode) << (7 + 5 + 3 + 5 + 5 + 1)); // 26
-                break;
+                result = encodeVectorArithmeticInstruction(funct3, opcode, upperOpCode, vd, vs2, vs1, vm);
+        //         break;
 
-            default:
-                throw new RuntimeException("Not implemented yet!");
-        }
+        //     default:
+        //         throw new RuntimeException("Not implemented yet!");
+        // }
         
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
+    }
+
+    private int encodeVectorArithmeticInstruction(byte funct3, byte opcode, byte upperOpCode, byte vd, byte vs2, byte vs1, byte vm) {
+        int result;
+        result = ((opcode & 0b1111111) << 0) |          // 0
+            ((vd & 0b11111) << 7) |                     // 7
+            ((funct3 & 0b111) << (7 + 5)) |             // 12
+            ((vs1 & 0b11111) << (7 + 5 + 3)) |          // 15
+            ((vs2 & 0b11111) << (7 + 5 + 3 + 5)) |      // 20
+            ((vm & 0b11111) << (7 + 5 + 3 + 5 + 5)) |   // 25
+            ((upperOpCode) << (7 + 5 + 3 + 5 + 5 + 1)); // 26
+        return result;
     }
 
     /**
@@ -295,9 +322,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         int result = 0;
 
-        switch (asmLine.mnemonic) {
+        // switch (asmLine.mnemonic) {
 
-            case I_VMSNE_VI:
+        //     case I_VMSNE_VI:
                 upperOpCode = 0b011001;
                 funct3 = 0b011;
                 byte imm = (byte) asmLine.numeric_2.byteValue();
@@ -307,18 +334,11 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                     vm = 1;
                 }
 
-                result = ((opcode & 0b1111111) << 0) |          // 0
-                    ((vd & 0b11111) << 7) |                     // 7
-                    ((funct3 & 0b111) << (7 + 5)) |             // 12
-                    ((imm & 0b11111) << (7 + 5 + 3)) |          // 15
-                    ((vs2 & 0b11111) << (7 + 5 + 3 + 5)) |      // 20
-                    ((vm & 0b11111) << (7 + 5 + 3 + 5 + 5)) |   // 25
-                    ((upperOpCode) << (7 + 5 + 3 + 5 + 5 + 1)); // 26
-                break;
+                result = encodeRVVVectorInstruction(funct3, opcode, upperOpCode, vd, vs2, imm, vm);
 
-            default:
-                throw new RuntimeException("Not implemented yet!");
-        }
+        //     default:
+        //         throw new RuntimeException("Not implemented yet!");
+        // }
 
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
@@ -455,7 +475,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         // tail agnostic
         byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
 
-        // selected element width
+        // selected element width (SEW)
         byte sew = 4;
         if (asmLine.rvvSew.equalsIgnoreCase("e8")) {
             sew = 0;
@@ -467,7 +487,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             sew = 3;
         }
 
-        byte lmul = 4; // reserved
+        // register grouping or fractions of register (LMUL)
+        byte lmul = 0; // default value
         if (asmLine.rvvLmul != null) {
             if (asmLine.rvvLmul.equalsIgnoreCase("mf8")) { // multiplier fractional
                 lmul = 5;
@@ -475,13 +496,13 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 lmul = 6;
             } else if (asmLine.rvvLmul.equalsIgnoreCase("mf2")) { // multiplier fractional
                 lmul = 7;
-            } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) {
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) { // grouped
                 lmul = 0;
-            } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) {
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) { // grouped
                 lmul = 1;
-            } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) {
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) { // grouped
                 lmul = 2;
-            } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) {
+            } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) { // grouped
                 lmul = 3;
             }
         }
@@ -495,7 +516,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         // the uppermost bits (including vill) are used to distinguish vsetvli, vsetivli
         // and vsetvl
 
-        int result = ((vill & 0b1) << 31) | ((zimm_10_0 & 0b11111111111) << 20) | ((rs1 & 0b11111) << 15)
+        int result = ((vill & 0b1) << 31) | ((zimm_10_0 & 0b111_1111_1111) << 20) | ((rs1 & 0b11111) << 15)
                 | ((funct3 & 0b111) << 12) | ((rd & 0b11111) << 7) | ((opcode & 0b1111111) << 0);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);

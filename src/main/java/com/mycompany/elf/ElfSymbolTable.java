@@ -23,8 +23,6 @@ public class ElfSymbolTable {
 
     public String name;
 
-    // public String[] stringArray = new String[0];
-
     public String strtab;
 
 }

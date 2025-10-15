@@ -10,7 +10,6 @@ public class ByteArrayUtil {
 
     public static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static final char[] HEX_ARRAY_LOWERCASE = "0123456789abcdef".toCharArray();
-    
 
     private ByteArrayUtil() {
         // no instances of this class
@@ -105,6 +104,11 @@ public class ByteArrayUtil {
             return String.format(format, data);
         }
         return "0x" + String.format(format, data);
+    }
+
+    public static String byteToHex(final long data) {
+        // return "0x" + String.format("%1$16X", data);
+        return "0x" + Long.toHexString(data);
     }
 
     public static String byteToHex(final byte data) {
@@ -311,6 +315,29 @@ public class ByteArrayUtil {
                 + ((array[pos + 3] & 0xFF) << 24);
     }
 
+    public static long decodeInt64FromArrayBigEndian(byte[] array, int pos) {
+
+        // int data0 = (array[pos + 0] & 0xFF);
+        // int data1 = (array[pos + 1] & 0xFF);
+        // int data2 = (array[pos + 2] & 0xFF);
+        // int data3 = (array[pos + 3] & 0xFF);
+        // int data4 = (array[pos + 4] & 0xFF);
+        // int data5 = (array[pos + 5] & 0xFF);
+        // int data6 = (array[pos + 6] & 0xFF);
+        // int data7 = (array[pos + 7] & 0xFF);
+
+        long temp = (((long)(array[pos + 0] & 0xFF)) << 0)
+                  | (((long)(array[pos + 1] & 0xFF)) << 8)
+                  | (((long)(array[pos + 2] & 0xFF)) << 16)
+                  | (((long)(array[pos + 3] & 0xFF)) << 24)
+                  | (((long)(array[pos + 4] & 0xFF)) << 32)
+                  | (((long)(array[pos + 5] & 0xFF)) << 40)
+                  | (((long)(array[pos + 6] & 0xFF)) << 48)
+                  | (((long)(array[pos + 7] & 0xFF)) << 56);
+
+        return temp;
+    }
+
     public static int decodeInt16FromArrayLittleEndian(byte[] array, int pos) {
         return ((array[pos + 0] & 0xFF) << 8)
                 + ((array[pos + 1] & 0xFF) << 0);
@@ -334,7 +361,7 @@ public class ByteArrayUtil {
     public static long bytesToLong(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.put(bytes, 0, bytes.length);
-        buffer.flip(); // need flip 
+        buffer.flip(); // need flip
         return buffer.getLong();
     }
 }

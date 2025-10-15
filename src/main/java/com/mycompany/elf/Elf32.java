@@ -2,7 +2,6 @@ package com.mycompany.elf;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,10 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
-import com.mycompany.decoder.Decoder;
 import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.memory.Memory;
-import com.mycompany.memory.MemoryBlock;
 
 // using Elf32_Addr = uint32_t; // Program address
 // using Elf32_Off = uint32_t;  // File offset
@@ -229,10 +226,9 @@ enum SH_TYPE {
  * Elf64_Xword sh_entsize;
  * } Elf64_Shdr;
  */
-
 class Elf32_Shdr {
 
-    public static final int SIZE = 10 * 4; // 10 membery, 4 byte each
+    public static final int SIZE = 10 * 4; // 10 members, 4 byte each
 
     public int sh_name; // index into another table that stores the name as a string
     public int sh_type;
@@ -263,46 +259,6 @@ class Elf32_Shdr {
         sh_addralign = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
         sh_entsize = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, offset += 4);
 
-    }
-
-}
-
-/**
- * EI_CLASS - identifies the file's class, or capacity.
- * 
- * ELFCLASSNONE 0 Invalid class
- * ELFCLASS32 1 32-bit objects
- * ELFCLASS64 2 64-bit objects
- */
-enum EI_CLASS {
-
-    ELFCLASSNONE(0),
-
-    ELFCLASS32(1),
-
-    ELFCLASS64(2);
-
-    @SuppressWarnings("unused")
-    private int class_;
-
-    EI_CLASS(final int class_) {
-        this.class_ = class_;
-    }
-
-    public static EI_CLASS fromInt(final int class_in) {
-
-        switch (class_in) {
-            case 0:
-                return ELFCLASSNONE;
-
-            case 1:
-                return ELFCLASS32;
-
-            case 2:
-                return ELFCLASS64;
-        }
-
-        throw new RuntimeException("Unknown class: \"" + class_in + "\"");
     }
 
 }
@@ -578,6 +534,16 @@ class Elf32_Phdr {
 }
 
 /**
+ * https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
+ * 
+ * // 32-bit ELF base types.
+ * typedef __u32	Elf32_Addr;
+ * typedef __u16	Elf32_Half;
+ * typedef __u32	Elf32_Off;
+ * typedef __s32	Elf32_Sword;
+ * typedef __u32	Elf32_Word;
+ * typedef __u16	Elf32_Versym;
+ * 
  * typedef struct
  * {
  * unsigned char e_ident[EI_NIDENT]; // Offset(0) - Magic number and other info
@@ -659,6 +625,10 @@ class Elf32_Ehdr {
 
     public int load(byte[] buffer, int pos) {
 
+        //
+        // 16 byte e_ident[EI_NIDENT]
+        //
+
         // int32_t (4 byte) magic number
         magicNumbers1 = ByteArrayUtil.decodeInt32FromArrayLittleEndian(buffer, pos);
         pos += 4;
@@ -666,6 +636,10 @@ class Elf32_Ehdr {
         // int8_t (1 byte) e_class (32/64 bit file)
         e_class = EI_CLASS.fromInt(ByteArrayUtil.decodeInt8FromArray(buffer, pos));
         pos += 12;
+
+        //
+        // rest of the fields
+        //
 
         // int16_t (2 byte) e_type (executable or other)
         e_type = EI_TYPE.fromInt(ByteArrayUtil.decodeInt16FromArrayBigEndian(buffer, pos));
@@ -714,46 +688,37 @@ class Elf32_Ehdr {
 }
 
 /**
+ * Elf Header, 32 bit version
  * 
+ * https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
  */
-public class Elf {
+public class Elf32 extends BaseElf {
 
-    private static final Logger logger = LoggerFactory.getLogger(Elf.class);
+    private static final Logger logger = LoggerFactory.getLogger(Elf32.class);
 
     private static final boolean DECODE = false;
 
     private static final boolean NOT_LOAD_NON_EXECUTABLE_PROGRAM_HEADERS = false;
 
-    public String filename;
-
-    public File file;
-
-    public byte[] buffer;
-
     public Elf32_Phdr programHeader;
 
     public List<Elf32Sym> elf32SymList = new ArrayList<>();
 
-    public List<ElfSymbolTable> symbolTableList = new ArrayList<>();
-
-    public Memory memory;
-
-    public int globalPointerValue;
-
     @SuppressWarnings("unused")
     public void load() throws IOException {
-
-        int pos = 0;
+        
         buffer = Files.readAllBytes(Paths.get(filename));
 
         // load the overall, top-level ELF-header that has offsets to all other parts of
         // the elf file
         Elf32_Ehdr elf32_Ehdr = new Elf32_Ehdr();
+
+        int pos = 0;
         pos = elf32_Ehdr.load(buffer, pos);
 
         // logger.trace("magicNumbers: " + ByteArrayUtil.intToHex(magicNumbers1));
 
-        if (elf32_Ehdr.magicNumbers1 != 0x7F454C46) {
+        if (elf32_Ehdr.magicNumbers1 != ELF_MAGIC_NUMBER) {
             throw new RuntimeException("Not an elf file! " + filename);
         }
 
@@ -776,8 +741,6 @@ public class Elf {
         // Iterate over sections in order to find the address of the
         // main-function/symbol
         //
-
-        // Elf32_Shdr symTabSectionHeader = new Elf32_Shdr();
 
         List<Elf32_Shdr> sectionHeaders = new ArrayList<>();
 
@@ -918,6 +881,12 @@ public class Elf {
             }
         }
 
+        getProgramHeaderOffset(elf32_Ehdr, sectionHeaders);
+
+    }
+
+    private void getProgramHeaderOffset(Elf32_Ehdr elf32_Ehdr, List<Elf32_Shdr> sectionHeaders) {
+        
         Elf32_Shdr dataSectionHeader = null;
         Elf32_Shdr sdataSectionHeader = null;
 
@@ -983,8 +952,7 @@ public class Elf {
             globalPointerValue = 0;
         }
 
-        // DEBUG output the symbols in the symbol table
-        // int elf32SymIndex = 0;
+        // symbols in the symbol table
         for (Elf32Sym elf32_Sym : elf32SymList) {
 
             // // DEBUG
@@ -1018,8 +986,6 @@ public class Elf {
 
                 elf32_Sym.resolved_st_name = stringBuilder.toString();
             }
-
-            // elf32SymIndex++;
         }
 
         int programHeaderOffset = elf32_Ehdr.e_phoff;
@@ -1147,7 +1113,6 @@ public class Elf {
             programHeaderOffset += elf32_Ehdr.e_phentsize;
 
         }
-
     }
 
     public Optional<Elf32Sym> getSymbolFromSymbolTable(String symbolName) {
@@ -1159,7 +1124,4 @@ public class Elf {
         }).findFirst();
     }
 
-    public void setFile(String filename) {
-        this.filename = filename;
-    }
 }

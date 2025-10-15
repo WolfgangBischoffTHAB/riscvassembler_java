@@ -202,6 +202,7 @@ I_VLE32_V : V L E '3' '2' DOT V ;
 I_VMSNE_VI : V M S N E DOT V I ;
 I_VADD_VV : V A D D DOT V V ;
 I_VSE32_V : V S E '3' '2' DOT V ;
+I_VMV_V_I : V M V DOT V DOT I ;
 
 REG_ZERO_ABI : Z E R O ;
 REG_RA_ABI : R A ;

@@ -184,6 +184,11 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
             System.out.println(ctx.getText());
 
+            // pseudo instructions such as RET have no children
+            if (ctx.children == null) {
+                return;
+            }
+
             // ignore commas between parameters
             int index = ctx.children.size();
             //index = (index / 2) + 1;

@@ -4,38 +4,28 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.Base64.Decoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mycompany.assembler.BaseAssembler;
-// import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
-import com.mycompany.common.NumberParseUtil;
 import com.mycompany.cpu.CPU;
-import com.mycompany.cpu.PipelinedCPU;
-//import com.mycompany.cpu.PipelinedCPU;
 import com.mycompany.cpu.SingleCycleCPU;
-import com.mycompany.data.AsmInstruction;
-import com.mycompany.data.AsmLine;
-import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
-import com.mycompany.decoder.RV32IBaseIntegerInstructionSetDecoder;
-import com.mycompany.elf.Elf;
+import com.mycompany.elf.Elf32;
 import com.mycompany.elf.Elf32Sym;
-import com.mycompany.elf.ElfSymbolTable;
-import com.mycompany.encoder.RISCVEncoder;
+import com.mycompany.elf.Elf64;
+import com.mycompany.elf.Elf64Sym;
 import com.mycompany.linkerscriptparser.LinkerScriptParser;
+import com.mycompany.linuxbootimage.LinuxBootImage;
 import com.mycompany.memory.DefaultMemory;
 import com.mycompany.memory.Memory;
 import com.mycompany.preprocessing.IncludePreprocessor;
@@ -67,11 +57,14 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
 
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = true;
+    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     public static void main(String[] args) throws IOException {
 
@@ -158,7 +151,11 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/div.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
-        String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
+
+        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
+
+        String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -173,67 +170,7 @@ public class App {
         // args[0] = inputFile;
         // mainMIPS(args);
     }
-/*
-    public static void mainMIPS(String[] args) throws IOException {
 
-        //
-        // global variables
-        //
-
-        // the GCC compiler adds a funny line: .section .note.GNU-stack,"",@progbits
-        // The section .note.GNU-stack is not defined
-        // To not break the code, a dummy section is inserted which is used as a
-        // catch-all
-        // for all sections that are not defined
-        Section dummySection = new Section();
-        dummySection.name = "dummy-section";
-
-        //
-        // preprocess
-        //
-
-        // create build folder
-        Files.createDirectories(Paths.get("build"));
-
-        // the first step is always to let the preprocessor resolve .include
-        // instructions. Let the compiler run on the combined file in a second step!
-
-        String inputFile = args[0];
-        String outputFile = INTERMEDIATE_FILE;
-        preprocess(inputFile, outputFile);
-
-        //
-        // linker script
-        //
-
-        Map<String, Section> sectionMap = new HashMap<>();
-        sectionMap.put(dummySection.name, dummySection);
-
-        LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
-        linkerScriptParser.parseLinkerScript(sectionMap);
-
-        //
-        // assemble
-        //
-
-        MIPSAssembler assembler = new MIPSAssembler(sectionMap, dummySection);
-
-        String asmInputFile = INTERMEDIATE_FILE;
-
-        // the raw listener just prints the AST to the console
-        // RawOutputListener listener = new RawOutputListener();
-
-        //
-        // assemble to machine code
-        //
-
-        byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
-
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-        BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
-    }
- */
     public static void mainRISCV(String[] args) throws IOException {
 
         //
@@ -296,7 +233,7 @@ public class App {
 
         DefaultMemory memory = new DefaultMemory();
 
-        int startAddress = 0;
+        long startAddress = 0;
         int globalPointerValue = 0;
 
         if (MACHINE_CODE_SOURCE_ASSEMBLY_FILE) {
@@ -326,12 +263,18 @@ public class App {
             // elf to machine code
             //
 
-            Elf elf = new Elf();
-            elf.memory = memory;
+            // //
+            // // RV32
+            // //
+
+            // Elf32 elf = new Elf32();
+            // elf.memory = memory;
             
-            //elf.setFile("src/test/resources/riscvelf/factorial.out");
-            //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+            // //elf.setFile("src/test/resources/riscvelf/factorial.out");
+            // //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            // elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+
+            // elf.load();
 
             // https://github.com/riscv-ovpsim/imperas-riscv-tests/blob/v20230724/riscv-ovpsim/examples/fibonacci/fibonacci.RISCV32.elf
             //elf.setFile("C:/Users/lapto/Downloads/fibonacci.RISCV32.elf");
@@ -420,15 +363,24 @@ public class App {
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xor");
             // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xori");
+
+            //
+            // RV64
+            //
+
+            Elf64 elf = new Elf64();
+            elf.memory = memory;
+
+            elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv64ui-p-add");
             
             elf.load();
-            // byte[] machineCode = elf.getMachineCode();
 
+            // byte[] machineCode = elf64.getMachineCode();
             // DEBUG - output machine code as hex
             //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
             // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
             //BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
-
+/*
             //
             // startAddress
             //
@@ -450,6 +402,41 @@ public class App {
             // set the global pointer register
             //
             globalPointerValue = elf.globalPointerValue;
+ */
+
+            //
+            // startAddress 64 bit
+            //
+            // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
+            // the spice simulator uses the _start symbol
+            Optional<Elf64Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+            Elf64Sym mainEntryPointSymbol = null;
+            if (optionalSymbol.isPresent()) {
+                mainEntryPointSymbol = optionalSymbol.get();
+            } else {
+                optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+                if (optionalSymbol.isPresent()) {
+                    mainEntryPointSymbol = optionalSymbol.get();
+                }
+            }
+            startAddress = mainEntryPointSymbol.st_value;
+
+            //
+            // set the global pointer register
+            //
+            globalPointerValue = (int) elf.globalPointerValue;
+
+        }
+
+        if (LINUX_BOOT_IMAGE_FILE) {
+
+            LinuxBootImage linuxBootImage = new LinuxBootImage();
+            linuxBootImage.memory = memory;
+            
+            linuxBootImage.setFile("src/test/resources/linux/Linux_image_6_1_14_RV32IMA_NoMMU");
+            linuxBootImage.load();
+
+            startAddress = LinuxBootImage.START_ADDRESS_OF_RAM;
 
         }
 
@@ -480,15 +467,15 @@ public class App {
         System.out.println("done");
     }
 
-    private static CPU emulate(final Memory memory, final int main_entry_point_address, int globalPointerValue) throws IOException {
+    private static CPU emulate(final Memory memory, final long main_entry_point_address, int globalPointerValue) throws IOException {
 
         SingleCycleCPU cpu = new SingleCycleCPU();
         //PipelinedCPU cpu = new PipelinedCPU();
 
         // DEBUG main entry point address
-        System.out.println("Main Entry Point: " + ByteArrayUtil.byteToHex(main_entry_point_address));
+        logger.info("Main Entry Point: " + ByteArrayUtil.byteToHex(main_entry_point_address));
 
-        cpu.pc = main_entry_point_address;
+        cpu.pc = (int) main_entry_point_address;
         cpu.registerFile[RISCVRegister.REG_GP.getIndex()] = globalPointerValue;
 
         //
@@ -578,4 +565,66 @@ public class App {
 
         System.out.println("Precprocessing input done ...");
     }
+    
+/*
+    public static void mainMIPS(String[] args) throws IOException {
+
+        //
+        // global variables
+        //
+
+        // the GCC compiler adds a funny line: .section .note.GNU-stack,"",@progbits
+        // The section .note.GNU-stack is not defined
+        // To not break the code, a dummy section is inserted which is used as a
+        // catch-all
+        // for all sections that are not defined
+        Section dummySection = new Section();
+        dummySection.name = "dummy-section";
+
+        //
+        // preprocess
+        //
+
+        // create build folder
+        Files.createDirectories(Paths.get("build"));
+
+        // the first step is always to let the preprocessor resolve .include
+        // instructions. Let the compiler run on the combined file in a second step!
+
+        String inputFile = args[0];
+        String outputFile = INTERMEDIATE_FILE;
+        preprocess(inputFile, outputFile);
+
+        //
+        // linker script
+        //
+
+        Map<String, Section> sectionMap = new HashMap<>();
+        sectionMap.put(dummySection.name, dummySection);
+
+        LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
+        linkerScriptParser.parseLinkerScript(sectionMap);
+
+        //
+        // assemble
+        //
+
+        MIPSAssembler assembler = new MIPSAssembler(sectionMap, dummySection);
+
+        String asmInputFile = INTERMEDIATE_FILE;
+
+        // the raw listener just prints the AST to the console
+        // RawOutputListener listener = new RawOutputListener();
+
+        //
+        // assemble to machine code
+        //
+
+        byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
+
+        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+    }
+ */
 }

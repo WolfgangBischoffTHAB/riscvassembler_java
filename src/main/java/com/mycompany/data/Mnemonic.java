@@ -138,6 +138,7 @@ public enum Mnemonic {
     I_VMSNE_VI(false),
     I_VADD_VV(false),
     I_VSE32_V(false),
+    I_VMV_V_I(false),
 
     //
     // Special instructions to add extended functionality to the emulator
@@ -146,8 +147,6 @@ public enum Mnemonic {
     I_PUTS(true),
 
     I_UNKNOWN(true);
-    
- 
 
     private boolean pseudo;
 
@@ -359,6 +358,8 @@ public enum Mnemonic {
             return I_VADD_VV;
         } else if (mnemonic.equalsIgnoreCase("VSE32.V")) {
             return I_VSE32_V;
+        } else if (mnemonic.equalsIgnoreCase("VMV.V.I")) {
+            return I_VMV_V_I;
         }
 
         throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");
@@ -599,6 +600,8 @@ public enum Mnemonic {
                 return "vadd.vv";
             case I_VSE32_V:
                 return "vse32.v";
+            case I_VMV_V_I:
+                return "vmv.v.i";
 
             default:
                 throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");

@@ -3,7 +3,12 @@ package com.mycompany.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AsmLine<T extends Register> {
+
+    private static final Logger logger = LoggerFactory.getLogger(AsmLine.class);
 
     public int sourceLine = -1;
 
@@ -78,6 +83,37 @@ public class AsmLine<T extends Register> {
     public ASTNode expr_5;
 
     // RISCV V-Extension (RVV Vektor Extension)
+    //
+    // special type flags (vtypei) for the vsetvli instruction
+    // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
+    //
+    // vsetvli rd, rs1, vtypei
+    //
+    // vtypei is a set of four flags (some of which are optional)
+    // See page ??? of RISCV "V" Vector Extension Spec 1.0
+    // vtypei ::= SEW, (LMUL,)? TAIL, MASK
+    //
+    // SEW - Selected Element Width {e8, e16, e32, e64}
+    // how many bits does each vector element have?
+    //
+    // LMUL - vector length multiplier.
+    // Is used to combine vectorregisters called vector grouping.
+    // Is used to split vectorregisters (by using fractions of a register)
+    // (See.: 3.4.2. Vector Register Grouping (vlmul[2:0]))
+    //
+    // The LMUL fractional options are {mf8, mf4, mf2}
+    // The LMUL grouping options are {m1, m2, m4, m8}
+    //
+    // Since the LMUL vtypei setting is optional, a default value
+    // of m1 is used when LMUL is not specified.
+    //
+    // TAIL - {ta, tu}
+    // ta - tail agnostic - ???
+    // tu - tail undisturbed - ???
+    // 
+    // MASK - {ma, mu}
+    // ta - mask agnostic - ???
+    // tu - mask undisturbed - ???
     public String rvvSew;
     public String rvvLmul;
     public String rvvTail;
@@ -91,6 +127,10 @@ public class AsmLine<T extends Register> {
 
         // stringBuilder.append("SourceLine: ").append(sourceLine).append(" ");
         // stringBuilder.append("[").append(offset).append("] ");
+
+        // if (mnemonic == Mnemonic.I_VSETVLI) {
+        //     logger.info("test");
+        // }
 
         if (label != null) {
             stringBuilder.append(label).append(": ");
@@ -141,79 +181,203 @@ public class AsmLine<T extends Register> {
 
         stringBuilder.append(Mnemonic.toString(mnemonic)).append(" ");
 
-        if (numeric_0 != null) {
-            stringBuilder.append(String.format("0x%X", numeric_0.intValue()));
-        }
-        if (modifier_0 != null) {
+        outputBlock0(stringBuilder);
+        outputBlock1(stringBuilder);
+        outputBlock2(stringBuilder);
+        outputBlock3(stringBuilder);
+        outputBlock4(stringBuilder);
+        outputBlock5(stringBuilder);
+
+        //
+        // V-Extension (RVV Vektor Extension)
+        //
+
+        // special type flags (vtypei) for the vsetvli instruction
+        // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
+        //
+        // vsetvli rd, rs1, vtypei
+        //
+        // vtypei is a set of four flags (some of which are optional)
+        // See page ??? of RISCV "V" Vector Extension Spec 1.0
+        // vtypei ::= SEW, (LMUL,)? TAIL, MASK
+        //
+        // SEW - Selected Element Width {e8, e16, e32, e64}
+        // how many bits does each vector element have?
+        //
+        // LMUL - vector length multiplier.
+        // Is used to combine vectorregisters called vector grouping.
+        // Is used to split vectorregisters (by using fractions of a register)
+        // (See.: 3.4.2. Vector Register Grouping (vlmul[2:0]))
+        //
+        // The LMUL fractional options are {mf8, mf4, mf2}
+        // The LMUL grouping options are {m1, m2, m4, m8}
+        //
+        // Since the LMUL vtypei setting is optional, a default value
+        // of m1 is used when LMUL is not specified.
+        //
+        // TAIL - {ta, tu}
+        // ta - tail agnostic - ???
+        // tu - tail undisturbed - ???
+        // 
+        // MASK - {ma, mu}
+        // ta - mask agnostic - ???
+        // tu - mask undisturbed - ???
+        if (rvvSew != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(Modifier.toString(modifier_0)).append("(");
-            if (offsetLabel_0 != null) {
-                stringBuilder.append(offsetLabel_0);
-            }
-            stringBuilder.append(")");
-            if (register_0 != null) {
-                stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_0));
-                stringBuilder.append(")");
-            }
-        } else if (identifier_0 != null) {
-            stringBuilder.append(identifier_0);
-        } else if (offset_0 != null) {
-            stringBuilder.append(offset_0).append("(");
-            if (register_0 != null) {
-                stringBuilder.append(Register.toStringAbi(register_0));
-            }
-            stringBuilder.append(")");
+            stringBuilder.append(rvvSew);
         }
-        // else if (exprContext_0 != null) {
-        //     // TODO: evaluate the tree
-        //     stringBuilder.append(exprContext_0.toStringTree());
-        // }
-        else {
-            if (register_0 != null) {
-                stringBuilder.append(Register.toStringAbi(register_0));
-            }
+        if (rvvLmul != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(rvvLmul);
+        }
+        if (rvvTail != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(rvvTail);
+        }
+        if (rvvMask != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(rvvMask);
         }
 
-        if (numeric_1 != null) {
+        // for all instructions, that have masking activated
+        if (rvvMasking) {
             stringBuilder.append(", ");
-            stringBuilder.append(String.format("0x%X", numeric_1.intValue()));
+            stringBuilder.append(1);
         }
-        if (modifier_1 != null) {
+
+        
+
+        if (pseudoInstructionAsmLine != null) {
+            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);
+        }
+
+        return stringBuilder.toString();
+    }
+
+    private void outputBlock5(StringBuilder stringBuilder) {
+        if (numeric_5 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(Modifier.toString(modifier_1)).append("(");
-            if (offsetLabel_1 != null) {
-                stringBuilder.append(offsetLabel_1);
+            stringBuilder.append(String.format("0x%X", numeric_5.intValue()));
+        }
+        if (modifier_5 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_5)).append("(");
+            if (offsetLabel_5 != null) {
+                stringBuilder.append(offsetLabel_5);
             }
             stringBuilder.append(")");
-            if (register_1 != null) {
+            if (register_5 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_1));
+                stringBuilder.append(Register.toStringAbi(register_5));
                 stringBuilder.append(")");
             }
-        } else if (identifier_1 != null) {
+        } else if (identifier_5 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(identifier_1);
-        } else if (offset_1 != null) {
+            stringBuilder.append(identifier_5);
+        } else if (offset_5 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(offset_1).append("(");
-            if (register_1 != null) {
-                stringBuilder.append(Register.toStringAbi(register_1));
+            stringBuilder.append(offset_5).append("(");
+            if (register_5 != null) {
+                stringBuilder.append(Register.toStringAbi(register_5));
             }
             stringBuilder.append(")");
         }
-        // else if (exprContext_1 != null) {
+        // else if (exprContext_5 != null) {
         //     // TODO: evaluate the tree
         //     stringBuilder.append(", ");
-        //     stringBuilder.append(exprContext_1.toStringTree());
+        //     stringBuilder.append(exprContext_5.toStringTree());
         // }
         else {
-            if (register_1 != null) {
+            if (register_5 != null) {
                 stringBuilder.append(", ");
-                stringBuilder.append(Register.toStringAbi(register_1));
+                stringBuilder.append(Register.toStringAbi(register_5));
             }
         }
+    }
 
+    private void outputBlock4(StringBuilder stringBuilder) {
+        if (numeric_4 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(String.format("0x%X", numeric_4.intValue()));
+        }
+        if (modifier_4 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_4)).append("(");
+            if (offsetLabel_4 != null) {
+                stringBuilder.append(offsetLabel_4);
+            }
+            stringBuilder.append(")");
+            if (register_4 != null) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_4));
+                stringBuilder.append(")");
+            }
+        } else if (identifier_4 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(identifier_4);
+        } else if (offset_4 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_4).append("(");
+            if (register_4 != null) {
+                stringBuilder.append(Register.toStringAbi(register_4));
+            }
+            stringBuilder.append(")");
+        }
+        // else if (exprContext_4 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(", ");
+        //     stringBuilder.append(exprContext_4.toStringTree());
+        // }
+        else {
+            if (register_4 != null) {
+                stringBuilder.append(", ");
+                stringBuilder.append(Register.toStringAbi(register_4));
+            }
+        }
+    }
+
+    private void outputBlock3(StringBuilder stringBuilder) {
+        if (numeric_3 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(String.format("0x%X", numeric_3.intValue()));
+        }
+        if (modifier_3 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_3)).append("(");
+            if (offsetLabel_3 != null) {
+                stringBuilder.append(offsetLabel_3);
+            }
+            stringBuilder.append(")");
+            if (register_3 != null) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_3));
+                stringBuilder.append(")");
+            }
+        } else if (identifier_3 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(identifier_3);
+        } else if (offset_3 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_3).append("(");
+            if (register_3 != null) {
+                stringBuilder.append(Register.toStringAbi(register_3));
+            }
+            stringBuilder.append(")");
+        }
+        // else if (exprContext_3 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(", ");
+        //     stringBuilder.append(exprContext_3.toStringTree());
+        // }
+        else {
+            if (register_3 != null) {
+                stringBuilder.append(", ");
+                stringBuilder.append(Register.toStringAbi(register_3));
+            }
+        }
+    }
+
+    private void outputBlock2(StringBuilder stringBuilder) {
         if (numeric_2 != null) {
             stringBuilder.append(", ");
             //stringBuilder.append(String.format("0x%08X", numeric_2.intValue()));
@@ -253,21 +417,83 @@ public class AsmLine<T extends Register> {
                 stringBuilder.append(Register.toStringAbi(register_2));
             }
         }
+    }
 
-        //
-        // V-Extension (RVV Vektor Extension)
-        //
-
-        if (rvvMasking) {
+    private void outputBlock1(StringBuilder stringBuilder) {
+        if (numeric_1 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(1);
+            stringBuilder.append(String.format("0x%X", numeric_1.intValue()));
         }
-
-        if (pseudoInstructionAsmLine != null) {
-            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);
+        if (modifier_1 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_1)).append("(");
+            if (offsetLabel_1 != null) {
+                stringBuilder.append(offsetLabel_1);
+            }
+            stringBuilder.append(")");
+            if (register_1 != null) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_1));
+                stringBuilder.append(")");
+            }
+        } else if (identifier_1 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(identifier_1);
+        } else if (offset_1 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_1).append("(");
+            if (register_1 != null) {
+                stringBuilder.append(Register.toStringAbi(register_1));
+            }
+            stringBuilder.append(")");
         }
+        // else if (exprContext_1 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(", ");
+        //     stringBuilder.append(exprContext_1.toStringTree());
+        // }
+        else {
+            if (register_1 != null) {
+                stringBuilder.append(", ");
+                stringBuilder.append(Register.toStringAbi(register_1));
+            }
+        }
+    }
 
-        return stringBuilder.toString();
+    private void outputBlock0(StringBuilder stringBuilder) {
+        if (numeric_0 != null) {
+            stringBuilder.append(String.format("0x%X", numeric_0.intValue()));
+        }
+        if (modifier_0 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(Modifier.toString(modifier_0)).append("(");
+            if (offsetLabel_0 != null) {
+                stringBuilder.append(offsetLabel_0);
+            }
+            stringBuilder.append(")");
+            if (register_0 != null) {
+                stringBuilder.append("(");
+                stringBuilder.append(Register.toStringAbi(register_0));
+                stringBuilder.append(")");
+            }
+        } else if (identifier_0 != null) {
+            stringBuilder.append(identifier_0);
+        } else if (offset_0 != null) {
+            stringBuilder.append(offset_0).append("(");
+            if (register_0 != null) {
+                stringBuilder.append(Register.toStringAbi(register_0));
+            }
+            stringBuilder.append(")");
+        }
+        // else if (exprContext_0 != null) {
+        //     // TODO: evaluate the tree
+        //     stringBuilder.append(exprContext_0.toStringTree());
+        // }
+        else {
+            if (register_0 != null) {
+                stringBuilder.append(Register.toStringAbi(register_0));
+            }
+        }
     }
 
     public AsmLineType getAsmLineType() {

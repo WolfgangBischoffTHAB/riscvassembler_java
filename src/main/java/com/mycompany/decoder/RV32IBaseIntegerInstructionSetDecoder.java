@@ -461,7 +461,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     // Vector single-width integer add.
                     // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
                     case 0b000000:
-
                         switch (funct3) {
                             case 0b000:
                                 asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
@@ -486,7 +485,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     // Integer compare instruction to set bit if not equal.
                     // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
                     case 0b011001:
-
                         switch (funct3) {
                             case 0b011:
                                 asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
@@ -505,8 +503,27 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
+                    case 0b010111:
+                        switch (funct3) {
+                            case 0b011:
+                                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                long imm_19_15 = (data >> 15) & 0b11111;
+                                asmLine.numeric_1 = imm_19_15;
+
+                                asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
+
+                                asmLine.mnemonic = Mnemonic.I_VMV_V_I;
+                                break;
+
+                            default:
+                                throw new RuntimeException("No implemented yet!");
+                        }
+                        break;
+
                     default: 
-                        // I_VSETVLI
+                        // I_VSETVLI - https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
                         decode_RVV_VSETVLI(data, asmLine, rd, rs1);
                         break;
                 }
@@ -563,16 +580,16 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private void decode_RVV_VSETVLI(final int data, AsmLine<Register> asmLine, int rd, int rs1) {
 
-        asmLine.register_4 = RISCVRegister.fromInt(rd);
-        asmLine.register_5 = RISCVRegister.fromInt(rs1);
+        asmLine.register_1 = RISCVRegister.fromInt(rd);
+        asmLine.register_0 = RISCVRegister.fromInt(rs1);
 
-        int vtype = (data >> 10) & 0b11111111111;
+        int vtype = (data >> 20) & 0b111_1111_1111;
         int vlmul = (vtype >> 0) & 0b111;
         int vsew = (vtype >> 3) & 0b111;
         int vta = (vtype >> 6) & 0b1;
         int vma = (vtype >> 7) & 0b1;
 
-        // selected element width
+        // selected element width (SW)
         switch (vsew) {
             case 0:
                 asmLine.rvvSew = "e8";
@@ -619,9 +636,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 break;
         }
 
-        // tail agnostic
+        // tail agnostic / undisturbed
         asmLine.rvvTail = ((vta == 1) ? "ta" : "tu");
-        // mask agnostic
+
+        // mask agnostic / undisturbed
         asmLine.rvvMask = ((vma == 1) ? "ma" : "mu");
 
         asmLine.mnemonic = Mnemonic.I_VSETVLI;

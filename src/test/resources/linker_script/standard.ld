@@ -15,7 +15,6 @@ SECTIONS
     {
         *(.boot)
         *(.text)
-        *(.text)
         *(.rodata*)
     } > ROM
 

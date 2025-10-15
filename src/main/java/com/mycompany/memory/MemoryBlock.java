@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.ByteArrayUtil;
+import com.mycompany.data.AsmLine;
 import com.mycompany.decoder.RV32IBaseIntegerInstructionSetDecoder;
 
 public class MemoryBlock {
@@ -36,10 +37,13 @@ public class MemoryBlock {
                     memory[(tempAddress - address) + 2],
                     memory[(tempAddress - address) + 3], byteOrder);
 
+            AsmLine<?> asmLine = decoder.decode(instruction);
+            String asmLineAsString = asmLine.toString();
+
             logger.info(
                     ByteArrayUtil.byteToHex(tempAddress) + ": " + ByteArrayUtil.byteToHex(instruction, null, "%1$08X")
                             + ((tempAddress == highlightAddress) ? " << " : "    ") + "          "
-                            + decoder.decode(instruction));
+                            + asmLineAsString);
 
             if (tempAddress >= endAddress) {
                 break;

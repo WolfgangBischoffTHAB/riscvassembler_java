@@ -88,7 +88,7 @@ public class SingleCycleCPU extends AbstractCPU {
         AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
 
         // DEBUG output ASM line
-        // debugASMLineOutput = true;
+        debugASMLineOutput = true;
         if (debugASMLineOutput) {
             logger.info("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
                     + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
@@ -1491,7 +1491,7 @@ public class SingleCycleCPU extends AbstractCPU {
 
             // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
             case I_VSETVLI:
-                logger.warn("I_VSETVLI not implemented!");
+                logger.warn("I_VSETVLI not implemented! " + asmLine);
                 // int upperOpCode = (instruction >> 25) & 0b111111;
                 // switch (upperOpCode) {
                 //     case 0b011001: // one of vmsne{.vv, .vx, .vi}
@@ -1506,7 +1506,7 @@ public class SingleCycleCPU extends AbstractCPU {
                 break;
 
             case I_VLE32_V:
-                logger.warn("I_VLE32_V not implemented!");
+                logger.warn("I_VLE32_V not implemented! " + asmLine);
                 pc += 4;
                 break;
 
@@ -1523,6 +1523,11 @@ public class SingleCycleCPU extends AbstractCPU {
 
             case I_VADD_VV:
                 logger.warn("I_VADD_VV not implemented! " + asmLine);
+                pc += 4;
+                break;
+
+            case I_VMV_V_I:
+                logger.warn("I_VMV_V_I not implemented! " + asmLine);
                 pc += 4;
                 break;
 
@@ -1614,8 +1619,11 @@ public class SingleCycleCPU extends AbstractCPU {
     private void printMemoryAroundPC(int displayDistance) {
         logger.info("---------------------------------------------------------------------");
 
-        int start = Math.max(0x00, pc - displayDistance * 4);
-        memory.print(start, pc + displayDistance * 4, ByteOrder.LITTLE_ENDIAN, pc);
+        // do not access negative memory address when printing close to address 0x00 of RAM
+        int startAddress = Math.max(0x00, pc - displayDistance * 4);
+        int endAddress = pc + displayDistance * 4;
+
+        memory.print(startAddress, endAddress, ByteOrder.LITTLE_ENDIAN, pc);
     }
 
     /**

@@ -23,7 +23,6 @@ struct Elf64_Sym {
   Elf64_Xword st_size;    // Size of the symbol
 };
 */
-
 public class Elf32Sym {
 
     public int st_name;

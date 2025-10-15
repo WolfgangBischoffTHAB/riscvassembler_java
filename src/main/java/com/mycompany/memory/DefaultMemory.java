@@ -158,7 +158,9 @@ public class DefaultMemory implements Memory {
 
     public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
         MemoryBlock memoryBlock = getMemoryBlockForAddress(startAddress);
-        memoryBlock.print(startAddress, endAddress, byteOrder, highlightAddress);
+        if (memoryBlock != null) {
+            memoryBlock.print(startAddress, endAddress, byteOrder, highlightAddress);
+        }
     }
 
 }
