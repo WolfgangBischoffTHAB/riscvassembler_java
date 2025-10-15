@@ -50,6 +50,8 @@ public class BaseElf {
     
     public static final int ELF_MAGIC_NUMBER = 0x7F454C46;
 
+    public static final boolean DECODE = false;
+
     public String filename;
 
     public File file;

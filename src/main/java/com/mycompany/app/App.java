@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.cpu.CPU;
-import com.mycompany.cpu.SingleCycleCPU;
+import com.mycompany.cpu.SingleCycle64BitCPU;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 import com.mycompany.elf.Elf32;
@@ -375,6 +375,7 @@ public class App {
             
             elf.load();
 
+            // DEBUG
             // byte[] machineCode = elf64.getMachineCode();
             // DEBUG - output machine code as hex
             //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -382,7 +383,7 @@ public class App {
             //BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
 /*
             //
-            // startAddress
+            // startAddress (32 bit)
             //
             // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
             // the spice simulator uses the _start symbol
@@ -450,9 +451,9 @@ public class App {
         // post emulation
         //
 
-        if (cpu instanceof SingleCycleCPU) {
+        if (cpu instanceof SingleCycle64BitCPU) {
 
-            SingleCycleCPU singleCycleCPU = (SingleCycleCPU) cpu;
+            SingleCycle64BitCPU singleCycleCPU = (SingleCycle64BitCPU) cpu;
 
             // DEBUG output all registers
             for (int i = 0; i < 32; i++) {
@@ -469,13 +470,13 @@ public class App {
 
     private static CPU emulate(final Memory memory, final long main_entry_point_address, int globalPointerValue) throws IOException {
 
-        SingleCycleCPU cpu = new SingleCycleCPU();
+        SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
         //PipelinedCPU cpu = new PipelinedCPU();
 
         // DEBUG main entry point address
         logger.info("Main Entry Point: " + ByteArrayUtil.byteToHex(main_entry_point_address));
 
-        cpu.pc = (int) main_entry_point_address;
+        cpu.pc = main_entry_point_address;
         cpu.registerFile[RISCVRegister.REG_GP.getIndex()] = globalPointerValue;
 
         //

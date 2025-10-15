@@ -696,8 +696,6 @@ public class Elf32 extends BaseElf {
 
     private static final Logger logger = LoggerFactory.getLogger(Elf32.class);
 
-    private static final boolean DECODE = false;
-
     private static final boolean NOT_LOAD_NON_EXECUTABLE_PROGRAM_HEADERS = false;
 
     public Elf32_Phdr programHeader;
@@ -886,7 +884,7 @@ public class Elf32 extends BaseElf {
     }
 
     private void getProgramHeaderOffset(Elf32_Ehdr elf32_Ehdr, List<Elf32_Shdr> sectionHeaders) {
-        
+
         Elf32_Shdr dataSectionHeader = null;
         Elf32_Shdr sdataSectionHeader = null;
 
@@ -1103,7 +1101,7 @@ public class Elf32 extends BaseElf {
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                     logger.info(ByteArrayUtil.byteToHex(instructionMachineCode));
                 }
 

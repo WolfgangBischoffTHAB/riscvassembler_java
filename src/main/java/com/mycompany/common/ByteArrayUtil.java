@@ -222,6 +222,10 @@ public class ByteArrayUtil {
         return String.format("%08x", data);
     }
 
+    public static String longToHex(final String format, final long data) {
+        return String.format(format, data);
+    }
+
     // /**
     // * Searches 'searchData' within 'data'.
     // *
@@ -259,6 +263,17 @@ public class ByteArrayUtil {
     }
 
     public static byte[] intToTwoByte(final int data, final ByteOrder byteOrder) {
+
+        short dataAsShort = (short) data;
+
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+        byteBuffer.order(byteOrder);
+        byteBuffer.putShort(dataAsShort);
+
+        return byteBuffer.array();
+    }
+
+    public static byte[] longToTwoByte(final long data, final ByteOrder byteOrder) {
 
         short dataAsShort = (short) data;
 

@@ -15,7 +15,7 @@ public class MemoryBlock {
 
     private static final Logger logger = LoggerFactory.getLogger(MemoryBlock.class);
 
-    public Integer address;
+    public Long address;
 
     public int size = SIZE;
 
@@ -32,10 +32,10 @@ public class MemoryBlock {
         for (int i = 0; i < memory.length / 4; i++) {
 
             final int instruction = ByteArrayUtil.fourByteToInt(
-                    memory[(tempAddress - address) + 0],
-                    memory[(tempAddress - address) + 1],
-                    memory[(tempAddress - address) + 2],
-                    memory[(tempAddress - address) + 3], byteOrder);
+                    memory[(int)(tempAddress - address) + 0],
+                    memory[(int)(tempAddress - address) + 1],
+                    memory[(int)(tempAddress - address) + 2],
+                    memory[(int)(tempAddress - address) + 3], byteOrder);
 
             AsmLine<?> asmLine = decoder.decode(instruction);
             String asmLineAsString = asmLine.toString();

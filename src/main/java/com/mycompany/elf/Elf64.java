@@ -604,10 +604,10 @@ public class Elf64 extends BaseElf {
             System.out.println("p_paddr: " + ByteArrayUtil.byteToHex(programHeader.p_paddr));
             System.out.println("machine_code_offset: " + ByteArrayUtil.byteToHex(machine_code_offset));
             System.out.println("p_memsz (size_in_bytes): " + ByteArrayUtil.byteToHex(programHeader.p_memsz));
-/*
+
             // memory.copy(programHeader.p_paddr, buffer, machine_code_offset,
             // programHeader.p_memsz);
-            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_filesz);
+            memory.copy(programHeader.p_paddr, buffer, (int) machine_code_offset, (int) programHeader.p_filesz);
 
             // DEBUG
 
@@ -637,7 +637,7 @@ public class Elf64 extends BaseElf {
                 int instructionMachineCode = 0;
                 try {
 
-                    int decodePos = machine_code_offset;
+                    int decodePos = (int) machine_code_offset;
 
                     logger.info("Programheader memsize: " + ByteArrayUtil.byteToHex(programHeader.p_memsz) + " "
                             + programHeader.p_memsz);
@@ -659,7 +659,7 @@ public class Elf64 extends BaseElf {
                 }
 
             }
- */
+ 
             // next program header
             programHeaderOffset += elf64_Ehdr.e_phentsize;
 

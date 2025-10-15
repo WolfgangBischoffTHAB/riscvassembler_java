@@ -18,15 +18,14 @@ import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.filehandling.FileHandling;
 import com.mycompany.memory.Memory;
 
-public class SingleCycleCPU extends AbstractCPU {
+public class SingleCycle32BitCPU extends AbstractCPU {
 
     private static final int RVV_CSR_VLENB = 0xFFF;
 
-    private static final Logger logger = LoggerFactory.getLogger(SingleCycleCPU.class);
+    private static final Logger logger = LoggerFactory.getLogger(SingleCycle64BitCPU.class);
 
     public int pc;
 
-    // public byte[] memory;
     public Memory memory;
 
     public DelegatingDecoder delegatingDecoder = new DelegatingDecoder();
@@ -42,10 +41,34 @@ public class SingleCycleCPU extends AbstractCPU {
 
     private Random random = new Random();
 
+    public int[] registerFile = new int[32];
+
+    public int readRegisterFile(int index) {
+
+        // register zero is hardcoded zero
+        if (index == 0) {
+            return 0;
+        }
+
+        // set the value
+        return registerFile[index];
+    }
+
+    public void writeRegisterFile(final int register_index, final int value) {
+
+        // write to zero register has no effect
+        if (register_index == RISCVRegister.REG_ZERO.getIndex()) {
+            return;
+        }
+
+        // set the value
+        registerFile[register_index] = value;
+    }
+
     /**
      * ctor
      */
-    public SingleCycleCPU() {
+    public SingleCycle32BitCPU() {
         registerFile[0] = 0; // set zero
     }
 
@@ -90,7 +113,7 @@ public class SingleCycleCPU extends AbstractCPU {
         // DEBUG output ASM line
         debugASMLineOutput = true;
         if (debugASMLineOutput) {
-            logger.info("PC: " + pc + " (" + ByteArrayUtil.intToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
+            logger.info("PC: " + pc + " (" + ByteArrayUtil.longToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
                     + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
         }
 
@@ -1539,8 +1562,6 @@ public class SingleCycleCPU extends AbstractCPU {
     }
 
     private void writeCSRById(int index, int register_2_value_l) {
-        // // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method 'readCSRById'");
         logger.warn("Has to be implemented!");
     }
 
@@ -1658,7 +1679,6 @@ public class SingleCycleCPU extends AbstractCPU {
 
     private static String getInput() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        // return reader.lines().collect(Collectors.joining("\n"));
         return reader.readLine();
     }
 

@@ -13,13 +13,13 @@ public class DefaultMemory implements Memory {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultMemory.class);
 
-    public Map<Integer, MemoryBlock> memoryBlocksByAddress = new HashMap<>();
+    public Map<Long, MemoryBlock> memoryBlocksByAddress = new HashMap<>();
 
     @Override
-    public void copy(int targetAddress, byte[] srcBuffer, int offsetInSrcBuffer, int sizeInBytes) {
+    public void copy(long targetAddress, byte[] srcBuffer, int offsetInSrcBuffer, int sizeInBytes) {
         
         // memory align address to MB
-        int addressAligned = targetAddress & 0xFFF00000;
+        long addressAligned = targetAddress & 0xFFFFFFFFFFF00000L;
 
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
@@ -32,28 +32,23 @@ public class DefaultMemory implements Memory {
 
         // address is the location in the destination buffer. 
         // sIt is a local offset from the start of the current buffet
-        int addr = targetAddress - addressAligned;
+        long addr = targetAddress - addressAligned;
 
         // if the data does not fit in the buffer, explode like its 1995
         if ((addr + sizeInBytes) > memoryBlock.size) {
             throw new RuntimeException("Data does not fit!");
         }
         
-        System.arraycopy(srcBuffer, offsetInSrcBuffer, memoryBlock.memory, addr, sizeInBytes);
+        System.arraycopy(srcBuffer, offsetInSrcBuffer, memoryBlock.memory, (int) addr, sizeInBytes);
     }
 
     @Override
     public int getByte(int addr) {
-        //int unsignedAddress = (int) ((long)addr & 0x00000000ffffffffL);
-
-        // logger.info("TargetAddr: " + ByteArrayUtil.byteToHex(unsignedAddress));
 
         try {
 
             // memory align address to MB
-            int addressAligned = addr & 0xFFF00000;
-
-            // logger.info("AlignedAddr: " + ByteArrayUtil.byteToHex(addressAligned));
+            long addressAligned = addr & 0xFFFFFFFFFF00000L;
 
             MemoryBlock memoryBlock = null;
             if (!memoryBlocksByAddress.containsKey(addressAligned)) {
@@ -63,20 +58,7 @@ public class DefaultMemory implements Memory {
             } else {
                 memoryBlock = memoryBlocksByAddress.get(addressAligned);
             }
-
-            // for (int i = 0; i < 10; i++) {
-            //     System.out.println(ByteArrayUtil.byteToHex(memoryBlock.memory[i]));
-            // }
-
-            // for (int i = 0; i < 10; i++) {
-            //     System.out.println(ByteArrayUtil.byteToHex(memoryBlock.memory[addr + i]) + " " + (char)(memoryBlock.memory[addr + i]));
-            // }
-
-            //int data = (memoryBlock.memory[addr] & 0xFF);
-            //int data = (memoryBlock.memory[addr & 0xFFF00000] & 0xFF);
-            int data = (memoryBlock.memory[addr - addressAligned] & 0xFF);
-
-            // System.out.println(Character.toString((char) data));
+            int data = (memoryBlock.memory[(int) (addr - addressAligned)] & 0xFF);
 
             return data;
 
@@ -91,7 +73,7 @@ public class DefaultMemory implements Memory {
     public void storeByte(int address, byte data) {
 
         // memory align address to MB
-        int addressAligned = address & 0xFFF00000;
+        long addressAligned = address & 0xFFFFFFFFFFF00000L;
 
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
@@ -102,18 +84,18 @@ public class DefaultMemory implements Memory {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
-        memoryBlock.memory[address - addressAligned] = data;
+        memoryBlock.memory[(int) (address - addressAligned)] = data;
     }
 
     @Override
-    public int readWord(int addr, ByteOrder byteOrder) {
+    public int readWord(long addr, ByteOrder byteOrder) {
 
-        logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
+        logger.info(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
 
         // memory align address to MB
-        int addressAligned = addr & 0xFFF00000;
+        long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 
-        logger.trace(ByteArrayUtil.byteToHex(addressAligned));
+        logger.info(ByteArrayUtil.byteToHex(addressAligned));
 
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
@@ -124,7 +106,7 @@ public class DefaultMemory implements Memory {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
-        int offsetAddress = (addr - memoryBlock.address);
+        int offsetAddress = (int)(addr - memoryBlock.address);
         logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
 
         //memoryBlock.print(0x80002000, 0x8000200c, byteOrder);
