@@ -90,12 +90,12 @@ public class DefaultMemory implements Memory {
     @Override
     public int readWord(long addr, ByteOrder byteOrder) {
 
-        logger.info(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
+        logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
 
         // memory align address to MB
         long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 
-        logger.info(ByteArrayUtil.byteToHex(addressAligned));
+        logger.trace(ByteArrayUtil.byteToHex(addressAligned));
 
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {

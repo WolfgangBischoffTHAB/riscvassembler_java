@@ -11,7 +11,6 @@ public enum Mnemonic {
 
     I_ADD(false),
     I_ADDI(false),
-    // I_ADDIW(false), // This is 64 bits!!!
     I_AND(false),
     I_ANDI(false),
     I_AUIPC(false),
@@ -49,7 +48,6 @@ public enum Mnemonic {
     I_JAL(false), // rd <- pc + 4; pc <- pc + imm20
 
     I_LA(true),
-    // I_LD(false), // This is 64 bits!!!
     I_LW(false),
     I_LH(false),
     I_LHU(false),
@@ -60,7 +58,7 @@ public enum Mnemonic {
     I_LUI(false),
 
     I_MV(true),
-    I_MRET(false),
+    I_MRET(false), // privileged, return from a trap (exception or interrupt)
 
     I_NOP(true),
     I_NOT(false),
@@ -81,7 +79,6 @@ public enum Mnemonic {
     I_SLL(false),
     I_SLT(false),
     I_SLTU(false),
-    // I_SD(false), // This is 64 bits!!!
     I_SW(false),
     I_SH(false),
     I_SB(false),
@@ -90,6 +87,14 @@ public enum Mnemonic {
 
     I_XOR(false),
     I_XORI(false),
+
+    //
+    // RV64 UI 64 bits!!!
+    //
+
+    I_ADDIW(false),
+    I_LD(false),
+    I_SD(false),
 
     //
     // Zifencei Extension for Instruction-Fetch Fence, Version 2.0
@@ -164,11 +169,7 @@ public enum Mnemonic {
             return I_ADD;
         } else if (mnemonic.equalsIgnoreCase("ADDI")) {
             return I_ADDI;
-        }
-        // else if (mnemonic.equalsIgnoreCase("ADDIW")) {
-        // return I_ADDIW;
-        // }
-        else if (mnemonic.equalsIgnoreCase("AND")) {
+        } else if (mnemonic.equalsIgnoreCase("AND")) {
             return I_AND;
         } else if (mnemonic.equalsIgnoreCase("ANDI")) {
             return I_ANDI;
@@ -218,11 +219,7 @@ public enum Mnemonic {
             return I_JAL;
         } else if (mnemonic.equalsIgnoreCase("LA")) { // load address pseudo instruction
             return I_LA;
-        }
-        // else if (mnemonic.equalsIgnoreCase("LD")) { // 64 bits!!!
-        // return I_LD;
-        // }
-        else if (mnemonic.equalsIgnoreCase("LW")) {
+        } else if (mnemonic.equalsIgnoreCase("LW")) {
             return I_LW;
         } else if (mnemonic.equalsIgnoreCase("LH")) {
             return I_LH;
@@ -268,11 +265,7 @@ public enum Mnemonic {
             return I_SLTU;
         } else if (mnemonic.equalsIgnoreCase("SUB")) {
             return I_SUB;
-        }
-        // else if (mnemonic.equalsIgnoreCase("SD")) { // 64 bits !!!
-        // return I_SD;
-        // }
-        else if (mnemonic.equalsIgnoreCase("SW")) {
+        } else if (mnemonic.equalsIgnoreCase("SW")) {
             return I_SW;
         } else if (mnemonic.equalsIgnoreCase("SH")) {
             return I_SH;
@@ -286,6 +279,18 @@ public enum Mnemonic {
             return I_XOR;
         } else if (mnemonic.equalsIgnoreCase("XORI")) {
             return I_XORI;
+        }
+
+        //
+        // RV64 UI 64 bits!!!
+        //
+
+        else if (mnemonic.equalsIgnoreCase("ADDIW")) {
+            return I_ADDIW;
+        } else if (mnemonic.equalsIgnoreCase("LD")) {
+            return I_LD;
+        } else if (mnemonic.equalsIgnoreCase("SD")) {
+            return I_SD;
         }
 
         //
@@ -372,8 +377,7 @@ public enum Mnemonic {
                 return "add";
             case I_ADDI:
                 return "addi";
-            // case I_ADDIW: // This is 64 bits!
-            // return "addiw";
+            
             case I_AND:
                 return "and";
             case I_ANDI:
@@ -404,8 +408,8 @@ public enum Mnemonic {
                 return "bgt";
             case I_BGTU: // pseudo instruction, synthesized by BLTU
                 return "bgtu";
-            case I_BGTZ:
-                return "bgtz"; // pseudo instruction
+            case I_BGTZ: // pseudo instruction
+                return "bgtz";
 
             case I_BLE: // pseudo instruction (synthesized by BGE)
                 return "ble";
@@ -453,16 +457,13 @@ public enum Mnemonic {
 
             case I_LA: // pseudo instruction
                 return "la";
-            // // This is 64 bits!
-            // case I_LD: // pseudo instruction
-            // return "ld";
-            case I_LW: // pseudo instruction
+            case I_LW:
                 return "lw";
-            case I_LH: // pseudo instruction
+            case I_LH:
                 return "lh";
-            case I_LHU: // pseudo instruction
+            case I_LHU:
                 return "lhu";
-            case I_LB: // pseudo instruction
+            case I_LB:
                 return "lb";
             case I_LBU:
                 return "lbu";
@@ -503,14 +504,11 @@ public enum Mnemonic {
                 return "slli";
             case I_SUB:
                 return "sub";
-            // // This is 64 bits!
-            // case I_SD: // pseudo instruction
-            // return "sd";
-            case I_SW: // pseudo instruction
+            case I_SW:
                 return "sw";
-            case I_SH: // pseudo instruction
+            case I_SH:
                 return "sh";
-            case I_SB: // pseudo instruction
+            case I_SB:
                 return "sb";
             case I_SLT: // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
                 return "slt";
@@ -533,8 +531,20 @@ public enum Mnemonic {
                 return "puts";
 
             //
+            // RV64 UI 64 bits
+            //
+
+            case I_ADDIW:
+                return "addiw";
+            case I_LD:
+                return "ld";
+            case I_SD:
+                return "sd";
+
+            //
             // Zifencei Extension for Instruction-Fetch Fence, Version 2.0
             //
+
             case I_FENCEI:
                 return "fence.i";
 

@@ -17,7 +17,7 @@ import com.mycompany.data.RISCVRegister;
 public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     @SuppressWarnings("unused")
-    private static final boolean USE_64_BIT = false;
+    private static final boolean USE_64_BIT = true;
 
     public int encodeMnemonic(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
@@ -46,14 +46,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             case I_ADDI:
                 return encodeADDI(byteArrayOutStream, asmLine, labelAddressMap, currentAddress);
-
-            // // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
-            // // extension RV64I is enabled !!!
-            // case I_ADDIW:
-            // if (!USE_64_BIT) {
-            // throw new RuntimeException("64 bit not supported!");
-            // }
-            // return encodeADDIW(byteArrayOutStream, asmLine);
 
             case I_AND:
                 return encodeAND(byteArrayOutStream, asmLine);
@@ -86,6 +78,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             case I_ECALL:
                 return encodeECALL(byteArrayOutStream, asmLine);
 
+            case I_FENCE:
+                return encodeFENCE(byteArrayOutStream, asmLine);
+
             case I_JAL:
                 return encodeJAL(byteArrayOutStream, asmLine);
 
@@ -107,13 +102,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             case I_LW:
                 return encodeLW(byteArrayOutStream, asmLine);
-
-            // // THIS IS 64 BIT !!!
-            // case I_LD:
-            // if (!USE_64_BIT) {
-            // throw new RuntimeException("64 bit not supported!");
-            // }
-            // return encodeLD(byteArrayOutStream, asmLine);
 
             case I_OR:
                 return encodeOR(byteArrayOutStream, asmLine);
@@ -139,13 +127,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             case I_SLT:
                 return encodeSLT(byteArrayOutStream, asmLine);
 
-            // // THIS IS 64 BIT !!!
-            // case I_SD:
-            // if (!USE_64_BIT) {
-            // throw new RuntimeException("64 bit not supported!");
-            // }
-            // return encodeSD(byteArrayOutStream, asmLine);
-
             case I_SW:
                 return encodeSW(byteArrayOutStream, asmLine);
 
@@ -164,6 +145,32 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             case I_XORI:
                 return encodeXORI(byteArrayOutStream, asmLine);
+
+            //
+            // RV64 I
+            //
+
+            // ADDIW is part of RV64I not RV32I. Only generate this instruction if the
+            // extension RV64I is enabled !!!
+            case I_ADDIW:
+            if (!USE_64_BIT) {
+                throw new RuntimeException("64 bit not supported!");
+            }
+            return encodeADDIW(byteArrayOutStream, asmLine);
+
+            // // THIS IS 64 BIT !!!
+            // case I_SD:
+            // if (!USE_64_BIT) {
+            // throw new RuntimeException("64 bit not supported!");
+            // }
+            // return encodeSD(byteArrayOutStream, asmLine);
+
+            // // THIS IS 64 BIT !!!
+            // case I_LD:
+            // if (!USE_64_BIT) {
+            // throw new RuntimeException("64 bit not supported!");
+            // }
+            // return encodeLD(byteArrayOutStream, asmLine);
 
             //
             // Zicsr Extension
@@ -799,9 +806,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     }
 
     /** This is 64 bit */
-    @SuppressWarnings("unused")
     private int encodeADDIW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
             throws IOException {
+
         byte funct3 = 0b000;
         byte opcode = 0b0011011;
 
@@ -895,6 +902,26 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         short imm = 0x00;
 
         int result = encodeIType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeFENCE(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+        byte funct3 = 0b000;
+        byte opcode = 0b0001111;
+
+        byte rd = 0;
+        byte rs1 = 0;
+
+        byte fm = 0;
+        byte pred = 0x0F;
+        byte succ = 0x0F;
+
+        int imm = ((fm & 0x0F) << 8) | ((pred & 0x0F) << 4) | ((succ & 0x0F) << 8);
+
+        int result = encodeIType((short) imm, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
@@ -1013,7 +1040,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
      */
     private int encodeJAL(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         
-        System.out.println(asmLine.toString());
+        // System.out.println(asmLine.toString());
 
         byte opcode = 0b1101111;
 
@@ -1052,7 +1079,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     private int encodeLUI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte opcode = 0b0110111;
         byte rd = (byte) asmLine.register_0.getIndex();
-        int imm = asmLine.numeric_1.shortValue();
+        int imm = asmLine.numeric_1.intValue();
 
         int result = encodeUType(imm, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));

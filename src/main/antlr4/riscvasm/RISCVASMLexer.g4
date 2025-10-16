@@ -148,6 +148,12 @@ I_XORI : X O R I ;
 I_XOR : X O R ;
 
 //
+// RV64 I
+//
+
+I_ADDIW : A D D I W ;
+
+//
 // Zifencei Extension for Instruction-Fetch Fence, Version 2.0
 //
 

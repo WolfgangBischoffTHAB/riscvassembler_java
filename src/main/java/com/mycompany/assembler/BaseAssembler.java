@@ -492,7 +492,8 @@ public abstract class BaseAssembler {
         for (AsmLine<?> asmLine : asmLines) {
             try {
                 System.out.print(asmLine);
-                System.out.println(" SourceLine: " + asmLine.sourceLine);
+                // System.out.print(" SourceLine: " + asmLine.sourceLine);
+                System.out.println("");
             } catch (Throwable e) {
                 e.printStackTrace();
                 System.out.println("error!");

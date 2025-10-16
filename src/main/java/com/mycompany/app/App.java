@@ -57,14 +57,20 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
+    // // plain .s assembler source code
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
     // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = true;
+    // .elf file
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // Linux Kernel image
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = true;
 
     public static void main(String[] args) throws IOException {
 
@@ -155,7 +161,14 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
 
-        String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
+
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv64i/addiw.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/add_sample_2.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/add_sample_3.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/add_sample_7.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/add_sample_11.s";
+        String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -272,7 +285,7 @@ public class App {
             
             // //elf.setFile("src/test/resources/riscvelf/factorial.out");
             // //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            // elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+            //elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
 
             // elf.load();
 

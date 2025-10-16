@@ -65,6 +65,10 @@ mnemonic :
     I_WFI |
     I_XOR | I_XORI |
 
+    // RV64 I
+
+    I_ADDIW |
+
     // Zifencei Extension
 
     I_FENCEI |

@@ -55,10 +55,10 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
             AsmLine<RISCVRegister> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
             AsmLine<RISCVRegister> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
-            // DEBUG
-            System.out.println(liPseudoAsmLine);
-            System.out.println(firstAsmLine);
-            System.out.println(secondAsmLine);
+            // // DEBUG
+            // System.out.println(liPseudoAsmLine);
+            // System.out.println(firstAsmLine);
+            // System.out.println(secondAsmLine);
 
             // if no label is used, then return
             if (firstAsmLine.offsetLabel_1 == null) {

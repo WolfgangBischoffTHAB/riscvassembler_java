@@ -40,6 +40,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
 
+    /**  */
     private static final int FENCE_TYPE = 0b0001111;
 
     private static final int R_TYPE = 0b0110011;
@@ -49,6 +50,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     private static final int I_TYPE_3 = 0b0000011;
     /** 0b1110011 */
     private static final int I_TYPE_4 = 0b1110011;
+    /** 0b0011011 = 27dec = 0x1B */
+    private static final int I_TYPE_5 = 0b0011011;
 
     private static final int S_TYPE = 0b0100011;
 
@@ -95,7 +98,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         }
 
         // DEBUG
-        // logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        if (logger.isTraceEnabled()) {
+            logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        }
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;
@@ -365,6 +370,19 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 }
                 break;
 
+            case I_TYPE_5:
+                switch (funct3) {
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_ADDIW; // 64 bits
+                        break;
+                    default:
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                }
+                long signExtendimm_31_20 = NumberParseUtil.sign_extend_12_bit_to_int64_t(imm_31_20);
+                decodeIType_1_w(asmLine, funct3, funct7, rd, rs1, signExtendimm_31_20);
+                break;
+
             case S_TYPE:
                 switch (funct3) {
                     case 0b000:
@@ -380,7 +398,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         throw new RuntimeException(
                                 "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                 }
-
                 imm = (imm_11_5 << 5) | (imm_4_0 << 0);
                 decodeSType(asmLine, funct3, funct7, rs1, rs2, imm);
                 break;
@@ -570,7 +587,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 break;
 
             default:
-                throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data)
+                throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("0x%08x", data)
                         + ". Unknown Instruction Type! opcode = " + opcode);
 
         }
@@ -657,7 +674,32 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         asmLine.numeric_2 = (long) rs2;
     }
 
+    /**
+     * 32 bit
+     * @param asmLine
+     * @param funct3
+     * @param funct7
+     * @param rd
+     * @param rs1
+     * @param imm
+     */
     private static void decodeIType_1(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, int imm) {
+
+        asmLine.register_0 = RISCVRegister.fromInt(rd);
+        asmLine.register_1 = RISCVRegister.fromInt(rs1);
+        asmLine.numeric_2 = (long) imm;
+    }
+
+    /**
+     * 64 bit
+     * @param asmLine
+     * @param funct3
+     * @param funct7
+     * @param rd
+     * @param rs1
+     * @param imm
+     */
+    private static void decodeIType_1_w(AsmLine asmLine, int funct3, int funct7, int rd, int rs1, long imm) {
 
         asmLine.register_0 = RISCVRegister.fromInt(rd);
         asmLine.register_1 = RISCVRegister.fromInt(rs1);

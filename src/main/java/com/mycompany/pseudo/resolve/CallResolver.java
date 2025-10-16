@@ -143,7 +143,7 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                 jalr.modifier_2 = Modifier.LO;
                 jalr.offsetLabel_2 = foundAsmLine.identifier_0;
 
-                System.out.println(jalr);
+                // System.out.println(jalr);
 
                 continue;
             }
