@@ -15,13 +15,15 @@ public interface Memory {
      */
     void copy(long targetAddress, byte[] srcBuffer, int offsetInSrcBuffer, int sizeInBytes);
 
-    int getByte(int i);
+    int getByte(int addr);
 
-    void storeByte(int i, byte b);
+    void storeByte(int addr, byte b);
 
-    int readWord(long pc, ByteOrder byteOrder);
+    int readWord(long addr, ByteOrder byteOrder);
 
-    MemoryBlock getMemoryBlockForAddress(int i);
+    long readLong(long addr, ByteOrder byteOrder);
+
+    MemoryBlock getMemoryBlockForAddress(int addr);
 
     void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress);
 

@@ -70,10 +70,10 @@ public class DefaultMemory implements Memory {
     }
 
     @Override
-    public void storeByte(int address, byte data) {
+    public void storeByte(int addr, byte data) {
 
         // memory align address to MB
-        long addressAligned = address & 0xFFFFFFFFFFF00000L;
+        long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
@@ -84,7 +84,7 @@ public class DefaultMemory implements Memory {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
-        memoryBlock.memory[(int) (address - addressAligned)] = data;
+        memoryBlock.memory[(int) (addr - addressAligned)] = data;
     }
 
     @Override
@@ -92,6 +92,50 @@ public class DefaultMemory implements Memory {
 
         logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
 
+        MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
+
+        int offsetAddress = (int)(addr - memoryBlock.address);
+        logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
+
+        //memoryBlock.print(0x80002000, 0x8000200c, byteOrder);
+
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " (" + memoryBlock.memory[offsetAddress + 0] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " (" + memoryBlock.memory[offsetAddress + 1] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 2]) + " (" + memoryBlock.memory[offsetAddress + 2] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 3]) + " (" + memoryBlock.memory[offsetAddress + 3] + ")");
+
+        final int data = ByteArrayUtil.fourByteToInt(
+            memoryBlock.memory[offsetAddress + 0], 
+            memoryBlock.memory[offsetAddress + 1], 
+            memoryBlock.memory[offsetAddress + 2],
+            memoryBlock.memory[offsetAddress + 3], byteOrder);
+
+        logger.trace(ByteArrayUtil.byteToHex(data));
+
+        return data;
+    }
+
+    @Override
+    public long readLong(long addr, ByteOrder byteOrder) {
+        MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
+        int offsetAddress = (int)(addr - memoryBlock.address);
+        final long data = ByteArrayUtil.eightByteToLong(
+            memoryBlock.memory[offsetAddress + 0], 
+            memoryBlock.memory[offsetAddress + 1], 
+            memoryBlock.memory[offsetAddress + 2],
+            memoryBlock.memory[offsetAddress + 3], 
+            memoryBlock.memory[offsetAddress + 4], 
+            memoryBlock.memory[offsetAddress + 5], 
+            memoryBlock.memory[offsetAddress + 6],
+            memoryBlock.memory[offsetAddress + 7],            
+            byteOrder);
+
+        logger.trace(ByteArrayUtil.byteToHex(data));
+
+        return data;
+    }
+
+    private MemoryBlock retrieveMemoryBlockByAddress(long addr) {
         // memory align address to MB
         long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 
@@ -105,26 +149,7 @@ public class DefaultMemory implements Memory {
         } else {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
-
-        int offsetAddress = (int)(addr - memoryBlock.address);
-        logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
-
-        //memoryBlock.print(0x80002000, 0x8000200c, byteOrder);
-
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " (" + memoryBlock.memory[offsetAddress + 0] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " (" + memoryBlock.memory[offsetAddress + 1] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 2]) + " (" + memoryBlock.memory[offsetAddress + 2] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 3]) + " (" + memoryBlock.memory[offsetAddress + 3] + ")");
-
-        final int instruction = ByteArrayUtil.fourByteToInt(
-            memoryBlock.memory[offsetAddress + 0], 
-            memoryBlock.memory[offsetAddress + 1], 
-            memoryBlock.memory[offsetAddress + 2],
-            memoryBlock.memory[offsetAddress + 3], byteOrder);
-
-        logger.trace(ByteArrayUtil.byteToHex(instruction));
-
-        return instruction;
+        return memoryBlock;
     }
 
     @Override

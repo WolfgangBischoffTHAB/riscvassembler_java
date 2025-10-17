@@ -647,6 +647,18 @@ public class App {
             // DEBUG
             //BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
 
+            long value = singleCycleCPU.memory.readLong(0x10040, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value));
+
+            value = singleCycleCPU.memory.readLong(0x10048, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value));
+
+            value = singleCycleCPU.memory.readLong(0x10050, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value));
+
+            value = singleCycleCPU.memory.readLong(0x10058, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value));
+
         }
 
         System.out.println("done");

@@ -51,12 +51,14 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private static final int I_TYPE_1 = 0b1100111;
     private static final int I_TYPE_2 = 0b0010011;
+    /** 0b0000011 */
     private static final int I_TYPE_3 = 0b0000011;
     /** 0b1110011 */
     private static final int I_TYPE_4 = 0b1110011;
     /** 0b0011011 = 27dec = 0x1B */
     private static final int I_TYPE_5 = 0b0011011;
 
+    /** 0b0100011 */
     private static final int S_TYPE = 0b0100011;
 
     private static final int B_TYPE = 0b1100011;
@@ -351,6 +353,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_LW;
                         break;
+                    case 0b011:
+                        asmLine.mnemonic = Mnemonic.I_LD;
+                        break;
                     case 0b100:
                         asmLine.mnemonic = Mnemonic.I_LBU;
                         break;
@@ -434,6 +439,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         break;
                     case 0b010:
                         asmLine.mnemonic = Mnemonic.I_SW;
+                        break;
+                    case 0b011:
+                        asmLine.mnemonic = Mnemonic.I_SD;
                         break;
                     default:
                         throw new RuntimeException(

@@ -290,10 +290,10 @@ public class ByteArrayUtil {
         return byteBuffer.getInt();
     }
 
-    public static byte[] intToFourByte(final int i, final ByteOrder byteOrder) {
+    public static byte[] intToFourByte(final int data, final ByteOrder byteOrder) {
         final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
         byteBuffer.order(byteOrder);
-        byteBuffer.putInt(i);
+        byteBuffer.putInt(data);
 
         return byteBuffer.array();
     }
@@ -305,12 +305,43 @@ public class ByteArrayUtil {
         return byteBuffer.getInt();
     }
 
+    public static byte[] longToEightByte(final long data, final ByteOrder byteOrder) {
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+        byteBuffer.order(byteOrder);
+        byteBuffer.putLong(data);
+
+        return byteBuffer.array();
+    }
+
+    public static long eightByteToLong(final byte[] data, final ByteOrder byteOrder) {
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        byteBuffer.order(byteOrder);
+
+        return byteBuffer.getLong();
+    }
+
     public static int fourByteToInt(final byte a, final byte b, final byte c, final byte d, final ByteOrder byteOrder) {
         byte[] data = new byte[4];
         data[0] = a;
         data[1] = b;
         data[2] = c;
         data[3] = d;
+
+        return fourByteToInt(data, byteOrder);
+    }
+
+    public static long eightByteToLong(final byte a, final byte b, final byte c, final byte d,
+            final byte e, final byte f, final byte g, final byte h,
+            final ByteOrder byteOrder) {
+        byte[] data = new byte[8];
+        data[0] = a;
+        data[1] = b;
+        data[2] = c;
+        data[3] = d;
+        data[4] = e;
+        data[5] = f;
+        data[6] = g;
+        data[7] = h;
 
         return fourByteToInt(data, byteOrder);
     }
@@ -340,14 +371,14 @@ public class ByteArrayUtil {
         // int data6 = (array[pos + 6] & 0xFF);
         // int data7 = (array[pos + 7] & 0xFF);
 
-        long temp = (((long)(array[pos + 0] & 0xFF)) << 0)
-                  | (((long)(array[pos + 1] & 0xFF)) << 8)
-                  | (((long)(array[pos + 2] & 0xFF)) << 16)
-                  | (((long)(array[pos + 3] & 0xFF)) << 24)
-                  | (((long)(array[pos + 4] & 0xFF)) << 32)
-                  | (((long)(array[pos + 5] & 0xFF)) << 40)
-                  | (((long)(array[pos + 6] & 0xFF)) << 48)
-                  | (((long)(array[pos + 7] & 0xFF)) << 56);
+        long temp = (((long) (array[pos + 0] & 0xFF)) << 0)
+                | (((long) (array[pos + 1] & 0xFF)) << 8)
+                | (((long) (array[pos + 2] & 0xFF)) << 16)
+                | (((long) (array[pos + 3] & 0xFF)) << 24)
+                | (((long) (array[pos + 4] & 0xFF)) << 32)
+                | (((long) (array[pos + 5] & 0xFF)) << 40)
+                | (((long) (array[pos + 6] & 0xFF)) << 48)
+                | (((long) (array[pos + 7] & 0xFF)) << 56);
 
         return temp;
     }

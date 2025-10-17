@@ -1380,6 +1380,78 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 pc += 4;
                 break;
 
+            case I_LD:
+            
+                // compute memory address to load from (EXECUTE STAGE)
+                addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
+                logger.info("addr: " + ByteArrayUtil.byteToHex(addr));
+
+                // read from memory (MEMORY STAGE)
+                let = new byte[8];
+                let[0] = (byte) memory.getByte(addr + 0);
+                let[1] = (byte) memory.getByte(addr + 1);
+                let[2] = (byte) memory.getByte(addr + 2);
+                let[3] = (byte) memory.getByte(addr + 3);
+                let[4] = (byte) memory.getByte(addr + 4);
+                let[5] = (byte) memory.getByte(addr + 5);
+                let[6] = (byte) memory.getByte(addr + 6);
+                let[7] = (byte) memory.getByte(addr + 7);
+
+                // WRITE BACK STAGE
+                // place read value into the destination register
+                value_l = ByteArrayUtil.eightByteToLong(let, ByteOrder.LITTLE_ENDIAN);
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
+
+                // DEBUG
+                stringBuilder = new StringBuilder();
+                stringBuilder.append("lw");
+                stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
+                stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
+                stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
+                stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
+                stringBuilder.append(", mem: " + (addr + 4) + " = " + let[4]);
+                stringBuilder.append(", mem: " + (addr + 5) + " = " + let[5]);
+                stringBuilder.append(", mem: " + (addr + 6) + " = " + let[6]);
+                stringBuilder.append(", mem: " + (addr + 7) + " = " + let[7]);
+                logger.info(stringBuilder.toString());
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_SD:
+
+                // compute memory address to store to (EXECUTE STAGE)
+                addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
+
+                logger.info("Storing to Adresse: " + ByteArrayUtil.byteToHex(addr));
+
+                // retrieve the value to write into the address
+                value_l = readRegisterFile(asmLine.register_0.getIndex());
+                let = ByteArrayUtil.longToEightByte(value_l, ByteOrder.LITTLE_ENDIAN);
+                // write value into memory (MEMORY STAGE)
+                memory.storeByte(addr + 0, let[0]);
+                memory.storeByte(addr + 1, let[1]);
+                memory.storeByte(addr + 2, let[2]);
+                memory.storeByte(addr + 3, let[3]);
+                memory.storeByte(addr + 4, let[4]);
+                memory.storeByte(addr + 5, let[5]);
+                memory.storeByte(addr + 6, let[6]);
+                memory.storeByte(addr + 7, let[7]);
+
+                // // DEBUG
+                // stringBuilder = new StringBuilder();
+                // stringBuilder.append("sw");
+                // stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
+                // stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
+                // stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
+                // stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
+                // logger.trace(stringBuilder.toString());
+
+                // increment PC
+                pc += 4;
+                break;
+
             //
             // Zifencei Extension
             //
