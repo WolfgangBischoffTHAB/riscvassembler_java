@@ -93,10 +93,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         // + 1], memory[pc + 2],
         // memory[pc + 3], byteOrder);
 
-        logger.trace("PC: " + ByteArrayUtil.byteToHex(pc));
-        if (pc == 0x80002004) {
-            logger.trace("Tset");
+        // DEBUG
+        if (logger.isTraceEnabled()) {
+            logger.trace("PC: " + ByteArrayUtil.byteToHex(pc));
         }
+
         final int instruction = memory.readWord(pc, byteOrder);
 
         if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
@@ -116,6 +117,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         if (debugASMLineOutput) {
             logger.info("PC: " + pc + " (" + ByteArrayUtil.longToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
                     + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
+        }
+
+        // DEBUG do not forget the trailing L because PC is now an long register!
+        if (pc == 0x8000024cL) {
+            logger.info("test");
         }
 
         // singleStepping = true;
@@ -155,6 +161,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         int fileHandle;
 
         int immValSignExtended;
+        int result;
+        long result_w;
 
         int csrId;
         long csrValue;
@@ -179,7 +187,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // rd = rs1 + imm
                 logger.trace("addi: " + asmLine);
 
-                long first_register_value = readRegisterFile(asmLine.register_1.getIndex());
+                int first_register_value = (int) readRegisterFile(asmLine.register_1.getIndex());
                 int immediate_value = asmLine.numeric_2.intValue();
 
                 logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
@@ -187,11 +195,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace("2nd Immediate Value: " + immediate_value);
                 logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
 
-                long result = first_register_value + immediate_value;
+                // Java(TM) automatically performs sign extend during conversion to long!
+                result_w = first_register_value + immediate_value;
 
                 // System.out.println("New: " + ByteArrayUtil.byteToHex(result));
+                //result_w = signExtend32BitTo64Bit(result);
 
-                writeRegisterFile(asmLine.register_0.getIndex(), result);
+                writeRegisterFile(asmLine.register_0.getIndex(), result_w);
 
                 // increment PC
                 pc += 4;
@@ -229,11 +239,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // LUI (load upper immediate) is used to build 32-bit constants and uses the
                 // U-type format. LUI places the 32-bit U-immediate value into the destination
                 // register rd, filling in the lowest 12 bits with zeros.
-                int luiImmediate = (asmLine.numeric_1.intValue() << 12L);
 
-                logger.info(ByteArrayUtil.byteToHex(luiImmediate));
+                // Java(TM) automatically performs sign extend during conversion to long!
+                long luiImmediate = (asmLine.numeric_1.intValue() << 12L);
+                // luiImmediate = signExtend32BitTo64Bit(luiImmediate);
 
                 writeRegisterFile(asmLine.register_0.getIndex(), luiImmediate);
+
                 pc += 4;
                 break;
 
@@ -321,9 +333,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_BNE:
                 logger.trace("bne: " + asmLine);
 
-                register_0_value = (int) readRegisterFile(asmLine.register_0.getIndex());
-                register_1_value = (int) readRegisterFile( asmLine.register_1.getIndex());
-                if (register_0_value != register_1_value) {
+                // Perform full register compares! 64 bit on RV64, 32 bit on RV32
+                register_0_value_l = readRegisterFile(asmLine.register_0.getIndex());
+                register_1_value_l = readRegisterFile( asmLine.register_1.getIndex());
+                if (register_0_value_l != register_1_value_l) {
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     pc += 4;
@@ -1295,17 +1308,17 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             //
 
             case I_ADDIW:
-                long first_register_value_w = readRegisterFile(asmLine.register_0.getIndex()) & 0xFFFFFFFFL;
-                long immediate_value_w = asmLine.numeric_2.intValue();
+                int first_register_value_w = (int) (readRegisterFile(asmLine.register_1.getIndex()) & 0xFFFFFFFFL);
+                int immediate_value_w = asmLine.numeric_2.intValue();
 
                 // logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
                 // logger.trace("1st Register Value: " + first_register_value);
                 // logger.trace("2nd Immediate Value: " + immediate_value);
                 // logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
-
-                long result_w = first_register_value_w + immediate_value_w;
-                
-                logger.info(ByteArrayUtil.byteToHex(result_w));
+            
+                // Java(TM) automatically performs sign extend during conversion to long!
+                result_w = first_register_value_w + immediate_value_w;
+                // result_w = signExtend32BitTo64Bit(result);
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result_w);
 
@@ -1596,6 +1609,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         return true;
+    }
+
+    private long signExtend32BitTo64Bit(long result_w) {
+        logger.info(ByteArrayUtil.byteToHex(result_w));
+        result_w = NumberParseUtil.sign_extend_32_bit_to_int64_t(result_w);
+        logger.info(ByteArrayUtil.byteToHex(result_w));
+        return result_w;
     }
 
     private void writeCSRById(int index, int register_2_value_l) {

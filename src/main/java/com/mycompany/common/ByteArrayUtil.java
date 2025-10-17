@@ -107,7 +107,6 @@ public class ByteArrayUtil {
     }
 
     public static String byteToHex(final long data) {
-        // return "0x" + String.format("%1$16X", data);
         return "0x" + Long.toHexString(data);
     }
 

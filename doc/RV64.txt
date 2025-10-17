@@ -1,0 +1,41 @@
+# RV64
+
+The misa register stores the architecture of the RISC CPU:
+
+https://stackoverflow.com/questions/42225043/rv64-with-rv32-instructions-support
+"For programs that contain mixed binaries, like bootloader, kernels or firmware, 
+the misa register encodes the register width in the top bits so it is possible 
+to jump to the correct binary with jumps and left shifts."
+
+The misa register stores XLEN.
+
+When XLEN set to 64, the RISCV CPU is a 64 bit system.
+
+It has 64 bit wide registers. The addresses are still expressed in 32 bit 
+and instructions are still encoded in 32 bits.
+
+Comparing the RV32 instruction set to the RV64 instruction set, there are new
+instructions added and old instructions change effect!
+
+As an example for an instruction that changes effect, lets look at the add
+instruction:
+
+'add' on RV32 adds two 32 bit values and the result is a 32 bit value.
+'add' on RV64 adds two 64 bit values and the result is a 64 bit value.
+
+'lui' has the same effect on RV32 and RV64 but on RV64 the result is sign
+extended to 64 bit and placed into the target 64 bit register.
+
+This means that the 'add' instruction is special!
+'add' is operating on 64 bit values, whereas 'lui' is operating on 
+32 bit values and only the result is sign extended to 64 bit!
+
+'bne' performs full register compares which means on RV64 it compares
+all 64 bits and on RV32 it compares 32 bits.
+
+How do I know which instructions behave like 'add' and which behave like 'lui'
+
+To add 32 bit values in RV64 an explicit 'addw' instruction has been added.
+'addw' adds two 32 bit values (taken from the lower 32 bits of the 64 bit registers)
+and produces a 32 bit result which is then sign extended to 64 bit and inserted
+into the 64 bit target register.

@@ -57,15 +57,15 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -168,7 +168,9 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/add_sample_3.s";
         //String inputFile = "src/test/resources/riscvasm/examples/add_sample_7.s";
         //String inputFile = "src/test/resources/riscvasm/examples/add_sample_11.s";
-        String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
+
+        String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -384,7 +386,8 @@ public class App {
             Elf64 elf = new Elf64();
             elf.memory = memory;
 
-            elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv64ui-p-add");
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add");
+            elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi");
             
             elf.load();
 
