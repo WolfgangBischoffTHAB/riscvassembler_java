@@ -191,8 +191,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
             // ignore commas between parameters
             int index = ctx.children.size();
-            //index = (index / 2) + 1;
-            //index = (index + 1) / 2;
+            // index = (index / 2) + 1;
+            // index = (index + 1) / 2;
             index /= 2;
 
             // check if this is a RVV extension command by looking for the type subnode
@@ -696,6 +696,16 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitDword_assembler_instruction(RISCVASMParser.Dword_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.DWORD;
+
+        Csv_numeric_listContext csv_numeric_list = ctx.csv_numeric_list();
+        List<String> list = new ArrayList<>();
+        recurseList(csv_numeric_list, list);
+        asmLine.csvList = list;
+    }
+
+    @Override
+    public void exitQuad_assembler_instruction(RISCVASMParser.Quad_assembler_instructionContext ctx) {
+        asmLine.asmInstruction = AsmInstruction.QUAD;
 
         Csv_numeric_listContext csv_numeric_list = ctx.csv_numeric_list();
         List<String> list = new ArrayList<>();

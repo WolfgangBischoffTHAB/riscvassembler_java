@@ -26,7 +26,6 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     public long pc;
 
-    // public byte[] memory;
     public Memory memory;
 
     public DelegatingDecoder delegatingDecoder = new DelegatingDecoder();
@@ -48,7 +47,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
      * ctor
      */
     public SingleCycle64BitCPU() {
-        registerFile[0] = 0; // set zero
+        // set zero
+        registerFile[0] = 0; 
     }
 
     public long readRegisterFile(int index) {

@@ -25,6 +25,15 @@ public class EncoderUtils {
         byteArrayOutStream.write(byteBuffer.array());
     }
 
+    public static void convertToUint64_t(ByteArrayOutputStream byteArrayOutStream, long data, ByteOrder byteOrder)
+            throws IOException {
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+        byteBuffer.order(byteOrder);
+        byteBuffer.putLong(data);
+
+        byteArrayOutStream.write(byteBuffer.array());
+    }
+
     public static void encodeString(final ByteArrayOutputStream byteArrayOutStream, final String stringValue) {
         for (char data : stringValue.toCharArray()) {
             byteArrayOutStream.write(data);

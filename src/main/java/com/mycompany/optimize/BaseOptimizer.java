@@ -47,6 +47,10 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                             address += asmLine.csvList.size() * 4;
                             break;
 
+                        case QUAD:
+                            address += asmLine.csvList.size() * 8;
+                            break;
+
                         case ASCII:
                             address += asmLine.stringValue.length() + 0; // +0 for no zero termination
                             break;
@@ -118,6 +122,10 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                     case WORD:
                         offset += asmLine.csvList.size() * 4;
+                        break;
+
+                    case QUAD:
+                        offset += asmLine.csvList.size() * 8;
                         break;
 
                     case ASCII:

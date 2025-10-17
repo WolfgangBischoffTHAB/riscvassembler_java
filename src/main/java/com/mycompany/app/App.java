@@ -50,6 +50,8 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
+    public static final int XLEN = 64;
+
     private static final String MAIN_ENTRY_POINT_LABEL = "main";
 
     private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
@@ -60,17 +62,15 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
-    public static final int XLEN = 64;
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -175,7 +175,9 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/add_sample_11.s";
         //String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
 
-        String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
+
+        String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -436,7 +438,7 @@ public class App {
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sraiw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sraw"); // ERROR
 
-            elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srl"); // ERROR <---- I do not understand test 18
+            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srl"); // ERROR <---- I do not understand test 18
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srli"); // ERROR <----
 
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srliw"); // ERROR
@@ -449,10 +451,10 @@ public class App {
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-xori"); // OK
 
             //
-            // Vector Extension Unit Tests
+            // v??? what is v?
             //
             
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-v-add");
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-v-add");
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-v-addi");
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-v-addiw");
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-v-addw");

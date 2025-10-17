@@ -22,6 +22,8 @@ import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
@@ -51,6 +53,8 @@ import com.mycompany.pseudo.resolve.NopResolver;
 import com.mycompany.pseudo.resolve.RetResolver;
 
 public abstract class BaseAssembler {
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseAssembler.class);
 
     /** Combine far calls (auipc+jalr) into near calls (jal) if possible */
     public static final boolean USE_CALL_OPTIMIZER = true;
@@ -142,6 +146,61 @@ public abstract class BaseAssembler {
         // for (AsmLine asmLine : asmLines) {
         // System.out.println(asmLine);
         // }
+
+        /*
+        //
+        // Process Data defined in .section .data and provide the labels which are mapped
+        // to the address where the data can be found.
+        //
+        // e.g.
+        //    .section .data
+        // num1: .quad 0x123456789ABCDEF0, 0x0FEDCBA987654321, 0x0011223344556677, 0x8899AABBCCDDEEFF
+        // num2: .quad 0x1122334455667788, 0x99AABBCCDDEEFF00, 0x1234567890ABCDEF, 0xFEDCBA9876543210
+        // result: .space 32 # Reserve 32 bytes (256 bits) for the result
+        //
+
+        String currentSection = null;
+        int addressIndex = 0x10000;
+
+        List<AsmLine<?>> killList = new ArrayList<>();
+
+        for (AsmLine<?> asmLine : asmLines) {
+
+            logger.info(asmLine.toString());
+
+            if (asmLine.asmInstruction == null) {
+                continue;
+            }
+            
+            switch (asmLine.asmInstruction) {
+
+                case SECTION:
+                    currentSection = asmLine.stringValue;
+                    killList.add(asmLine);
+                    break;
+
+                case QUAD:
+                    equMap.put(asmLine.label, addressIndex);
+
+                    // insert all data in the CSV list
+                    for (String dataElement : asmLine.csvList) {
+
+                        // insert the data element at this address
+                        asdf
+
+                        // .quad define 64 bit data so advance by 8 byte
+                        addressIndex += 8;
+                    }
+                    killList.add(asmLine);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        asmLines.removeAll(killList);
+         */
 
         //
         // Combine
@@ -529,6 +588,7 @@ public abstract class BaseAssembler {
             }
 
         } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             System.out.println("Failure while encoding: " + errorAsmLine);
             encoder.encode(errorAsmLine, labelAddressMap, addressSourceAsmLineMap, currentAddress);
         }

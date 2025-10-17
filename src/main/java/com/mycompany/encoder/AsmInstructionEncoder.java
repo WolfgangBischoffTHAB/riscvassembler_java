@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 
@@ -13,6 +16,18 @@ import com.mycompany.data.AsmLine;
  */
 public class AsmInstructionEncoder {
 
+    private static final Logger logger = LoggerFactory.getLogger(AsmInstructionEncoder.class);
+
+    /**
+     * Places data described by an assembler instruction into memory.
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @param addressSourceAsmLineMap
+     * @param currentAddress
+     * @return amount of bytes used to encode the data described by the assembler instruction
+     * @throws IOException
+     */
     public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine,
             final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
             throws IOException {
@@ -39,6 +54,9 @@ public class AsmInstructionEncoder {
             case WORD:
                 return encodeWordAssemblerInstruction(byteArrayOutStream, asmLine);
 
+            case QUAD:
+                return encodeQuadAssemblerInstruction(byteArrayOutStream, asmLine);
+
             case ASCII:
                 return encodeAsciiAssemblerInstruction(byteArrayOutStream, asmLine);
 
@@ -47,13 +65,16 @@ public class AsmInstructionEncoder {
             case STRING:
                 return encodeStringAssemblerInstruction(byteArrayOutStream, asmLine);
 
+            case SECTION:
+                logger.error("section");
+                break;
+
             case FILE:
             case TEXT:
-            case DATA:
             case GLOBAL:
-            case SECTION:
+            case DATA:
             case EQU:
-                System.out.println("Assembler Instruction is not implemented yet! " + asmLine);
+                logger.error("Assembler Instruction is not implemented yet! " + asmLine);
                 // nop
                 break;
 
@@ -61,7 +82,7 @@ public class AsmInstructionEncoder {
                 throw new RuntimeException("Unknown assembler instruction: " + asmLine);
         }
 
-        addressSourceAsmLineMap.put(currentAddress, asmLine);
+        // addressSourceAsmLineMap.put(currentAddress, asmLine);
 
         return 0;
     }
@@ -117,6 +138,19 @@ public class AsmInstructionEncoder {
             long data = NumberParseUtil.parseLong(dataAsString);
             EncoderUtils.convertToUint32_t(byteArrayOutStream, (int) data, ByteOrder.LITTLE_ENDIAN);
             length += 4;
+        }
+
+        return length;
+    }
+
+    private int encodeQuadAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
+            final AsmLine<?> asmLine) throws IOException {
+
+        int length = 0;
+        for (String dataAsString : asmLine.csvList) {
+            long data = NumberParseUtil.parseLong(dataAsString);
+            EncoderUtils.convertToUint64_t(byteArrayOutStream, data, ByteOrder.LITTLE_ENDIAN);
+            length += 8;
         }
 
         return length;

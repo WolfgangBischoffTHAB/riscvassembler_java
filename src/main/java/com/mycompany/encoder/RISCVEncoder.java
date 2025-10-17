@@ -16,6 +16,9 @@ public class RISCVEncoder implements Encoder {
 
     private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
 
+    /**
+     * returns the length in bytes use to encode this entity
+     */
     @Override
     public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
             final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)

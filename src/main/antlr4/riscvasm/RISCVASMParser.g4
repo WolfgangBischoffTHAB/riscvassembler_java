@@ -268,6 +268,8 @@ assembler_instruction :
     |
     equ_assembler_instruction
     |
+    quad_assembler_instruction
+    |
     extern_assembler_instruction
 //    |
 //    section_text_assembler_instruction
@@ -327,6 +329,10 @@ equ_assembler_instruction :
     DOT_EQU IDENTIFIER COMMA expr
     ;
 
+quad_assembler_instruction :
+    DOT_QUAD csv_numeric_list
+    ;
+
 extern_assembler_instruction :
     DOT_EXTERN IDENTIFIER
     ;
@@ -340,7 +346,7 @@ extern_assembler_instruction :
 //    ;
 
 section_definition_assembler_instruction :
-    DOT_SECTION ( IDENTIFIER | DOT_RODATA |  DOT_TEXT )
+    DOT_SECTION ( IDENTIFIER | DOT_DATA | DOT_RODATA |  DOT_TEXT )
     ;
 
 globl_assembler_instruction :

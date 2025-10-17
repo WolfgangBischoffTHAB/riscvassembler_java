@@ -4,14 +4,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
+/**
+ * A pair of lui + addi instructions has been combined into a LI pseudo instructions
+ * since there is potential for the assembler to optimize the pair of two instructions
+ * into a single instruction.
+ * 
+ * This class checks for the optimal way to implement the LI pseudo instruction.
+ */
 public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
+
+    private static final Logger logger = LoggerFactory.getLogger(LiOptimizer.class);
 
     @Override
     public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
@@ -117,7 +128,6 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
                 }
             }
 
-
             if (firstAsmLine.pseudoInstructionAsmLine.optimized == true) {
                 continue;
             }
@@ -133,7 +143,7 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
 
             long address = map.get(firstAsmLine.offsetLabel_1);
             long highValue = 0;
-            // long lowValue = 0;
+            long lowValue = 0;
 
             switch (firstAsmLine.modifier_1) {
 
@@ -142,7 +152,7 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
                     break;
 
                 case LO:
-                    //long lowValue = address & 0xFFF;
+                    lowValue = address & 0xFFF;
                     break;
 
                 default:
@@ -156,7 +166,7 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
                     break;
 
                 case LO:
-                    //long lowValue = address & 0xFFF;
+                    lowValue = address & 0xFFF;
                     break;
 
                 default:
@@ -193,7 +203,26 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
                 asmLines.add(index, asmLine);
 
             } else {
-                throw new RuntimeException("Not implemented yet!");
+
+                //throw new RuntimeException("Not implemented yet!");
+                logger.info("Keeping original statements");
+
+                // Assumption: FirstLine: lui a1, %hi(num1)
+                if (firstAsmLine.modifier_1 != null) {
+                    firstAsmLine.modifier_1 = null;
+                    firstAsmLine.numeric_1 = highValue;
+                }
+                firstAsmLine.optimized = true;
+
+                // Assumption: SecondLine: addi a1, a1, %lo(num1)
+                if (secondAsmLine.modifier_2 != null) {
+                    secondAsmLine.modifier_2 = null;
+                    secondAsmLine.numeric_2 = lowValue;
+                }
+                secondAsmLine.optimized = true;
+
+                firstAsmLine.pseudoInstructionAsmLine.optimized = true;
+
             }
 
         }
