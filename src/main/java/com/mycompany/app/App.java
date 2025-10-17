@@ -391,22 +391,22 @@ public class App {
             Elf64 elf = new Elf64();
             elf.memory = memory;
 
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addiw"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addw"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-and"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-andi"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addiw"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addw"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-and"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-andi"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-auipc"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-beq"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bge"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bgeu"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-blt"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bltu"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bne"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-beq"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bge"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bgeu"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-blt"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bltu"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-bne"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-fence_i"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-jal"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-jalr"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-jal"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-jalr"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-lb"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-lbu"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-ld"); // ERROR
@@ -417,34 +417,36 @@ public class App {
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-lw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-lwu"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-ma_data"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-or"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-ori"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-or"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-ori"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sb"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sd"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sh"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-simple"); // OK
-            elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sll"); // ERROR <---
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slli"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-simple"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sll"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slli"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slliw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sllw"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slt"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slti"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sltiu"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sltu"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sra"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srai"); // ERROR <----
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slt"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-slti"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sltiu"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sltu"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sra"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srai"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sraiw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sraw"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srl"); // ERROR <----
+
+            elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srl"); // ERROR <---- I do not understand test 18
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srli"); // ERROR <----
+
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srliw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-srlw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-st_ld"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sub"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sub"); // OK
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-subw"); // ERROR
             //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-sw"); // ERROR
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-xor"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-xori"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-xor"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-xori"); // OK
 
             //
             // Vector Extension Unit Tests

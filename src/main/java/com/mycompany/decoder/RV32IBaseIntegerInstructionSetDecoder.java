@@ -132,7 +132,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int imm_31_12 = (data >> 12) & 0b11111111111111111111;
         int imm_31_20 = (data >> 20) & 0b111111111111;
 
-        int shtyp = (data >> 25) & 0b11111;
+        int shtyp = (data >> 25) & 0b1111111;
         int shamt = (data >> 20) & ((xlen == 32) ? 0b11111 : 0b111111);
 
         int rd = (data >> 7) & 0b11111;

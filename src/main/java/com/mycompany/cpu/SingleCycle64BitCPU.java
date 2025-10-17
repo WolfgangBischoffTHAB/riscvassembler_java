@@ -120,13 +120,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // DEBUG do not forget the trailing L because PC is now an long register!
-        if (pc == 0x800002f8L) {
+        if (pc == 0x800001a0L) {
             logger.info("test");
         }
         if (pc == 0x8000029cL) {
             logger.info("test");
         }
-        if (pc == 0x80000654L) {
+        if (pc == 0x800001b4L) {
             logger.info("test");
         }
 
@@ -258,6 +258,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // Java(TM) automatically performs sign extend during conversion to long!
                 long luiImmediate = (asmLine.numeric_1.intValue() << 12L);
                 // luiImmediate = signExtend32BitTo64Bit(luiImmediate);
+
+                logger.info(ByteArrayUtil.byteToHex(luiImmediate));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), luiImmediate);
 
@@ -778,7 +780,6 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
 
                 //value = (int) readRegisterFile(asmLine.register_1.getIndex()) << immediate_value;
-                
                 value_l = readRegisterFile(asmLine.register_1.getIndex()) << immediate_value;
 
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
@@ -789,7 +790,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_SRLI:
                 logger.trace("I_SRLI: " + asmLine);
 
-                immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+                immediate_value = NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+
+                // immediate_value = Math.abs(immediate_value);
 
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
                 value_l = register_1_value_l >> immediate_value;
@@ -811,7 +814,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 int signBit = registerValue >= 0 ? 0 : 1;
                 for (int i = 0; i < asmLine.numeric_2; i++) {
                     registerValue >>= 1;
-                    registerValue |= (signBit << 31);
+                    registerValue |= (signBit << 63);
                 }
                 writeRegisterFile(asmLine.register_0.getIndex(), registerValue);
                 pc += 4;
@@ -838,11 +841,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_SLL:
                 long shiftValue = readRegisterFile(asmLine.register_2.getIndex());
 
-                // immediate_value = (int)
-                // NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
-
-                value = (int) readRegisterFile(asmLine.register_1.getIndex()) << shiftValue;
-                writeRegisterFile(asmLine.register_0.getIndex(), value);
+                value_l = readRegisterFile(asmLine.register_1.getIndex()) << shiftValue;
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
                 pc += 4;
                 break;
@@ -920,20 +920,27 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_SRL:
                 logger.trace("srl: " + asmLine);
 
-                // Shift right logical
+                // Shift right logical (logical == shift in zero, arithmetic == shift in sign bit)
                 // format: srl rd, rs1, rs2
 
-                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
-                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
+                // register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
+                // register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
 
-                logger.trace(ByteArrayUtil.byteToHex((int) register_1_value_l));
-                logger.trace(ByteArrayUtil.byteToHex((int) register_2_value_l));
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
 
-                value_l = register_1_value_l >> register_2_value_l;
+                register_2_value_l = Math.abs(register_2_value_l);
 
-                logger.trace(ByteArrayUtil.byteToHex((int) value_l));
+                logger.info(ByteArrayUtil.byteToHex(register_1_value_l));
+                logger.info(ByteArrayUtil.byteToHex(register_2_value_l));
 
-                writeRegisterFile(asmLine.register_0.getIndex(), (int) value_l);
+                // Java(TM) operator >>> is the logical shift!
+                // logical shift, shifts in zeroes from the left
+                value_l = register_1_value_l >>> register_2_value_l;
+
+                logger.info(ByteArrayUtil.byteToHex(value_l));
+
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
                 // Increment PC
                 pc += 4;
