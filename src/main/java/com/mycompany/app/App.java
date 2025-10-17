@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -50,6 +51,8 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
+
     public static final int XLEN = 64;
 
     private static final String MAIN_ENTRY_POINT_LABEL = "main";
@@ -57,8 +60,6 @@ public class App {
     private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
 
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
-
-    private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private static final boolean WAIT_FOR_INPUT = false;
 
@@ -264,9 +265,43 @@ public class App {
             // assemble to machine code
             //
 
-            byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
+            //byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 
-            memory.copy(0, machineCode, 0, machineCode.length);
+            assembler.assemble(sectionMap, asmInputFile);
+
+            // initialize current position
+            for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+                Section section = entry.getValue();
+                if (section.outputSection == null) {
+                    continue;
+                }
+                section.outputSection.currentPosition = section.outputSection.memorySpecOrigin;
+            }
+
+            for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+
+                Section section = entry.getValue();
+                
+                logger.info("-- Section: " + section.name + " ----------------------");
+
+                if (section.outputSection != null) {
+
+                    logger.info("-- Address: " + ByteArrayUtil.byteToHex(section.outputSection.currentPosition) + "");
+
+                    byte[] machineCode = section.byteArrayOutStream.toByteArray();
+
+                    // DEBUG output the byte array to the console
+                    //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+                    // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+                    // outputHexMachineCode(byteArray, byteOrder);
+
+                    memory.copy(section.outputSection.currentPosition, machineCode, 0, machineCode.length);
+                    section.outputSection.currentPosition += machineCode.length;
+                }
+                
+                logger.info("");
+
+            }
 
             if ((assembler.labelAddressMap == null) 
                 || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {

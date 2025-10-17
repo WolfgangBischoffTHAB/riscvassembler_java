@@ -22,12 +22,12 @@ public interface Encoder {
             long currentAddress)
             throws IOException;
 
-    /**
-     * Returns the internal buffer that stores the machine code that has been
-     * assembled from all instructions fed to the encoder
-     *
-     * @return
-     */
-    ByteArrayOutputStream getByteArrayOutStream();
+    // /**
+    //  * Returns the internal buffer that stores the machine code that has been
+    //  * assembled from all instructions fed to the encoder
+    //  *
+    //  * @return
+    //  */
+    // ByteArrayOutputStream getByteArrayOutStream();
 
 }

@@ -154,6 +154,8 @@ I_XOR : X O R ;
 
 I_ADDIW : A D D I W ;
 I_ADDW : A D D W ;
+I_LD : L D ;
+I_SD : S D ;
 
 //
 // Zifencei Extension for Instruction-Fetch Fence, Version 2.0

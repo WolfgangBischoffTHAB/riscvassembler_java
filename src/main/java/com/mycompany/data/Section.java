@@ -1,5 +1,6 @@
 package com.mycompany.data;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,10 @@ public class Section {
     public String name;
     public String memspec;
     public List<String> inputSections = new ArrayList<>();
+
+    public MemorySpecifier outputSection;
+
+    public ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
 
     @Override
     public String toString() {

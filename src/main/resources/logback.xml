@@ -14,7 +14,7 @@
     </encoder>
   </appender>
 
-  <logger name="com.mycompany.app.App" level="OFF"/>
+  <logger name="com.mycompany.app.App" level="TRACE" />
 
   <root level="debug">
     <appender-ref ref="STDOUT"/>

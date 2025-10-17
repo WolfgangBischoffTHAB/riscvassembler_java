@@ -79,7 +79,7 @@ public abstract class BaseAssembler {
     /** maps an address to the AsmLine the data at that address was encoded from */
     public Map<Long, AsmLine<?>> addressSourceAsmLineMap;
 
-    public byte[] assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
+    public void assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
         //
         // set default section
@@ -148,58 +148,61 @@ public abstract class BaseAssembler {
         // }
 
         /*
-        //
-        // Process Data defined in .section .data and provide the labels which are mapped
-        // to the address where the data can be found.
-        //
-        // e.g.
-        //    .section .data
-        // num1: .quad 0x123456789ABCDEF0, 0x0FEDCBA987654321, 0x0011223344556677, 0x8899AABBCCDDEEFF
-        // num2: .quad 0x1122334455667788, 0x99AABBCCDDEEFF00, 0x1234567890ABCDEF, 0xFEDCBA9876543210
-        // result: .space 32 # Reserve 32 bytes (256 bits) for the result
-        //
-
-        String currentSection = null;
-        int addressIndex = 0x10000;
-
-        List<AsmLine<?>> killList = new ArrayList<>();
-
-        for (AsmLine<?> asmLine : asmLines) {
-
-            logger.info(asmLine.toString());
-
-            if (asmLine.asmInstruction == null) {
-                continue;
-            }
-            
-            switch (asmLine.asmInstruction) {
-
-                case SECTION:
-                    currentSection = asmLine.stringValue;
-                    killList.add(asmLine);
-                    break;
-
-                case QUAD:
-                    equMap.put(asmLine.label, addressIndex);
-
-                    // insert all data in the CSV list
-                    for (String dataElement : asmLine.csvList) {
-
-                        // insert the data element at this address
-                        asdf
-
-                        // .quad define 64 bit data so advance by 8 byte
-                        addressIndex += 8;
-                    }
-                    killList.add(asmLine);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        asmLines.removeAll(killList);
+         * //
+         * // Process Data defined in .section .data and provide the labels which are
+         * mapped
+         * // to the address where the data can be found.
+         * //
+         * // e.g.
+         * // .section .data
+         * // num1: .quad 0x123456789ABCDEF0, 0x0FEDCBA987654321, 0x0011223344556677,
+         * 0x8899AABBCCDDEEFF
+         * // num2: .quad 0x1122334455667788, 0x99AABBCCDDEEFF00, 0x1234567890ABCDEF,
+         * 0xFEDCBA9876543210
+         * // result: .space 32 # Reserve 32 bytes (256 bits) for the result
+         * //
+         * 
+         * String currentSection = null;
+         * int addressIndex = 0x10000;
+         * 
+         * List<AsmLine<?>> killList = new ArrayList<>();
+         * 
+         * for (AsmLine<?> asmLine : asmLines) {
+         * 
+         * logger.info(asmLine.toString());
+         * 
+         * if (asmLine.asmInstruction == null) {
+         * continue;
+         * }
+         * 
+         * switch (asmLine.asmInstruction) {
+         * 
+         * case SECTION:
+         * currentSection = asmLine.stringValue;
+         * killList.add(asmLine);
+         * break;
+         * 
+         * case QUAD:
+         * equMap.put(asmLine.label, addressIndex);
+         * 
+         * // insert all data in the CSV list
+         * for (String dataElement : asmLine.csvList) {
+         * 
+         * // insert the data element at this address
+         * asdf
+         * 
+         * // .quad define 64 bit data so advance by 8 byte
+         * addressIndex += 8;
+         * }
+         * killList.add(asmLine);
+         * break;
+         * 
+         * default:
+         * break;
+         * }
+         * }
+         * 
+         * asmLines.removeAll(killList);
          */
 
         //
@@ -569,7 +572,7 @@ public abstract class BaseAssembler {
 
         Encoder encoder = getEncoder();
 
-        long currentAddress = 0;
+        // long currentAddress = 0;
 
         AsmLine<?> errorAsmLine = null;
         try {
@@ -582,30 +585,58 @@ public abstract class BaseAssembler {
                 // DEBUG
                 System.out.println(asmLine);
 
-                currentAddress = asmLine.section.address;
-                asmLine.section.address += encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap,
+                // currentAddress = asmLine.section.address;
+
+                long spaceUsed = encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap,
                         asmLine.section.address);
+
+                // advance the current index for the section after using space within that
+                // section
+                asmLine.section.address += spaceUsed;
             }
 
         } catch (Exception e) {
+
             logger.error(e.getMessage(), e);
             System.out.println("Failure while encoding: " + errorAsmLine);
-            encoder.encode(errorAsmLine, labelAddressMap, addressSourceAsmLineMap, currentAddress);
+
+            throw new RuntimeException("Error during encoding!");
+
+            // encoder.encode(errorAsmLine, labelAddressMap, addressSourceAsmLineMap,
+            // currentAddress);
         }
 
         //
-        // Produce output for easy comparison with GNU riscv 32 bit elf toolchain or
+        // DEBUG: output for easy comparison with GNU riscv 32 bit elf toolchain or
         // online assemblers
         //
 
-        byte[] byteArray = encoder.getByteArrayOutStream().toByteArray();
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+
+            Section section = entry.getValue();
+
+            logger.info("-- Section: " + section.name + " ----------------------");
+
+            byte[] byteArray = section.byteArrayOutStream.toByteArray();
+
+            // DEBUG output the byte array to the console
+            //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+            ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+            outputHexMachineCode(byteArray, byteOrder);
+
+            logger.info("");
+
+        }
+
+        //byte[] byteArray = encoder.getByteArrayOutStream().toByteArray();
 
         // DEBUG output the byte array to the console
         // //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         // outputHexMachineCode(byteArray, byteOrder);
 
-        return byteArray;
+        //return byteArray;
+        // throw new RuntimeException();
     }
 
     public static void outputHexMachineCode(final byte[] byteArray, final ByteOrder byteOrder) {

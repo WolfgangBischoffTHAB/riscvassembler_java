@@ -67,7 +67,7 @@ mnemonic :
 
     // RV64 I
 
-    I_ADDIW | I_ADDW |
+    I_ADDIW | I_ADDW | I_LD | I_SD |
 
     // Zifencei Extension
 

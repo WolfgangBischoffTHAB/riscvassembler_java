@@ -1,5 +1,6 @@
 package com.mycompany.visitor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -24,7 +25,9 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
 
     public Map<String, Section> sectionMap;
 
-    public  Map<String, MemorySpecifier> memorySpecifierMap;
+    public Map<String, MemorySpecifier> memorySpecifierMap;
+
+    // public Map<String, Section> outputSectionMap = new HashMap<>();
 
     @Override
     public void exitAssignment(LINKERSCRIPTLANGUAGEParser.AssignmentContext ctx) {
@@ -36,7 +39,7 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
         int i = 0;
         if (expContext.getChildCount() == 1) {
 
-            String variableName = ctx.NAME().toString();
+            // String variableName = ctx.NAME().toString();
             // System.out.print(variableName + " = ");
 
             ParseTree parseTree = expContext.getChild(i);
@@ -62,7 +65,8 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
 
         } else {
 
-            //throw new RuntimeException("Need to evaluate expression! " + expContext.getText());
+            // throw new RuntimeException("Need to evaluate expression! " +
+            // expContext.getText());
             System.out.println("Need to evaluate expression! " + expContext.getText());
 
         }
@@ -74,8 +78,12 @@ public class LINKERSCRIPTLANGUAGEExtractingOutputListener extends LINKERSCRIPTLA
         section.name = ctx.NAME().getText();
         section.memspec = ctx.memspec_opt().NAME().getText();
 
+        MemorySpecifier outputSection = memorySpecifierMap.get(section.memspec);
+        section.outputSection = outputSection;
+
         sectionMap.put(section.name, section);
 
+        // prepare next variable
         section = new Section();
     }
 

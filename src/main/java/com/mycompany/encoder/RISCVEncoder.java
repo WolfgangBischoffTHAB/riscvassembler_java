@@ -8,8 +8,6 @@ import com.mycompany.data.AsmLine;
 
 public class RISCVEncoder implements Encoder {
 
-    private ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
-
     private AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
 
     private EmulatorExtensionEncoder emulatorExtensionEncoder = new EmulatorExtensionEncoder();
@@ -23,6 +21,8 @@ public class RISCVEncoder implements Encoder {
     public long encode(final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
             final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
             throws IOException {
+
+        ByteArrayOutputStream byteArrayOutStream = asmLine.section.byteArrayOutStream;
 
         switch (asmLine.getAsmLineType()) {
 
@@ -44,8 +44,8 @@ public class RISCVEncoder implements Encoder {
         }
     }
 
-    @Override
-    public ByteArrayOutputStream getByteArrayOutStream() {
-        return byteArrayOutStream;
-    }
+    // @Override
+    // public ByteArrayOutputStream getByteArrayOutStream() {
+    //     return byteArrayOutStream;
+    // }
 }
