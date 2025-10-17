@@ -43,7 +43,11 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     /**  */
     private static final int FENCE_TYPE = 0b0001111;
 
-    private static final int R_TYPE = 0b0110011;
+    /** 0b0110011 */
+    private static final int R_TYPE_1 = 0b0110011;
+
+    /** 0b0111011 */
+    private static final int R_TYPE_2 = 0b0111011;
 
     private static final int I_TYPE_1 = 0b1100111;
     private static final int I_TYPE_2 = 0b0010011;
@@ -69,6 +73,15 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     /** 0b0100111 */
     private static final int V_EXTENSION_STORE = 0b0100111;
 
+    private int xlen;
+
+    public RV32IBaseIntegerInstructionSetDecoder(int xlen) {
+        if ((xlen != 32) && (xlen != 64)) {
+            throw new RuntimeException("unknown xlen length!");
+        }
+        this.xlen = xlen;
+    }
+
     /**
      * decodes four byte of machine code into a ASMLine domain model
      * 
@@ -76,6 +89,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
      * @return ASMLine object with decoded information
      */
     public AsmLine<?> decode(final int data) {
+
+        if ((xlen != 32) && (xlen != 64)) {
+            throw new RuntimeException("unknown xlen length!");
+        }
 
         AsmLine<Register> asmLine = new AsmLine<>();
 
@@ -98,8 +115,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         }
 
         // DEBUG
-        if (logger.isTraceEnabled()) {
-            logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        if (logger.isInfoEnabled()) {
+            logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
         }
 
         int opcode = data & 0b1111111;
@@ -116,7 +133,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int imm_31_20 = (data >> 20) & 0b111111111111;
 
         int shtyp = (data >> 25) & 0b11111;
-        int shamt = (data >> 20) & 0b11111;
+        int shamt = (data >> 20) & ((xlen == 32) ? 0b11111 : 0b111111);
 
         int rd = (data >> 7) & 0b11111;
         int rs1 = (data >> 15) & 0b11111;
@@ -158,7 +175,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 }
                 break;
 
-            case R_TYPE:
+            case R_TYPE_1:
                 switch (funct7) {
 
                     case 0b0000000:
@@ -223,13 +240,37 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                             default:
                                 throw new RuntimeException(
-                                        "Unknown funct3: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                        "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
                     default:
                         throw new RuntimeException(
+                                "Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                }
+                decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
+                break;
+
+            case R_TYPE_2:
+                switch (funct7) {
+
+                    case 0b0000000:
+                        switch (funct3) {
+
+                            case 0b000:
+                                asmLine.mnemonic = Mnemonic.I_ADDW;
+                                break;
+
+                            default:
+                                throw new RuntimeException(
                                 "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        }
+                        break;
+
+                    default:
+                        throw new RuntimeException(
+                                "Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+
                 }
                 decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                 break;

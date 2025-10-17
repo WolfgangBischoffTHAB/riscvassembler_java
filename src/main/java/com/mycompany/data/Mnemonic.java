@@ -93,7 +93,10 @@ public enum Mnemonic {
     //
 
     I_ADDIW(false),
+    I_ADDW(false),
+
     I_LD(false),
+
     I_SD(false),
 
     //
@@ -287,6 +290,8 @@ public enum Mnemonic {
 
         else if (mnemonic.equalsIgnoreCase("ADDIW")) {
             return I_ADDIW;
+        } else if (mnemonic.equalsIgnoreCase("ADDW")) {
+            return I_ADDW;
         } else if (mnemonic.equalsIgnoreCase("LD")) {
             return I_LD;
         } else if (mnemonic.equalsIgnoreCase("SD")) {
@@ -536,6 +541,8 @@ public enum Mnemonic {
 
             case I_ADDIW:
                 return "addiw";
+            case I_ADDW:
+                return "addw";
             case I_LD:
                 return "ld";
             case I_SD:

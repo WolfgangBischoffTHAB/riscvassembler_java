@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
-import com.mycompany.decoder.RV32IBaseIntegerInstructionSetDecoder;
+import com.mycompany.decoder.Decoder;
 
 public class MemoryBlock {
 
@@ -21,8 +21,10 @@ public class MemoryBlock {
 
     public byte[] memory = new byte[SIZE];
 
-    private RV32IBaseIntegerInstructionSetDecoder decoder = new RV32IBaseIntegerInstructionSetDecoder();
+    //private RV32IBaseIntegerInstructionSetDecoder decoder = new RV32IBaseIntegerInstructionSetDecoder(App.XLEN);
 
+    private Decoder decoder;
+    
     public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
 
         logger.info("From " + ByteArrayUtil.byteToHex(startAddress) + " to " + ByteArrayUtil.byteToHex(endAddress));

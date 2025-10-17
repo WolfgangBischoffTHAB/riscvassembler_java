@@ -120,7 +120,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // DEBUG do not forget the trailing L because PC is now an long register!
-        if (pc == 0x8000024cL) {
+        if (pc == 0x800002f8L) {
+            logger.info("test");
+        }
+        if (pc == 0x8000029cL) {
+            logger.info("test");
+        }
+        if (pc == 0x80000654L) {
             logger.info("test");
         }
 
@@ -172,14 +178,17 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_ADD:
                 logger.trace("add: " + asmLine);
 
-                register_0_value = (int) readRegisterFile(asmLine.register_1.getIndex());
-                register_1_value = (int) readRegisterFile(asmLine.register_2.getIndex());
+                // register_0_value = (int) readRegisterFile(asmLine.register_1.getIndex());
+                // register_1_value = (int) readRegisterFile(asmLine.register_2.getIndex());
+                //value = register_0_value + register_1_value;
+                // logger.trace(ByteArrayUtil.byteToHex(value));
+                // writeRegisterFile(asmLine.register_0.getIndex(), value);
 
-                value = register_0_value + register_1_value;
-
-                logger.trace(ByteArrayUtil.byteToHex(value));
-
-                writeRegisterFile(asmLine.register_0.getIndex(), value);
+                register_0_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                register_1_value_l = readRegisterFile(asmLine.register_2.getIndex());
+                value_l = register_0_value_l + register_1_value_l;
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
+                
                 pc += 4;
                 break;
 
@@ -187,16 +196,16 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // rd = rs1 + imm
                 logger.trace("addi: " + asmLine);
 
-                int first_register_value = (int) readRegisterFile(asmLine.register_1.getIndex());
-                int immediate_value = asmLine.numeric_2.intValue();
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                long immediate_value = asmLine.numeric_2.longValue();
 
                 logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
-                logger.trace("1st Register Value: " + first_register_value);
+                logger.trace("1st Register Value: " + register_1_value_l);
                 logger.trace("2nd Immediate Value: " + immediate_value);
                 logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
 
                 // Java(TM) automatically performs sign extend during conversion to long!
-                result_w = first_register_value + immediate_value;
+                result_w = register_1_value_l + immediate_value;
 
                 // System.out.println("New: " + ByteArrayUtil.byteToHex(result));
                 //result_w = signExtend32BitTo64Bit(result);
@@ -226,9 +235,15 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // instead of using two registers, it uses a 12-bit immediate which is sign
                 // extended.
                 // Implementation: x[rd] = x[rs1] & sext(immediate)
-                value = (int) readRegisterFile(asmLine.register_1.getIndex())
-                        & ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
-                writeRegisterFile(asmLine.register_0.getIndex(), value);
+                // value = (int) readRegisterFile(asmLine.register_1.getIndex())
+                //         & ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
+                // writeRegisterFile(asmLine.register_0.getIndex(), value);
+
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                immediate_value = NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+
+                value_l = register_1_value_l & immediate_value;
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
                 pc += 4;
                 break;
@@ -254,7 +269,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // auipc rd, imm
                 // rd <- PC + imm20 << 12; pc += 4;
                 logger.trace("auipc");
-                writeRegisterFile(asmLine.register_0.getIndex(), (int) (pc + (asmLine.numeric_1 << 12L)));
+                writeRegisterFile(asmLine.register_0.getIndex(), (pc + (asmLine.numeric_1 << 12L)));
                 // increment PC
                 pc += 4;
                 break;
@@ -475,8 +490,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
             case I_BGEU:
                 // https://stackoverflow.com/questions/9578639/best-way-to-convert-a-signed-integer-to-an-unsigned-long
-                register_0_value_l = readRegisterFile(asmLine.register_0.getIndex()) & 0x00000000ffffffffL;
-                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
+                // register_0_value_l = readRegisterFile(asmLine.register_0.getIndex()) & 0x00000000ffffffffL;
+                // register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
+                register_0_value_l = readRegisterFile(asmLine.register_0.getIndex());
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
                 if (register_0_value_l >= register_1_value_l) {
                     pc += asmLine.numeric_2.intValue();
                 } else {
@@ -739,7 +756,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_ORI:
 
                 long par1 = readRegisterFile(asmLine.register_1.getIndex());
-                long par2 = ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
+                long par2 = (NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
 
                 logger.trace(ByteArrayUtil.byteToHex((int) par1));
                 logger.trace(ByteArrayUtil.byteToHex((int) par2));
@@ -748,7 +765,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 logger.trace(ByteArrayUtil.byteToHex((int) oriResult));
 
-                writeRegisterFile(asmLine.register_0.getIndex(), (int) oriResult);
+                writeRegisterFile(asmLine.register_0.getIndex(), oriResult);
 
                 pc += 4;
                 break;
@@ -760,8 +777,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
 
-                value = (int) readRegisterFile(asmLine.register_1.getIndex()) << immediate_value;
-                writeRegisterFile(asmLine.register_0.getIndex(), value);
+                //value = (int) readRegisterFile(asmLine.register_1.getIndex()) << immediate_value;
+                
+                value_l = readRegisterFile(asmLine.register_1.getIndex()) << immediate_value;
+
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
                 pc += 4;
                 break;
@@ -805,11 +825,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // sub rd,rs1,rs2
                 // x[rd] = x[rs1] - x[rs2]
 
-                // registerFile[asmLine.register_0.getIndex()] =
-                // registerFile[asmLine.register_1.getIndex()]
-                // - registerFile[asmLine.register_2.getIndex()];
-                writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
-                        - readRegisterFile(asmLine.register_2.getIndex()));
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
+
+                result_w = register_1_value_l - register_2_value_l;
+
+                writeRegisterFile(asmLine.register_0.getIndex(), result_w);
+
                 pc += 4;
                 break;
 
@@ -854,8 +876,16 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // sltu rd,rs1,rs2
                 // x[rd] = x[rs1] <u x[rs2]
 
-                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
-                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
+                // make both registers unsigned
+                // register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
+                // register_2_value_l = readRegisterFile(asmLine.register_2.getIndex()) & 0x00000000ffffffffL;
+                
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
+
+                // make both registers unsigned
+                register_1_value_l = Math.abs(register_1_value_l);
+                register_2_value_l = Math.abs(register_2_value_l);
 
                 if (register_1_value_l < register_2_value_l) {
                     writeRegisterFile(asmLine.register_0.getIndex(), 1);
@@ -871,13 +901,19 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // xor rd,rs1,rs2
                 // x[rd] = x[rs1] ^ x[rs2]
 
-                value = (int) readRegisterFile(asmLine.register_1.getIndex())
-                        ^ (int) readRegisterFile(asmLine.register_2.getIndex());
+                // value = (int) readRegisterFile(asmLine.register_1.getIndex())
+                //         ^ (int) readRegisterFile(asmLine.register_2.getIndex());
 
-                logger.trace(ByteArrayUtil.byteToHex(value));
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
 
-                writeRegisterFile(asmLine.register_0.getIndex(), value);
+                value_l = register_1_value_l ^ register_2_value_l;
 
+                logger.trace(ByteArrayUtil.byteToHex(value_l));
+
+                writeRegisterFile(asmLine.register_0.getIndex(), value_l);
+
+                // increment pc
                 pc += 4;
                 break;
 
@@ -1300,6 +1336,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
             case I_MRET:
                 logger.warn("I_MRET Not implemented yet!");
+                // increment pc
                 pc += 4;
                 break;
 
@@ -1322,6 +1359,16 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result_w);
 
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_ADDW:
+                register_1_value = (int) (readRegisterFile(asmLine.register_1.getIndex()) & 0xFFFFFFFFL);
+                register_2_value = (int) (readRegisterFile(asmLine.register_2.getIndex()) & 0xFFFFFFFFL);
+                // Java(TM) automatically performs sign extend during conversion to long!
+                result_w = register_1_value + register_2_value;
+                writeRegisterFile(asmLine.register_0.getIndex(), result_w);
                 // increment PC
                 pc += 4;
                 break;
@@ -1688,7 +1735,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 break;
 
             default:
-                throw new RuntimeException("Unknown CSR with id: " + ByteArrayUtil.byteToHex(csrId));
+                //throw new RuntimeException("Unknown CSR with id: " + ByteArrayUtil.byteToHex(csrId));
+                logger.error("Unknown CSR with id: " + ByteArrayUtil.byteToHex(csrId));
 
         }
         return csrValue;
