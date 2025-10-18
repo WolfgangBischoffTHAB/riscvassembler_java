@@ -530,8 +530,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         switch (funct3) {
                             case 0b000:
                                 asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
-                                asmLine.register_2 = RISCVRegister.fromIntRVV(rs1);
                                 asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+                                asmLine.register_2 = RISCVRegister.fromIntRVV(rs1);
 
                                 // masking enabled / disabled
                                 vm = (data >> 25) & 0b1;
@@ -540,6 +540,122 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 }
 
                                 asmLine.mnemonic = Mnemonic.I_VADD_VV;
+                                break;
+
+                            case 0b111:
+                                asmLine.register_0 = RISCVRegister.fromInt(rd);
+                                asmLine.register_1 = RISCVRegister.fromInt(rs1);
+
+                                int zimm = (data >> 20) & 0b111_1111_1111;
+
+                                //int zimm_10_0 = ((vma & 0b1) << 7) | ((vta & 0b1) << 6) | ((sew & 0b111) << 3) | ((lmul & 0b111) << 0);
+
+                                int lmul = (zimm >> 0) & 0b111;
+                                int sew = (zimm >> 3) & 0b111;
+                                int vta = (zimm >> 6) & 0b1;
+                                int vma = (zimm >> 7) & 0b1;
+                                int vill = (data >> 31) & 0b1;
+
+                                // mask agnostic
+                                //byte vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
+                                String maskAgnostic = (vma == 1) ? "ma" : "mu";
+                                logger.info("maskAgnostic: " + maskAgnostic);
+                                asmLine.rvvMask = maskAgnostic;
+
+                                // tail agnostic
+                                //byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
+                                String tailAgnostic = (vta == 1) ? "ta" : "tu";
+                                logger.info("tailAgnostic: " + tailAgnostic);
+                                asmLine.rvvTail = tailAgnostic;
+
+                                // selected element width (SEW)
+                                // byte sew = 4;
+                                // if (asmLine.rvvSew.equalsIgnoreCase("e8")) {
+                                //     sew = 0;
+                                // } else if (asmLine.rvvSew.equalsIgnoreCase("e16")) {
+                                //     sew = 1;
+                                // } else if (asmLine.rvvSew.equalsIgnoreCase("e32")) {
+                                //     sew = 2;
+                                // } else if (asmLine.rvvSew.equalsIgnoreCase("e64")) {
+                                //     sew = 3;
+                                // }
+                                String selectedElementWidth = "";
+                                switch (sew) {
+                                    case 0:
+                                        selectedElementWidth = "e8";
+                                        break;
+                                    case 1:
+                                        selectedElementWidth = "e16";
+                                        break;
+                                    case 2:
+                                        selectedElementWidth = "e32";
+                                        break;
+                                    case 3:
+                                        selectedElementWidth = "e64";
+                                        break;
+                                }
+                                logger.info("selectedElementWidth: " + selectedElementWidth);
+                                asmLine.rvvSew = selectedElementWidth;
+
+                                // register grouping or fractions of register (LMUL)
+                                // byte lmul = 0; // default value
+                                // if (asmLine.rvvLmul != null) {
+                                //     if (asmLine.rvvLmul.equalsIgnoreCase("mf8")) { // multiplier fractional
+                                //         lmul = 5;
+                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("mf4")) { // multiplier fractional
+                                //         lmul = 6;
+                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("mf2")) { // multiplier fractional
+                                //         lmul = 7;
+                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) { // grouped
+                                //         lmul = 0;
+                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) { // grouped
+                                //         lmul = 1;
+                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) { // grouped
+                                //         lmul = 2;
+                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) { // grouped
+                                //         lmul = 3;
+                                //     }
+                                // }
+                                String lmulMultiplier = "";
+                                switch (lmul) {
+                                    case 5:
+                                        lmulMultiplier = "mf8";
+                                        break;
+                                    case 6:
+                                        lmulMultiplier = "mf4";
+                                        break;
+                                    case 7:
+                                        lmulMultiplier = "mf2";
+                                        break;
+                                    case 0:
+                                        lmulMultiplier = "m1";
+                                        break;
+                                    case 1:
+                                        lmulMultiplier = "m2";
+                                        break;
+                                    case 2:
+                                        lmulMultiplier = "m4";
+                                        break;
+                                    case 3:
+                                        lmulMultiplier = "m8";
+                                        break;
+                                }
+                                logger.info("lmulMultiplier: " + lmulMultiplier);
+                                asmLine.rvvLmul = lmulMultiplier;
+
+                                logger.info("vill: " + vill);
+
+                                StringBuilder stringBuilder = new StringBuilder();
+                                stringBuilder.append("vsetvli ");
+                                stringBuilder.append(Register.toStringAbi(asmLine.register_0)).append(", ");
+                                stringBuilder.append(Register.toStringAbi(asmLine.register_1)).append(", ");
+                                stringBuilder.append(selectedElementWidth).append(", ");
+                                stringBuilder.append(lmulMultiplier).append(", ");
+                                stringBuilder.append(maskAgnostic).append(", ");
+                                stringBuilder.append(tailAgnostic);
+                                logger.info(stringBuilder.toString());
+
+                                asmLine.mnemonic = Mnemonic.I_VSETVLI;
                                 break;
 
                             default:

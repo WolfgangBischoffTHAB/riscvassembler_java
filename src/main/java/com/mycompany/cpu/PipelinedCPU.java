@@ -1,6 +1,7 @@
 package com.mycompany.cpu;
 
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.RISCVRegister;
 
 public class PipelinedCPU extends AbstractCPU {
 
@@ -31,6 +32,8 @@ public class PipelinedCPU extends AbstractCPU {
     public PipelinedCPUInstructionWriteBackStage instr_writeback = new PipelinedCPUInstructionWriteBackStage();
 
     public Interlock interlock = new Interlock();
+
+    public int[] registerFile = new int[32];
 
     /**
      * Computer Organisation And Design - RISC V edition, page 529
@@ -148,6 +151,28 @@ public class PipelinedCPU extends AbstractCPU {
         }
 
         return true;
+    }
+
+    public int readRegisterFile(int index) {
+
+        // register zero is hardcoded zero
+        if (index == 0) {
+            return 0;
+        }
+
+        // set the value
+        return registerFile[index];
+    }
+
+    public void writeRegisterFile(final int register_index, final int value) {
+
+        // write to zero register has no effect
+        if (register_index == RISCVRegister.REG_ZERO.getIndex()) {
+            return;
+        }
+
+        // set the value
+        registerFile[register_index] = value;
     }
 
 }

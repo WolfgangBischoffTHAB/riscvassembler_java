@@ -203,9 +203,13 @@ public class AsmLine<T extends Register> {
         //
         // SEW - Selected Element Width {e8, e16, e32, e64}
         // how many bits does each vector element have?
-        //
+        if (rvvSew != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(rvvSew);
+        }
+
         // LMUL - vector length multiplier.
-        // Is used to combine vectorregisters called vector grouping.
+        // Is used to combine vector registers (called vector grouping).
         // Is used to split vectorregisters (by using fractions of a register)
         // (See.: 3.4.2. Vector Register Grouping (vlmul[2:0]))
         //
@@ -214,26 +218,22 @@ public class AsmLine<T extends Register> {
         //
         // Since the LMUL vtypei setting is optional, a default value
         // of m1 is used when LMUL is not specified.
-        //
-        // TAIL - {ta, tu}
-        // ta - tail agnostic - ???
-        // tu - tail undisturbed - ???
-        // 
-        // MASK - {ma, mu}
-        // ta - mask agnostic - ???
-        // tu - mask undisturbed - ???
-        if (rvvSew != null) {
-            stringBuilder.append(", ");
-            stringBuilder.append(rvvSew);
-        }
         if (rvvLmul != null) {
             stringBuilder.append(", ");
             stringBuilder.append(rvvLmul);
         }
+
+        // TAIL - {ta, tu}
+        // ta - tail agnostic - ???
+        // tu - tail undisturbed - ???
         if (rvvTail != null) {
             stringBuilder.append(", ");
             stringBuilder.append(rvvTail);
         }
+
+        // MASK - {ma, mu}
+        // ta - mask agnostic - ???
+        // tu - mask undisturbed - ???
         if (rvvMask != null) {
             stringBuilder.append(", ");
             stringBuilder.append(rvvMask);
@@ -244,8 +244,6 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(", ");
             stringBuilder.append(1);
         }
-
-        
 
         if (pseudoInstructionAsmLine != null) {
             stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);

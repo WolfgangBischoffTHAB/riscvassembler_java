@@ -1,4 +1,7 @@
+# Source: https://research.samsung.com/blog/RISC-V-and-Vectorization
+
     .section .data
+    
 # num1: .quad 0x123456789ABCDEF0, 0x0FEDCBA987654321, 0x0011223344556677, 0x0899AABBCCDDEEFF
 # num2: .quad 0x1122334455667788, 0x09AABBCCDDEEFF00, 0x1234567890ABCDEF, 0x0EDCBA9876543210
 

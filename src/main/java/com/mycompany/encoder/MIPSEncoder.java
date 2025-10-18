@@ -36,9 +36,9 @@ public class MIPSEncoder implements Encoder {
         }
     }
 
-    @Override
-    public ByteArrayOutputStream getByteArrayOutStream() {
-        return byteArrayOutStream;
-    }
+    // @Override
+    // public ByteArrayOutputStream getByteArrayOutStream() {
+    //     return byteArrayOutStream;
+    // }
 
 }

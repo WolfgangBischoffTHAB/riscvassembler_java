@@ -178,7 +178,9 @@ public class App {
 
         //String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
 
-        String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
+        //String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
+        String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
 
         args[0] = inputFile;
         mainRISCV(args);

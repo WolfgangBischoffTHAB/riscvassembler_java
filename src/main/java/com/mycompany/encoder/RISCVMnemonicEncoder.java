@@ -210,6 +210,9 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             //
             // V Extension - https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
             //
+            // To figure out how the instructions are encoded, you can use https://github.com/cryptape/rvv-encoder
+            // And you shoud also use the RISC V Extension specification.
+            //
 
             case I_VSETVLI:
                 return encodeVSETVLI(byteArrayOutStream, asmLine);
@@ -328,9 +331,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         int result = 0;
 
-        // switch (asmLine.mnemonic) {
-
-        // case I_VMSNE_VI:
         upperOpCode = 0b011001;
         funct3 = 0b011;
         byte imm = (byte) asmLine.numeric_2.byteValue();
@@ -340,11 +340,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             vm = 1;
         }
 
-        result = encodeRVVVectorInstruction(funct3, opcode, upperOpCode, vd, vs2, imm, vm);
-
-        // default:
-        // throw new RuntimeException("Not implemented yet!");
-        // }
+        // result = encodeRVVVectorInstruction(funct3, opcode, upperOpCode, vd, vs2, imm, vm);
 
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
@@ -515,6 +511,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         // I do not know how zimm is defined. The RISCV V-Extension spec does not say!
         // For now, I assume zimm is vtypei. vtypei is defined.
+        // RVV Spec. Version 1.0, page 10
         int zimm_10_0 = ((vma & 0b1) << 7) | ((vta & 0b1) << 6) | ((sew & 0b111) << 3) | ((lmul & 0b111) << 0);
 
         byte vill = 0b0; // illegal bit ??? What does it do? I think since

@@ -85,8 +85,7 @@ mnemonic :
 
     // V Extension (RVV Vektor extension)
 
-    I_VSETVLI | I_VLE32_V | I_VMSNE_VI | I_VADD_VV | I_VSE32_V | I_VMV_V_I
-
+    I_VSETVLI | I_VLE32_V | I_VLE64_V | I_VMSNE_VI | I_VADD_VV | I_VSE32_V | I_VSE64_V | I_VMV_V_I
     ;
 
 // RVV selected element width (SEW)
@@ -132,11 +131,13 @@ params :
     ;
 
 rvv_type :
-    rvv_sew (COMMA rvv_lmul)? COMMA rvv_tail COMMA rvv_mask COMMA?
+    rvv_sew ( COMMA rvv_lmul ( COMMA rvv_tail ( COMMA rvv_mask )? )? )?
     ;
 
 param :
     expr
+    |
+    ( OPENING_BRACKET expr CLOSING_BRACKET )
     |
     offset ( OPENING_BRACKET expr CLOSING_BRACKET )?
     ;

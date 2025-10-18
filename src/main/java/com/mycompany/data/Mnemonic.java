@@ -143,9 +143,11 @@ public enum Mnemonic {
     I_VSETVLI(false),
     I_VSETVL(false),
     I_VLE32_V(false),
+    I_VLE64_V(false),
     I_VMSNE_VI(false),
     I_VADD_VV(false),
     I_VSE32_V(false),
+    I_VSE64_V(false),
     I_VMV_V_I(false),
 
     //
@@ -362,12 +364,16 @@ public enum Mnemonic {
             return I_VSETVLI;
         } else if (mnemonic.equalsIgnoreCase("VLE32.V")) {
             return I_VLE32_V;
+        } else if (mnemonic.equalsIgnoreCase("VLE64.V")) {
+            return I_VLE64_V;
         } else if (mnemonic.equalsIgnoreCase("VMSNE.VI")) {
             return I_VMSNE_VI;
         } else if (mnemonic.equalsIgnoreCase("VADD.VV")) {
             return I_VADD_VV;
         } else if (mnemonic.equalsIgnoreCase("VSE32.V")) {
             return I_VSE32_V;
+        } else if (mnemonic.equalsIgnoreCase("VSE64.V")) {
+            return I_VSE64_V;
         } else if (mnemonic.equalsIgnoreCase("VMV.V.I")) {
             return I_VMV_V_I;
         }
@@ -611,12 +617,16 @@ public enum Mnemonic {
                 return "vsetvli";
             case I_VLE32_V:
                 return "vle32.v";
+            case I_VLE64_V:
+                return "vle64.v";
             case I_VMSNE_VI:
                 return "vmsne.vi";
             case I_VADD_VV:
                 return "vadd.vv";
             case I_VSE32_V:
                 return "vse32.v";
+            case I_VSE64_V:
+                return "vse64.v";
             case I_VMV_V_I:
                 return "vmv.v.i";
 

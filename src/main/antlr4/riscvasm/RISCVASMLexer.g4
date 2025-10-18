@@ -110,7 +110,7 @@ I_JAL : J A L ;
 I_JALR : J A L R ;
 
 I_LA : L A ;
-I_LD : L D ;
+// I_LD : L D ; // see RV64 extension section
 I_LW : L W ;
 I_LH : L H ;
 I_LHU : L H U ;
@@ -138,7 +138,7 @@ I_SLLI : S L L I ;
 I_SLTU : S L T U ;
 I_SLTIU : S L T I U ;
 I_SUB : S U B ;
-I_SD : S D ;
+// I_SD : S D ; // see RV64 extension section
 I_SW : S W ;
 I_SH : S H ;
 I_SB : S B ;
@@ -209,9 +209,11 @@ I_REMU : R E M U ;
 I_VSETVLI : V S E T V L I ;
 I_VSETVL : V S E T V L ;
 I_VLE32_V : V L E '3' '2' DOT V ;
+I_VLE64_V : V L E '6' '4' DOT V ;
 I_VMSNE_VI : V M S N E DOT V I ;
 I_VADD_VV : V A D D DOT V V ;
 I_VSE32_V : V S E '3' '2' DOT V ;
+I_VSE64_V : V S E '6' '4' DOT V ;
 I_VMV_V_I : V M V DOT V DOT I ;
 
 REG_ZERO_ABI : Z E R O ;
