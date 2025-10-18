@@ -158,7 +158,7 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/fib.s";
         // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
 
-        // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+        String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
         // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
         // String inputFile = "src/test/resources/riscvasm/examples/div.s";
 
@@ -179,8 +179,8 @@ public class App {
         //String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
 
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
-        //String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-        String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -280,6 +280,7 @@ public class App {
                 section.outputSection.currentPosition = section.outputSection.memorySpecOrigin;
             }
 
+            // copy data from the sections into memory
             for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
 
                 Section section = entry.getValue();

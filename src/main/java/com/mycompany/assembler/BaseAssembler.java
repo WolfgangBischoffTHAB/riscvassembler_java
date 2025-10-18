@@ -498,16 +498,26 @@ public abstract class BaseAssembler {
         // evaluate expressions
         //
 
+        
+
         for (final AsmLine<?> asmLine : asmLines) {
 
-            if (asmLine.expr_0 != null) {
-                asmLine.numeric_0 = asmLine.expr_0.evaluate();
-            }
-            if (asmLine.expr_1 != null) {
-                asmLine.numeric_1 = asmLine.expr_1.evaluate();
-            }
-            if (asmLine.expr_2 != null) {
-                asmLine.numeric_2 = asmLine.expr_2.evaluate();
+            try {
+
+                if (asmLine.expr_0 != null) {
+                    asmLine.numeric_0 = asmLine.expr_0.evaluate();
+                }
+                if (asmLine.expr_1 != null) {
+                    asmLine.numeric_1 = asmLine.expr_1.evaluate();
+                }
+                if (asmLine.expr_2 != null) {
+                    asmLine.numeric_2 = asmLine.expr_2.evaluate();
+                }
+
+            } catch (Exception e) {
+                logger.error("Cannot process: " + asmLine + "");
+                logger.error(e.getMessage(), e);
+                return;
             }
         }
 

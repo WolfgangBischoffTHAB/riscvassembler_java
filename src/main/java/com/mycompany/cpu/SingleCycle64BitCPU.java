@@ -28,7 +28,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     public Memory memory;
 
-    public DelegatingDecoder delegatingDecoder = new DelegatingDecoder();
+    public DelegatingDecoder decoder = new DelegatingDecoder();
 
     public FileHandling fileHandling = new FileHandling();
 
@@ -110,7 +110,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
-        AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
+        AsmLine<?> asmLine = decoder.decode(instruction);
 
         // DEBUG output ASM line
         debugASMLineOutput = true;
@@ -130,8 +130,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             logger.info("test");
         }
 
-        // singleStepping = true;
-        singleStepping = false;
+        singleStepping = true;
+        // singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
@@ -1829,6 +1829,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         long startAddress = Math.max(0x00, pc - displayDistance * 4);
         long endAddress = pc + displayDistance * 4;
 
+        memory.setDecoder(decoder);
         memory.print((int) startAddress, (int) endAddress, ByteOrder.LITTLE_ENDIAN, (int) pc);
     }
 

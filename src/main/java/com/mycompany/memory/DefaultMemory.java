@@ -8,12 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.ByteArrayUtil;
+import com.mycompany.decoder.Decoder;
 
 public class DefaultMemory implements Memory {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultMemory.class);
 
     public Map<Long, MemoryBlock> memoryBlocksByAddress = new HashMap<>();
+
+    private Decoder decoder;
 
     @Override
     public void copy(long targetAddress, byte[] srcBuffer, int offsetInSrcBuffer, int sizeInBytes) {
@@ -24,6 +27,7 @@ public class DefaultMemory implements Memory {
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
             memoryBlock = new MemoryBlock();
+            memoryBlock.decoder = decoder;
             memoryBlock.address = addressAligned;
             memoryBlocksByAddress.put(addressAligned, memoryBlock);
         } else {
@@ -53,6 +57,7 @@ public class DefaultMemory implements Memory {
             MemoryBlock memoryBlock = null;
             if (!memoryBlocksByAddress.containsKey(addressAligned)) {
                 memoryBlock = new MemoryBlock();
+                memoryBlock.decoder = decoder;
                 memoryBlock.address = addressAligned;
                 memoryBlocksByAddress.put(addressAligned, memoryBlock);
             } else {
@@ -78,6 +83,7 @@ public class DefaultMemory implements Memory {
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
             memoryBlock = new MemoryBlock();
+            memoryBlock.decoder = decoder;
             memoryBlock.address = addressAligned;
             memoryBlocksByAddress.put(addressAligned, memoryBlock);
         } else {
@@ -144,6 +150,7 @@ public class DefaultMemory implements Memory {
         MemoryBlock memoryBlock = null;
         if (!memoryBlocksByAddress.containsKey(addressAligned)) {
             memoryBlock = new MemoryBlock();
+            memoryBlock.decoder = decoder;
             memoryBlock.address = addressAligned;
             memoryBlocksByAddress.put(addressAligned, memoryBlock);
         } else {
@@ -154,10 +161,8 @@ public class DefaultMemory implements Memory {
 
     @Override
     public MemoryBlock getMemoryBlockForAddress(int addr) {
-
         // memory align address to MB
-        int addressAligned = addr & 0xFFF00000;
-
+        long addressAligned = addr & 0xFFF00000;
         MemoryBlock memoryBlock = memoryBlocksByAddress.get(addressAligned);
 
         return memoryBlock;
@@ -166,8 +171,14 @@ public class DefaultMemory implements Memory {
     public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
         MemoryBlock memoryBlock = getMemoryBlockForAddress(startAddress);
         if (memoryBlock != null) {
+            memoryBlock.decoder = decoder;
             memoryBlock.print(startAddress, endAddress, byteOrder, highlightAddress);
         }
+    }
+
+    @Override
+    public void setDecoder(Decoder decoder) {
+        this.decoder = decoder;
     }
 
 }

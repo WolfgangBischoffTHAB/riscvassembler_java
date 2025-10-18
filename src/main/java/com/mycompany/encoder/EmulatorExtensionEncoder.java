@@ -21,9 +21,9 @@ public class EmulatorExtensionEncoder {
         
         switch (asmLine.mnemonic) {
 
-            case I_PUTS:
-                EncoderUtils.convertToUint32_t(byteArrayOutStream, 0x11111111);
-                return 4;
+            // case I_PUTS:
+            //     EncoderUtils.convertToUint32_t(byteArrayOutStream, 0x11111111);
+            //     return 4;
 
             default:
                 throw new RuntimeException("Unknown Assembler Extension!");

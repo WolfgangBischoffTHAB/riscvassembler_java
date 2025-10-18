@@ -2,6 +2,8 @@ package com.mycompany.memory;
 
 import java.nio.ByteOrder;
 
+import com.mycompany.decoder.Decoder;
+
 public interface Memory {
 
     /**
@@ -26,5 +28,7 @@ public interface Memory {
     MemoryBlock getMemoryBlockForAddress(int addr);
 
     void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress);
+
+    void setDecoder(Decoder decoder);
 
 }

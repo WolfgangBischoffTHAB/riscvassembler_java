@@ -188,9 +188,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                 // instruction which jumps to any value we like
 
                 boolean twoByteAligned = true;
-                long delta = 0;
-
-                delta = (firstAsmLine.section.address + firstAsmLine.offset)
+                long delta = (firstAsmLine.section.address + firstAsmLine.offset)
                         - labelTableMap.get(firstAsmLine.offsetLabel_1);
                 twoByteAligned = (delta % 2) == 0;
 
@@ -206,7 +204,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     asmLine.register_0 = RISCVRegister.REG_RA;
                     // asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
                     //asmLine.offset_1 = lowValue;
-                    asmLine.numeric_1 = lowValue;
+                    asmLine.numeric_1 = lowValue - secondAsmLine.offset;
 
                     System.out.println(asmLine);
 

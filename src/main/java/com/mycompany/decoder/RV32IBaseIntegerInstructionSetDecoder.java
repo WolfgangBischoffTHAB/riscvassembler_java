@@ -117,8 +117,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         // }
 
         // DEBUG
-        if (logger.isInfoEnabled()) {
-            logger.info("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+        if (logger.isTraceEnabled()) {
+            logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
         }
 
         int opcode = data & 0b1111111;

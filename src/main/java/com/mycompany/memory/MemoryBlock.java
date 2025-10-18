@@ -23,7 +23,7 @@ public class MemoryBlock {
 
     //private RV32IBaseIntegerInstructionSetDecoder decoder = new RV32IBaseIntegerInstructionSetDecoder(App.XLEN);
 
-    private Decoder decoder;
+    public Decoder decoder;
     
     public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
 

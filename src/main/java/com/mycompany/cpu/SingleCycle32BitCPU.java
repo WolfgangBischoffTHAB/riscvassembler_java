@@ -28,7 +28,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     public Memory memory;
 
-    public DelegatingDecoder delegatingDecoder = new DelegatingDecoder();
+    public DelegatingDecoder decoder = new DelegatingDecoder();
 
     public FileHandling fileHandling = new FileHandling();
 
@@ -108,7 +108,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
-        AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
+        AsmLine<?> asmLine = decoder.decode(instruction);
 
         // DEBUG output ASM line
         debugASMLineOutput = true;
@@ -1244,29 +1244,29 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 pc += 4;
                 break;
 
-            case I_PUTS:
-                logger.info("mnemonic: PUTS");
+            // case I_PUTS:
+            //     logger.info("mnemonic: PUTS");
 
-                // the start address of the zero terminated string is expected in A0
-                int startAddress = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                logger.info("startAddress: " + startAddress);
+            //     // the start address of the zero terminated string is expected in A0
+            //     int startAddress = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+            //     logger.info("startAddress: " + startAddress);
 
-                stringBuilder = new StringBuilder();
-                while (true) {
-                    int tempByte = memory.getByte(startAddress);
-                    if (tempByte == 0x00) {
-                        break;
-                    } else {
-                        stringBuilder.append((char) tempByte);
-                    }
+            //     stringBuilder = new StringBuilder();
+            //     while (true) {
+            //         int tempByte = memory.getByte(startAddress);
+            //         if (tempByte == 0x00) {
+            //             break;
+            //         } else {
+            //             stringBuilder.append((char) tempByte);
+            //         }
 
-                    startAddress++;
-                }
+            //         startAddress++;
+            //     }
 
-                logger.trace(stringBuilder.toString());
+            //     logger.trace(stringBuilder.toString());
 
-                pc += 4;
-                break;
+            //     pc += 4;
+            //     break;
 
             case I_MRET:
                 logger.warn("I_MRET Not implemented yet!");
