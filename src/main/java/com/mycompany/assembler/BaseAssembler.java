@@ -548,21 +548,37 @@ public abstract class BaseAssembler {
             bufferedWriter.flush();
         }
 
-        // DEBUG
-        System.out.println("\n\n\n");
-        System.out.println("***************************");
-        for (AsmLine<?> asmLine : asmLines) {
-            try {
-                System.out.print(asmLine);
-                // System.out.print(" SourceLine: " + asmLine.sourceLine);
-                System.out.println("");
-            } catch (Throwable e) {
-                e.printStackTrace();
-                System.out.println("error!");
+        //
+        // output raw assembly (modifiers resolved, pseudo instructions resolved to real
+        // instructions)
+        //
+
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("build//resolved_assembly.s"))) {
+
+            // DEBUG
+            System.out.println("\n\n\n");
+            System.out.println("***************************");
+            for (AsmLine<?> asmLine : asmLines) {
+
+                try {
+                    System.out.print(asmLine);
+                    // System.out.print(" SourceLine: " + asmLine.sourceLine);
+                    System.out.println("");
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    System.out.println("error!");
+                }
+
+                bufferedWriter.write(asmLine.toString());
+                bufferedWriter.write("\n");
             }
+
+            bufferedWriter.flush();
         }
         System.out.println("***************************");
 
+        //
+        // Encode
         //
         // encode everything that has a mnemonic or is a
         // .dword, .word, .half, .byte, .string, .asciz, .ascii assembler instruction
@@ -620,7 +636,7 @@ public abstract class BaseAssembler {
             byte[] byteArray = section.byteArrayOutStream.toByteArray();
 
             // DEBUG output the byte array to the console
-            //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+            // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
             ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
             outputHexMachineCode(byteArray, byteOrder);
 
@@ -628,14 +644,14 @@ public abstract class BaseAssembler {
 
         }
 
-        //byte[] byteArray = encoder.getByteArrayOutStream().toByteArray();
+        // byte[] byteArray = encoder.getByteArrayOutStream().toByteArray();
 
         // DEBUG output the byte array to the console
         // //ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         // outputHexMachineCode(byteArray, byteOrder);
 
-        //return byteArray;
+        // return byteArray;
         // throw new RuntimeException();
     }
 

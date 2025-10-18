@@ -13,26 +13,38 @@ import com.mycompany.data.Section;
 
 /**
  * Will turn the pseudo instruction 'call' into real assembly instructions.
- * Note: Currently outputs a far call (auipc, jalr) always even if it might be a near call.
- * A CallOptimizer class can be activated which replaces jumps by near jumps if possible.
- * The CallOptimizer is activated using the constant RiscVAssembler.USE_CALL_OPTIMIZER.
+ * Note: Currently outputs a far call (auipc, jalr) always even if it might be a
+ * near call.
+ * A CallOptimizer class can be activated which replaces jumps by near jumps if
+ * possible.
+ * The CallOptimizer is activated using the constant
+ * RiscVAssembler.USE_CALL_OPTIMIZER.
  *
- * Because every RISC-V instruction is 32 bit the full address range cannot be encoded
- * into an instruction since a address is 32 bit large and there is no space left for
+ * Because every RISC-V instruction is 32 bit the full address range cannot be
+ * encoded
+ * into an instruction since a address is 32 bit large and there is no space
+ * left for
  * funct3 and funct7.
  *
- * So function calls for ±1MiB relative to the PC (near calls) can be encoded into
- * a single jal instruction whereas far calls outside that range (far calls) have to be split
+ * So function calls for ±1MiB relative to the PC (near calls) can be encoded
+ * into
+ * a single jal instruction whereas far calls outside that range (far calls)
+ * have to be split
  * into two instructions (auipc, jalr).
  *
- * In order to leviate the user from these details, assemblers contain the 'call'
- * pseudo instruction. The assembler will tell apart near from far calls and will
+ * In order to leviate the user from these details, assemblers contain the
+ * 'call'
+ * pseudo instruction. The assembler will tell apart near from far calls and
+ * will
  * generate either jal or auipc+jalr.
  *
  * Near calls and far calls
- * In the above example we used jal to call our function, but it’s limited to ±1MiB relative to the PC.
- * For far calls we can combine jalr with auipc to reach anywhere in 32-bit memory space.
- * Use the call pseudoinstruction and the assembler will choose the correct instruction(s) for you.
+ * In the above example we used jal to call our function, but it’s limited to
+ * ±1MiB relative to the PC.
+ * For far calls we can combine jalr with auipc to reach anywhere in 32-bit
+ * memory space.
+ * Use the call pseudoinstruction and the assembler will choose the correct
+ * instruction(s) for you.
  */
 public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
 
@@ -52,8 +64,10 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
             // Phase 1 - search first call instruction
             //
 
-            // Java specifics: If a collection is modified while being iterated over, there will be an exception
-            // To prevent concurrent modification exception, separate search from modification by storing
+            // Java specifics: If a collection is modified while being iterated over, there
+            // will be an exception
+            // To prevent concurrent modification exception, separate search from
+            // modification by storing
             // a AsmLine containing a call statement to a local variable
             for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
@@ -74,20 +88,24 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
 
             if (found) {
 
-                //
-                // process special functions like printf, puts
-                //
+                // //
+                // // process special functions like printf, puts
+                // //
 
-                String offsetLabel = foundAsmLine.identifier_1;
-                if (offsetLabel.equalsIgnoreCase("printf")) {
-                    throw new RuntimeException("Implement library function printf!");
-                } else if (offsetLabel.equalsIgnoreCase("puts")) {
-                    //throw new RuntimeException("Implement library function puts!");
-                    foundAsmLine.mnemonic = Mnemonic.I_PUTS;
-                    foundAsmLine.identifier_1 = null;
-                    foundAsmLine.optimized = true;
-                    return;
-                }
+                // String offsetLabel = foundAsmLine.identifier_1;
+                // if (offsetLabel.equalsIgnoreCase("printf")) {
+
+                // throw new RuntimeException("Implement library function printf!");
+
+                // } else if (offsetLabel.equalsIgnoreCase("puts")) {
+
+                // //throw new RuntimeException("Implement library function puts!");
+                // foundAsmLine.mnemonic = Mnemonic.I_PUTS;
+                // foundAsmLine.identifier_1 = null;
+                // foundAsmLine.optimized = true;
+                // return;
+
+                // }
 
                 //
                 // call
@@ -119,12 +137,20 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                 auipc.mnemonic = Mnemonic.I_AUIPC;
                 auipc.register_0 = RISCVRegister.REG_RA;
                 auipc.modifier_1 = Modifier.HI;
-                //auipc.offsetLabel_1 = foundAsmLine.identifier_0;
-                auipc.offsetLabel_1 = foundAsmLine.identifier_1;
+
+                // I do not know how to tell weather to use identifier 0 or 1
+                if (foundAsmLine.identifier_0 != null) {
+                    auipc.offsetLabel_1 = foundAsmLine.identifier_0;
+                }
+                if (foundAsmLine.identifier_1 != null) {
+                    auipc.offsetLabel_1 = foundAsmLine.identifier_1;
+                }
 
                 if (foundAsmLine.label != null) {
                     auipc.label = foundAsmLine.label;
                 }
+
+                System.out.println(auipc);
 
                 //
                 // jalr
@@ -141,9 +167,16 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                 jalr.register_0 = RISCVRegister.REG_RA;
                 jalr.register_1 = RISCVRegister.REG_RA;
                 jalr.modifier_2 = Modifier.LO;
-                jalr.offsetLabel_2 = foundAsmLine.identifier_0;
+                
+                // I do not know how to tell weather to use identifier 0 or 1
+                if (foundAsmLine.identifier_0 != null) {
+                    jalr.offsetLabel_2 = foundAsmLine.identifier_0;
+                }
+                if (foundAsmLine.identifier_1 != null) {
+                    jalr.offsetLabel_2 = foundAsmLine.identifier_1;
+                }
 
-                // System.out.println(jalr);
+                System.out.println(jalr);
 
                 continue;
             }

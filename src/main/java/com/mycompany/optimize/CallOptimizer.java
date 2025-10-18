@@ -40,11 +40,12 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
             // }
 
             updateAddresses(asmLines, sectionMap);
-
-            // find unoptimized call pseudo instruction
+            
             AsmLine<?> callPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
+
+            // find unoptimized call pseudo instruction amongst all asmLines
             for (AsmLine<?> asmLine : asmLines) {
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_CALL)
@@ -56,15 +57,19 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                 index++;
             }
 
+            // if, after looking at all assembler lines, no call instruction has been found
+            // abort this CallOptimizer
             if (!found) {
                 done = true;
                 continue;
             }
 
-            // start with first child instruction
-            AsmLine<?> firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
-            AsmLine<?> secondAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(1);
+            //
+            // call-pseudo instruction = aupic + jalr
+            //
 
+            // start with first child instruction -- aupic instruction
+            AsmLine<?> firstAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(0);
             String offsetLabel = firstAsmLine.offsetLabel_1;
 
             if (!labelTableMap.containsKey(offsetLabel)) {
@@ -154,6 +159,8 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     throw new RuntimeException();
             }
 
+            // look at the second pseudo instruction -- jalr instruction
+            AsmLine<?> secondAsmLine = callPseudoAsmLine.pseudoInstructionChildren.get(1);
             switch (secondAsmLine.modifier_2) {
 
                 case HI:
@@ -197,7 +204,11 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
                     asmLine.mnemonic = Mnemonic.I_JAL;
                     asmLine.register_0 = RISCVRegister.REG_RA;
-                    asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
+                    // asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
+                    //asmLine.offset_1 = lowValue;
+                    asmLine.numeric_1 = lowValue;
+
+                    System.out.println(asmLine);
 
                     callPseudoAsmLine.optimized = true;
                     callPseudoAsmLine.pseudoInstructionChildren.clear();

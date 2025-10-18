@@ -10,7 +10,7 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 
 /**
- * jr ra    is resolved to     jalr x0, 0(x1)
+ * jr rs0    is resolved to     jalr x0, 0(rs0)
  */
 public class JrResolver  implements AsmInstructionListModifier<RISCVRegister> {
 
@@ -27,9 +27,14 @@ public class JrResolver  implements AsmInstructionListModifier<RISCVRegister> {
             System.out.println(asmLine);
 
             asmLine.mnemonic = Mnemonic.I_JALR;
-            asmLine.register_1 = asmLine.register_1;
+
+            asmLine.offset_1 = 0L;
+
+            // 1. copy register_0 into regster_1
+            asmLine.register_1 = asmLine.register_0;
+
+            // 2. override register_0
             asmLine.register_0 = RISCVRegister.REG_ZERO;
-            asmLine.numeric_2 = 0L;
         }
     }
 

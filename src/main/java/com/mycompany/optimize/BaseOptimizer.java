@@ -3,6 +3,9 @@ package com.mycompany.optimize;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
@@ -12,6 +15,8 @@ import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 public abstract class BaseOptimizer<T extends Register> implements AsmInstructionListModifier<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseOptimizer.class);
 
     /**
      * Iterates over all asm lines and updates the offset variable in the
@@ -398,16 +403,18 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
     }
 
     /**
-     * Resolve all modifiers
+     * Resolve all modifiers (HI, LO) to addresses.
      *
-     * @param asmLines
-     * @param map
+     * @param asmLines all assembler lines to process
+     * @param labelAddressMap labels (functions, labels) are mapped to addresses
      */
-    public static void resolveModifiers(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> map) {
+    public static void resolveModifiers(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> labelAddressMap) {
 
         int offset = 4;
 
         for (AsmLine<?> asmLine : asmLines) {
+
+            logger.info(asmLine.toString());
 
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
@@ -427,21 +434,21 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 long newValue = 0L;
                 String label = asmLine.offsetLabel_0;
 
-                Long value = map.get(label);
+                Long address = labelAddressMap.get(label);
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset + offset);
+                    address = address - (asmLine.offset + offset);
                 }
 
                 switch (asmLine.modifier_0) {
 
                     case LO:
-                        newValue = (value >> 0) & 0xFFF;
+                        newValue = (address >> 0) & 0xFFF;
                         break;
 
                     case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
+                        newValue = (address >> 12) & 0xFFFFF;
                         break;
 
                     default:
@@ -463,21 +470,21 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 long newValue = 0L;
                 String label = asmLine.offsetLabel_1;
 
-                Long value = map.get(label);
+                Long address = labelAddressMap.get(label);
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset + offset);
+                    address = address - (asmLine.offset + offset);
                 }
 
                 switch (asmLine.modifier_1) {
 
                     case LO:
-                        newValue = (value >> 0) & 0xFFF;
+                        newValue = (address >> 0) & 0xFFF;
                         break;
 
                     case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
+                        newValue = (address >> 12) & 0xFFFFF;
                         break;
 
                     default:
@@ -499,21 +506,21 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 long newValue = 0L;
                 String label = asmLine.offsetLabel_2;
 
-                Long value = map.get(label);
+                Long address = labelAddressMap.get(label);
 
                 // special case for JALR: labels are resolved pc relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    value = value - (asmLine.offset + offset);
+                    address = address - (asmLine.offset + offset);
                 }
 
                 switch (asmLine.modifier_2) {
 
                     case LO:
-                        newValue = (value >> 0) & 0xFFF;
+                        newValue = (address >> 0) & 0xFFF;
                         break;
 
                     case HI:
-                        newValue = (value >> 12) & 0xFFFFF;
+                        newValue = (address >> 12) & 0xFFFFF;
                         break;
 
                     default:

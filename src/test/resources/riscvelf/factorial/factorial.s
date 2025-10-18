@@ -19,7 +19,6 @@ main:
 	addi	s0,sp,32
 
     # int init_value = 6;
-    # HINT: this is unused code
 	li	    a5, 6
 	sw	    a5, -20(s0)
 
@@ -38,7 +37,7 @@ main:
     # move a0 into a7 so that the result of the factorial is available in a register
     # ant not only on the stack which makes debugging easier
     # a7 == x17
-    mv a7, a0 
+    mv      a7, a0 
 
     brk
 

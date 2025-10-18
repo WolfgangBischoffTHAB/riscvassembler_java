@@ -498,9 +498,9 @@ public class AsmLine<T extends Register> {
 
         if (mnemonic != null) {
 
-            if (mnemonic == Mnemonic.I_PUTS) {
-                return AsmLineType.EMULATOR_EXTENSION;
-            }
+            // if (mnemonic == Mnemonic.I_PUTS) {
+            //     return AsmLineType.EMULATOR_EXTENSION;
+            // }
 
             if ((mnemonic != Mnemonic.I_UNKNOWN) && (!mnemonic.isPseudo())) {
                 return AsmLineType.MNEMONIC;

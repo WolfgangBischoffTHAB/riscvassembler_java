@@ -150,11 +150,11 @@ public enum Mnemonic {
     I_VSE64_V(false),
     I_VMV_V_I(false),
 
-    //
-    // Special instructions to add extended functionality to the emulator
-    //
+    // //
+    // // Special instructions to add extended functionality to the emulator
+    // //
 
-    I_PUTS(true),
+    // I_PUTS(true),
 
     I_UNKNOWN(true);
 
@@ -538,8 +538,8 @@ public enum Mnemonic {
             case I_XORI:
                 return "xori";
 
-            case I_PUTS:
-                return "puts";
+            // case I_PUTS:
+            //     return "puts";
 
             //
             // RV64 UI 64 bits

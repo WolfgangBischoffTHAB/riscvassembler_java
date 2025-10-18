@@ -1313,29 +1313,29 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 pc += 4;
                 break;
 
-            case I_PUTS:
-                logger.info("mnemonic: PUTS");
+            // case I_PUTS:
+            //     logger.info("mnemonic: PUTS");
 
-                // the start address of the zero terminated string is expected in A0
-                long startAddress = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                logger.info("startAddress: " + startAddress);
+            //     // the start address of the zero terminated string is expected in A0
+            //     long startAddress = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+            //     logger.info("startAddress: " + startAddress);
 
-                stringBuilder = new StringBuilder();
-                while (true) {
-                    int tempByte = memory.getByte((int) startAddress);
-                    if (tempByte == 0x00) {
-                        break;
-                    } else {
-                        stringBuilder.append((char) tempByte);
-                    }
+            //     stringBuilder = new StringBuilder();
+            //     while (true) {
+            //         int tempByte = memory.getByte((int) startAddress);
+            //         if (tempByte == 0x00) {
+            //             break;
+            //         } else {
+            //             stringBuilder.append((char) tempByte);
+            //         }
 
-                    startAddress++;
-                }
+            //         startAddress++;
+            //     }
 
-                logger.trace(stringBuilder.toString());
+            //     logger.trace(stringBuilder.toString());
 
-                pc += 4;
-                break;
+            //     pc += 4;
+            //     break;
 
             //
             // Instruction Set Priv

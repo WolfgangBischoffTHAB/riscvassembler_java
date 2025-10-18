@@ -220,8 +220,12 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeVSETVL(byteArrayOutStream, asmLine);
             case I_VLE32_V:
                 return encodeVLE32_V(byteArrayOutStream, asmLine);
+            // case I_VLE64_V:
+            //     return encodeVLE64_V(byteArrayOutStream, asmLine);
             case I_VSE32_V:
                 return encodeVSE32_V(byteArrayOutStream, asmLine);
+            // case I_VSE64_V:
+            //     return encodeVSE64_V(byteArrayOutStream, asmLine);
             case I_VMSNE_VI: // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
                 return encodeVMSNE(byteArrayOutStream, asmLine);
             case I_VADD_VV:

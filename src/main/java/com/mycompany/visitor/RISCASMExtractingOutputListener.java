@@ -211,6 +211,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                 if (skipNode) {
                     skipNode = false;
                     index--;
+
                     continue;
                 }
 
@@ -221,33 +222,35 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
                     isOffset = true;
 
-                    if (offsetContext != null) {
-                        ExprContext expr = offsetContext.expr();
-                        TerminalNode numeric2 = expr.NUMERIC();
-                        if (numeric2 != null) {
-                            String numeric = numeric2.toString();
-                            switch (index) {
-                                case 0:
-                                    asmLine.offset_0 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 1:
-                                    asmLine.offset_1 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 2:
-                                    asmLine.offset_2 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 3:
-                                    asmLine.offset_3 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 4:
-                                    asmLine.offset_4 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 5:
-                                    asmLine.offset_5 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                            }
-                        }
-                    }
+                    // if (offsetContext != null) {
+                    //     ExprContext expr = offsetContext.expr();
+                    //     TerminalNode numeric2 = expr.NUMERIC();
+                    //     if (numeric2 != null) {
+                    //         String numeric = numeric2.toString();
+                    //         switch (index) {
+                    //             case 0:
+                    //                 asmLine.offset_0 = NumberParseUtil.parseLong(numeric);
+                    //                 break;
+                    //             case 1:
+                    //                 asmLine.offset_1 = NumberParseUtil.parseLong(numeric);
+                    //                 break;
+                    //             case 2:
+                    //                 asmLine.offset_2 = NumberParseUtil.parseLong(numeric);
+                    //                 break;
+                    //             case 3:
+                    //                 asmLine.offset_3 = NumberParseUtil.parseLong(numeric);
+                    //                 break;
+                    //             case 4:
+                    //                 asmLine.offset_4 = NumberParseUtil.parseLong(numeric);
+                    //                 break;
+                    //             case 5:
+                    //                 asmLine.offset_5 = NumberParseUtil.parseLong(numeric);
+                    //                 break;
+                    //             default:
+                    //                 throw new RuntimeException("Unknown value!");
+                    //         }
+                    //     }
+                    // }
 
                     ModifierContext modifier = offsetContext.modifier();
                     if (modifier != null) {
@@ -270,6 +273,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                             case 5:
                                 asmLine.modifier_5 = Modifier.fromString(modifier.getText());
                                 break;
+                            default:
+                                throw new RuntimeException("Unknown value!");
                         }
                     }
 
@@ -306,6 +311,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 case 5:
                                     asmLine.offset_5 = data;
                                     break;
+                                default:
+                                    throw new RuntimeException("Unknown value!");
                             }
 
                         } else {
@@ -329,8 +336,9 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
                                 case 5:
                                     asmLine.offsetLabel_5 = offset;
                                     break;
+                                default:
+                                    throw new RuntimeException("Unknown value!");
                             }
-
                         }
                     }
                 }

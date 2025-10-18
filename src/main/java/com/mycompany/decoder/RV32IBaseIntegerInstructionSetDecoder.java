@@ -110,11 +110,11 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             return asmLine;
         }
 
-        // emulator extension PUTS
-        if (data == 0x11111111) {
-            asmLine.mnemonic = Mnemonic.I_PUTS;
-            return asmLine;
-        }
+        // // emulator extension PUTS
+        // if (data == 0x11111111) {
+        //     asmLine.mnemonic = Mnemonic.I_PUTS;
+        //     return asmLine;
+        // }
 
         // DEBUG
         if (logger.isInfoEnabled()) {
