@@ -52,7 +52,7 @@ public class DefaultMemory implements Memory {
         try {
 
             // memory align address to MB
-            long addressAligned = addr & 0xFFFFFFFFFF00000L;
+            long addressAligned = addr & 0xFFFF_FFFF_FFF0_0000L;
 
             MemoryBlock memoryBlock = null;
             if (!memoryBlocksByAddress.containsKey(addressAligned)) {
@@ -75,6 +75,11 @@ public class DefaultMemory implements Memory {
     }
 
     @Override
+    public int readByte(int addr) {
+        return getByte(addr);
+    }
+
+    @Override
     public void storeByte(int addr, byte data) {
 
         // memory align address to MB
@@ -94,7 +99,7 @@ public class DefaultMemory implements Memory {
     }
 
     @Override
-    public int readWord(long addr, ByteOrder byteOrder) {
+    public int readShort(int addr, ByteOrder byteOrder) {
 
         logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
 
@@ -103,7 +108,28 @@ public class DefaultMemory implements Memory {
         int offsetAddress = (int)(addr - memoryBlock.address);
         logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
 
-        //memoryBlock.print(0x80002000, 0x8000200c, byteOrder);
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " (" + memoryBlock.memory[offsetAddress + 0] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " (" + memoryBlock.memory[offsetAddress + 1] + ")");
+
+        final int data = ByteArrayUtil.twoByteToInt(
+            memoryBlock.memory[offsetAddress + 0], 
+            memoryBlock.memory[offsetAddress + 1], 
+            byteOrder);
+
+        logger.trace(ByteArrayUtil.byteToHex(data));
+
+        return data;
+    }
+
+    @Override
+    public int readWord(long addr, ByteOrder byteOrder) {
+
+        logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
+
+        MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
+
+        int offsetAddress = (int)(addr - memoryBlock.address);
+        logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
 
         logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " (" + memoryBlock.memory[offsetAddress + 0] + ")");
         logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " (" + memoryBlock.memory[offsetAddress + 1] + ")");
@@ -168,17 +194,45 @@ public class DefaultMemory implements Memory {
         return memoryBlock;
     }
 
-    public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
-        MemoryBlock memoryBlock = getMemoryBlockForAddress(startAddress);
+    public void print(long startAddress, long endAddress, ByteOrder byteOrder, int highlightAddress) {
+
+        logger.info(ByteArrayUtil.byteToHex(startAddress));
+        logger.info(ByteArrayUtil.byteToHex(endAddress));
+
+        long s = startAddress & 0x00000000ffffffffL;
+        long e = endAddress & 0x00000000ffffffffL;
+        
+        logger.info(ByteArrayUtil.byteToHex(s));
+        logger.info(ByteArrayUtil.byteToHex(e));
+
+        if (e <= s) {
+            throw new RuntimeException("Invalid interval!");
+        }
+
+        MemoryBlock memoryBlock = null;
+
+        // try to retrieve a memory block between startAddress and endAddress.
+        // This is necessary because an interval of addresses might start before
+        // the first memory block that was actually transferred to memory.
+        // This mostly happens when one of the first addresses of the application
+        // are printed
+        long addr = s;
+        while ((memoryBlock == null) && (addr <= e)) {
+            memoryBlock = getMemoryBlockForAddress((int) addr);
+            if (memoryBlock != null) {
+                break;
+            }
+            addr += 4;
+        }
         if (memoryBlock != null) {
             memoryBlock.decoder = decoder;
-            memoryBlock.print(startAddress, endAddress, byteOrder, highlightAddress);
+            memoryBlock.print((int) addr, (int) endAddress, byteOrder, highlightAddress);
         }
     }
 
     @Override
     public void setDecoder(Decoder decoder) {
         this.decoder = decoder;
-    }
+    }    
 
 }

@@ -1,5 +1,7 @@
 package com.mycompany.cpu;
 
+import java.util.List;
+
 import com.mycompany.data.AsmLine;
 import com.mycompany.decoder.DelegatingDecoder;
 
@@ -50,7 +52,7 @@ public class PipelinedCPUInstructionDecodeStage {
             return null;
         }
 
-        AsmLine<?> asmLine = delegatingDecoder.decode(instruction);
+        List<AsmLine<?>> asmLines = delegatingDecoder.decode(instruction);
         asmLineForDebugging = asmLine;
 
         if (asmLine.mnemonic == null) {
@@ -83,8 +85,6 @@ public class PipelinedCPUInstructionDecodeStage {
             default:
                 break;
         }
-
-
 
         return asmLine;
     }

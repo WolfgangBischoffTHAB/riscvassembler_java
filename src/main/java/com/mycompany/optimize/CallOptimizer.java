@@ -202,9 +202,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
                     asmLine.mnemonic = Mnemonic.I_JAL;
                     asmLine.register_0 = RISCVRegister.REG_RA;
-                    // asmLine.identifier_1 = firstAsmLine.offsetLabel_1;
-                    //asmLine.offset_1 = lowValue;
-                    asmLine.numeric_1 = lowValue - secondAsmLine.offset;
+                    asmLine.numeric_1 = lowValue - secondAsmLine.offset + 4;
 
                     System.out.println(asmLine);
 

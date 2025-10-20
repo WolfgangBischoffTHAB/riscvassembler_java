@@ -537,12 +537,12 @@ class Elf32_Phdr {
  * https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
  * 
  * // 32-bit ELF base types.
- * typedef __u32	Elf32_Addr;
- * typedef __u16	Elf32_Half;
- * typedef __u32	Elf32_Off;
- * typedef __s32	Elf32_Sword;
- * typedef __u32	Elf32_Word;
- * typedef __u16	Elf32_Versym;
+ * typedef __u32 Elf32_Addr;
+ * typedef __u16 Elf32_Half;
+ * typedef __u32 Elf32_Off;
+ * typedef __s32 Elf32_Sword;
+ * typedef __u32 Elf32_Word;
+ * typedef __u16 Elf32_Versym;
  * 
  * typedef struct
  * {
@@ -704,7 +704,7 @@ public class Elf32 extends BaseElf {
 
     @SuppressWarnings("unused")
     public void load() throws IOException {
-        
+
         buffer = Files.readAllBytes(Paths.get(filename));
 
         // load the overall, top-level ELF-header that has offsets to all other parts of
@@ -1094,8 +1094,12 @@ public class Elf32 extends BaseElf {
 
                         instructionMachineCode = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, decodePos);
 
-                        AsmLine<?> asmLine = delegatingDecoder.decode(instructionMachineCode);
-                        logger.info(ByteArrayUtil.byteToHex(decodePos) + ": " + asmLine);
+                        List<AsmLine<?>> asmLines = delegatingDecoder.decode(instructionMachineCode);
+
+                        // DEBUG
+                        for (AsmLine<?> asmLine : asmLines) {
+                            logger.info(ByteArrayUtil.byteToHex(decodePos) + ": " + asmLine);
+                        }
 
                         decodePos += 4;
                     }

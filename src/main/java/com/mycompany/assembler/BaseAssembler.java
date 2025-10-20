@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -498,8 +499,6 @@ public abstract class BaseAssembler {
         // evaluate expressions
         //
 
-        
-
         for (final AsmLine<?> asmLine : asmLines) {
 
             try {
@@ -563,7 +562,8 @@ public abstract class BaseAssembler {
         // instructions)
         //
 
-        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("build//resolved_assembly.s"))) {
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
+                new FileWriter("build//resolved_assembly.s"))) {
 
             // DEBUG
             System.out.println("\n\n\n");
@@ -579,7 +579,17 @@ public abstract class BaseAssembler {
                     System.out.println("error!");
                 }
 
-                bufferedWriter.write(asmLine.toString());
+                String asmLineAsString = asmLine.toString();
+                bufferedWriter.write(asmLineAsString);
+
+                // output offset
+                if (asmLine.mnemonic != null) {
+
+                    int delta = 50 - asmLineAsString.length();
+                    String filler = spaces(delta);
+                    bufferedWriter.write(
+                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.offset) + " (" + asmLine.offset + ")");
+                }
                 bufferedWriter.write("\n");
             }
 
@@ -646,8 +656,8 @@ public abstract class BaseAssembler {
             byte[] byteArray = section.byteArrayOutStream.toByteArray();
 
             // DEBUG output the byte array to the console
-            // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-            ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+            ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+            // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
             outputHexMachineCode(byteArray, byteOrder);
 
             logger.info("");
@@ -702,4 +712,7 @@ public abstract class BaseAssembler {
         return asmLines;
     }
 
+    public String spaces(int spaces) {
+        return CharBuffer.allocate(spaces).toString().replace('\0', ' ');
+    }
 }

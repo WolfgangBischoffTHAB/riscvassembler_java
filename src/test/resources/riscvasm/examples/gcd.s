@@ -13,4 +13,4 @@ loop:   beq  x11, x0,  exit
         add  x11, x5,  x0
         beq  x0,  x0,  loop
 # exit:   sd   x10, 2000(x0)
-exit: ret
+exit:   ret

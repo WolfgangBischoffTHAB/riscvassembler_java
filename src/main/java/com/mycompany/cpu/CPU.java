@@ -6,4 +6,6 @@ public interface CPU {
 
     boolean step() throws IOException;
 
+    long[] getRegisterFile();
+
 }

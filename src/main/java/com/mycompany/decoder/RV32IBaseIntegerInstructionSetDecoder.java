@@ -1,5 +1,9 @@
 package com.mycompany.decoder;
 
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +13,7 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Register;
+import com.mycompany.memory.Memory;
 
 /**
  * RV32I Base Integer Instruction Set, Version 2.1
@@ -39,6 +44,12 @@ import com.mycompany.data.Register;
 public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
+
+    public Memory memory;
+
+    //
+    // Uncompressed instructions (bit [0:1] are 11)
+    //
 
     /**  */
     private static final int FENCE_TYPE = 0b0001111;
@@ -75,9 +86,24 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     /** 0b0100111 */
     private static final int V_EXTENSION_STORE = 0b0100111;
 
+    // unprivileged spec, page 175
+    private static final int QUADRANT_0 = 0b00;
+    private static final int QUADRANT_1 = 0b01;
+    private static final int QUADRANT_2 = 0b10;
+
+    //
+    // Compressed instructions (bit [0:1] are not 11)
+    //
+
     private int xlen;
 
+    /**
+     * ctor
+     * 
+     * @param xlen
+     */
     public RV32IBaseIntegerInstructionSetDecoder(int xlen) {
+
         if ((xlen != 32) && (xlen != 64)) {
             throw new RuntimeException("unknown xlen length!");
         }
@@ -90,36 +116,383 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
      * @param data machine code
      * @return ASMLine object with decoded information
      */
-    public AsmLine<?> decode(final int data) {
+    public List<AsmLine<?>> decode(final int address) {
 
-        if ((xlen != 32) && (xlen != 64)) {
-            throw new RuntimeException("unknown xlen length!");
+        logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
+
+        // if (pc == 0x80002004) {
+        // logger.trace("Tset");
+        // }
+
+        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        final int instruction = memory.readWord(address, byteOrder);
+
+        if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
+            logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");
+
+            // abort CPU
+            return new ArrayList<>();
         }
 
-        AsmLine<Register> asmLine = new AsmLine<>();
+        // DEBUG
+        logger.trace("instruction: " + ByteArrayUtil.byteToHex(instruction, null, "%1$08X"));
+
+        List<AsmLine<?>> result = new ArrayList<>();
+
+        if ((xlen != 32) && (xlen != 64)) {
+            throw new RuntimeException("unknown XLEN length!");
+        }
 
         // decode 0 to NOP
-        if (data == 0) {
+        if (instruction == 0) {
+
+            AsmLine<Register> asmLine = new AsmLine<>();
+            result.add(asmLine);
+
+            asmLine.instruction = instruction;
+            asmLine.encodedLength = 4;
+
             asmLine.mnemonic = Mnemonic.I_NOP;
-            return asmLine;
+
+            return result;
         }
 
         // detect custom breakpoint instruction
-        if (data == 0x1f1f1f1f) {
+        if (instruction == 0x1f1f1f1f) {
+
+            AsmLine<Register> asmLine = new AsmLine<>();
+            result.add(asmLine);
+
+            asmLine.instruction = instruction;
+            asmLine.encodedLength = 4;
+
             asmLine.mnemonic = Mnemonic.I_BRK;
-            return asmLine;
+
+            return result;
         }
 
         // // emulator extension PUTS
         // if (data == 0x11111111) {
-        //     asmLine.mnemonic = Mnemonic.I_PUTS;
-        //     return asmLine;
+        // asmLine.mnemonic = Mnemonic.I_PUTS;
+        // return asmLine;
         // }
 
         // DEBUG
         if (logger.isTraceEnabled()) {
-            logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", data));
+            logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
         }
+
+        //
+        // Compressed
+        //
+
+        int opcode_c = instruction & 0b11;
+
+        if (opcode_c == 0b11) {
+
+            // instruction
+            AsmLine<Register> asmLine = new AsmLine<>();
+            result.add(asmLine);
+
+            asmLine.instruction = instruction;
+            asmLine.encodedLength = 4;
+            processUncompressedInstruction(asmLine, instruction);
+
+        } else {
+
+            // first instruction
+            AsmLine<Register> asmLine = new AsmLine<>();
+            result.add(asmLine);
+
+            int firstInstruction = (instruction >> 0) & 0b1111111111111111;
+
+            asmLine.instruction = firstInstruction;
+            asmLine.encodedLength = 2;
+            processCompressedInstruction(asmLine, firstInstruction);
+
+            // second instruction
+            asmLine = new AsmLine<>();
+            result.add(asmLine);
+
+            int secondInstruction = (instruction >> 16) & 0b1111111111111111;
+
+            if ((secondInstruction & 0b11) == 0b11) {
+                // a non compressed instruction, now the decoder needs to pull in two bytes to
+                // complete the instruction
+
+                int instructionPart = memory.readShort(address + 4, byteOrder);
+
+                // System.out.println(ByteArrayUtil.byteToHex(instructionPart));
+                // System.out.println(ByteArrayUtil.byteToHex(secondInstruction));
+
+                asmLine.instruction = (instructionPart << 16) | secondInstruction;
+
+                // System.out.println(ByteArrayUtil.intToHex("0x%08x", asmLine.instruction));
+
+                asmLine.encodedLength = 4;
+
+                processUncompressedInstruction(asmLine, asmLine.instruction);
+
+            } else {
+
+                asmLine.instruction = secondInstruction;
+
+                asmLine.encodedLength = 2;
+                processCompressedInstruction(asmLine, secondInstruction);
+
+            }
+
+        }
+
+        return result;
+    }
+
+    private void processCompressedInstruction(AsmLine<Register> asmLine, int data) {
+
+        boolean debugOutput = true;
+
+        if (debugOutput) {
+            logger.info("");
+            logger.info("");
+            logger.info("***********************************************");
+            logger.info("Pulling: " + ByteArrayUtil.byteToHex(data));
+        }
+
+        int opcode = data & 0b11;
+        int funct3 = (data >> 13) & 0b111;
+
+        int imm_12 = (data >> 12) & 0b1;
+        int imm_11_7 = (data >> 7) & 0b11111;
+        int imm_9_7 = (data >> 7) & 0b111;
+        int imm_6_2 = (data >> 2) & 0b11111;
+
+        int imm_4_2 = (data >> 2) & 0b111;
+        // int imm_9_7 = (data >> 7) & 0b111;
+
+        int imm_8 = (data >> 12) & 0b1;
+        int imm_7_6 = (data >> 5) & 0b11;
+        int imm_5 = (data >> 2) & 0b1;
+        int imm_4_3 = (data >> 10) & 0b11;
+        int imm_2_1 = (data >> 3) & 0b11;
+
+        long immediate_8_1_combined = (imm_8 << 8) | (imm_7_6 << 6) | (imm_5 << 5) | (imm_4_3 << 3) | (imm_2_1 << 1);
+
+        int imm_4_0 = (data >> 2) & 0b11111;
+
+        long immediate_5_0_combined = (imm_12 << 5) | (imm_4_0 << 0);
+
+        int imm_6 = (data >> 5) & 0b1;
+        int imm_5_3 = (data >> 10) & 0b111;
+        int imm_2 = (data >> 6) & 0b1;
+
+        long imm_6_2_combined = (imm_6 << 6) | (imm_5_3 << 3) | (imm_2 << 2);
+
+        switch (opcode) {
+
+            case QUADRANT_0:
+
+                switch (funct3) {
+
+                    case 0b010:
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.offset_1 = imm_6_2_combined;
+                        asmLine.mnemonic = Mnemonic.I_LW;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+                        break;
+
+                    default:
+                        throw new UnsupportedOperationException(
+                                "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                }
+
+                break;
+
+            case QUADRANT_1:
+
+                switch (funct3) {
+
+                    case 0b000:
+                        if (imm_11_7 == 0) {
+
+                            asmLine.mnemonic = Mnemonic.I_NOP;
+
+                        } else if (imm_11_7 != 0) {
+
+                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_addi
+                            asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.numeric_2 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
+                            asmLine.mnemonic = Mnemonic.I_ADDI;
+                            if (debugOutput) {
+                                logger.info(asmLine.toString());
+                            }
+
+                        } else {
+
+                            throw new UnsupportedOperationException(
+                                    "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+
+                        }
+                        break;
+
+                    case 0b010:
+                        // li pseudo instruction - https://msyksphinz-self.github.io/riscv-isadoc/#_c_li
+                        asmLine.register_0 = RISCVRegister.fromInt((int) imm_11_7);
+                        asmLine.numeric_1 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
+                        asmLine.mnemonic = Mnemonic.I_LI;
+                        if (debugOutput) {
+                            logger.info(">> Pseudo: " + asmLine.toString());
+                        }
+
+                        // addi rd, x0, imm[5:0]
+                        asmLine.register_1 = RISCVRegister.REG_ZERO;
+                        asmLine.numeric_2 = asmLine.numeric_1;
+                        asmLine.numeric_1 = null;
+                        asmLine.mnemonic = Mnemonic.I_ADDI;
+                        if (debugOutput) {
+                            logger.info("<< Resolved: " + asmLine.toString());
+                        }
+                        break;
+
+                    case 0b100:
+                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_or
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_2 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.mnemonic = Mnemonic.I_OR;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+                        break;
+
+                    case 0b110:
+                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_beqz
+                        // c.beqz rs1',offset --> beq rs1',x0,offset[8:1]
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_1 = RISCVRegister.REG_ZERO;
+                        asmLine.numeric_2 = immediate_8_1_combined;
+                        asmLine.mnemonic = Mnemonic.I_BEQ;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+                        break;
+
+                    case 0b111:
+                        // bnez pseudo instruction -
+                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_bnez
+                        // asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_9_7);
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_9_7);
+                        asmLine.numeric_1 = NumberParseUtil.sign_extend_9_bit_to_int32_t(immediate_8_1_combined);
+                        asmLine.mnemonic = Mnemonic.I_BNEZ;
+                        if (debugOutput) {
+                            logger.info(">> Pseudo: " + asmLine.toString());
+                        }
+
+                        // bne rs1', x0, offset[8:1]
+                        asmLine.register_1 = RISCVRegister.REG_ZERO;
+                        asmLine.numeric_2 = asmLine.numeric_1;
+                        asmLine.numeric_1 = null;
+                        asmLine.mnemonic = Mnemonic.I_BNE;
+                        if (debugOutput) {
+                            logger.info("<< Resolved: " + asmLine.toString());
+                        }
+                        break;
+
+                    default:
+                        throw new UnsupportedOperationException(
+                                "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                }
+
+                break;
+
+            case QUADRANT_2:
+
+                switch (funct3) {
+
+                    case 0b100:
+
+                        if ((imm_12 == 0) && (imm_11_7 != 0) && (imm_6_2 == 0)) {
+
+                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_jr
+
+                            // jalr x0,rs1,0
+                            asmLine.register_0 = RISCVRegister.REG_ZERO;
+                            asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.numeric_2 = 0x00L;
+                            asmLine.mnemonic = Mnemonic.I_JALR;
+                            if (debugOutput) {
+                                logger.info(asmLine.toString());
+                            }
+
+                        } else if ((imm_12 == 0) && (imm_11_7 != 0) && (imm_6_2 != 0)) {
+
+                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_mv
+                            // TODO: mv is a pseudo instruction which has to be replaced by add rd, x0, rs2
+
+                            asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.register_1 = RISCVRegister.fromInt(imm_6_2);
+                            asmLine.mnemonic = Mnemonic.I_MV;
+                            if (debugOutput) {
+                                logger.info(">> Pseudo: " + asmLine.toString());
+                            }
+
+                            asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.register_1 = RISCVRegister.fromInt(imm_6_2);
+                            asmLine.register_2 = RISCVRegister.REG_ZERO;
+                            // asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_11_7);
+                            // asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction(imm_6_2);
+                            // asmLine.register_2 = RISCVRegister.REG_ZERO;
+                            asmLine.mnemonic = Mnemonic.I_ADD;
+                            if (debugOutput) {
+                                logger.info("<< Resolved: " + asmLine.toString());
+                            }
+
+                        } else if ((imm_12 == 1) && (imm_11_7 == 0) && (imm_6_2 == 0)) {
+                            asmLine.mnemonic = Mnemonic.I_EBREAK;
+                        } else if ((imm_12 == 1) && (imm_11_7 != 0) && (imm_6_2 == 0)) {
+                            asmLine.mnemonic = Mnemonic.I_JALR;
+                        } else if ((imm_12 == 1) && (imm_11_7 != 0) && (imm_6_2 != 0)) {
+
+                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_add
+
+                            asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.register_2 = RISCVRegister.fromInt(imm_6_2);
+
+                            asmLine.mnemonic = Mnemonic.I_ADD;
+                            if (debugOutput) {
+                                logger.info("<< Resolved: " + asmLine.toString());
+                            }
+
+                        } else {
+                            throw new UnsupportedOperationException(
+                                    "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                        }
+                        break;
+
+                    default:
+                        throw new UnsupportedOperationException(
+                                "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+
+                }
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+
+        }
+
+    }
+
+    private void processUncompressedInstruction(AsmLine<Register> asmLine, int data) {
+
+        //
+        // Uncompressed
+        //
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;
@@ -265,7 +638,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                             default:
                                 throw new RuntimeException(
-                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                                        "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
                         }
                         break;
 
@@ -548,7 +921,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                                 int zimm = (data >> 20) & 0b111_1111_1111;
 
-                                //int zimm_10_0 = ((vma & 0b1) << 7) | ((vta & 0b1) << 6) | ((sew & 0b111) << 3) | ((lmul & 0b111) << 0);
+                                // int zimm_10_0 = ((vma & 0b1) << 7) | ((vta & 0b1) << 6) | ((sew & 0b111) <<
+                                // 3) | ((lmul & 0b111) << 0);
 
                                 int lmul = (zimm >> 0) & 0b111;
                                 int sew = (zimm >> 3) & 0b111;
@@ -557,13 +931,13 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 int vill = (data >> 31) & 0b1;
 
                                 // mask agnostic
-                                //byte vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
+                                // byte vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
                                 String maskAgnostic = (vma == 1) ? "ma" : "mu";
                                 logger.info("maskAgnostic: " + maskAgnostic);
                                 asmLine.rvvMask = maskAgnostic;
 
                                 // tail agnostic
-                                //byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
+                                // byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
                                 String tailAgnostic = (vta == 1) ? "ta" : "tu";
                                 logger.info("tailAgnostic: " + tailAgnostic);
                                 asmLine.rvvTail = tailAgnostic;
@@ -571,13 +945,13 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 // selected element width (SEW)
                                 // byte sew = 4;
                                 // if (asmLine.rvvSew.equalsIgnoreCase("e8")) {
-                                //     sew = 0;
+                                // sew = 0;
                                 // } else if (asmLine.rvvSew.equalsIgnoreCase("e16")) {
-                                //     sew = 1;
+                                // sew = 1;
                                 // } else if (asmLine.rvvSew.equalsIgnoreCase("e32")) {
-                                //     sew = 2;
+                                // sew = 2;
                                 // } else if (asmLine.rvvSew.equalsIgnoreCase("e64")) {
-                                //     sew = 3;
+                                // sew = 3;
                                 // }
                                 String selectedElementWidth = "";
                                 switch (sew) {
@@ -600,21 +974,23 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 // register grouping or fractions of register (LMUL)
                                 // byte lmul = 0; // default value
                                 // if (asmLine.rvvLmul != null) {
-                                //     if (asmLine.rvvLmul.equalsIgnoreCase("mf8")) { // multiplier fractional
-                                //         lmul = 5;
-                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("mf4")) { // multiplier fractional
-                                //         lmul = 6;
-                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("mf2")) { // multiplier fractional
-                                //         lmul = 7;
-                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) { // grouped
-                                //         lmul = 0;
-                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) { // grouped
-                                //         lmul = 1;
-                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) { // grouped
-                                //         lmul = 2;
-                                //     } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) { // grouped
-                                //         lmul = 3;
-                                //     }
+                                // if (asmLine.rvvLmul.equalsIgnoreCase("mf8")) { // multiplier fractional
+                                // lmul = 5;
+                                // } else if (asmLine.rvvLmul.equalsIgnoreCase("mf4")) { // multiplier
+                                // fractional
+                                // lmul = 6;
+                                // } else if (asmLine.rvvLmul.equalsIgnoreCase("mf2")) { // multiplier
+                                // fractional
+                                // lmul = 7;
+                                // } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) { // grouped
+                                // lmul = 0;
+                                // } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) { // grouped
+                                // lmul = 1;
+                                // } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) { // grouped
+                                // lmul = 2;
+                                // } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) { // grouped
+                                // lmul = 3;
+                                // }
                                 // }
                                 String lmulMultiplier = "";
                                 switch (lmul) {
@@ -704,8 +1080,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
-                    default: 
-                        // I_VSETVLI - https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
+                    default:
+                        // I_VSETVLI -
+                        // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
                         decode_RVV_VSETVLI(data, asmLine, rd, rs1);
                         break;
                 }
@@ -719,7 +1096,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 // masking enabled / disabled
                 vm = (data >> 25) & 0b1;
                 if (vm == 1) {
-                    //asmLine.register_2 = RISCVRegister.fromInt(rs1);
+                    // asmLine.register_2 = RISCVRegister.fromInt(rs1);
                 }
 
                 switch (funct3) {
@@ -739,7 +1116,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 // masking enabled / disabled
                 vm = (data >> 25) & 0b1;
                 if (vm == 1) {
-                    //asmLine.register_2 = RISCVRegister.fromInt(rs1);
+                    // asmLine.register_2 = RISCVRegister.fromInt(rs1);
                 }
 
                 switch (funct3) {
@@ -756,8 +1133,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         + ". Unknown Instruction Type! opcode = " + opcode);
 
         }
-
-        return asmLine;
     }
 
     private void decode_RVV_VSETVLI(final int data, AsmLine<Register> asmLine, int rd, int rs1) {
@@ -841,6 +1216,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     /**
      * 32 bit
+     * 
      * @param asmLine
      * @param funct3
      * @param funct7
@@ -857,6 +1233,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     /**
      * 64 bit
+     * 
      * @param asmLine
      * @param funct3
      * @param funct7

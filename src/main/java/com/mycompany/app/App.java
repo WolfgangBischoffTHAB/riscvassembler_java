@@ -19,8 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
+import com.mycompany.common.NumberParseUtil;
 import com.mycompany.cpu.AbstractCPU;
 import com.mycompany.cpu.CPU;
+import com.mycompany.cpu.SingleCycle32BitCPU;
 import com.mycompany.cpu.SingleCycle64BitCPU;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
@@ -53,7 +55,8 @@ public class App {
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
-    public static final int XLEN = 64;
+    //public static final int XLEN = 64;
+    public static final int XLEN = 32;
 
     private static final String MAIN_ENTRY_POINT_LABEL = "main";
 
@@ -63,15 +66,15 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // plain .s assembler source code
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // // .elf file
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // // plain .s assembler source code
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // .elf file
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -158,9 +161,13 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/fib.s";
         // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
 
-        String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+        // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
         // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
         // String inputFile = "src/test/resources/riscvasm/examples/div.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n.s";
+        //String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n_other_syntax.s";
+
+        //String inputFile = "src/test/resources/riscvasm/examples/sample_1.s";
 
         //String inputFile = "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
         //String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
@@ -180,7 +187,7 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
+        String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -260,6 +267,7 @@ public class App {
 
         long startAddress = 0;
         int globalPointerValue = 0;
+        int stackPointerValue = 0x00020000;
 
         if (MACHINE_CODE_SOURCE_ASSEMBLY_FILE) {
 
@@ -312,7 +320,14 @@ public class App {
                         + "' label found! Do not know where to execute the application from!");
             }
 
+            // set start address
             startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL).intValue();
+
+            // set global pointer
+            globalPointerValue = 0x00004000;
+
+            // set stack pointer
+            stackPointerValue = 0x00020000;
 
         }
 
@@ -327,12 +342,13 @@ public class App {
             // // RV32
             // //
 
-            // Elf32 elf = new Elf32();
-            // elf.memory = memory;
-            
-            // //elf.setFile("src/test/resources/riscvelf/factorial.out");
-            // //elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            //elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+            Elf32 elf = new Elf32();
+            elf.memory = memory;
+
+            // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");            
+            // elf.setFile("src/test/resources/riscvelf/factorial.out");
+            // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
 
             // elf.load();
 
@@ -360,7 +376,7 @@ public class App {
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bltu");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bne");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-bne");
             // TODO: Self modifying code!
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-fence_i");
             // OK
@@ -378,7 +394,7 @@ public class App {
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lhu");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lui");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lui");
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-lw");
             // OK
@@ -414,22 +430,22 @@ public class App {
             // OK
             //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-srli");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-st_ld");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-st_ld");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sub");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sub");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sw");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-sw");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xor");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xor");
             // OK
-            // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xori");
+            //elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xori");
 
             //
             // RV64
             //
 
-            Elf64 elf = new Elf64();
-            elf.memory = memory;
+            //Elf64 elf = new Elf64();
+            //elf.memory = memory;
 
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add"); // OK
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi"); // OK
@@ -591,7 +607,27 @@ public class App {
             globalPointerValue = elf.globalPointerValue;
  */
 
- if (XLEN == 64) {
+ if (XLEN == 32) {
+            //
+            // startAddress 64 bit
+            //
+            // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
+            // the spice simulator uses the _start symbol
+            Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+            Elf32Sym mainEntryPointSymbol = null;
+            if (optionalSymbol.isPresent()) {
+                mainEntryPointSymbol = optionalSymbol.get();
+            } else {
+                optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+                if (optionalSymbol.isPresent()) {
+                    mainEntryPointSymbol = optionalSymbol.get();
+                }
+            }
+            startAddress = (long) mainEntryPointSymbol.st_value;
+}
+
+/*
+if (XLEN == 64) {
             //
             // startAddress 64 bit
             //
@@ -609,6 +645,7 @@ public class App {
             }
             startAddress = mainEntryPointSymbol.st_value;
 }
+             */
             //
             // set the global pointer register
             //
@@ -632,20 +669,26 @@ public class App {
         // emulate
         //
 
-        CPU cpu = emulate(memory, startAddress, globalPointerValue);
+        CPU cpu = emulate(memory, startAddress, globalPointerValue, stackPointerValue);
 
         //
         // post emulation
         //
 
+        // DEBUG output all registers
+        long[] registerFile = cpu.getRegisterFile();
+        for (int i = 0; i < 32; i++) {
+            System.out.println("x" + (i) + ": " + registerFile[i]);
+        }
+
         if (cpu instanceof SingleCycle64BitCPU) {
 
             SingleCycle64BitCPU singleCycleCPU = (SingleCycle64BitCPU) cpu;
 
-            // DEBUG output all registers
-            for (int i = 0; i < 32; i++) {
-                System.out.println("x" + (i) + ": " + singleCycleCPU.registerFile[i]);
-            }
+            // // DEBUG output all registers
+            // for (int i = 0; i < 32; i++) {
+            //     System.out.println("x" + (i) + ": " + singleCycleCPU.registerFile[i]);
+            // }
 
             // DEBUG
             //BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
@@ -667,19 +710,23 @@ public class App {
         System.out.println("done");
     }
 
-    private static CPU emulate(final Memory memory, final long main_entry_point_address, int globalPointerValue) throws IOException {
+    private static CPU emulate(final Memory memory, final long main_entry_point_address, int globalPointerValue, int stackPointerValue) throws IOException {
 
-        if (XLEN != 64) {
-            throw new RuntimeException("change CPU to correct XLEN!");
-        }
+        // if (XLEN != 64) {
+        //     throw new RuntimeException("change CPU to correct XLEN!");
+        // }
+        if (XLEN != 32) {
+             throw new RuntimeException("change CPU to correct XLEN!");
+         }
 
-        SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
+         SingleCycle32BitCPU cpu = new SingleCycle32BitCPU();
+        // SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
         //PipelinedCPU cpu = new PipelinedCPU();
 
         // DEBUG main entry point address
-        logger.info("Main Entry Point: " + ByteArrayUtil.byteToHex(main_entry_point_address));
+        logger.info("Main Entry Point: " + ByteArrayUtil.byteToHex((int) main_entry_point_address, null, "%1$08X"));
 
-        cpu.pc = main_entry_point_address;
+        cpu.pc = (int) main_entry_point_address;
         cpu.registerFile[RISCVRegister.REG_GP.getIndex()] = globalPointerValue;
 
         //
@@ -698,7 +745,7 @@ public class App {
         //
         // stack should grow down, so set it to the highest memory address possible
         //cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = machineCode.length - 4;
-        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = 0x20000;
+        cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = stackPointerValue;
 
         //
         // frame-pointer (s0/fp, x8 register)

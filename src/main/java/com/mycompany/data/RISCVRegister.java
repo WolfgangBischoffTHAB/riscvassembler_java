@@ -73,7 +73,7 @@ public enum RISCVRegister implements Register {
     /** x10 */
     REG_A0(10), // function argument 0 / return value 0
     /** x11 */
-    REG_A1(11), // function argument 1 / return value 1	
+    REG_A1(11), // function argument 1 / return value 1
     /** x12 */
     REG_A2(12), // function argument 2
     /** x13 */
@@ -199,13 +199,13 @@ public enum RISCVRegister implements Register {
     REG_V2(0x04),
     REG_V2_T(0x05),
 
-    REG_UNKNOWN(255);    
+    REG_UNKNOWN(255);
 
     private int index;
 
-	RISCVRegister(final int index) {
-		this.index = index;
-	}
+    RISCVRegister(final int index) {
+        this.index = index;
+    }
 
     public static Register fromInt(final int data) {
 
@@ -281,6 +281,63 @@ public enum RISCVRegister implements Register {
         }
     }
 
+    /**
+     * Unprivilegded spec, compressed, page 163, table 38
+     * RVC Register Number
+     * 
+     * Integer Register Number
+     * 000 001 010 011 100 101 110 111
+     * _x8 _x9 x10 x11 x12 x13 x14 x15
+     * 
+     * Integer Register ABI Name
+     * 000 001 010 011 100 101 110 111
+     * _s0 _s1 _a0 _a1 _a2 _a3 _a4 _a5
+     * 
+     * Floating-Point Register Number
+     * 000 001 010 011 100 101 110 111
+     * _f8 _f9 f10 f11 f12 f13 f14 f15
+     * 
+     * Floating-Point Register ABI Name
+     * 000 001 010 011 100 101 110 111
+     * fs0 fs1 fa0 fa1 fa2 fa3 fa4 fa5
+     *
+     * @param data
+     * @return
+     */
+    public static Register fromIntCompressedInstruction(final int data) {
+
+        switch (data) {
+
+            /** 0 */
+            case 0x00:
+                return REG_X8;
+            /** 1 */
+            case 0x01:
+                return REG_X9;
+            /** 2 */
+            case 0x02:
+                return REG_X10;
+            /** 3 */
+            case 0x03:
+                return REG_X11;
+            /** 4 */
+            case 0x04:
+                return REG_X12;
+            /** 5 */
+            case 0x05:
+                return REG_X13;
+            /** 6 */
+            case 0x06:
+                return REG_X14;
+            /** 7 */
+            case 0x07:
+                return REG_X15;
+
+            default:
+                throw new RuntimeException("Unknown C-Extension register: \"" + data + "\"");
+        }
+    }
+
     public static Register fromIntRVV(final int data) {
 
         switch (data) {
@@ -335,7 +392,7 @@ public enum RISCVRegister implements Register {
             return REG_S0; // also FP
         }
         // else if (register.equalsIgnoreCase("FP")) { // 8
-        //     return REG_FP; // also S0
+        // return REG_FP; // also S0
         // }
         else if (register.equalsIgnoreCase("S1")) { // 9
             return REG_S1;
@@ -385,69 +442,69 @@ public enum RISCVRegister implements Register {
             return REG_T6;
         }
 
-        if (register.equalsIgnoreCase("x0")) {
+        if (register.equalsIgnoreCase("x0") || register.equalsIgnoreCase("$0")) {
             return REG_ZERO;
-        } else if (register.equalsIgnoreCase("x1")) {
+        } else if (register.equalsIgnoreCase("x1") || register.equalsIgnoreCase("$1")) {
             return REG_RA;
-        } else if (register.equalsIgnoreCase("x2")) {
+        } else if (register.equalsIgnoreCase("x2") || register.equalsIgnoreCase("$2")) {
             return REG_SP;
-        } else if (register.equalsIgnoreCase("x3")) {
+        } else if (register.equalsIgnoreCase("x3") || register.equalsIgnoreCase("$3")) {
             return REG_GP;
-        } else if (register.equalsIgnoreCase("x4")) {
+        } else if (register.equalsIgnoreCase("x4") || register.equalsIgnoreCase("$4")) {
             return REG_TP;
-        } else if (register.equalsIgnoreCase("x5")) {
+        } else if (register.equalsIgnoreCase("x5") || register.equalsIgnoreCase("$5")) {
             return REG_T0;
-        } else if (register.equalsIgnoreCase("x6")) {
+        } else if (register.equalsIgnoreCase("x6") || register.equalsIgnoreCase("$6")) {
             return REG_T1;
-        } else if (register.equalsIgnoreCase("x7")) {
+        } else if (register.equalsIgnoreCase("x7") || register.equalsIgnoreCase("$7")) {
             return REG_T2;
-        } else if (register.equalsIgnoreCase("x8")) {
+        } else if (register.equalsIgnoreCase("x8") || register.equalsIgnoreCase("$8")) {
             return REG_S0;
-        } else if (register.equalsIgnoreCase("x9")) {
+        } else if (register.equalsIgnoreCase("x9") || register.equalsIgnoreCase("$9")) {
             return REG_S1;
-        } else if (register.equalsIgnoreCase("x10")) {
+        } else if (register.equalsIgnoreCase("x10") || register.equalsIgnoreCase("$10")) {
             return REG_A0;
-        } else if (register.equalsIgnoreCase("x11")) {
+        } else if (register.equalsIgnoreCase("x11") || register.equalsIgnoreCase("$11")) {
             return REG_A1;
-        } else if (register.equalsIgnoreCase("x12")) {
+        } else if (register.equalsIgnoreCase("x12") || register.equalsIgnoreCase("$12")) {
             return REG_A2;
-        } else if (register.equalsIgnoreCase("x13")) {
+        } else if (register.equalsIgnoreCase("x13") || register.equalsIgnoreCase("$13")) {
             return REG_A3;
-        } else if (register.equalsIgnoreCase("x14")) {
+        } else if (register.equalsIgnoreCase("x14") || register.equalsIgnoreCase("$14")) {
             return REG_A4;
-        } else if (register.equalsIgnoreCase("x15")) {
+        } else if (register.equalsIgnoreCase("x15") || register.equalsIgnoreCase("$15")) {
             return REG_A5;
-        } else if (register.equalsIgnoreCase("x16")) {
+        } else if (register.equalsIgnoreCase("x16") || register.equalsIgnoreCase("$16")) {
             return REG_A6;
-        } else if (register.equalsIgnoreCase("x17")) {
+        } else if (register.equalsIgnoreCase("x17") || register.equalsIgnoreCase("$17")) {
             return REG_A7;
-        } else if (register.equalsIgnoreCase("x18")) {
+        } else if (register.equalsIgnoreCase("x18") || register.equalsIgnoreCase("$18")) {
             return REG_S2;
-        } else if (register.equalsIgnoreCase("x19")) {
+        } else if (register.equalsIgnoreCase("x19") || register.equalsIgnoreCase("$19")) {
             return REG_S3;
-        } else if (register.equalsIgnoreCase("x20")) {
+        } else if (register.equalsIgnoreCase("x20") || register.equalsIgnoreCase("$20")) {
             return REG_S4;
-        } else if (register.equalsIgnoreCase("x21")) {
+        } else if (register.equalsIgnoreCase("x21") || register.equalsIgnoreCase("$21")) {
             return REG_S5;
-        } else if (register.equalsIgnoreCase("x22")) {
+        } else if (register.equalsIgnoreCase("x22") || register.equalsIgnoreCase("$22")) {
             return REG_S6;
-        } else if (register.equalsIgnoreCase("x23")) {
+        } else if (register.equalsIgnoreCase("x23") || register.equalsIgnoreCase("$23")) {
             return REG_S7;
-        } else if (register.equalsIgnoreCase("x24")) {
+        } else if (register.equalsIgnoreCase("x24") || register.equalsIgnoreCase("$24")) {
             return REG_S8;
-        } else if (register.equalsIgnoreCase("x25")) {
+        } else if (register.equalsIgnoreCase("x25") || register.equalsIgnoreCase("$25")) {
             return REG_S9;
-        } else if (register.equalsIgnoreCase("x26")) {
+        } else if (register.equalsIgnoreCase("x26") || register.equalsIgnoreCase("$26")) {
             return REG_S10;
-        } else if (register.equalsIgnoreCase("x27")) {
+        } else if (register.equalsIgnoreCase("x27") || register.equalsIgnoreCase("$27")) {
             return REG_S11;
-        } else if (register.equalsIgnoreCase("x28")) {
+        } else if (register.equalsIgnoreCase("x28") || register.equalsIgnoreCase("$28")) {
             return REG_T3;
-        } else if (register.equalsIgnoreCase("x29")) {
+        } else if (register.equalsIgnoreCase("x29") || register.equalsIgnoreCase("$29")) {
             return REG_T4;
-        } else if (register.equalsIgnoreCase("x30")) {
+        } else if (register.equalsIgnoreCase("x30") || register.equalsIgnoreCase("$30")) {
             return REG_T5;
-        } else if (register.equalsIgnoreCase("x31")) {
+        } else if (register.equalsIgnoreCase("x31") || register.equalsIgnoreCase("$31")) {
             return REG_T6;
         }
 
@@ -457,20 +514,15 @@ public enum RISCVRegister implements Register {
 
         else if (register.equalsIgnoreCase("v0")) {
             return REG_V0;
-        }
-        else if (register.equalsIgnoreCase("v0.t")) {
+        } else if (register.equalsIgnoreCase("v0.t")) {
             return REG_V0_T;
-        }
-        else if (register.equalsIgnoreCase("v1")) {
+        } else if (register.equalsIgnoreCase("v1")) {
             return REG_V1;
-        }
-        else if (register.equalsIgnoreCase("v1.t")) {
+        } else if (register.equalsIgnoreCase("v1.t")) {
             return REG_V1_T;
-        }
-        else if (register.equalsIgnoreCase("v2")) {
+        } else if (register.equalsIgnoreCase("v2")) {
             return REG_V2;
-        }
-        else if (register.equalsIgnoreCase("v2.t")) {
+        } else if (register.equalsIgnoreCase("v2.t")) {
             return REG_V2_T;
         }
 
@@ -486,74 +538,106 @@ public enum RISCVRegister implements Register {
         switch (register) {
 
             case REG_ZERO:
+            case REG_X0:
                 return "x0";
             case REG_RA:
+            case REG_X1:
                 return "x1";
             case REG_SP:
+            case REG_X2:
                 return "x2";
             case REG_GP:
+            case REG_X3:
                 return "x3";
             case REG_TP:
+            case REG_X4:
                 return "x4";
             case REG_T0:
+            case REG_X5:
                 return "x5";
             case REG_T1:
+            case REG_X6:
                 return "x6";
             case REG_T2:
+            case REG_X7:
                 return "x7";
             // case REG_FP:
-            //     return "x8";
+            // return "x8";
             case REG_S0:
+            case REG_X8:
                 return "x8";
             case REG_S1:
+            case REG_X9:
                 return "x9";
             case REG_A0:
+            case REG_X10:
                 return "x10";
             case REG_A1:
+            case REG_X11:
                 return "x11";
             case REG_A2:
+            case REG_X12:
                 return "x12";
             case REG_A3:
+            case REG_X13:
                 return "x13";
             case REG_A4:
+            case REG_X14:
                 return "x14";
             case REG_A5:
+            case REG_X15:
                 return "x15";
             case REG_A6:
+            case REG_X16:
                 return "x16";
             case REG_A7:
+            case REG_X17:
                 return "x17";
             case REG_S2:
+            case REG_X18:
                 return "x18";
             case REG_S3:
+            case REG_X19:
                 return "x19";
             case REG_S4:
+            case REG_X20:
                 return "x20";
             case REG_S5:
+            case REG_X21:
                 return "x21";
             case REG_S6:
+            case REG_X22:
                 return "x22";
             case REG_S7:
+            case REG_X23:
                 return "x23";
             case REG_S8:
+            case REG_X24:
                 return "x24";
             case REG_S9:
+            case REG_X25:
                 return "x25";
             case REG_S10:
+            case REG_X26:
                 return "x26";
             case REG_S11:
+            case REG_X27:
                 return "x27";
             case REG_T3:
+            case REG_X28:
                 return "x28";
             case REG_T4:
+            case REG_X29:
                 return "x29";
             case REG_T5:
+            case REG_X30:
                 return "x30";
             case REG_T6:
+            case REG_X31:
                 return "x31";
             default:
                 throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");
-                //return "Unknown register: \"" + register.ordinal() + "\"";
+            // return "Unknown register: \"" + register.ordinal() + "\"";
         }
     }
 

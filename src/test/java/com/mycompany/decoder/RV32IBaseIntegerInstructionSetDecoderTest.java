@@ -1,5 +1,7 @@
 package com.mycompany.decoder;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,7 +27,7 @@ public class RV32IBaseIntegerInstructionSetDecoderTest {
 
         //int machineCode = 0xd7728301;
         int machineCode = 0x018372d7;
-        AsmLine<?> asmLine = rv32iBaseIntegerInstructionSetDecoder.decode(machineCode);
+        List<AsmLine<?>> asmLine = rv32iBaseIntegerInstructionSetDecoder.decode(machineCode);
 
         //
         // Assert

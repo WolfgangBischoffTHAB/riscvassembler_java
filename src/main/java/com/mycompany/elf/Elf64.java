@@ -647,10 +647,18 @@ public class Elf64 extends BaseElf {
 
                         instructionMachineCode = ByteArrayUtil.decodeInt32FromArrayBigEndian(buffer, decodePos);
 
-                        AsmLine<?> asmLine = delegatingDecoder.decode(instructionMachineCode);
-                        logger.info(ByteArrayUtil.byteToHex(decodePos) + ": " + asmLine);
+                        List<AsmLine<?>> asmLines = delegatingDecoder.decode(instructionMachineCode);
 
-                        decodePos += 4;
+                        
+                        for (AsmLine<?> asmLine : asmLines) {
+
+                            // DEBUG
+                            logger.info(ByteArrayUtil.byteToHex(decodePos) + ": " + asmLine);
+
+                            decodePos += asmLine.encodedLength;
+                        }
+
+                        
                     }
 
                 } catch (Exception e) {

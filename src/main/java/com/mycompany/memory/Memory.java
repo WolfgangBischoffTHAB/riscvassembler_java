@@ -18,16 +18,19 @@ public interface Memory {
     void copy(long targetAddress, byte[] srcBuffer, int offsetInSrcBuffer, int sizeInBytes);
 
     int getByte(int addr);
+    int readByte(int addr);
 
-    void storeByte(int addr, byte b);
+    void storeByte(int addr, byte data);
 
+    int readShort(int addr, ByteOrder byteOrder);
+    
     int readWord(long addr, ByteOrder byteOrder);
-
+    
     long readLong(long addr, ByteOrder byteOrder);
 
     MemoryBlock getMemoryBlockForAddress(int addr);
 
-    void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress);
+    void print(long startAddress, long endAddress, ByteOrder byteOrder, int highlightAddress);
 
     void setDecoder(Decoder decoder);
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -106,11 +107,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             return false;
         }
 
-        logger.trace("instruction: " + ByteArrayUtil.byteToHex(instruction));
+        logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " Instruction: " + ByteArrayUtil.byteToHex(instruction));
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
-        AsmLine<?> asmLine = decoder.decode(instruction);
+        List<AsmLine<?>> asmLine = decoder.decode(instruction);
 
         // DEBUG output ASM line
         debugASMLineOutput = true;
@@ -696,7 +697,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.trace(stringBuilder.toString());
+                logger.info(stringBuilder.toString());
 
                 // Increment PC
                 pc += 4;

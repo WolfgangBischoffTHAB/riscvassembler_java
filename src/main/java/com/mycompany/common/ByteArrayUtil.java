@@ -283,11 +283,11 @@ public class ByteArrayUtil {
         return byteBuffer.array();
     }
 
-    public static int twoByteToInt(final byte[] data, final ByteOrder byteOrder) {
+    public static short twoByteToInt(final byte[] data, final ByteOrder byteOrder) {
         final ByteBuffer byteBuffer = ByteBuffer.wrap(data);
         byteBuffer.order(byteOrder);
 
-        return byteBuffer.getInt();
+        return byteBuffer.getShort();
     }
 
     public static byte[] intToFourByte(final int data, final ByteOrder byteOrder) {
@@ -318,6 +318,14 @@ public class ByteArrayUtil {
         byteBuffer.order(byteOrder);
 
         return byteBuffer.getLong();
+    }
+
+    public static short twoByteToInt(final byte a, final byte b, final ByteOrder byteOrder) {
+        byte[] data = new byte[2];
+        data[0] = a;
+        data[1] = b;
+
+        return twoByteToInt(data, byteOrder);
     }
 
     public static int fourByteToInt(final byte a, final byte b, final byte c, final byte d, final ByteOrder byteOrder) {

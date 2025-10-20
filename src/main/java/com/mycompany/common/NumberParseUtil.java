@@ -22,6 +22,27 @@ public class NumberParseUtil {
         return Long.parseLong(tempData, base);
     }
 
+    public static long sign_extend_6_bit_to_int32_t(long value) {
+        long unpacked = value & 0x3F;
+        long extended = (unpacked ^ 0x20) - 0x20;
+
+        return extended;
+    }
+
+    public static long sign_extend_8_bit_to_int32_t(long value) {
+        long unpacked = value & 0xFF;
+        long extended = (unpacked ^ 0x80) - 0x80;
+
+        return extended;
+    }
+
+    public static long sign_extend_9_bit_to_int32_t(long value) {
+        long unpacked = value & 0x1FF;
+        long extended = (unpacked ^ 0x100) - 0x100;
+
+        return extended;
+    }
+
     public static long sign_extend_12_bit_to_int32_t(long value) {
         long unpacked = value & 0xFFF;
         long extended = (unpacked ^ 0x800) - 0x800;
@@ -62,6 +83,6 @@ public class NumberParseUtil {
         long extended = (unpacked ^ 0x80000000) - 0x80000000;
 
         return extended;
-    }
+    }    
 
 }

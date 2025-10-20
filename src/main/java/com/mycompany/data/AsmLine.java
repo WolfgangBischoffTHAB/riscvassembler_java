@@ -121,6 +121,10 @@ public class AsmLine<T extends Register> {
 
     public boolean rvvMasking;
 
+    public int instruction;
+
+    public int encodedLength;
+
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -181,12 +185,13 @@ public class AsmLine<T extends Register> {
 
         stringBuilder.append(Mnemonic.toString(mnemonic)).append(" ");
 
-        outputBlock0(stringBuilder);
-        outputBlock1(stringBuilder);
-        outputBlock2(stringBuilder);
-        outputBlock3(stringBuilder);
-        outputBlock4(stringBuilder);
-        outputBlock5(stringBuilder);
+        boolean outputRegisterAsABI = false;
+        outputBlock0(stringBuilder, outputRegisterAsABI);
+        outputBlock1(stringBuilder, outputRegisterAsABI);
+        outputBlock2(stringBuilder, outputRegisterAsABI);
+        outputBlock3(stringBuilder, outputRegisterAsABI);
+        outputBlock4(stringBuilder, outputRegisterAsABI);
+        outputBlock5(stringBuilder, outputRegisterAsABI);
 
         //
         // V-Extension (RVV Vektor Extension)
@@ -252,7 +257,7 @@ public class AsmLine<T extends Register> {
         return stringBuilder.toString();
     }
 
-    private void outputBlock5(StringBuilder stringBuilder) {
+    private void outputBlock5(StringBuilder stringBuilder, boolean outputRegistersAsABI) {
         if (numeric_5 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(String.format("0x%X", numeric_5.intValue()));
@@ -266,7 +271,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(")");
             if (register_5 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_5));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_5));
+                } else {
+                    stringBuilder.append(Register.toString(register_5));
+                }
                 stringBuilder.append(")");
             }
         } else if (identifier_5 != null) {
@@ -276,7 +285,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(", ");
             stringBuilder.append(offset_5).append("(");
             if (register_5 != null) {
-                stringBuilder.append(Register.toStringAbi(register_5));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_5));
+                } else {
+                    stringBuilder.append(Register.toString(register_5));
+                }
             }
             stringBuilder.append(")");
         }
@@ -288,12 +301,16 @@ public class AsmLine<T extends Register> {
         else {
             if (register_5 != null) {
                 stringBuilder.append(", ");
-                stringBuilder.append(Register.toStringAbi(register_5));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_5));
+                } else {
+                    stringBuilder.append(Register.toString(register_5));
+                }
             }
         }
     }
 
-    private void outputBlock4(StringBuilder stringBuilder) {
+    private void outputBlock4(StringBuilder stringBuilder, boolean outputRegistersAsABI) {
         if (numeric_4 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(String.format("0x%X", numeric_4.intValue()));
@@ -307,7 +324,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(")");
             if (register_4 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_4));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_4));
+                } else {
+                    stringBuilder.append(Register.toString(register_4));
+                }
                 stringBuilder.append(")");
             }
         } else if (identifier_4 != null) {
@@ -317,7 +338,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(", ");
             stringBuilder.append(offset_4).append("(");
             if (register_4 != null) {
-                stringBuilder.append(Register.toStringAbi(register_4));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_4));
+                } else {
+                    stringBuilder.append(Register.toString(register_4));
+                }
             }
             stringBuilder.append(")");
         }
@@ -329,12 +354,16 @@ public class AsmLine<T extends Register> {
         else {
             if (register_4 != null) {
                 stringBuilder.append(", ");
-                stringBuilder.append(Register.toStringAbi(register_4));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_4));
+                } else {
+                    stringBuilder.append(Register.toString(register_4));
+                }
             }
         }
     }
 
-    private void outputBlock3(StringBuilder stringBuilder) {
+    private void outputBlock3(StringBuilder stringBuilder, boolean outputRegistersAsABI) {
         if (numeric_3 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(String.format("0x%X", numeric_3.intValue()));
@@ -348,7 +377,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(")");
             if (register_3 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_3));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_3));
+                } else {
+                    stringBuilder.append(Register.toString(register_3));
+                }
                 stringBuilder.append(")");
             }
         } else if (identifier_3 != null) {
@@ -358,7 +391,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(", ");
             stringBuilder.append(offset_3).append("(");
             if (register_3 != null) {
-                stringBuilder.append(Register.toStringAbi(register_3));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_3));
+                } else {
+                    stringBuilder.append(Register.toString(register_3));
+                }
             }
             stringBuilder.append(")");
         }
@@ -370,12 +407,16 @@ public class AsmLine<T extends Register> {
         else {
             if (register_3 != null) {
                 stringBuilder.append(", ");
-                stringBuilder.append(Register.toStringAbi(register_3));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_3));
+                } else {
+                    stringBuilder.append(Register.toString(register_3));
+                }
             }
         }
     }
 
-    private void outputBlock2(StringBuilder stringBuilder) {
+    private void outputBlock2(StringBuilder stringBuilder, boolean outputRegistersAsABI) {
         if (numeric_2 != null) {
             stringBuilder.append(", ");
             //stringBuilder.append(String.format("0x%08X", numeric_2.intValue()));
@@ -390,7 +431,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(")");
             if (register_2 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_2));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_2));
+                } else {
+                    stringBuilder.append(Register.toString(register_2));
+                }
                 stringBuilder.append(")");
             }
         } else if (identifier_2 != null) {
@@ -400,7 +445,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(", ");
             stringBuilder.append(offset_2).append("(");
             if (register_2 != null) {
-                stringBuilder.append(Register.toStringAbi(register_2));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_2));
+                } else {
+                    stringBuilder.append(Register.toString(register_2));
+                }
             }
             stringBuilder.append(")");
         }
@@ -412,12 +461,16 @@ public class AsmLine<T extends Register> {
         else {
             if (register_2 != null) {
                 stringBuilder.append(", ");
-                stringBuilder.append(Register.toStringAbi(register_2));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_2));
+                } else {
+                    stringBuilder.append(Register.toString(register_2));
+                }
             }
         }
     }
 
-    private void outputBlock1(StringBuilder stringBuilder) {
+    private void outputBlock1(StringBuilder stringBuilder, boolean outputRegistersAsABI) {
         if (numeric_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(String.format("0x%X", numeric_1.intValue()));
@@ -431,7 +484,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(")");
             if (register_1 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_1));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_1));
+                } else {
+                    stringBuilder.append(Register.toString(register_1));
+                }
                 stringBuilder.append(")");
             }
         } else if (identifier_1 != null) {
@@ -441,7 +498,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(", ");
             stringBuilder.append(offset_1).append("(");
             if (register_1 != null) {
-                stringBuilder.append(Register.toStringAbi(register_1));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_1));
+                } else {
+                    stringBuilder.append(Register.toString(register_1));
+                }
             }
             stringBuilder.append(")");
         }
@@ -453,12 +514,16 @@ public class AsmLine<T extends Register> {
         else {
             if (register_1 != null) {
                 stringBuilder.append(", ");
-                stringBuilder.append(Register.toStringAbi(register_1));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_1));
+                } else {
+                    stringBuilder.append(Register.toString(register_1));
+                }
             }
         }
     }
 
-    private void outputBlock0(StringBuilder stringBuilder) {
+    private void outputBlock0(StringBuilder stringBuilder, boolean outputRegistersAsABI) {
         if (numeric_0 != null) {
             stringBuilder.append(String.format("0x%X", numeric_0.intValue()));
         }
@@ -471,7 +536,11 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(")");
             if (register_0 != null) {
                 stringBuilder.append("(");
-                stringBuilder.append(Register.toStringAbi(register_0));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_0));
+                } else {
+                    stringBuilder.append(Register.toString(register_0));
+                }
                 stringBuilder.append(")");
             }
         } else if (identifier_0 != null) {
@@ -479,7 +548,11 @@ public class AsmLine<T extends Register> {
         } else if (offset_0 != null) {
             stringBuilder.append(offset_0).append("(");
             if (register_0 != null) {
-                stringBuilder.append(Register.toStringAbi(register_0));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_0));
+                } else {
+                    stringBuilder.append(Register.toString(register_0));
+                }
             }
             stringBuilder.append(")");
         }
@@ -489,7 +562,11 @@ public class AsmLine<T extends Register> {
         // }
         else {
             if (register_0 != null) {
-                stringBuilder.append(Register.toStringAbi(register_0));
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_0));
+                } else {
+                    stringBuilder.append(Register.toString(register_0));
+                }
             }
         }
     }

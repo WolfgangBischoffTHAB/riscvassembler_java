@@ -6,6 +6,10 @@ public interface Register {
         return register.toStringAbi();
     }
 
+    static <T extends Register> String toString(T register) {
+        return register.toString();
+    }
+
     String toStringAbi();
 
     int getIndex();

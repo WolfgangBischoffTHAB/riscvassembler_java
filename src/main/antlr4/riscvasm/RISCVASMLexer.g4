@@ -254,44 +254,44 @@ REG_S9_ABI : S '9' ;
 REG_S10_ABI : S '1' '0' ;
 REG_S11_ABI : S '1' '1' ;
 
-REG_ZERO : X '0' ; // 0, Hard-wired zero
-REG_RA   : X '1' ; // 1, Return address
-REG_SP   : X '2' ; // 2, Stack pointer
-REG_GP   : X '3' ; // 3, Global pointer
-REG_TP   : X '4' ; // 4, Thread pointer
+REG_ZERO : (X | DOLLAR) '0' ; // 0, Hard-wired zero
+REG_RA   : (X | DOLLAR) '1' ; // 1, Return address
+REG_SP   : (X | DOLLAR) '2' ; // 2, Stack pointer
+REG_GP   : (X | DOLLAR) '3' ; // 3, Global pointer
+REG_TP   : (X | DOLLAR) '4' ; // 4, Thread pointer
 
-REG_T0  : X '5' ; // 5, Temporary/alternate link register
-REG_T1  : X '6' ; // 6, Temporary
-REG_T2  : X '7' ; // 7, Temporary
+REG_T0  : (X | DOLLAR) '5' ; // 5, Temporary/alternate link register
+REG_T1  : (X | DOLLAR) '6' ; // 6, Temporary
+REG_T2  : (X | DOLLAR) '7' ; // 7, Temporary
 
-REG_S0  : X '8' ; // 8, Saved register/frame pointer
-REG_S1  : X '9' ; // 9, Saved register
+REG_S0  : (X | DOLLAR) '8' ; // 8, Saved register/frame pointer
+REG_S1  : (X | DOLLAR) '9' ; // 9, Saved register
 
-REG_A0  : X '1' '0' ; // 10, Function arguments/return values
-REG_A1  : X '1' '1' ; // 11, Function arguments/return values
+REG_A0  : (X | DOLLAR) '1' '0' ; // 10, Function arguments/return values
+REG_A1  : (X | DOLLAR) '1' '1' ; // 11, Function arguments/return values
 
-REG_A2  : X '1' '2' ; // 12, Function arguments
-REG_A3  : X '1' '3' ; // 13, Function arguments
-REG_A4  : X '1' '4' ; // 14, Function arguments
-REG_A5  : X '1' '5' ; // 15, Function arguments
-REG_A6  : X '1' '6' ; // 16, Function arguments
-REG_A7  : X '1' '7' ; // 17, Function arguments
+REG_A2  : (X | DOLLAR) '1' '2' ; // 12, Function arguments
+REG_A3  : (X | DOLLAR) '1' '3' ; // 13, Function arguments
+REG_A4  : (X | DOLLAR) '1' '4' ; // 14, Function arguments
+REG_A5  : (X | DOLLAR) '1' '5' ; // 15, Function arguments
+REG_A6  : (X | DOLLAR) '1' '6' ; // 16, Function arguments
+REG_A7  : (X | DOLLAR) '1' '7' ; // 17, Function arguments
 
-REG_S2  : X '1' '8' ; // 18, Saved registers
-REG_S3  : X '1' '9' ; // 19, Saved registers
-REG_S4  : X '2' '0' ; // 20, Saved registers
-REG_S5  : X '2' '1' ; // 21, Saved registers
-REG_S6  : X '2' '2' ; // 22, Saved registers
-REG_S7  : X '2' '3' ; // 23, Saved registers
-REG_S8  : X '2' '4' ; // 24, Saved registers
-REG_S9  : X '2' '5' ; // 25, Saved registers
-REG_S10 : X '2' '6' ; // 26, Saved registers
-REG_S11 : X '2' '7' ; // 27, Saved registers
+REG_S2  : (X | DOLLAR) '1' '8' ; // 18, Saved registers
+REG_S3  : (X | DOLLAR) '1' '9' ; // 19, Saved registers
+REG_S4  : (X | DOLLAR) '2' '0' ; // 20, Saved registers
+REG_S5  : (X | DOLLAR) '2' '1' ; // 21, Saved registers
+REG_S6  : (X | DOLLAR) '2' '2' ; // 22, Saved registers
+REG_S7  : (X | DOLLAR) '2' '3' ; // 23, Saved registers
+REG_S8  : (X | DOLLAR) '2' '4' ; // 24, Saved registers
+REG_S9  : (X | DOLLAR) '2' '5' ; // 25, Saved registers
+REG_S10 : (X | DOLLAR) '2' '6' ; // 26, Saved registers
+REG_S11 : (X | DOLLAR) '2' '7' ; // 27, Saved registers
 
-REG_T3 : X '2' '8' ; // 28, Temporary
-REG_T4 : X '2' '9' ; // 29, Temporary
-REG_T5 : X '3' '0' ; // 30, Temporary
-REG_T6 : X '3' '1' ; // 31, Temporary
+REG_T3 : (X | DOLLAR) '2' '8' ; // 28, Temporary
+REG_T4 : (X | DOLLAR) '2' '9' ; // 29, Temporary
+REG_T5 : (X | DOLLAR) '3' '0' ; // 30, Temporary
+REG_T6 : (X | DOLLAR) '3' '1' ; // 31, Temporary
 
 //
 // RVV
@@ -330,6 +330,7 @@ PLUS : '+' ;
 MINUS : '-' ;
 PERCENT : '%' ;
 DOT : '.' ;
+DOLLAR : '$' ;
 COLON : ':' ;
 COMMA : ',' ;
 OPENING_BRACKET : '(' ;

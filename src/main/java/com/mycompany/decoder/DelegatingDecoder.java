@@ -1,7 +1,10 @@
 package com.mycompany.decoder;
 
+import java.util.List;
+
 import com.mycompany.app.App;
 import com.mycompany.data.AsmLine;
+import com.mycompany.memory.Memory;
 
 public class DelegatingDecoder implements Decoder {
 
@@ -9,13 +12,20 @@ public class DelegatingDecoder implements Decoder {
 
     private MDecoder mDecoder = new MDecoder();
 
+    public Memory memory;
+
     @Override
-    public AsmLine<?> decode(int instruction) {
-        AsmLine<?> asmLine = mDecoder.decode(instruction);
-        if (asmLine != null) {
-            return asmLine;
+    public List<AsmLine<?>> decode(int address) {
+
+        mDecoder.memory = memory;
+
+        // decoder for the M-Extension (Mult)
+        List<AsmLine<?>> asmLines = mDecoder.decode(address);
+        if (asmLines != null) {
+            return asmLines;
         }
-        return rv32IDecoder.decode(instruction);
+        rv32IDecoder.memory = memory;
+        return rv32IDecoder.decode(address);
     }
     
 }

@@ -1,0 +1,37 @@
+# Van-Neumann or Harvard
+
+Van-Neumann - one address space for data and instructions
+Harvard - two separate address spaces for data and instruction
+
+RISC-V allows both Van-Neumann or Harvard! It does not mandate
+a physical implementation! The developer has to write assembly
+that works on the physical platform in use.
+
+When a compiler is used, the compiler has to match the physical
+implementation of the CPU! This could either be Van-Neumann or 
+Harvard.
+
+# List of online Simulators
+
+- https://riscv-simulator-five.vercel.app/ (Harvard-Architecture)
+- https://ascslab.org/research/briscv/simulator/simulator.html#
+- https://comparch.edu.cvut.cz/qtrvsim/app/
+
+
+# https://riscv-simulator-five.vercel.app/
+
+This simulator uses two address spaces!
+One for the .text segment which contains the application code
+and a separate memory space for the .data segment where data is kept.
+
+When a sw or lw instruction is executed, the .data address space is
+used! The instructions are read from the .text address space!
+
+This means it is not possible to write into text segment.
+
+I think this is a strict implementation of the Harvard Architecture,
+where .text and .data are strictly separated into two separate memories!
+
+# https://ascslab.org/research/briscv/simulator/simulator.html#
+
+# https://comparch.edu.cvut.cz/qtrvsim/app/
