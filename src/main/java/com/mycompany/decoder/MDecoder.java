@@ -26,26 +26,18 @@ public class MDecoder implements Decoder {
     public Memory memory;
 
     @Override
-    public List<AsmLine<?>> decode(int address) {
+    public List<AsmLine<?>> decode(long address) {
 
         logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
 
-        // if (pc == 0x80002004) {
-        //     logger.trace("Tset");
-        // }
-
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-        final int instruction = memory.readWord(address, byteOrder);
+
+        // for 32 bit cast to int
+        final int instruction = memory.readWord((int) address, byteOrder);
 
         if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
-
-            logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");
-
-            // abort CPU
-            //return false;
-
-            return new ArrayList<>();
+            logger.trace("instruction is 0x00 or 0xFF. Aborting CPU run!");
+            return null;
         }
 
         // DEBUG

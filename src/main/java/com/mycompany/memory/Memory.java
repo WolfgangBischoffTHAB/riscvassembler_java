@@ -4,7 +4,7 @@ import java.nio.ByteOrder;
 
 import com.mycompany.decoder.Decoder;
 
-public interface Memory {
+public interface Memory<T> {
 
     /**
      * Will copy sizeInBytes from srcBuffer starting at offsetInSrcBuffer into 
@@ -15,22 +15,22 @@ public interface Memory {
      * @param offsetInSrcBuffer offset is applied to src during copy
      * @param sizeInBytes read this many bytes from src
      */
-    void copy(long targetAddress, byte[] srcBuffer, int offsetInSrcBuffer, int sizeInBytes);
+    void copy(T targetAddress, byte[] srcBuffer, T offsetInSrcBuffer, T sizeInBytes);
 
-    int getByte(int addr);
-    int readByte(int addr);
+    int getByte(T addr);
+    int readByte(T addr);
 
-    void storeByte(int addr, byte data);
+    void storeByte(T addr, byte data);
 
-    int readShort(int addr, ByteOrder byteOrder);
+    int readShort(T addr, ByteOrder byteOrder);
     
-    int readWord(long addr, ByteOrder byteOrder);
+    int readWord(T addr, ByteOrder byteOrder);
     
-    long readLong(long addr, ByteOrder byteOrder);
+    long readLong(T addr, ByteOrder byteOrder);
 
-    MemoryBlock getMemoryBlockForAddress(int addr);
+    MemoryBlock getMemoryBlockForAddress(T addr);
 
-    void print(long startAddress, long endAddress, ByteOrder byteOrder, int highlightAddress);
+    void print(T startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress);
 
     void setDecoder(Decoder decoder);
 

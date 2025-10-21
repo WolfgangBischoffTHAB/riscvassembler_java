@@ -1,6 +1,5 @@
 package com.mycompany.elf;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -697,6 +696,8 @@ public class Elf32 extends BaseElf {
     private static final Logger logger = LoggerFactory.getLogger(Elf32.class);
 
     private static final boolean NOT_LOAD_NON_EXECUTABLE_PROGRAM_HEADERS = false;
+
+    public Memory memory;
 
     public Elf32_Phdr programHeader;
 

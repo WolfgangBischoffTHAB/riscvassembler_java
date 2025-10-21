@@ -27,34 +27,35 @@ public class MemoryBlock {
 
     public Decoder decoder;
 
-    public void print(int startAddress, int endAddress, ByteOrder byteOrder, int highlightAddress) {
+    public void print(long startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress) {
 
         logger.info("From " + ByteArrayUtil.byteToHex(startAddress) + " to " + ByteArrayUtil.byteToHex(endAddress));
 
-        int tempAddress = startAddress;
+        long tempAddress = startAddress;
 
         for (int i = 0; i < memory.length / 4; i++) {
 
             // final int instruction = ByteArrayUtil.fourByteToInt(
-            //         memory[(int) (tempAddress - address) + 0],
-            //         memory[(int) (tempAddress - address) + 1],
-            //         memory[(int) (tempAddress - address) + 2],
-            //         memory[(int) (tempAddress - address) + 3], byteOrder);
+            // memory[(int) (tempAddress - address) + 0],
+            // memory[(int) (tempAddress - address) + 1],
+            // memory[(int) (tempAddress - address) + 2],
+            // memory[(int) (tempAddress - address) + 3], byteOrder);
 
             // the printer might run into some data area (heap, stack, random data)
             // If it tries to decode a instruction from random memory, it might fail
             try {
 
                 List<AsmLine<?>> asmLines = decoder.decode(tempAddress);
+                if (asmLines != null) {
+                    for (AsmLine<?> asmLine : asmLines) {
 
-                for (AsmLine<?> asmLine : asmLines) {
-
-                    String asmLineAsString = asmLine.toString();
-                    logger.info(
-                            ByteArrayUtil.byteToHex(tempAddress) + ": "
-                                    + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
-                                    + ((tempAddress == highlightAddress) ? " << " : "    ") + "          "
-                                    + asmLineAsString);
+                        String asmLineAsString = asmLine.toString();
+                        logger.info(
+                                ByteArrayUtil.byteToHex(tempAddress) + ": "
+                                        + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
+                                        + ((tempAddress == highlightAddress) ? " << " : "    ") + "          "
+                                        + asmLineAsString);
+                    }
                 }
 
             } catch (Exception e) {
@@ -62,9 +63,9 @@ public class MemoryBlock {
                 e.printStackTrace();
 
                 // logger.info(
-                //         ByteArrayUtil.byteToHex(tempAddress) + ": "
-                //                 + ByteArrayUtil.byteToHex(instruction, null, "%1$08X")
-                //                 + ((tempAddress == highlightAddress) ? " << " : "    "));
+                // ByteArrayUtil.byteToHex(tempAddress) + ": "
+                // + ByteArrayUtil.byteToHex(instruction, null, "%1$08X")
+                // + ((tempAddress == highlightAddress) ? " << " : " "));
 
             }
 

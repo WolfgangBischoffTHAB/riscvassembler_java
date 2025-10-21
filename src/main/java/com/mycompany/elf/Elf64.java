@@ -14,39 +14,39 @@ import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.memory.Memory;
-
+import com.mycompany.memory.Memory64;
 
 /**
  * https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
  * 
  * 64-bit ELF base types.
- * typedef __u64	Elf64_Addr;
- * typedef __u16	Elf64_Half;
- * typedef __s16	Elf64_SHalf;
- * typedef __u64	Elf64_Off;
- * typedef __s32	Elf64_Sword;
- * typedef __u32	Elf64_Word;
- * typedef __u64	Elf64_Xword;
- * typedef __s64	Elf64_Sxword;
- * typedef __u16	Elf64_Versym;
- *  
+ * typedef __u64 Elf64_Addr;
+ * typedef __u16 Elf64_Half;
+ * typedef __s16 Elf64_SHalf;
+ * typedef __u64 Elf64_Off;
+ * typedef __s32 Elf64_Sword;
+ * typedef __u32 Elf64_Word;
+ * typedef __u64 Elf64_Xword;
+ * typedef __s64 Elf64_Sxword;
+ * typedef __u16 Elf64_Versym;
+ * 
  * class Elf64_Ehdr {
- *     unsigned char   e_ident[EI_NIDENT];      // 16 byte
- *     Elf64_Half      e_type;                  // 16 byte
- *     Elf64_Half      e_machine;               // 16 byte
- *     Elf64_Word      e_version;               // 32 byte
- *     Elf64_Addr      e_entry;
- *     Elf64_Off       e_phoff;
- *     Elf64_Off       e_shoff;
- *     Elf64_Word      e_flags;
- *     Elf64_Half      e_ehsize;
- *     Elf64_Half      e_phentsize;
- *     Elf64_Half      e_phnum;
- *     Elf64_Half      e_shentsize;
- *     Elf64_Half      e_shnum;
- *     Elf64_Half      e_shstrndx;
+ * unsigned char e_ident[EI_NIDENT]; // 16 byte
+ * Elf64_Half e_type; // 16 byte
+ * Elf64_Half e_machine; // 16 byte
+ * Elf64_Word e_version; // 32 byte
+ * Elf64_Addr e_entry;
+ * Elf64_Off e_phoff;
+ * Elf64_Off e_shoff;
+ * Elf64_Word e_flags;
+ * Elf64_Half e_ehsize;
+ * Elf64_Half e_phentsize;
+ * Elf64_Half e_phnum;
+ * Elf64_Half e_shentsize;
+ * Elf64_Half e_shnum;
+ * Elf64_Half e_shstrndx;
  * }
-*/
+ */
 class Elf64_Ehdr {
 
     /**
@@ -163,16 +163,16 @@ class Elf64_Ehdr {
 
 /**
  * typedef struct {
- * Elf64_Word sh_name;          // 4 byte
- * Elf64_Word sh_type;          // 4 byte
- * Elf64_Xword sh_flags;        // 8 byte
- * Elf64_Addr sh_addr;          // 8 byte
- * Elf64_Off sh_offset;         // 8 byte
- * Elf64_Xword sh_size;         // 8 byte
- * Elf64_Word sh_link;          // 4 byte
- * Elf64_Word sh_info;          // 4 byte
- * Elf64_Xword sh_addralign;    // 8 byte
- * Elf64_Xword sh_entsize;      // 8 byte
+ * Elf64_Word sh_name; // 4 byte
+ * Elf64_Word sh_type; // 4 byte
+ * Elf64_Xword sh_flags; // 8 byte
+ * Elf64_Addr sh_addr; // 8 byte
+ * Elf64_Off sh_offset; // 8 byte
+ * Elf64_Xword sh_size; // 8 byte
+ * Elf64_Word sh_link; // 4 byte
+ * Elf64_Word sh_info; // 4 byte
+ * Elf64_Xword sh_addralign; // 8 byte
+ * Elf64_Xword sh_entsize; // 8 byte
  * } Elf64_Shdr;
  */
 class Elf64_Shdr {
@@ -184,7 +184,7 @@ class Elf64_Shdr {
     public long sh_flags;
     public long sh_addr;
     public long sh_offset; // absolute offset from start of elf-file to he location where the entries are
-                          // stored
+                           // stored
     public long sh_size; // section's overall size in bytes
     public int sh_link;
     public int sh_info;
@@ -250,14 +250,14 @@ class Elf64_Shdr {
  * } Elf32_Phdr;
  * 
  * typedef struct {
- * Elf64_Word p_type;       // 4 byte
- * Elf64_Word p_flags;      // 4 byte
- * Elf64_Off p_offset;      // 8 byte
- * Elf64_Addr p_vaddr;      // 8 byte
- * Elf64_Addr p_paddr;      // 8 byte
- * Elf64_Xword p_filesz;    // 8 byte
- * Elf64_Xword p_memsz;     // 8 byte
- * Elf64_Xword p_align;     // 8 byte
+ * Elf64_Word p_type; // 4 byte
+ * Elf64_Word p_flags; // 4 byte
+ * Elf64_Off p_offset; // 8 byte
+ * Elf64_Addr p_vaddr; // 8 byte
+ * Elf64_Addr p_paddr; // 8 byte
+ * Elf64_Xword p_filesz; // 8 byte
+ * Elf64_Xword p_memsz; // 8 byte
+ * Elf64_Xword p_align; // 8 byte
  * } Elf64_Phdr;
  */
 class Elf64_Phdr {
@@ -297,13 +297,15 @@ public class Elf64 extends BaseElf {
 
     private static final boolean NOT_LOAD_NON_EXECUTABLE_PROGRAM_HEADERS = false;
 
-    public List<Elf64Sym> elf64SymList = new ArrayList<>();
+    public Memory64 memory;
 
     public Elf64_Phdr programHeader;
     
+    public List<Elf64Sym> elf64SymList = new ArrayList<>();
+
     @SuppressWarnings("unused")
     public void load() throws IOException {
-        
+
         buffer = Files.readAllBytes(Paths.get(filename));
 
         // load the overall, top-level ELF-header that has offsets to all other parts of
@@ -447,7 +449,7 @@ public class Elf64 extends BaseElf {
     }
 
     private void getProgramHeaderOffset(Elf64_Ehdr elf64_Ehdr, List<Elf64_Shdr> sectionHeaders) {
-        
+
         Elf64_Shdr dataSectionHeader = null;
         Elf64_Shdr sdataSectionHeader = null;
 
@@ -607,7 +609,7 @@ public class Elf64 extends BaseElf {
 
             // memory.copy(programHeader.p_paddr, buffer, machine_code_offset,
             // programHeader.p_memsz);
-            memory.copy(programHeader.p_paddr, buffer, (int) machine_code_offset, (int) programHeader.p_filesz);
+            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_filesz);
 
             // DEBUG
 
@@ -649,7 +651,6 @@ public class Elf64 extends BaseElf {
 
                         List<AsmLine<?>> asmLines = delegatingDecoder.decode(instructionMachineCode);
 
-                        
                         for (AsmLine<?> asmLine : asmLines) {
 
                             // DEBUG
@@ -658,7 +659,6 @@ public class Elf64 extends BaseElf {
                             decodePos += asmLine.encodedLength;
                         }
 
-                        
                     }
 
                 } catch (Exception e) {
@@ -667,7 +667,7 @@ public class Elf64 extends BaseElf {
                 }
 
             }
- 
+
             // next program header
             programHeaderOffset += elf64_Ehdr.e_phentsize;
 

@@ -6,6 +6,6 @@ import com.mycompany.data.AsmLine;
 
 public interface Decoder {
 
-    List<AsmLine<?>> decode(int instruction);
+    List<AsmLine<?>> decode(long address);
 
 }

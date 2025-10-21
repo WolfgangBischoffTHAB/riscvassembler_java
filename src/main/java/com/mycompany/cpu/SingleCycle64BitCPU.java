@@ -93,7 +93,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             return false;
         }
 
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
         // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
         // FETCH - use PC to load instruction from memory
         // final int instruction = ByteArrayUtil.fourByteToInt(memory[pc + 0], memory[pc
@@ -105,25 +105,39 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             logger.trace("PC: " + ByteArrayUtil.byteToHex(pc));
         }
 
-        final int instruction = memory.readWord(pc, byteOrder);
+        // final int instruction = memory.readWord(pc, byteOrder);
 
-        if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
-            logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");
-            // throw new RuntimeException("Done");
-            return false;
-        }
+        // if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
+        //     logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");
+        //     // throw new RuntimeException("Done");
+        //     return false;
+        // }
 
-        logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " Instruction: " + ByteArrayUtil.byteToHex(instruction));
+        // logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " Instruction: " + ByteArrayUtil.byteToHex(instruction));
 
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
-        List<AsmLine<?>> asmLine = decoder.decode(instruction);
+        decoder.memory = memory;
+        List<AsmLine<?>> asmLines = decoder.decode(pc);
 
-        if (asmLine.mnemonic == null) {
-            logger.trace(asmLine.toString());
-            throw new RuntimeException(
-                    "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(instruction));
+        boolean result = true;
+
+        for (AsmLine<?> asmLine : asmLines) {
+
+            if (asmLine.mnemonic == null) {
+
+                logger.trace(asmLine.toString());
+                throw new RuntimeException(
+                        "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(asmLine.instruction));
+            }
+
+            result &= executeAsmLine(asmLine);
         }
+
+        return result;
+    }
+
+    private boolean executeAsmLine(AsmLine<?> asmLine) throws IOException {
 
         // prepare trace file
         if (traceBufferedWriter == null) {
@@ -142,7 +156,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             stringBuilder.append(" (");
             stringBuilder.append(ByteArrayUtil.longToHex("%08x", pc));
             stringBuilder.append("). Loaded Instr: HEX: ");
-            stringBuilder.append(ByteArrayUtil.intToHex("%08x", instruction));
+            stringBuilder.append(ByteArrayUtil.intToHex("%08x", asmLine.instruction));
             stringBuilder.append(" ");
             stringBuilder.append(asmLine.toString());
 
@@ -154,13 +168,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // DEBUG do not forget the trailing L because PC is now an long register!
-        if (pc == 0x800001a0L) {
-            logger.info("test");
-        }
-        if (pc == 0x8000029cL) {
-            logger.info("test");
-        }
-        if (pc == 0x800001b4L) {
+        if (pc == 0x800006b8L) {
             logger.info("test");
         }
 
@@ -313,10 +321,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 // System.out.println("instruction: " + ByteArrayUtil.byteToHex(instruction));
 
-                int imm_10_1 = (instruction >> (9 + 12)) & 0b1111111111;
-                int imm_11 = (instruction >> (8 + 12)) & 0b1;
-                int imm_19_12 = (instruction >> (0 + 12)) & 0b11111111;
-                int imm_20 = (instruction >> (19 + 12)) & 0b1;
+                int imm_10_1 = (asmLine.instruction >> (9 + 12)) & 0b1111111111;
+                int imm_11 = (asmLine.instruction >> (8 + 12)) & 0b1;
+                int imm_19_12 = (asmLine.instruction >> (0 + 12)) & 0b11111111;
+                int imm_20 = (asmLine.instruction >> (19 + 12)) & 0b1;
 
                 int jumpDistance = (imm_20 << 20) + (imm_19_12 << 12) + (imm_11 << 11) + (imm_10_1 << 1);
                 // jumpDistance <<= 11;
@@ -350,7 +358,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // pc = rs1 + imm
                 immValSignExtended = (int) NumberParseUtil
                         .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
-                long pcReplacement = readRegisterFile(asmLine.register_1.getIndex()) + immValSignExtended;
+                int pcReplacement = (int) readRegisterFile(asmLine.register_1.getIndex()) + immValSignExtended;
 
                 // rd = pc + 4;
                 // registerFile[asmLine.register_0.getIndex()] = pc + 4;
@@ -1048,8 +1056,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                             globalPointerValue >>= 1;
                             throw new RuntimeException("Unit Test " + globalPointerValue + " Failed!");
                         }
-                        pc += 4;
-                        return true;
+                        // pc += 4;
+                        // return true;
+                        return false; // Abortolomeus (engl. Abortholomew)
 
                     case 0x5E: // 94dec (time)
                         // System.out.println("time()");
@@ -1759,7 +1768,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
             default:
                 throw new RuntimeException("Unknown mnemonic! " + asmLine.mnemonic + " machine code: "
-                        + ByteArrayUtil.byteToHex(instruction));
+                        + ByteArrayUtil.byteToHex(asmLine.instruction));
         }
 
         return true;
@@ -1858,7 +1867,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         long endAddress = pc + displayDistance * 4;
 
         memory.setDecoder(decoder);
-        memory.print((int) startAddress, (int) endAddress, ByteOrder.LITTLE_ENDIAN, (int) pc);
+        memory.print(startAddress, endAddress, ByteOrder.LITTLE_ENDIAN, pc);
     }
 
     /**
@@ -1895,6 +1904,15 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         // return reader.lines().collect(Collectors.joining("\n"));
         return reader.readLine();
+    }
+
+    @Override
+    public long[] getRegisterFile() {
+        long[] result = new long[32];
+        for (int i = 0; i < 31; i++) {
+            result[i] = (long) registerFile[i];
+        }
+        return result;
     }
 
     public void shutdown() throws IOException {

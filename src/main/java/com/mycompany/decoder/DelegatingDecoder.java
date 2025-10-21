@@ -15,7 +15,7 @@ public class DelegatingDecoder implements Decoder {
     public Memory memory;
 
     @Override
-    public List<AsmLine<?>> decode(int address) {
+    public List<AsmLine<?>> decode(long address) {
 
         mDecoder.memory = memory;
 
@@ -27,5 +27,5 @@ public class DelegatingDecoder implements Decoder {
         rv32IDecoder.memory = memory;
         return rv32IDecoder.decode(address);
     }
-    
+
 }

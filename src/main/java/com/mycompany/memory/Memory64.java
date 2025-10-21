@@ -10,28 +10,28 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.decoder.Decoder;
 
-public class DefaultMemory implements Memory<Integer> {
+public class Memory64 implements Memory<Long> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultMemory.class);
+    private static final Logger logger = LoggerFactory.getLogger(Memory64.class);
 
     public Map<Long, MemoryBlock> memoryBlocksByAddress = new HashMap<>();
 
     private Decoder decoder;
 
     @Override
-    public void copy(Integer targetAddress, byte[] srcBuffer, Integer offsetInSrcBuffer, Integer sizeInBytes) {
+    public void copy(Long targetAddress, byte[] srcBuffer, Long offsetInSrcBuffer, Long sizeInBytes) {
         
         // memory align address to MB
         long addressAligned = targetAddress & 0xFFFFFFFFFFF00000L;
 
         MemoryBlock memoryBlock = null;
-        if (!memoryBlocksByAddress.containsKey(addressAligned)) {
+        if (memoryBlocksByAddress.containsKey(addressAligned)) {
+            memoryBlock = memoryBlocksByAddress.get(addressAligned);
+        } else {
             memoryBlock = new MemoryBlock();
             memoryBlock.decoder = decoder;
             memoryBlock.address = addressAligned;
             memoryBlocksByAddress.put(addressAligned, memoryBlock);
-        } else {
-            memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
         // address is the location in the destination buffer. 
@@ -43,11 +43,11 @@ public class DefaultMemory implements Memory<Integer> {
             throw new RuntimeException("Data does not fit!");
         }
         
-        System.arraycopy(srcBuffer, offsetInSrcBuffer, memoryBlock.memory, (int) addr, sizeInBytes);
+        System.arraycopy(srcBuffer, offsetInSrcBuffer.intValue(), memoryBlock.memory, (int) addr, sizeInBytes.intValue());
     }
 
     @Override
-    public int getByte(Integer addr) {
+    public int getByte(Long addr) {
 
         try {
 
@@ -75,12 +75,12 @@ public class DefaultMemory implements Memory<Integer> {
     }
 
     @Override
-    public int readByte(Integer addr) {
+    public int readByte(Long addr) {
         return getByte(addr);
     }
 
     @Override
-    public void storeByte(Integer addr, byte data) {
+    public void storeByte(Long addr, byte data) {
 
         // memory align address to MB
         long addressAligned = addr & 0xFFFFFFFFFFF00000L;
@@ -99,7 +99,7 @@ public class DefaultMemory implements Memory<Integer> {
     }
 
     @Override
-    public int readShort(Integer addr, ByteOrder byteOrder) {
+    public int readShort(Long addr, ByteOrder byteOrder) {
 
         logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
 
@@ -122,7 +122,7 @@ public class DefaultMemory implements Memory<Integer> {
     }
 
     @Override
-    public int readWord(Integer addr, ByteOrder byteOrder) {
+    public int readWord(Long addr, ByteOrder byteOrder) {
 
         logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
 
@@ -148,7 +148,7 @@ public class DefaultMemory implements Memory<Integer> {
     }
 
     @Override
-    public long readLong(Integer addr, ByteOrder byteOrder) {
+    public long readLong(Long addr, ByteOrder byteOrder) {
         MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
         int offsetAddress = (int)(addr - memoryBlock.address);
         final long data = ByteArrayUtil.eightByteToLong(
@@ -167,7 +167,7 @@ public class DefaultMemory implements Memory<Integer> {
         return data;
     }
 
-    private MemoryBlock retrieveMemoryBlockByAddress(Integer addr) {
+    private MemoryBlock retrieveMemoryBlockByAddress(long addr) {
         // memory align address to MB
         long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 
@@ -177,16 +177,17 @@ public class DefaultMemory implements Memory<Integer> {
         if (memoryBlocksByAddress.containsKey(addressAligned)) {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         } else {
-            memoryBlock = new MemoryBlock();
-            memoryBlock.decoder = decoder;
-            memoryBlock.address = addressAligned;
-            memoryBlocksByAddress.put(addressAligned, memoryBlock);
+            throw new RuntimeException("e");
+            // memoryBlock = new MemoryBlock();
+            // memoryBlock.decoder = decoder;
+            // memoryBlock.address = addressAligned;
+            // memoryBlocksByAddress.put(addressAligned, memoryBlock);
         }
         return memoryBlock;
     }
 
     @Override
-    public MemoryBlock getMemoryBlockForAddress(Integer addr) {
+    public MemoryBlock getMemoryBlockForAddress(Long addr) {
         // memory align address to MB
         long addressAligned = addr & 0xFFF00000;
         MemoryBlock memoryBlock = memoryBlocksByAddress.get(addressAligned);
@@ -194,7 +195,7 @@ public class DefaultMemory implements Memory<Integer> {
         return memoryBlock;
     }
 
-    public void print(Integer startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress) {
+    public void print(Long startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress) {
 
         logger.info(ByteArrayUtil.byteToHex(startAddress));
         logger.info(ByteArrayUtil.byteToHex(endAddress));
@@ -218,7 +219,7 @@ public class DefaultMemory implements Memory<Integer> {
         // are printed
         long addr = s;
         while ((memoryBlock == null) && (addr <= e)) {
-            memoryBlock = getMemoryBlockForAddress((int) addr);
+            memoryBlock = getMemoryBlockForAddress(addr);
             if (memoryBlock != null) {
                 break;
             }
@@ -226,13 +227,13 @@ public class DefaultMemory implements Memory<Integer> {
         }
         if (memoryBlock != null) {
             memoryBlock.decoder = decoder;
-            memoryBlock.print((int) addr, (int) endAddress, byteOrder, highlightAddress);
+            memoryBlock.print(addr, endAddress, byteOrder, highlightAddress);
         }
     }
 
     @Override
     public void setDecoder(Decoder decoder) {
         this.decoder = decoder;
-    }    
-
+    }  
+    
 }

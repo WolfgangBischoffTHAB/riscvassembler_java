@@ -56,9 +56,7 @@ public class BaseElf {
 
     public File file;
 
-    public byte[] buffer;
-
-    public Memory memory;
+    public byte[] buffer;    
 
     public long globalPointerValue;
 

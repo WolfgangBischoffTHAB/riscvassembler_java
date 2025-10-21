@@ -92,10 +92,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             return false;
         }
 
-        decoder.memory = memory;
-
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
+        decoder.memory = memory;
         List<AsmLine<?>> asmLines = decoder.decode(pc);
 
         boolean result = true;
@@ -1149,7 +1148,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         addressA0 = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         // System.out.println("addressA0: " + ByteArrayUtil.byteToHex(addressA0));
 
-                        int dataA0 = memory.readWord(addressA0, ByteOrder.LITTLE_ENDIAN);
+                        // int dataA0 = memory.readWord(addressA0, ByteOrder.LITTLE_ENDIAN);
                         // System.out.println("dataA0: " + ByteArrayUtil.byteToHex(dataA0));
 
                         Calendar calendar = Calendar.getInstance();
@@ -1160,28 +1159,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         byte[] timeInMillisAsArray = ByteArrayUtil.longToBytes(timeInMillis);
 
                         memory.storeByte(addressA0 + 0, (byte) timeInMillisAsArray[7]);
-                        // System.out.println("[7]: " + (byte) ((int) (timeInMillisAsArray[7]& 0xFF) ));
                         memory.storeByte(addressA0 + 1, (byte) timeInMillisAsArray[6]);
-                        // System.out.println("[6]: " + (byte) ((int) (timeInMillisAsArray[6]) & 0xFF));
                         memory.storeByte(addressA0 + 2, (byte) timeInMillisAsArray[5]);
                         memory.storeByte(addressA0 + 3, (byte) timeInMillisAsArray[4]);
                         memory.storeByte(addressA0 + 4, (byte) timeInMillisAsArray[3]);
                         memory.storeByte(addressA0 + 5, (byte) timeInMillisAsArray[2]);
                         memory.storeByte(addressA0 + 6, (byte) timeInMillisAsArray[1]);
                         memory.storeByte(addressA0 + 7, (byte) timeInMillisAsArray[0]);
-
-                        // memory.storeByte(addressA0 + 0, (byte) 0x78);
-                        // memory.storeByte(addressA0 + 1, (byte) 0x56);
-                        // memory.storeByte(addressA0 + 2, (byte) 0x34);
-                        // memory.storeByte(addressA0 + 3, (byte) 0x12);
-                        // memory.storeByte(addressA0 + 4, (byte) 0x78);
-                        // memory.storeByte(addressA0 + 5, (byte) 0x56);
-                        // memory.storeByte(addressA0 + 6, (byte) 0x34);
-                        // memory.storeByte(addressA0 + 7, (byte) 0x12);
-
-                        // writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 18);
-                        // writeRegisterFile(RISCVRegister.REG_A1.getIndex(), 18);
-                        // writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 18);
                         break;
 
                     case 0x5F: // 95dec (localtime)
