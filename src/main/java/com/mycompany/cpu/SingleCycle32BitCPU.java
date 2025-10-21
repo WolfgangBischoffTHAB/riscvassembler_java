@@ -116,9 +116,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     private boolean executeAsmLine(AsmLine<?> asmLine) throws IOException {
 
-        if (pc == 0x10358) {
-            System.out.println("test");
-        }
+        // if (pc == 0x10358) {
+        //     System.out.println("test");
+        // }
 
         boolean printInstructions = false;
 
@@ -131,8 +131,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
         // }
 
-        singleStepping = true;
-        // singleStepping = false;
+        // singleStepping = true;
+        singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
