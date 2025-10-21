@@ -159,7 +159,12 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             stringBuilder.append(asmLine.toString());
 
             String tempData = stringBuilder.toString();
-            traceBufferedWriter.append(tempData).append("\n");
+
+            boolean traceData = true;
+            // boolean traceData = false;
+            if (traceData) {
+                traceBufferedWriter.append(tempData).append("\n");
+            }
 
             // DEBUG
             logger.info(tempData);
