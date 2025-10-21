@@ -1859,6 +1859,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
     }
 
     private void printMemoryAroundPC(int displayDistance) {
+        
         logger.info("---------------------------------------------------------------------");
 
         // do not access negative memory address when printing close to address 0x00 of

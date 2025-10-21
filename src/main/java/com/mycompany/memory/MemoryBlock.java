@@ -60,7 +60,7 @@ public class MemoryBlock {
 
             } catch (Exception e) {
 
-                e.printStackTrace();
+                // e.printStackTrace();
 
                 // logger.info(
                 // ByteArrayUtil.byteToHex(tempAddress) + ": "

@@ -216,10 +216,11 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             int secondInstruction = (instruction >> 16) & 0b1111111111111111;
 
             if ((secondInstruction & 0b11) == 0b11) {
+
                 // a non compressed instruction, now the decoder needs to pull in two bytes to
                 // complete the instruction
 
-                int instructionPart = memory.readShort(address + 4, byteOrder);
+                int instructionPart = memory.readShort((int) (address + 4), byteOrder);
 
                 // System.out.println(ByteArrayUtil.byteToHex(instructionPart));
                 // System.out.println(ByteArrayUtil.byteToHex(secondInstruction));
@@ -248,8 +249,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private void processCompressedInstruction(AsmLine<Register> asmLine, int data) {
 
-        boolean debugOutput = true;
-
+        // boolean debugOutput = true;
+        boolean debugOutput = false;
         if (debugOutput) {
             logger.info("");
             logger.info("");

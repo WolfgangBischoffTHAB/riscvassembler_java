@@ -116,6 +116,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     private boolean executeAsmLine(AsmLine<?> asmLine) throws IOException {
 
+        if (pc == 0x10358) {
+            System.out.println("test");
+        }
+
         boolean printInstructions = false;
 
         // // DEBUG output ASM line
@@ -127,8 +131,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
         // }
 
-        // singleStepping = true;
-        singleStepping = false;
+        singleStepping = true;
+        // singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
@@ -171,12 +175,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
         //         + "] " + asmLine.toString());
 
-        // if (pc == 0x1049E) {
-        // if (pc == 0x1041c) {
-        //if (pc == 0x1043c) {
-        // if (pc == 0x10424) {
-        //    System.out.println("test");
-        //}
+        // if (pc == 0x10358) {
+        //     System.out.println("test");
+        // }
 
         if (asmLine.encodedLength <= 0) {
             throw new RuntimeException("Encoded length is zero! System is bugged!");
@@ -1851,6 +1852,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     }
 
     private void printMemoryAroundPC(int displayDistance) {
+
         logger.info("---------------------------------------------------------------------");
 
         long s = pc & 0x00000000ffffffffL;
@@ -1861,7 +1863,12 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int endAddress = pc + displayDistance * 4;
 
         memory.setDecoder(decoder);
-        memory.print(startAddress, endAddress, ByteOrder.LITTLE_ENDIAN, pc);
+
+        // 32 bit
+        memory.print((int)startAddress, endAddress, ByteOrder.LITTLE_ENDIAN, pc);
+
+        // 64 bit
+        //memory.print(startAddress, endAddress, ByteOrder.LITTLE_ENDIAN, pc);
     }
 
     /**

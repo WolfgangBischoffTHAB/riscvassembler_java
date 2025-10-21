@@ -350,10 +350,10 @@ public class App {
             Elf32 elf = new Elf32();
             elf.memory = memory;
 
-            // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
+            elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
             // elf.setFile("src/test/resources/riscvelf/factorial.out");
             // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+            // elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
 
             // elf.load();
 
@@ -752,7 +752,7 @@ public class App {
         // DEBUG main entry point address
         logger.info("Main Entry Point: " + ByteArrayUtil.byteToHex((int) main_entry_point_address, null, "%1$08X"));
 
-        logger.info("" + main_entry_point_address);
+        logger.trace("" + main_entry_point_address);
         
         // if (XLEN == 64) {
         //     cpu.pc = main_entry_point_address;
