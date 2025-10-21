@@ -1,9 +1,13 @@
 package com.mycompany.cpu;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -44,6 +48,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     private Random random = new Random();
 
     public int[] registerFile = new int[32];
+
+    private BufferedWriter traceBufferedWriter;
 
     public int readRegisterFile(int index) {
 
@@ -130,8 +136,37 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             System.out.println("");
         }
 
-        logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
-                + "] " + asmLine.toString());
+        // prepare trace file
+        if (traceBufferedWriter == null) {
+            Files.createDirectories(Paths.get("log"));
+            traceBufferedWriter = new BufferedWriter(new FileWriter("log/cpu_trace.log"));
+        }
+
+        // DEBUG output ASM line
+        debugASMLineOutput = true;
+        // debugASMLineOutput = false;
+        if (debugASMLineOutput) {
+            
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.append("PC: ");
+            stringBuilder.append(pc);
+            stringBuilder.append(" (");
+            stringBuilder.append(ByteArrayUtil.longToHex("%08x", pc));
+            stringBuilder.append("). Loaded Instr: HEX: ");
+            stringBuilder.append(ByteArrayUtil.intToHex("%08x", asmLine.instruction));
+            stringBuilder.append(" ");
+            stringBuilder.append(asmLine.toString());
+
+            String tempData = stringBuilder.toString();
+            traceBufferedWriter.append(tempData).append("\n");
+
+            // DEBUG
+            logger.info(tempData);
+        }
+
+        // logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
+        //         + "] " + asmLine.toString());
 
         // if (pc == 0x1049E) {
         // if (pc == 0x1041c) {
@@ -1879,6 +1914,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             result[i] = (long) registerFile[i];
         }
         return result;
+    }
+
+    public void shutdown() throws IOException {
+        if (traceBufferedWriter != null) {
+            traceBufferedWriter.flush();
+            traceBufferedWriter.close();
+        }
     }
 
 }

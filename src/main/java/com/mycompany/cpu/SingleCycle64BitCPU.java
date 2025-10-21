@@ -1,9 +1,13 @@
 package com.mycompany.cpu;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
@@ -43,6 +47,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
     private Random random = new Random();
 
     public long[] registerFile = new long[32];
+
+    private BufferedWriter traceBufferedWriter;
 
     /**
      * ctor
@@ -113,11 +119,38 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         // parameters and opcode
         List<AsmLine<?>> asmLine = decoder.decode(instruction);
 
+        if (asmLine.mnemonic == null) {
+            logger.trace(asmLine.toString());
+            throw new RuntimeException(
+                    "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(instruction));
+        }
+
+        // prepare trace file
+        if (traceBufferedWriter == null) {
+            Files.createDirectories(Paths.get("log"));
+            traceBufferedWriter = new BufferedWriter(new FileWriter("log/cpu_trace.log"));
+        }
+
         // DEBUG output ASM line
         debugASMLineOutput = true;
         if (debugASMLineOutput) {
-            logger.info("PC: " + pc + " (" + ByteArrayUtil.longToHex("%08x", pc) + ")" + ". Loaded Instr: HEX: "
-                    + ByteArrayUtil.intToHex("%08x", instruction) + " " + asmLine.toString());
+            
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.append("PC: ");
+            stringBuilder.append(pc);
+            stringBuilder.append(" (");
+            stringBuilder.append(ByteArrayUtil.longToHex("%08x", pc));
+            stringBuilder.append("). Loaded Instr: HEX: ");
+            stringBuilder.append(ByteArrayUtil.intToHex("%08x", instruction));
+            stringBuilder.append(" ");
+            stringBuilder.append(asmLine.toString());
+
+            String tempData = stringBuilder.toString();
+            traceBufferedWriter.append(tempData).append("\n");
+
+            // DEBUG
+            logger.info(tempData);
         }
 
         // DEBUG do not forget the trailing L because PC is now an long register!
@@ -139,12 +172,6 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // logger.info(ByteArrayUtil.byteToHex(pc) + ": " + asmLine.toString());
-
-        if (asmLine.mnemonic == null) {
-            logger.trace(asmLine.toString());
-            throw new RuntimeException(
-                    "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(instruction));
-        }
 
         // https://projectf.io/posts/riscv-cheat-sheet/
         // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
@@ -1868,6 +1895,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         // return reader.lines().collect(Collectors.joining("\n"));
         return reader.readLine();
+    }
+
+    public void shutdown() throws IOException {
+        if (traceBufferedWriter != null) {
+            traceBufferedWriter.flush();
+            traceBufferedWriter.close();
+        }
     }
 
 }

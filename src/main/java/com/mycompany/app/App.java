@@ -609,7 +609,7 @@ public class App {
 
  if (XLEN == 32) {
             //
-            // startAddress 64 bit
+            // startAddress 32 bit
             //
             // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
             // the spice simulator uses the _start symbol
@@ -797,6 +797,8 @@ if (XLEN == 64) {
                 done = !cpu.step();
             }
         }
+
+        cpu.shutdown();
 
         return cpu;
     }

@@ -185,7 +185,7 @@ public class AsmLine<T extends Register> {
 
         stringBuilder.append(Mnemonic.toString(mnemonic)).append(" ");
 
-        boolean outputRegisterAsABI = false;
+        boolean outputRegisterAsABI = true;
         outputBlock0(stringBuilder, outputRegisterAsABI);
         outputBlock1(stringBuilder, outputRegisterAsABI);
         outputBlock2(stringBuilder, outputRegisterAsABI);
