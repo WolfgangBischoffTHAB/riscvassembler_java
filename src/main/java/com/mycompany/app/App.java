@@ -187,10 +187,9 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
 
-        String inputFile =
-        "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
+        String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -760,7 +759,7 @@ public class App {
 
         // DEBUG main entry point address
         logger.trace("Main Entry Point: " + ByteArrayUtil.byteToHex((int) main_entry_point_address, null, "%1$08X"));
-        logger.trace("" + main_entry_point_address);
+        // logger.trace("" + main_entry_point_address);
         
         if (XLEN == 32) {
             // for 32 bit

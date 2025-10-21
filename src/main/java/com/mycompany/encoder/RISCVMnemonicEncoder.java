@@ -220,8 +220,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeVSETVL(byteArrayOutStream, asmLine);
             case I_VLE32_V:
                 return encodeVLE32_V(byteArrayOutStream, asmLine);
-            // case I_VLE64_V:
-            //     return encodeVLE64_V(byteArrayOutStream, asmLine);
+            case I_VLE64_V:
+                return encodeVLE64_V(byteArrayOutStream, asmLine);
             case I_VSE32_V:
                 return encodeVSE32_V(byteArrayOutStream, asmLine);
             // case I_VSE64_V:
@@ -355,8 +355,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     /**
      * https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
      * 
-     * 
-     * 
      * vle8.v vd, (rs1), vm # 8-bit unit-stride load with width == '000'
      * vle16.v vd, (rs1), vm # 16-bit unit-stride load with width == '101'
      * vle32.v vd, (rs1), vm # 32-bit unit-stride load with width == '110'
@@ -375,7 +373,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
      */
     private int encodeVLE32_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
 
-        byte funct3 = 0b110; // for 32 bit
+        byte funct3_width = 0b110; // for 32 bit
         byte opcode = 0b0000111;
 
         // How to encode the offset? Is there an offset allowed?
@@ -396,7 +394,48 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         int result = ((opcode & 0b1111111) << 0) |
                 ((vd & 0b11111) << 7) |
-                ((funct3 & 0b111) << (7 + 5)) |
+                ((funct3_width & 0b111) << (7 + 5)) |
+                ((rs1 & 0b11111) << (7 + 5 + 3)) |
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));
+
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    /**
+     * https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
+    private int encodeVLE64_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3_width = 0b111; // for 64 bit
+        byte opcode = 0b0000111;
+
+        // How to encode the offset? Is there an offset allowed?
+        long offset = asmLine.offset_1;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        byte rs2 = 0;
+        boolean has_rs2 = false;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+            has_rs2 = true;
+            rs2 = (byte) asmLine.register_2.getIndex();
+        }
+
+        int result = ((opcode & 0b1111111) << 0) |
+                ((vd & 0b11111) << 7) |
+                ((funct3_width & 0b111) << (7 + 5)) |
                 ((rs1 & 0b11111) << (7 + 5 + 3)) |
                 ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));
 
@@ -476,10 +515,16 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte rd = (byte) asmLine.register_1.getIndex();
 
         // mask agnostic
-        byte vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
+        byte vma = 0;
+        if (asmLine.rvvMask != null) {
+            vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
+        }
 
         // tail agnostic
-        byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
+        byte vta = 0;
+        if (asmLine.rvvTail != null) {
+            vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
+        }
 
         // selected element width (SEW)
         byte sew = 4;

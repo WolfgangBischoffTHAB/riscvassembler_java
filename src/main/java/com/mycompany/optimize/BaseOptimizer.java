@@ -414,7 +414,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
         for (AsmLine<?> asmLine : asmLines) {
 
-            logger.info(asmLine.toString());
+            // logger.info(asmLine.toString());
 
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)

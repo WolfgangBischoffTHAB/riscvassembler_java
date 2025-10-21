@@ -143,68 +143,10 @@ public abstract class BaseAssembler {
 
         // List<AsmLine<?>> asmLines = getAsmLines();
 
-        // // DEBUG
-        // for (AsmLine asmLine : asmLines) {
-        // System.out.println(asmLine);
-        // }
-
-        /*
-         * //
-         * // Process Data defined in .section .data and provide the labels which are
-         * mapped
-         * // to the address where the data can be found.
-         * //
-         * // e.g.
-         * // .section .data
-         * // num1: .quad 0x123456789ABCDEF0, 0x0FEDCBA987654321, 0x0011223344556677,
-         * 0x8899AABBCCDDEEFF
-         * // num2: .quad 0x1122334455667788, 0x99AABBCCDDEEFF00, 0x1234567890ABCDEF,
-         * 0xFEDCBA9876543210
-         * // result: .space 32 # Reserve 32 bytes (256 bits) for the result
-         * //
-         * 
-         * String currentSection = null;
-         * int addressIndex = 0x10000;
-         * 
-         * List<AsmLine<?>> killList = new ArrayList<>();
-         * 
-         * for (AsmLine<?> asmLine : asmLines) {
-         * 
-         * logger.info(asmLine.toString());
-         * 
-         * if (asmLine.asmInstruction == null) {
-         * continue;
-         * }
-         * 
-         * switch (asmLine.asmInstruction) {
-         * 
-         * case SECTION:
-         * currentSection = asmLine.stringValue;
-         * killList.add(asmLine);
-         * break;
-         * 
-         * case QUAD:
-         * equMap.put(asmLine.label, addressIndex);
-         * 
-         * // insert all data in the CSV list
-         * for (String dataElement : asmLine.csvList) {
-         * 
-         * // insert the data element at this address
-         * asdf
-         * 
-         * // .quad define 64 bit data so advance by 8 byte
-         * addressIndex += 8;
-         * }
-         * killList.add(asmLine);
-         * break;
-         * 
-         * default:
-         * break;
-         * }
-         * }
-         * 
-         * asmLines.removeAll(killList);
-         */
+        // DEBUG
+        for (AsmLine<?> asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         //
         // Combine
@@ -514,9 +456,12 @@ public abstract class BaseAssembler {
                 }
 
             } catch (Exception e) {
+
                 logger.error("Cannot process: " + asmLine + "");
                 logger.error(e.getMessage(), e);
+
                 return;
+                
             }
         }
 
@@ -716,3 +661,63 @@ public abstract class BaseAssembler {
         return CharBuffer.allocate(spaces).toString().replace('\0', ' ');
     }
 }
+
+
+
+/*
+         * //
+         * // Process Data defined in .section .data and provide the labels which are
+         * mapped
+         * // to the address where the data can be found.
+         * //
+         * // e.g.
+         * // .section .data
+         * // num1: .quad 0x123456789ABCDEF0, 0x0FEDCBA987654321, 0x0011223344556677,
+         * 0x8899AABBCCDDEEFF
+         * // num2: .quad 0x1122334455667788, 0x99AABBCCDDEEFF00, 0x1234567890ABCDEF,
+         * 0xFEDCBA9876543210
+         * // result: .space 32 # Reserve 32 bytes (256 bits) for the result
+         * //
+         * 
+         * String currentSection = null;
+         * int addressIndex = 0x10000;
+         * 
+         * List<AsmLine<?>> killList = new ArrayList<>();
+         * 
+         * for (AsmLine<?> asmLine : asmLines) {
+         * 
+         * logger.info(asmLine.toString());
+         * 
+         * if (asmLine.asmInstruction == null) {
+         * continue;
+         * }
+         * 
+         * switch (asmLine.asmInstruction) {
+         * 
+         * case SECTION:
+         * currentSection = asmLine.stringValue;
+         * killList.add(asmLine);
+         * break;
+         * 
+         * case QUAD:
+         * equMap.put(asmLine.label, addressIndex);
+         * 
+         * // insert all data in the CSV list
+         * for (String dataElement : asmLine.csvList) {
+         * 
+         * // insert the data element at this address
+         * asdf
+         * 
+         * // .quad define 64 bit data so advance by 8 byte
+         * addressIndex += 8;
+         * }
+         * killList.add(asmLine);
+         * break;
+         * 
+         * default:
+         * break;
+         * }
+         * }
+         * 
+         * asmLines.removeAll(killList);
+         */

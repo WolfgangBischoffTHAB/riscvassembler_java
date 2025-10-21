@@ -1109,7 +1109,14 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                 switch (funct3) {
                     case 0b110:
+                        // TODO
+                        logger.error("TODO: Not implemented yet!");
                         asmLine.mnemonic = Mnemonic.I_VLE32_V;
+                        break;
+                    case 0b111:
+                        // TODO
+                        logger.error("TODO: Not implemented yet!");
+                        asmLine.mnemonic = Mnemonic.I_VLE64_V;
                         break;
                     default:
                         throw new RuntimeException("Not implemented yet!");

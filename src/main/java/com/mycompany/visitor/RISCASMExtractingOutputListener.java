@@ -166,7 +166,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     }
 
     /**
-     * (Almos) every assembler line that contains a mnemonic has a params
+     * (Almost) every assembler line that contains a mnemonic has a params
      * grammar element which has the individual parameters as children.
      */
     @Override

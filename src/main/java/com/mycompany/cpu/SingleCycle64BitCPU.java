@@ -120,8 +120,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         decoder.memory = memory;
         List<AsmLine<?>> asmLines = decoder.decode(pc);
 
-        boolean result = true;
+        if (null == asmLines) {
+            throw new RuntimeException("No machine code retrieved!");
+        }
 
+        boolean result = true;
         for (AsmLine<?> asmLine : asmLines) {
 
             if (asmLine.mnemonic == null) {
@@ -146,8 +149,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // DEBUG output ASM line
-        // debugASMLineOutput = true;
-        debugASMLineOutput = false;
+        debugASMLineOutput = true;
+        // debugASMLineOutput = false;
         if (debugASMLineOutput) {
             
             StringBuilder stringBuilder = new StringBuilder();
