@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
@@ -143,8 +142,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         }
 
         // DEBUG output ASM line
-        debugASMLineOutput = true;
-        // debugASMLineOutput = false;
+        // debugASMLineOutput = true;
+        debugASMLineOutput = false;
         if (debugASMLineOutput) {
             
             StringBuilder stringBuilder = new StringBuilder();
@@ -160,8 +159,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
             String tempData = stringBuilder.toString();
 
-            boolean traceData = true;
-            // boolean traceData = false;
+            // boolean traceData = true;
+            boolean traceData = false;
             if (traceData) {
                 traceBufferedWriter.append(tempData).append("\n");
             }
@@ -179,6 +178,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // if (pc == 0x10424) {
         //    System.out.println("test");
         //}
+
+        if (asmLine.encodedLength <= 0) {
+            throw new RuntimeException("Encoded length is zero! System is bugged!");
+        }
 
         // https://projectf.io/posts/riscv-cheat-sheet/
         // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html

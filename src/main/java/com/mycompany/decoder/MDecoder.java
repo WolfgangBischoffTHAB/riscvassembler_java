@@ -114,6 +114,8 @@ public class MDecoder implements Decoder {
         asmLine.register_1 = RISCVRegister.fromInt(rs1);
         asmLine.register_2 = RISCVRegister.fromInt(rs2);
 
+        asmLine.encodedLength = 4;
+
         return result;
     }
 
