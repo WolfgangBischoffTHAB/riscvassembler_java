@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.app.App;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
@@ -122,8 +123,16 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
-        // for 32 bit cast to int
-        final int instruction = memory.readWord((int)address, byteOrder);
+        int instruction = 0;
+
+        if (App.XLEN == 32) {
+            // for 32 bit cast to int
+            instruction = memory.readWord((int)address, byteOrder);
+        }
+        if (App.XLEN == 64) {
+            // for 64 bit
+            instruction = memory.readWord(address, byteOrder);
+        }
 
         if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
             logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");

@@ -168,6 +168,7 @@ public class Memory64 implements Memory<Long> {
     }
 
     private MemoryBlock retrieveMemoryBlockByAddress(long addr) {
+        
         // memory align address to MB
         long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 

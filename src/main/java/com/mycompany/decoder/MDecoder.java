@@ -33,7 +33,10 @@ public class MDecoder implements Decoder {
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
         // for 32 bit cast to int
-        final int instruction = memory.readWord((int) address, byteOrder);
+        // final int instruction = memory.readWord((int) address, byteOrder);
+
+        // for 64 bit
+        final int instruction = memory.readWord(address, byteOrder);
 
         if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
             logger.trace("instruction is 0x00 or 0xFF. Aborting CPU run!");

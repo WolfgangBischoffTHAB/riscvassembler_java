@@ -146,7 +146,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // DEBUG output ASM line
-        debugASMLineOutput = true;
+        // debugASMLineOutput = true;
+        debugASMLineOutput = false;
         if (debugASMLineOutput) {
             
             StringBuilder stringBuilder = new StringBuilder();
@@ -172,8 +173,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             logger.info("test");
         }
 
-        singleStepping = true;
-        // singleStepping = false;
+        // singleStepping = true;
+        singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
@@ -1425,14 +1426,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 // read from memory (MEMORY STAGE)
                 let = new byte[8];
-                let[0] = (byte) memory.getByte(addr + 0);
-                let[1] = (byte) memory.getByte(addr + 1);
-                let[2] = (byte) memory.getByte(addr + 2);
-                let[3] = (byte) memory.getByte(addr + 3);
-                let[4] = (byte) memory.getByte(addr + 4);
-                let[5] = (byte) memory.getByte(addr + 5);
-                let[6] = (byte) memory.getByte(addr + 6);
-                let[7] = (byte) memory.getByte(addr + 7);
+                let[0] = (byte) memory.getByte((long) addr + 0);
+                let[1] = (byte) memory.getByte((long) addr + 1);
+                let[2] = (byte) memory.getByte((long) addr + 2);
+                let[3] = (byte) memory.getByte((long) addr + 3);
+                let[4] = (byte) memory.getByte((long) addr + 4);
+                let[5] = (byte) memory.getByte((long) addr + 5);
+                let[6] = (byte) memory.getByte((long) addr + 6);
+                let[7] = (byte) memory.getByte((long) addr + 7);
 
                 // WRITE BACK STAGE
                 // place read value into the destination register
@@ -1467,14 +1468,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 value_l = readRegisterFile(asmLine.register_0.getIndex());
                 let = ByteArrayUtil.longToEightByte(value_l, ByteOrder.LITTLE_ENDIAN);
                 // write value into memory (MEMORY STAGE)
-                memory.storeByte(addr + 0, let[0]);
-                memory.storeByte(addr + 1, let[1]);
-                memory.storeByte(addr + 2, let[2]);
-                memory.storeByte(addr + 3, let[3]);
-                memory.storeByte(addr + 4, let[4]);
-                memory.storeByte(addr + 5, let[5]);
-                memory.storeByte(addr + 6, let[6]);
-                memory.storeByte(addr + 7, let[7]);
+                memory.storeByte((long) addr + 0, let[0]);
+                memory.storeByte((long) addr + 1, let[1]);
+                memory.storeByte((long) addr + 2, let[2]);
+                memory.storeByte((long) addr + 3, let[3]);
+                memory.storeByte((long) addr + 4, let[4]);
+                memory.storeByte((long) addr + 5, let[5]);
+                memory.storeByte((long) addr + 6, let[6]);
+                memory.storeByte((long) addr + 7, let[7]);
 
                 // // DEBUG
                 // stringBuilder = new StringBuilder();
@@ -1859,7 +1860,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
     }
 
     private void printMemoryAroundPC(int displayDistance) {
-        
+
         logger.info("---------------------------------------------------------------------");
 
         // do not access negative memory address when printing close to address 0x00 of

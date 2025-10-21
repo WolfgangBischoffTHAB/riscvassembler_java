@@ -22,9 +22,6 @@ public class MemoryBlock {
 
     public byte[] memory = new byte[SIZE];
 
-    // private RV32IBaseIntegerInstructionSetDecoder decoder = new
-    // RV32IBaseIntegerInstructionSetDecoder(App.XLEN);
-
     public Decoder decoder;
 
     public void print(long startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress) {
