@@ -45,7 +45,7 @@ public class PipelinedCPUInstructionDecodeStage {
     }
 
     public AsmLine<?> step(PipelinedCPU cpu, final int instruction, DE_EX de_ex) {
-
+/*
         // skip
         if (instruction == 0x00) {
             asmLineForDebugging = null;
@@ -85,8 +85,10 @@ public class PipelinedCPUInstructionDecodeStage {
             default:
                 break;
         }
-
+ 
         return asmLine;
+        */
+        return null;
     }
 
 }

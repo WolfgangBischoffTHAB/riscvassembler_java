@@ -144,13 +144,9 @@ param :
 
 offset :
     expr
-    |
-    modifier OPENING_BRACKET expr CLOSING_BRACKET
     ;
 
-modifier :
-    MODIFIER_HI | MODIFIER_LO | MODIFIER_PCREL_HI | MODIFIER_PCREL_LO
-    ;
+    
 
 expr :
     expr PLUS expr
@@ -163,6 +159,8 @@ expr :
     |
     register
     |
+    modifier OPENING_BRACKET expr CLOSING_BRACKET
+    |
     NUMERIC | HEX_NUMERIC
     |
     IDENTIFIER
@@ -170,6 +168,10 @@ expr :
     STRING_LITERAL
     |
     DOT
+    ;
+
+modifier :
+    MODIFIER_HI | MODIFIER_LO | MODIFIER_PCREL_HI | MODIFIER_PCREL_LO
     ;
 
 register :

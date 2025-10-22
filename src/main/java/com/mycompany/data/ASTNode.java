@@ -26,6 +26,10 @@ public class ASTNode {
 
     public String operatorAsString;
 
+    public boolean isModifier;
+
+    public String modifier;
+
     public ASTNode rhs;
 
     public ASTNode lhs;
@@ -104,4 +108,26 @@ public class ASTNode {
         throw new RuntimeException("Unhandled return value type!");
     }
 
+    public String toString() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (operatorAsString != null) {
+            stringBuilder.append(lhs.toString()).append(" ");
+            stringBuilder.append(operatorAsString).append(" ");
+            stringBuilder.append(rhs.toString());
+        } else if (isRegister) {
+            stringBuilder.append(register);
+        } else if (isNumeric) {
+            stringBuilder.append(numeric);
+        } else if (isHexNumeric) {
+            stringBuilder.append(hexNumeric);
+        } else if (isStringLiteral) {
+            stringBuilder.append(identifier);
+        } else if (isModifier) {
+            stringBuilder.append(modifier);
+        }
+
+        return stringBuilder.toString();
+    }
 }

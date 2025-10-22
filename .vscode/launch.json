@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "VoxelLightmapping2",
+            "request": "launch",
+            "mainClass": "com.mycompany.app.VoxelLightmapping2",
+            "projectName": "riscv"
+        },
+        {
+            "type": "java",
+            "name": "HelloWorldLWJGL",
+            "request": "launch",
+            "mainClass": "com.mycompany.app.HelloWorldLWJGL",
+            "projectName": "riscv"
+        },
+        {
+            "type": "java",
+            "name": "BasicGameTest",
+            "request": "launch",
+            "mainClass": "com.mycompany.app.BasicGameTest",
+            "projectName": "riscv"
+        },
+        {
+            "type": "java",
             "name": "App",
             "request": "launch",
             "mainClass": "com.mycompany.app.App",

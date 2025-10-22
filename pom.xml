@@ -22,7 +22,22 @@
 
     <antlr4.visitor>true</antlr4.visitor>
     <antlr4.listener>true</antlr4.listener>
+
+	<lwjgl.version>3.3.6</lwjgl.version>
+	<lwjgl.natives>natives-windows</lwjgl.natives>
   </properties>
+
+  <dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-bom</artifactId>
+			<version>${lwjgl.version}</version>
+			<scope>import</scope>
+			<type>pom</type>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -41,10 +56,141 @@
 
     <!-- https://logback.qos.ch/setup.html -->
     <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.5.18</version>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.5.18</version>
     </dependency>
+
+    <!-- LIB GDX for graphics 
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx</artifactId>
+      <version>1.13.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx-backend-lwjgl3</artifactId>
+      <version>1.13.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx-platform</artifactId>
+      <version>1.13.1</version>
+      <classifier>natives-desktop</classifier>
+    </dependency>-->
+
+<!-- slick2d 
+    <dependency>
+      <groupId>org.slick2d</groupId>
+      <artifactId>slick2d-core</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slick2d</groupId>
+      <artifactId>slick2d-basic-game-archetype</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+-->
+
+
+    <!-- https://mvnrepository.com/artifact/org.lwjgl/lwjgl 
+    <dependency>
+        <groupId>org.lwjgl</groupId>
+        <artifactId>lwjgl</artifactId>
+        <version>3.3.6</version>
+    </dependency>-->
+    <!-- https://mvnrepository.com/artifact/org.lwjgl.osgi/org.lwjgl.glfw 
+    <dependency>
+        <groupId>org.lwjgl.osgi</groupId>
+        <artifactId>org.lwjgl.glfw</artifactId>
+        <version>3.3.0</version>
+    </dependency>-->
+    <!-- https://mvnrepository.com/artifact/org.lwjgl.osgi/org.lwjgl.opengl 
+    <dependency>
+        <groupId>org.lwjgl.osgi</groupId>
+        <artifactId>org.lwjgl.opengl</artifactId>
+        <version>3.3.0</version>
+    </dependency>-->
+
+
+<!-- https://www.lwjgl.org/customize 
+    <dependency>
+    <groupId>org.lwjgl</groupId>
+    <artifactId>lwjgl</artifactId>
+    <version>3.2.1</version>
+</dependency>
+<dependency>
+    <groupId>org.lwjgl</groupId>
+    <artifactId>lwjgl-glfw</artifactId>
+    <version>3.2.1</version>
+</dependency>-->
+<!-- https://mvnrepository.com/artifact/org.lwjgl/lwjgl-opengl 
+<dependency>
+    <groupId>org.lwjgl</groupId>
+    <artifactId>lwjgl-opengl</artifactId>
+    <version>3.2.1</version>
+</dependency>
+<dependency>
+    <groupId>java3d</groupId>
+    <artifactId>vecmath</artifactId>
+    <version>1.3.1</version>
+</dependency>-->
+
+<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-assimp</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-glfw</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-openal</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-opengl</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-stb</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl</artifactId>
+		<classifier>${lwjgl.natives}</classifier>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-assimp</artifactId>
+		<classifier>${lwjgl.natives}</classifier>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-glfw</artifactId>
+		<classifier>${lwjgl.natives}</classifier>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-openal</artifactId>
+		<classifier>${lwjgl.natives}</classifier>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-opengl</artifactId>
+		<classifier>${lwjgl.natives}</classifier>
+	</dependency>
+	<dependency>
+		<groupId>org.lwjgl</groupId>
+		<artifactId>lwjgl-stb</artifactId>
+		<classifier>${lwjgl.natives}</classifier>
+	</dependency>
+
   </dependencies>
 
   <build>

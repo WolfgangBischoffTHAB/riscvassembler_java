@@ -635,6 +635,15 @@ public enum RISCVRegister implements Register {
             case REG_T6:
             case REG_X31:
                 return "x31";
+
+
+            //
+            // V-Extension (RVV Vector Extension)
+            //
+
+            case REG_V0:
+                return "v0";
+
             default:
                 throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");
             // return "Unknown register: \"" + register.ordinal() + "\"";

@@ -1,5 +1,6 @@
 package com.mycompany.visitor;
 
+import java.beans.Expression;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -55,6 +56,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     public Stack<ASTNode> exprStack = new Stack<>();
 
+    private int paramIndex;
+
     //
     // RISC V Extension (RVV Vector extension)
     //
@@ -90,6 +93,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     @Override
     public void exitExpr(RISCVASMParser.ExprContext ctx) {
+        
+        logger.info("exitExpr: " + ctx.getText());
 
         ASTNode astNode = new ASTNode();
 
@@ -97,45 +102,77 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         // push a node onto the stack
         if (ctx.children.size() == 1) {
 
-            RegisterContext registerContext = ctx.register();
-            if (registerContext != null) {
-                astNode.isRegister = true;
-                astNode.register = RISCVRegister.fromString(registerContext.getText());
-            }
-
-            TerminalNode numericTerminalNode = ctx.NUMERIC();
-            if (numericTerminalNode != null) {
-                astNode.isNumeric = true;
-                astNode.numeric = NumberParseUtil.parseLong(numericTerminalNode.toString());
-            }
-
-            numericTerminalNode = ctx.HEX_NUMERIC();
-            if (numericTerminalNode != null) {
-                astNode.isHexNumeric = true;
-                String numeric = numericTerminalNode.toString();
-                astNode.hexNumeric = NumberParseUtil.parseLong(numeric);
-            }
-
-            TerminalNode stringLiteralTerminalNode = ctx.IDENTIFIER();
-            if (stringLiteralTerminalNode != null) {
-                astNode.isStringLiteral = true;
-                astNode.identifier = stringLiteralTerminalNode.getText();
-            }
-
-            exprStack.push(astNode);
-
+            processExprContext(ctx, astNode);
             return;
 
         } else if (ctx.children.size() == 3) {
 
-            ASTNode rhs = exprStack.pop();
-            ASTNode lhs = exprStack.pop();
+            ParseTree parseTree = ctx.getChild(1);
 
-            astNode.operatorAsString = ctx.children.get(1).getText();
+            if (parseTree instanceof TerminalNode) {
+
+                // lw a1, dword+4
+
+                astNode.operatorAsString = ctx.children.get(1).getText();
+
+                ASTNode rhs = exprStack.pop();
+                astNode.rhs = rhs;
+                rhs.parent = astNode;
+
+                ASTNode lhs = exprStack.pop();
+                astNode.lhs = lhs;
+                lhs.parent = astNode;
+
+                exprStack.push(astNode);
+
+            } else if (parseTree instanceof ExprContext) {
+
+                // Assumption: This case is only hit for lines where the offset is omitted
+                // before the offset bracket
+                // e.g. vle64.v v0, (a0)
+
+                // take down the register which is the target of the offset
+                ASTNode rhs = exprStack.pop();
+                ASTNode lhs = new ASTNode();
+                lhs.isNumeric = true;
+                lhs.numeric = 0;
+
+                astNode.rhs = rhs;
+                rhs.parent = astNode;
+                astNode.lhs = lhs;
+                lhs.parent = astNode;
+
+                exprStack.push(astNode);
+
+            }
+
+            // RISCVASMParser.ExprContext exprCtx = (ExprContext) ctx.children.get(1);
+            // processRegisterContext(exprCtx, astNode);
+            // ASTNode rhs = exprStack.pop();
+            // ASTNode rhs = exprStack.pop();
+            // ASTNode lhs = exprStack.pop();
+            // astNode.operatorAsString = ctx.children.get(1).getText();
+            // astNode.rhs = rhs;
+            // rhs.parent = astNode;
+            // astNode.lhs = lhs;
+            // lhs.parent = astNode;
+            // exprStack.push(astNode);
+
+            return;
+
+        } else if (ctx.children.size() == 4) {
+
+            // Assumption: This only happens if there is a modifier
+            // e.g. lui a3, %hi(result)
+
+            ASTNode rhs = exprStack.pop();
+
+            ASTNode lhs = new ASTNode();
+            lhs.isModifier = true;
+            lhs.modifier = ctx.getChild(0).getText();
 
             astNode.rhs = rhs;
             rhs.parent = astNode;
-
             astNode.lhs = lhs;
             lhs.parent = astNode;
 
@@ -146,6 +183,36 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         }
 
         throw new RuntimeException("Not implemented yet!");
+    }
+
+    private void processExprContext(RISCVASMParser.ExprContext ctx, ASTNode astNode) {
+
+        RegisterContext registerContext = ctx.register();
+        if (registerContext != null) {
+            astNode.isRegister = true;
+            astNode.register = RISCVRegister.fromString(registerContext.getText());
+        }
+
+        TerminalNode numericTerminalNode = ctx.NUMERIC();
+        if (numericTerminalNode != null) {
+            astNode.isNumeric = true;
+            astNode.numeric = NumberParseUtil.parseLong(numericTerminalNode.toString());
+        }
+
+        numericTerminalNode = ctx.HEX_NUMERIC();
+        if (numericTerminalNode != null) {
+            astNode.isHexNumeric = true;
+            String numeric = numericTerminalNode.toString();
+            astNode.hexNumeric = NumberParseUtil.parseLong(numeric);
+        }
+
+        TerminalNode stringLiteralTerminalNode = ctx.IDENTIFIER();
+        if (stringLiteralTerminalNode != null) {
+            astNode.isStringLiteral = true;
+            astNode.identifier = stringLiteralTerminalNode.getText();
+        }
+
+        exprStack.push(astNode);
     }
 
     @SuppressWarnings("rawtypes")
@@ -165,387 +232,306 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         asmLine.mnemonic = Mnemonic.fromString(ctx.getText());
     }
 
-    /**
-     * (Almost) every assembler line that contains a mnemonic has a params
-     * grammar element which has the individual parameters as children.
-     */
+    @Override
+    public void enterParams(RISCVASMParser.ParamsContext ctx) {
+        System.out.println(ctx.getText());
+    }
+
     @Override
     public void exitParams(RISCVASMParser.ParamsContext ctx) {
+        paramIndex = 0;
+        System.out.println(asmLine);
+        System.out.println(asmLine);
+    }
 
-        boolean isOffset = false;
-        boolean isRegister = false;
-        boolean isNumeric = false;
-        boolean isHexNumeric = false;
-        boolean isStringLiteral = false;
+    /**
+     * For testing, parse src\test\resources\riscvasm\examples\scratchpad_2.s
+     * <pre>
+     * vle64.v      v0, 0(a0)
+     * vle64.v      v0, (a0)
+     * vsetvli      t0, x0, e8,m8,tu,mu
+     * add          x1, x2, x3
+     * lui          a3, %hi(result)
+     * addi         a3, a3, %lo(result)
+     * lui          a5, %hi(uart)
+     * lw           a5, %lo(uart)(a5)
+     * lui          a4, %hi(LSR.2)
+     * lbu          a4, %lo(LSR.2)(a4)
+     * lui          a5, %hi(LSR_RI.1)
+     * lbu          a5, %lo(LSR_RI.1)(a5)
+     * addi         a0, a0, %lo(.L.str)
+     * auipc        gp, %pcrel_hi(__global_pointer$)
+     * lw           t5, -4(t0)
+     * li           t1, 0xFF00F007
+     * li           a5, -2130706432
+     * lw           a1, dword+4
+     * li           a3, 0x00FF
+     * call         putchar
+     * jr           ra
+     * j            .LBB1_2
+     * nop
+     * </pre>
+     */
+    @Override 
+    public void exitParam(RISCVASMParser.ParamContext ctx) {
 
-        boolean skipNode = false;
+        System.out.println("--------------------------------------");
+        System.out.println(paramIndex + ") " + ctx.getText());
 
-        try {
+        OffsetContext offsetContext = ctx.offset();
+        if (offsetContext != null) {
+            System.out.println("has offset");
 
-            System.out.println(ctx.getText());
+            ExprContext offsetExprContext = offsetContext.expr();
+            if (offsetExprContext != null) {
+                System.out.println("offset has expr '" + offsetExprContext.getText() + "'");
 
-            // pseudo instructions such as RET have no children
-            if (ctx.children == null) {
-                return;
+                // addExpression(paramIndex);
+                addOffset(offsetExprContext, paramIndex);
+            }
+        }
+
+        ExprContext exprContext = ctx.expr();
+        if (exprContext != null) {
+            System.out.println("has expr " + exprContext.getText());
+
+            ModifierContext modifierContext = exprContext.modifier();
+            if (modifierContext != null) {
+                System.out.println("offset has modifier '" + modifierContext.getText() + "'");
             }
 
-            // ignore commas between parameters
-            int index = ctx.children.size();
-            // index = (index / 2) + 1;
-            // index = (index + 1) / 2;
-            index /= 2;
-
-            // check if this is a RVV extension command by looking for the type subnode
-            RuleContext rContext = (RuleContext) ctx.getChild(ctx.getChildCount() - 1);
-            if (rContext.getRuleIndex() == RISCVASMParser.RULE_rvv_type) {
-                logger.info(rContext.getText());
-                skipNode = true;
+            RegisterContext registerContext = exprContext.register();
+            if (registerContext != null) {
+                System.out.println("expr has register '" + registerContext.getText() + "'");
+                //addRegister(registerContext.getText(), paramIndex);
             }
+            
+            ASTNode exprASTNode = exprStack.pop();
+            System.out.println(exprASTNode);
 
-            // iterate over all parameters in reverse direction
-
-            @SuppressWarnings("rawtypes")
-            ListIterator listIterator = ctx.param().listIterator(ctx.param().size());
-            while (listIterator.hasPrevious()) {
-
-                if (skipNode) {
-                    skipNode = false;
-                    index--;
-
-                    continue;
+            if ((exprASTNode.lhs == null) && (exprASTNode.rhs == null)) {
+                if (exprASTNode.isRegister) {
+                    addRegister(exprASTNode.register.toString(), paramIndex);
+                } else if (exprASTNode.isHexNumeric) {
+                    addHexNumeric(exprASTNode.hexNumeric, paramIndex);
+                } else if (exprASTNode.isStringLiteral) {
+                    addIdentifier(exprASTNode.identifier, paramIndex);
                 }
-
-                ParamContext paramContext = (ParamContext) listIterator.previous();
-
-                OffsetContext offsetContext = paramContext.offset();
-                if (offsetContext != null) {
-
-                    isOffset = true;
-
-                    // if (offsetContext != null) {
-                    //     ExprContext expr = offsetContext.expr();
-                    //     TerminalNode numeric2 = expr.NUMERIC();
-                    //     if (numeric2 != null) {
-                    //         String numeric = numeric2.toString();
-                    //         switch (index) {
-                    //             case 0:
-                    //                 asmLine.offset_0 = NumberParseUtil.parseLong(numeric);
-                    //                 break;
-                    //             case 1:
-                    //                 asmLine.offset_1 = NumberParseUtil.parseLong(numeric);
-                    //                 break;
-                    //             case 2:
-                    //                 asmLine.offset_2 = NumberParseUtil.parseLong(numeric);
-                    //                 break;
-                    //             case 3:
-                    //                 asmLine.offset_3 = NumberParseUtil.parseLong(numeric);
-                    //                 break;
-                    //             case 4:
-                    //                 asmLine.offset_4 = NumberParseUtil.parseLong(numeric);
-                    //                 break;
-                    //             case 5:
-                    //                 asmLine.offset_5 = NumberParseUtil.parseLong(numeric);
-                    //                 break;
-                    //             default:
-                    //                 throw new RuntimeException("Unknown value!");
-                    //         }
-                    //     }
-                    // }
-
-                    ModifierContext modifier = offsetContext.modifier();
-                    if (modifier != null) {
-                        switch (index) {
-                            case 0:
-                                asmLine.modifier_0 = Modifier.fromString(modifier.getText());
-                                break;
-                            case 1:
-                                asmLine.modifier_1 = Modifier.fromString(modifier.getText());
-                                break;
-                            case 2:
-                                asmLine.modifier_2 = Modifier.fromString(modifier.getText());
-                                break;
-                            case 3:
-                                asmLine.modifier_3 = Modifier.fromString(modifier.getText());
-                                break;
-                            case 4:
-                                asmLine.modifier_4 = Modifier.fromString(modifier.getText());
-                                break;
-                            case 5:
-                                asmLine.modifier_5 = Modifier.fromString(modifier.getText());
-                                break;
-                            default:
-                                throw new RuntimeException("Unknown value!");
-                        }
-                    }
-
-                    ExprContext offsetExprContext = offsetContext.expr();
-                    if (offsetExprContext != null) {
-
-                        String offset = offsetExprContext.getChild(0).toString();
-
-                        TerminalNode numericTerminalNode = offsetExprContext.NUMERIC();
-                        TerminalNode hexNumericTerminalNode = offsetExprContext.HEX_NUMERIC();
-                        if (numericTerminalNode != null || hexNumericTerminalNode != null) {
-
-                            Long data = NumberParseUtil.parseLong(offset);
-
-                            // Do I need this ?
-                            isHexNumeric = true;
-
-                            switch (index) {
-                                case 0:
-                                    asmLine.offset_0 = data;
-                                    break;
-                                case 1:
-                                    asmLine.offset_1 = data;
-                                    break;
-                                case 2:
-                                    asmLine.offset_2 = data;
-                                    break;
-                                case 3:
-                                    asmLine.offset_3 = data;
-                                    break;
-                                case 4:
-                                    asmLine.offset_4 = data;
-                                    break;
-                                case 5:
-                                    asmLine.offset_5 = data;
-                                    break;
-                                default:
-                                    throw new RuntimeException("Unknown value!");
-                            }
-
-                        } else {
-
-                            switch (index) {
-                                case 0:
-                                    asmLine.offsetLabel_0 = offset;
-                                    break;
-                                case 1:
-                                    asmLine.offsetLabel_1 = offset;
-                                    break;
-                                case 2:
-                                    asmLine.offsetLabel_2 = offset;
-                                    break;
-                                case 3:
-                                    asmLine.offsetLabel_3 = offset;
-                                    break;
-                                case 4:
-                                    asmLine.offsetLabel_4 = offset;
-                                    break;
-                                case 5:
-                                    asmLine.offsetLabel_5 = offset;
-                                    break;
-                                default:
-                                    throw new RuntimeException("Unknown value!");
-                            }
-                        }
-                    }
-                }
-
-                ExprContext exprContext = paramContext.expr();
-                if (exprContext != null) {
-
-                    RegisterContext registerContext = exprContext.register();
-                    TerminalNode numericTerminalNode = exprContext.NUMERIC();
-                    TerminalNode hexNumericTerminalNode = exprContext.HEX_NUMERIC();
-                    TerminalNode stringLiteralTerminalNode = exprContext.IDENTIFIER();
-
-                    if (registerContext != null) {
-
-                        isRegister = true;
-
-                        // remove the expression from the stack to consume it so that the stack remains
-                        // in correct state
-                        exprStack.pop();
-
-                        switch (index) {
-                            case 0:
-                                asmLine.register_0 = RISCVRegister.fromString(registerContext.getText());
-                                break;
-                            case 1:
-                                asmLine.register_1 = RISCVRegister.fromString(registerContext.getText());
-                                break;
-                            case 2:
-                                asmLine.register_2 = RISCVRegister.fromString(registerContext.getText());
-                                break;
-                            case 3:
-                                asmLine.register_3 = RISCVRegister.fromString(registerContext.getText());
-                                break;
-                            case 4:
-                                asmLine.register_4 = RISCVRegister.fromString(registerContext.getText());
-                                break;
-                            case 5:
-                                asmLine.register_5 = RISCVRegister.fromString(registerContext.getText());
-                                break;
-                        }
-
-                    } else if (numericTerminalNode != null) {
-
-                        isNumeric = true;
-
-                        // remove the expression from the stack to consume it so that the stack remains
-                        // in correct state
-                        exprStack.pop();
-
-                        String numeric = numericTerminalNode.toString();
-                        if (numeric != null) {
-                            switch (index) {
-                                case 0:
-                                    asmLine.numeric_0 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 1:
-                                    asmLine.numeric_1 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 2:
-                                    asmLine.numeric_2 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 3:
-                                    asmLine.numeric_3 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 4:
-                                    asmLine.numeric_4 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                                case 5:
-                                    asmLine.numeric_5 = NumberParseUtil.parseLong(numeric);
-                                    break;
-                            }
-                        }
-
-                    } else if (hexNumericTerminalNode != null) {
-
-                        isHexNumeric = true;
-
-                        // remove the expression from the stack to consume it so that the stack remains
-                        // in correct state
-                        exprStack.pop();
-
-                        String numeric = hexNumericTerminalNode.toString();
-                        long value = NumberParseUtil.parseLong(numeric);
-
-                        if (numeric != null) {
-                            switch (index) {
-                                case 0:
-                                    asmLine.numeric_0 = value;
-                                    break;
-                                case 1:
-                                    asmLine.numeric_1 = value;
-                                    break;
-                                case 2:
-                                    asmLine.numeric_2 = value;
-                                    break;
-                                case 3:
-                                    asmLine.numeric_3 = value;
-                                    break;
-                                case 4:
-                                    asmLine.numeric_4 = value;
-                                    break;
-                                case 5:
-                                    asmLine.numeric_5 = value;
-                                    break;
-                            }
-                        }
-
-                    } else if (stringLiteralTerminalNode != null) {
-
-                        isStringLiteral = true;
-
-                        // remove the expression from the stack to consume it so that the stack remains
-                        // in correct state
-                        exprStack.pop();
-
-                        String identifier = stringLiteralTerminalNode.getText();
-                        switch (index) {
-                            case 0:
-                                asmLine.identifier_0 = identifier;
-                                break;
-                            case 1:
-                                asmLine.identifier_1 = identifier;
-                                break;
-                            case 2:
-                                asmLine.identifier_2 = identifier;
-                                break;
-                            case 3:
-                                asmLine.identifier_3 = identifier;
-                                break;
-                            case 4:
-                                asmLine.identifier_4 = identifier;
-                                break;
-                            case 5:
-                                asmLine.identifier_5 = identifier;
-                                break;
-                        }
-
-                    } else {
-
-                        // last option is an expression located on the expression stack
-                        ASTNode exprASTNode = exprStack.pop();
-
-                        switch (index) {
-                            case 0:
-                                asmLine.expr_0 = exprASTNode;
-                                break;
-                            case 1:
-                                asmLine.expr_1 = exprASTNode;
-                                break;
-                            case 2:
-                                asmLine.expr_2 = exprASTNode;
-                                break;
-                            case 3:
-                                asmLine.expr_3 = exprASTNode;
-                                break;
-                            case 4:
-                                asmLine.expr_4 = exprASTNode;
-                                break;
-                            case 5:
-                                asmLine.expr_5 = exprASTNode;
-                                break;
-                        }
-
-                    }
-
-                }
-
-                if (!isOffset && !isRegister && !isNumeric && !isHexNumeric && !isStringLiteral) {
-
-                    // DEBUG
-                    // ExprContext lhs = (ExprContext) exprContext.getChild(0);
-                    // String operator = exprContext.getChild(1).getText();
-                    // ExprContext rhs = (ExprContext) exprContext.getChild(2);
-
-                    switch (index) {
-                        case 0:
-                            // asmLine.exprContext_0 = exprContext;
-                            break;
-                        case 1:
-                            // asmLine.exprContext_1 = exprContext;
-                            break;
-                        case 2:
-                            // asmLine.exprContext_2 = exprContext;
-                            break;
-                        case 3:
-                            // asmLine.exprContext_3 = exprContext;
-                            break;
-                        case 4:
-                            // asmLine.exprContext_4 = exprContext;
-                            break;
-                        case 5:
-                            // asmLine.exprContext_5 = exprContext;
-                            break;
-                    }
-                }
-
-                isOffset = false;
-                isRegister = false;
-                isNumeric = false;
-                isHexNumeric = false;
-                isStringLiteral = false;
-
-                index--;
             }
+            if ((exprASTNode.lhs != null) && (exprASTNode.rhs != null)) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+                ASTNode exprASTNodeRhs = exprASTNode.rhs;
+                ASTNode exprASTNodeLhs = exprASTNode.lhs;
+
+                if (exprASTNode.operatorAsString != null) {
+                    addExpression(exprASTNode, paramIndex);
+                } else if (exprASTNodeRhs.isRegister && exprASTNodeLhs.isNumeric) {
+                    System.out.println("Node with artificial offset!");
+                    addRegister(exprASTNodeRhs.register.toString(), paramIndex);
+                    addOffset(exprASTNodeLhs.numeric, paramIndex);
+                } else if (exprASTNodeRhs.isRegister && exprASTNodeLhs.isModifier) {
+                    addRegister(exprASTNodeRhs.register.toString(), paramIndex);
+                    addModifier(exprASTNodeLhs.modifier, paramIndex);
+                } else if (exprASTNodeRhs.isStringLiteral && exprASTNodeLhs.isModifier) {
+                    addIdentifier(exprASTNodeRhs.identifier, paramIndex);
+                    addModifier(exprASTNodeLhs.modifier, paramIndex);
+                }
+            }
+        }
+
+        paramIndex++;
+    }
+
+    private void addHexNumeric(long value, int index) {
+        // long value = NumberParseUtil.parseLong(data);
+        switch (index) {
+            case 0:
+                asmLine.numeric_0 = value;
+                break;
+            case 1:
+                asmLine.numeric_1 = value;
+                break;
+            case 2:
+                asmLine.numeric_2 = value;
+                break;
+            case 3:
+                asmLine.numeric_3 = value;
+                break;
+            case 4:
+                asmLine.numeric_4 = value;
+                break;
+            case 5:
+                asmLine.numeric_5 = value;
+                break;
+        }
+    }
+
+    private void addModifier(String data, int index) {
+        Modifier modifier = Modifier.fromString(data);
+        switch (index) {
+            case 0:
+                asmLine.modifier_0 = modifier;
+                break;
+            case 1:
+                asmLine.modifier_1 = modifier;
+                break;
+            case 2:
+                asmLine.modifier_2 = modifier;
+                break;
+            case 3:
+                asmLine.modifier_3 = modifier;
+                break;
+            case 4:
+                asmLine.modifier_4 = modifier;
+                break;
+            case 5:
+                asmLine.modifier_5 = modifier;
+                break;
+            default:
+                throw new RuntimeException("Unknown value!");
+        }
+    }
+
+    private void addIdentifier(String identifier, int index) {
+        // String identifier = stringLiteralTerminalNode.getText();
+        switch (index) {
+            case 0:
+                asmLine.identifier_0 = identifier;
+                break;
+            case 1:
+                asmLine.identifier_1 = identifier;
+                break;
+            case 2:
+                asmLine.identifier_2 = identifier;
+                break;
+            case 3:
+                asmLine.identifier_3 = identifier;
+                break;
+            case 4:
+                asmLine.identifier_4 = identifier;
+                break;
+            case 5:
+                asmLine.identifier_5 = identifier;
+                break;
+        }
+    }
+
+    private void addOffset(long data, int index) {
+        switch (index) {
+            case 0:
+                asmLine.offset_0 = data;
+                break;
+            case 1:
+                asmLine.offset_1 = data;
+                break;
+            case 2:
+                asmLine.offset_2 = data;
+                break;
+            case 3:
+                asmLine.offset_3 = data;
+                break;
+            case 4:
+                asmLine.offset_4 = data;
+                break;
+            case 5:
+                asmLine.offset_5 = data;
+                break;
+            default:
+                throw new RuntimeException("Unknown value!");
+        }
+    }
+
+
+    private void addOffset(ExprContext offsetExprContext, int index) {
+
+        String offset = offsetExprContext.getChild(0).toString();
+
+        TerminalNode numericTerminalNode = offsetExprContext.NUMERIC();
+        TerminalNode hexNumericTerminalNode = offsetExprContext.HEX_NUMERIC();
+        if (numericTerminalNode != null || hexNumericTerminalNode != null) {
+
+            Long data = NumberParseUtil.parseLong(offset);
+
+            // // Do I need this ?
+            // boolean isHexNumeric = true;
+
+            addOffset(data, index);
+
+        } else {
+
+            switch (index) {
+                case 0:
+                    asmLine.offsetLabel_0 = offset;
+                    break;
+                case 1:
+                    asmLine.offsetLabel_1 = offset;
+                    break;
+                case 2:
+                    asmLine.offsetLabel_2 = offset;
+                    break;
+                case 3:
+                    asmLine.offsetLabel_3 = offset;
+                    break;
+                case 4:
+                    asmLine.offsetLabel_4 = offset;
+                    break;
+                case 5:
+                    asmLine.offsetLabel_5 = offset;
+                    break;
+                default:
+                    throw new RuntimeException("Unknown value!");
+            }
+        }
+    }
+
+    private void addExpression(ASTNode exprASTNode, int index) {
+        // last option is an expression located on the expression stack
+        // ASTNode exprASTNode = exprStack.pop();
+        switch (index) {
+            case 0:
+                asmLine.expr_0 = exprASTNode;
+                break;
+            case 1:
+                asmLine.expr_1 = exprASTNode;
+                break;
+            case 2:
+                asmLine.expr_2 = exprASTNode;
+                break;
+            case 3:
+                asmLine.expr_3 = exprASTNode;
+                break;
+            case 4:
+                asmLine.expr_4 = exprASTNode;
+                break;
+            case 5:
+                asmLine.expr_5 = exprASTNode;
+                break;
+        }
+    }
+
+    private void addRegister(String data, int index) {
+        // // remove the expression from the stack to consume it so that the stack remains
+        // // in correct state
+        // exprStack.pop();
+        switch (index) {
+            case 0:
+                asmLine.register_0 = RISCVRegister.fromString(data);
+                break;
+            case 1:
+                asmLine.register_1 = RISCVRegister.fromString(data);
+                break;
+            case 2:
+                asmLine.register_2 = RISCVRegister.fromString(data);
+                break;
+            case 3:
+                asmLine.register_3 = RISCVRegister.fromString(data);
+                break;
+            case 4:
+                asmLine.register_4 = RISCVRegister.fromString(data);
+                break;
+            case 5:
+                asmLine.register_5 = RISCVRegister.fromString(data);
+                break;
         }
     }
 

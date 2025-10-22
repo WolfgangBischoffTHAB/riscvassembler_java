@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
+// import org.newdawn.slick.AppGameContainer;
+// import org.newdawn.slick.SlickException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,9 @@ public class App {
     // private static final boolean LINUX_BOOT_IMAGE_FILE = true;
 
     public static void main(String[] args) throws IOException {
+
+        // TODO: Graphics Display
+        // new HelloWorldLWJGL().run();
 
         // RV32IBaseIntegerInstructionSetDecoder decoder = new
         // RV32IBaseIntegerInstructionSetDecoder();
@@ -189,7 +194,9 @@ public class App {
 
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-        String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
+
+        String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
 
         args[0] = inputFile;
         mainRISCV(args);

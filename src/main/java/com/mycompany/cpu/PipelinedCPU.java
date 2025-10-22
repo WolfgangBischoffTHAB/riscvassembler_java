@@ -175,4 +175,10 @@ public class PipelinedCPU extends AbstractCPU {
         registerFile[register_index] = value;
     }
 
+    @Override
+    public long[] getRegisterFile() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRegisterFile'");
+    }
+
 }
