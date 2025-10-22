@@ -418,7 +418,13 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte opcode = 0b0000111;
 
         // How to encode the offset? Is there an offset allowed?
-        long offset = asmLine.offset_1;
+        Long offset = null;
+        if (asmLine.offset_1 != null) {
+            offset = asmLine.offset_1;
+        }
+        if (asmLine.offset_expr_1 != null) {
+            offset = asmLine.offset_expr_1.evaluate();
+        }
 
         byte vd = (byte) asmLine.register_0.getIndex();
         byte rs1 = (byte) asmLine.register_1.getIndex();

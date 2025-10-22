@@ -82,6 +82,13 @@ public class AsmLine<T extends Register> {
     public ASTNode expr_4;
     public ASTNode expr_5;
 
+    public ASTNode offset_expr_0;
+    public ASTNode offset_expr_1;
+    public ASTNode offset_expr_2;
+    public ASTNode offset_expr_3;
+    public ASTNode offset_expr_4;
+    public ASTNode offset_expr_5;
+
     // RISCV V-Extension (RVV Vektor Extension)
     //
     // special type flags (vtypei) for the vsetvli instruction
@@ -301,6 +308,17 @@ public class AsmLine<T extends Register> {
                 }
             }
             stringBuilder.append(")");
+        } else if (offset_expr_5 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_expr_5.toString()).append("(");
+            if (register_5 != null) {
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_5));
+                } else {
+                    stringBuilder.append(Register.toString(register_5));
+                }
+            }
+            stringBuilder.append(")");
         } else if (offsetLabel_5 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offsetLabel_5).append("(");
@@ -363,6 +381,17 @@ public class AsmLine<T extends Register> {
         } else if (offset_4 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offset_4).append("(");
+            if (register_4 != null) {
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_4));
+                } else {
+                    stringBuilder.append(Register.toString(register_4));
+                }
+            }
+            stringBuilder.append(")");
+        } else if (offset_expr_4 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_expr_4.toString()).append("(");
             if (register_4 != null) {
                 if (outputRegistersAsABI) {
                     stringBuilder.append(Register.toStringAbi(register_4));
@@ -441,6 +470,17 @@ public class AsmLine<T extends Register> {
                 }
             }
             stringBuilder.append(")");
+        } else if (offset_expr_3 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_expr_3.toString()).append("(");
+            if (register_3 != null) {
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_3));
+                } else {
+                    stringBuilder.append(Register.toString(register_3));
+                }
+            }
+            stringBuilder.append(")");
         } else if (offsetLabel_3 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offsetLabel_3).append("(");
@@ -511,6 +551,17 @@ public class AsmLine<T extends Register> {
                 }
             }
             stringBuilder.append(")");
+        } else if (offset_expr_2 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_expr_2.toString()).append("(");
+            if (register_2 != null) {
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_2));
+                } else {
+                    stringBuilder.append(Register.toString(register_2));
+                }
+            }
+            stringBuilder.append(")");
         } else if (offsetLabel_2 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offsetLabel_2).append("(");
@@ -570,9 +621,29 @@ public class AsmLine<T extends Register> {
         } else if (identifier_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(identifier_1);
+            if (register_1 != null) {
+                stringBuilder.append("(");
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_1));
+                } else {
+                    stringBuilder.append(Register.toString(register_1));
+                }
+                stringBuilder.append(")");
+            }
         } else if (offset_1 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(offset_1).append("(");
+            if (register_1 != null) {
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_1));
+                } else {
+                    stringBuilder.append(Register.toString(register_1));
+                }
+            }
+            stringBuilder.append(")");
+        } else if (offset_expr_1 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_expr_1.toString()).append("(");
             if (register_1 != null) {
                 if (outputRegistersAsABI) {
                     stringBuilder.append(Register.toStringAbi(register_1));
@@ -640,6 +711,17 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(identifier_0);
         } else if (offset_0 != null) {
             stringBuilder.append(offset_0).append("(");
+            if (register_0 != null) {
+                if (outputRegistersAsABI) {
+                    stringBuilder.append(Register.toStringAbi(register_0));
+                } else {
+                    stringBuilder.append(Register.toString(register_0));
+                }
+            }
+            stringBuilder.append(")");
+        } else if (offset_expr_0 != null) {
+            stringBuilder.append(", ");
+            stringBuilder.append(offset_expr_0.toString()).append("(");
             if (register_0 != null) {
                 if (outputRegistersAsABI) {
                     stringBuilder.append(Register.toStringAbi(register_0));

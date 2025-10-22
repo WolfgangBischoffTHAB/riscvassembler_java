@@ -34,6 +34,8 @@ public class ASTNode {
 
     public ASTNode lhs;
 
+    public boolean isOffset;
+
     public void replace(Map<String, Object> equMap) {
 
         if (isStringLiteral && equMap.containsKey(identifier)) {
@@ -126,6 +128,9 @@ public class ASTNode {
             stringBuilder.append(identifier);
         } else if (isModifier) {
             stringBuilder.append(modifier);
+        } else if (isOffset) {
+            stringBuilder.append(lhs.toString()).append("(");
+            stringBuilder.append(rhs.toString()).append(")");
         }
 
         return stringBuilder.toString();

@@ -643,6 +643,16 @@ public enum RISCVRegister implements Register {
 
             case REG_V0:
                 return "v0";
+            case REG_V0_T:
+                return "v0";
+            case REG_V1:
+                return "v1";
+            case REG_V1_T:
+                return "v1.t";
+            case REG_V2:
+                return "v2";
+            case REG_V2_T:
+                return "v2.t";
 
             default:
                 throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");

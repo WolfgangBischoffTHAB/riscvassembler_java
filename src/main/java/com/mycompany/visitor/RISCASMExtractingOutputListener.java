@@ -1,13 +1,10 @@
 package com.mycompany.visitor;
 
-import java.beans.Expression;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
 
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
@@ -27,7 +24,6 @@ import riscvasm.RISCVASMParser.Csv_numeric_listContext;
 import riscvasm.RISCVASMParser.ExprContext;
 import riscvasm.RISCVASMParser.ModifierContext;
 import riscvasm.RISCVASMParser.OffsetContext;
-import riscvasm.RISCVASMParser.ParamContext;
 import riscvasm.RISCVASMParser.RegisterContext;
 import riscvasm.RISCVASMParserBaseListener;
 
@@ -89,6 +85,11 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     public void exitRvv_mask(RISCVASMParser.Rvv_maskContext ctx) {
         logger.info("exitRvv_mask: " + ctx.getText());
         asmLine.rvvMask = ctx.getText();
+    }
+
+    @Override 
+    public void exitOffset(RISCVASMParser.OffsetContext ctx) { 
+        exprStack.get(0).isOffset = true;
     }
 
     @Override
@@ -278,68 +279,96 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         System.out.println("--------------------------------------");
         System.out.println(paramIndex + ") " + ctx.getText());
 
-        OffsetContext offsetContext = ctx.offset();
-        if (offsetContext != null) {
-            System.out.println("has offset");
+        // OffsetContext offsetContext = ctx.offset();
+        // if (offsetContext != null) {
+        //     System.out.println("has offset");
 
-            ExprContext offsetExprContext = offsetContext.expr();
-            if (offsetExprContext != null) {
-                System.out.println("offset has expr '" + offsetExprContext.getText() + "'");
+        //     ExprContext offsetExprContext = offsetContext.expr();
+        //     if (offsetExprContext != null) {
+        //         System.out.println("offset has expr '" + offsetExprContext.getText() + "'");
 
-                // addExpression(paramIndex);
-                addOffset(offsetExprContext, paramIndex);
-            }
-        }
+        //         // addExpression(paramIndex);
+        //         //addOffset(offsetExprContext, paramIndex);
+        //     }
+        // }
 
         ExprContext exprContext = ctx.expr();
         if (exprContext != null) {
-            System.out.println("has expr " + exprContext.getText());
+            // System.out.println("has expr " + exprContext.getText());
 
-            ModifierContext modifierContext = exprContext.modifier();
-            if (modifierContext != null) {
-                System.out.println("offset has modifier '" + modifierContext.getText() + "'");
-            }
+            // ModifierContext modifierContext = exprContext.modifier();
+            // if (modifierContext != null) {
+            //     System.out.println("offset has modifier '" + modifierContext.getText() + "'");
+            // }
 
-            RegisterContext registerContext = exprContext.register();
-            if (registerContext != null) {
-                System.out.println("expr has register '" + registerContext.getText() + "'");
-                //addRegister(registerContext.getText(), paramIndex);
-            }
+            // RegisterContext registerContext = exprContext.register();
+            // if (registerContext != null) {
+            //     System.out.println("expr has register '" + registerContext.getText() + "'");
+            //     //addRegister(registerContext.getText(), paramIndex);
+            // }
+
+            while (!exprStack.isEmpty()) {
             
-            ASTNode exprASTNode = exprStack.pop();
-            System.out.println(exprASTNode);
+                ASTNode exprASTNode = exprStack.pop();
+                System.out.println(exprASTNode);
 
-            if ((exprASTNode.lhs == null) && (exprASTNode.rhs == null)) {
-                if (exprASTNode.isRegister) {
-                    addRegister(exprASTNode.register.toString(), paramIndex);
-                } else if (exprASTNode.isHexNumeric) {
-                    addHexNumeric(exprASTNode.hexNumeric, paramIndex);
-                } else if (exprASTNode.isStringLiteral) {
-                    addIdentifier(exprASTNode.identifier, paramIndex);
-                }
-            }
-            if ((exprASTNode.lhs != null) && (exprASTNode.rhs != null)) {
+                if (exprASTNode.isOffset) {
+                    addOffsetExpression(exprASTNode, paramIndex);
+                } else if ((exprASTNode.lhs == null) && (exprASTNode.rhs == null)) {
+                    if (exprASTNode.isRegister) {
+                        addRegister(exprASTNode.register.toString(), paramIndex);
+                    } else if (exprASTNode.isNumeric) {
+                        addNumeric(exprASTNode.numeric, paramIndex);
+                    } else if (exprASTNode.isHexNumeric) {
+                        addHexNumeric(exprASTNode.hexNumeric, paramIndex);
+                    } else if (exprASTNode.isStringLiteral) {
+                        addIdentifier(exprASTNode.identifier, paramIndex);
+                    }
+                } else if ((exprASTNode.lhs != null) && (exprASTNode.rhs != null)) {
 
-                ASTNode exprASTNodeRhs = exprASTNode.rhs;
-                ASTNode exprASTNodeLhs = exprASTNode.lhs;
+                    ASTNode exprASTNodeRhs = exprASTNode.rhs;
+                    ASTNode exprASTNodeLhs = exprASTNode.lhs;
 
-                if (exprASTNode.operatorAsString != null) {
-                    addExpression(exprASTNode, paramIndex);
-                } else if (exprASTNodeRhs.isRegister && exprASTNodeLhs.isNumeric) {
-                    System.out.println("Node with artificial offset!");
-                    addRegister(exprASTNodeRhs.register.toString(), paramIndex);
-                    addOffset(exprASTNodeLhs.numeric, paramIndex);
-                } else if (exprASTNodeRhs.isRegister && exprASTNodeLhs.isModifier) {
-                    addRegister(exprASTNodeRhs.register.toString(), paramIndex);
-                    addModifier(exprASTNodeLhs.modifier, paramIndex);
-                } else if (exprASTNodeRhs.isStringLiteral && exprASTNodeLhs.isModifier) {
-                    addIdentifier(exprASTNodeRhs.identifier, paramIndex);
-                    addModifier(exprASTNodeLhs.modifier, paramIndex);
+                    if (exprASTNode.operatorAsString != null) {
+                        addExpression(exprASTNode, paramIndex);
+                    } else if (exprASTNodeRhs.isRegister && exprASTNodeLhs.isNumeric) {
+                        addRegister(exprASTNodeRhs.register.toString(), paramIndex);
+                        addOffset(exprASTNodeLhs.numeric, paramIndex);
+                    } else if (exprASTNodeRhs.isRegister && exprASTNodeLhs.isModifier) {
+                        addRegister(exprASTNodeRhs.register.toString(), paramIndex);
+                        addModifier(exprASTNodeLhs.modifier, paramIndex);
+                    } else if (exprASTNodeRhs.isStringLiteral && exprASTNodeLhs.isModifier) {
+                        addIdentifier(exprASTNodeRhs.identifier, paramIndex);
+                        addModifier(exprASTNodeLhs.modifier, paramIndex);
+                    }
                 }
             }
         }
 
         paramIndex++;
+    }
+
+    private void addNumeric(long value, int index) {
+        switch (index) {
+            case 0:
+                asmLine.numeric_0 = value;
+                break;
+            case 1:
+                asmLine.numeric_1 = value;
+                break;
+            case 2:
+                asmLine.numeric_2 = value;
+                break;
+            case 3:
+                asmLine.numeric_3 = value;
+                break;
+            case 4:
+                asmLine.numeric_4 = value;
+                break;
+            case 5:
+                asmLine.numeric_5 = value;
+                break;
+        }
     }
 
     private void addHexNumeric(long value, int index) {
@@ -393,7 +422,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     }
 
     private void addIdentifier(String identifier, int index) {
-        // String identifier = stringLiteralTerminalNode.getText();
         switch (index) {
             case 0:
                 asmLine.identifier_0 = identifier;
@@ -441,6 +469,30 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
         }
     }
 
+    private void addOffsetExpression(ASTNode exprASTNode, int index) {
+        switch (index) {
+            case 0:
+                asmLine.offset_expr_0 = exprASTNode;
+                break;
+            case 1:
+                asmLine.offset_expr_1 = exprASTNode;
+                break;
+            case 2:
+                asmLine.offset_expr_2 = exprASTNode;
+                break;
+            case 3:
+                asmLine.offset_expr_3 = exprASTNode;
+                break;
+            case 4:
+                asmLine.offset_expr_4 = exprASTNode;
+                break;
+            case 5:
+                asmLine.offset_expr_5 = exprASTNode;
+                break;
+            default:
+                throw new RuntimeException("Unknown value!");
+        }
+    }
 
     private void addOffset(ExprContext offsetExprContext, int index) {
 
