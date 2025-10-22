@@ -468,8 +468,8 @@ public class App {
 
             memory = elf.memory;
 
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add"); // OK
-            //elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi"); // OK
+            elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add"); // OK
+            // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi"); // OK
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addiw"); // OK
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addw"); // OK
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-and"); // OK
@@ -660,9 +660,26 @@ public class App {
 
             if (XLEN == 64) {
 
+                // //
+                // // 32 bit elf file for 64 bit CPU
+                // //
+
+                // Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+                // Elf32Sym mainEntryPointSymbol = null;
+                // if (optionalSymbol.isPresent()) {
+                //     mainEntryPointSymbol = optionalSymbol.get();
+                // } else {
+                //     optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+                //     if (optionalSymbol.isPresent()) {
+                //         mainEntryPointSymbol = optionalSymbol.get();
+                //     }
+                // }
+                // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+
                 //
-                // startAddress 64 bit
+                // 32 bit elf file for 64 bit CPU
                 //
+
                 // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
                 // the spice simulator uses the _start symbol
                 Optional<Elf64Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
@@ -725,17 +742,21 @@ public class App {
             // DEBUG
             // BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
 
-            long value = singleCycleCPU.memory.readLong(0x10040, ByteOrder.LITTLE_ENDIAN);
-            logger.info(ByteArrayUtil.byteToHex(value));
+            long addr = 0x10040L;
+            long value = singleCycleCPU.memory.readLong(addr, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value, null, "%1$016X"));
 
-            value = singleCycleCPU.memory.readLong(0x10048, ByteOrder.LITTLE_ENDIAN);
-            logger.info(ByteArrayUtil.byteToHex(value));
+            addr = 0x10048L;
+            value = singleCycleCPU.memory.readLong(addr, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value, null, "%1$016X"));
 
-            value = singleCycleCPU.memory.readLong(0x10050, ByteOrder.LITTLE_ENDIAN);
-            logger.info(ByteArrayUtil.byteToHex(value));
+            addr = 0x10050L;
+            value = singleCycleCPU.memory.readLong(addr, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value, null, "%1$016X"));
 
-            value = singleCycleCPU.memory.readLong(0x10058, ByteOrder.LITTLE_ENDIAN);
-            logger.info(ByteArrayUtil.byteToHex(value));
+            addr = 0x10058L;
+            value = singleCycleCPU.memory.readLong(addr, ByteOrder.LITTLE_ENDIAN);
+            logger.info(ByteArrayUtil.byteToHex(value, null, "%1$016X"));
 
         }
 

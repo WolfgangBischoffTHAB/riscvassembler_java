@@ -1055,7 +1055,9 @@ public class Elf32 extends BaseElf {
 
             // memory.copy(programHeader.p_paddr, buffer, machine_code_offset,
             // programHeader.p_memsz);
-            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_filesz);
+
+
+            memory.copy((long) programHeader.p_paddr, buffer, (long) machine_code_offset, (long) programHeader.p_filesz);
 
             // DEBUG
 

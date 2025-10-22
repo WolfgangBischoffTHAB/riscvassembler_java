@@ -21,12 +21,14 @@ public interface Memory<T> {
     int readByte(T addr);
 
     void storeByte(T addr, byte data);
+    void storeLong(T addr, long data);
 
     int readShort(T addr, ByteOrder byteOrder);
     
     int readWord(T addr, ByteOrder byteOrder);
     
     long readLong(T addr, ByteOrder byteOrder);
+    void readLong(byte[] rvvReg, int rdOffset, long addr, ByteOrder byteOrder);
 
     MemoryBlock getMemoryBlockForAddress(T addr);
 

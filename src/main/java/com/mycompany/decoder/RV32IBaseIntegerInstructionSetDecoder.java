@@ -1107,7 +1107,18 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     // asmLine.register_2 = RISCVRegister.fromInt(rs1);
                 }
 
+                // https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html#vle-eew
                 switch (funct3) {
+                    case 0b000:
+                        // TODO
+                        logger.error("TODO: Not implemented yet!");
+                        asmLine.mnemonic = Mnemonic.I_VLE8_V;
+                        break;
+                    case 0b101:
+                        // TODO
+                        logger.error("TODO: Not implemented yet!");
+                        asmLine.mnemonic = Mnemonic.I_VLE16_V;
+                        break;
                     case 0b110:
                         // TODO
                         logger.error("TODO: Not implemented yet!");
@@ -1134,9 +1145,23 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     // asmLine.register_2 = RISCVRegister.fromInt(rs1);
                 }
 
+                // https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html#vse-eew
                 switch (funct3) {
+                    case 0b000:
+                        logger.error("TODO: Not implemented yet!");
+                        asmLine.mnemonic = Mnemonic.I_VSE8_V;
+                        break;
+                    case 0b101:
+                        logger.error("TODO: Not implemented yet!");
+                        asmLine.mnemonic = Mnemonic.I_VSE16_V;
+                        break;
                     case 0b110:
+                        logger.error("TODO: Not implemented yet!");
                         asmLine.mnemonic = Mnemonic.I_VSE32_V;
+                        break;
+                    case 0b111:
+                        logger.error("TODO: Not implemented yet!");
+                        asmLine.mnemonic = Mnemonic.I_VSE64_V;
                         break;
                     default:
                         throw new RuntimeException("Not implemented yet!");

@@ -224,8 +224,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeVLE64_V(byteArrayOutStream, asmLine);
             case I_VSE32_V:
                 return encodeVSE32_V(byteArrayOutStream, asmLine);
-            // case I_VSE64_V:
-            //     return encodeVSE64_V(byteArrayOutStream, asmLine);
+            case I_VSE64_V:
+                return encodeVSE64_V(byteArrayOutStream, asmLine);
             case I_VMSNE_VI: // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
                 return encodeVMSNE(byteArrayOutStream, asmLine);
             case I_VADD_VV:
@@ -462,6 +462,41 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     private int encodeVSE32_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
 
         byte width = 0b110; // for 32 bit
+        byte opcode = 0b0100111;
+
+        byte vs3 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+        }
+
+        int result = ((opcode & 0b1111111) << 0) | // 0
+                ((vs3 & 0b11111) << 7) | // 7
+                ((width & 0b111) << (7 + 5)) | // 12
+                ((rs1 & 0b11111) << (7 + 5 + 3)) | // 15
+                ((0b00000) << (7 + 5 + 3 + 5)) | // 20
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5)); // 25
+
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    /**
+     * https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html#vse-eew
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
+    private int encodeVSE64_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte width = 0b111; // for 64 bit
         byte opcode = 0b0100111;
 
         byte vs3 = (byte) asmLine.register_0.getIndex();

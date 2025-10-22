@@ -193,11 +193,11 @@ public enum RISCVRegister implements Register {
     //
 
     REG_V0(0x00),
-    REG_V0_T(0x01),
-    REG_V1(0x02),
-    REG_V1_T(0x03),
-    REG_V2(0x04),
-    REG_V2_T(0x05),
+    // REG_V0_T(0x01),
+    REG_V1(0x01),
+    // REG_V1_T(0x03),
+    REG_V2(0x02),
+    // REG_V2_T(0x05),
 
     REG_UNKNOWN(255);
 
@@ -349,21 +349,21 @@ public enum RISCVRegister implements Register {
             /** 0 */
             case 0x00:
                 return REG_V0;
+            // /** 1 */
+            // case 0x01:
+            //     return REG_V0_T;
             /** 1 */
             case 0x01:
-                return REG_V0_T;
+                return REG_V1;
+            // /** 3 */
+            // case 0x03:
+            //     return REG_V1_T;
             /** 2 */
             case 0x02:
-                return REG_V1;
-            /** 3 */
-            case 0x03:
-                return REG_V1_T;
-            /** 4 */
-            case 0x04:
                 return REG_V2;
-            /** 5 */
-            case 0x05:
-                return REG_V2_T;
+            // /** 5 */
+            // case 0x05:
+            //     return REG_V2_T;
 
             default:
                 throw new RuntimeException("Unknown V-Extension register: \"" + data + "\"");
@@ -514,17 +514,22 @@ public enum RISCVRegister implements Register {
 
         else if (register.equalsIgnoreCase("v0")) {
             return REG_V0;
-        } else if (register.equalsIgnoreCase("v0.t")) {
-            return REG_V0_T;
-        } else if (register.equalsIgnoreCase("v1")) {
+        } 
+        // else if (register.equalsIgnoreCase("v0.t")) {
+        //     return REG_V0_T;
+        // } 
+        else if (register.equalsIgnoreCase("v1")) {
             return REG_V1;
-        } else if (register.equalsIgnoreCase("v1.t")) {
-            return REG_V1_T;
-        } else if (register.equalsIgnoreCase("v2")) {
+        } 
+        // else if (register.equalsIgnoreCase("v1.t")) {
+        //     return REG_V1_T;
+        // } 
+        else if (register.equalsIgnoreCase("v2")) {
             return REG_V2;
-        } else if (register.equalsIgnoreCase("v2.t")) {
-            return REG_V2_T;
-        }
+        } 
+        // else if (register.equalsIgnoreCase("v2.t")) {
+        //     return REG_V2_T;
+        // }
 
         throw new RuntimeException("Unknown register: \"" + register + "\"");
     }
@@ -636,23 +641,22 @@ public enum RISCVRegister implements Register {
             case REG_X31:
                 return "x31";
 
-
             //
             // V-Extension (RVV Vector Extension)
             //
 
             case REG_V0:
                 return "v0";
-            case REG_V0_T:
-                return "v0";
+            // case REG_V0_T:
+            //     return "v0.t";
             case REG_V1:
                 return "v1";
-            case REG_V1_T:
-                return "v1.t";
+            // case REG_V1_T:
+            //     return "v1.t";
             case REG_V2:
                 return "v2";
-            case REG_V2_T:
-                return "v2.t";
+            // case REG_V2_T:
+            //     return "v2.t";
 
             default:
                 throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");
@@ -774,16 +778,16 @@ public enum RISCVRegister implements Register {
             //
             case REG_V0:
                 return "v0";
-            case REG_V0_T:
-                return "v0";
+            // case REG_V0_T:
+            //     return "v0.t";
             case REG_V1:
                 return "v1";
-            case REG_V1_T:
-                return "v1.t";
+            // case REG_V1_T:
+            //     return "v1.t";
             case REG_V2:
                 return "v2";
-            case REG_V2_T:
-                return "v2.t";
+            // case REG_V2_T:
+            //     return "v2.t";
 
             default:
                 throw new RuntimeException("Unknown register: \"" + register + "\"");

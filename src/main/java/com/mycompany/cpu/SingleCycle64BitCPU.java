@@ -50,6 +50,20 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     private BufferedWriter traceBufferedWriter;
 
+    //
+    // Vector Extension (RVV)
+    //
+
+    public byte[] v0 = new byte[4 * 64];
+    public byte[] v1 = new byte[4 * 64];
+    public byte[] v2 = new byte[4 * 64];
+
+    private int lMultiplier;
+    private int sew;
+
+    /** application vector length */
+    private long avl;
+
     /**
      * ctor
      */
@@ -149,8 +163,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         // DEBUG output ASM line
-        debugASMLineOutput = true;
-        // debugASMLineOutput = false;
+        // debugASMLineOutput = true;
+        debugASMLineOutput = false;
         if (debugASMLineOutput) {
             
             StringBuilder stringBuilder = new StringBuilder();
@@ -212,6 +226,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
         int csrId;
         long csrValue;
+
+        byte[] rvvReg;
 
         switch (asmLine.mnemonic) {
 
@@ -299,7 +315,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 long luiImmediate = (asmLine.numeric_1.intValue() << 12L);
                 // luiImmediate = signExtend32BitTo64Bit(luiImmediate);
 
-                logger.info(ByteArrayUtil.byteToHex(luiImmediate));
+                // logger.info(ByteArrayUtil.byteToHex(luiImmediate));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), luiImmediate);
 
@@ -633,10 +649,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 // read from memory (MEMORY STAGE)
                 let = new byte[4];
-                let[0] = (byte) memory.getByte(addr + 0);
-                let[1] = (byte) memory.getByte(addr + 1);
-                let[2] = (byte) memory.getByte(addr + 2);
-                let[3] = (byte) memory.getByte(addr + 3);
+                let[0] = (byte) memory.getByte((long)(addr + 0));
+                let[1] = (byte) memory.getByte((long)(addr + 1));
+                let[2] = (byte) memory.getByte((long)(addr + 2));
+                let[3] = (byte) memory.getByte((long)(addr + 3));
 
                 // WRITE BACK STAGE
                 // place read value into the destination register
@@ -664,7 +680,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     // DEBUG
                     logger.trace("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
 
-                    value = memory.getByte(addr);
+                    value = memory.getByte((long)addr);
                     writeRegisterFile(asmLine.register_0.getIndex(), value);
 
                     // increment PC
@@ -690,7 +706,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace("Value: " + ByteArrayUtil.byteToHex(value));
 
                 // memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
-                memory.storeByte(addr + 0, (byte) (value & 0xFF));
+                memory.storeByte((long) (addr + 0), (byte) (value & 0xFF));
                 // memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
 
                 // Increment PC
@@ -724,19 +740,21 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 value = (int) readRegisterFile(asmLine.register_0.getIndex());
                 let = ByteArrayUtil.intToFourByte((int) value, ByteOrder.LITTLE_ENDIAN);
                 // write value into memory (MEMORY STAGE)
-                memory.storeByte(addr + 0, let[0]);
-                memory.storeByte(addr + 1, let[1]);
-                memory.storeByte(addr + 2, let[2]);
-                memory.storeByte(addr + 3, let[3]);
+                memory.storeByte((long)(addr + 0), let[0]);
+                memory.storeByte((long)(addr + 1), let[1]);
+                memory.storeByte((long)(addr + 2), let[2]);
+                memory.storeByte((long)(addr + 3), let[3]);
 
                 // DEBUG
-                stringBuilder = new StringBuilder();
-                stringBuilder.append("sw");
-                stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
-                stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
-                stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
-                stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.info(stringBuilder.toString());
+                if (logger.isTraceEnabled()) {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append("sw");
+                    stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
+                    stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
+                    stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
+                    stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
+                    logger.trace(stringBuilder.toString());
+                }
 
                 // Increment PC
                 pc += 4;
@@ -1041,7 +1059,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                     case 92: // 92dec (pfnStreamWriteBufFunc)
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                        printStringFromAddress((int) register_0_value_l);
+                        printStringFromAddress(register_0_value_l);
                         break;
 
                     case 0x5D: // 93dec (exit)
@@ -1080,17 +1098,17 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                         byte[] timeInMillisAsArray = ByteArrayUtil.longToBytes(timeInMillis);
 
-                        memory.storeByte((int) (addressA0 + 0), (byte) timeInMillisAsArray[7]);
-                        // System.out.println("[7]: " + (byte) ((int) (timeInMillisAsArray[7]& 0xFF) ));
-                        memory.storeByte((int) (addressA0 + 1), (byte) timeInMillisAsArray[6]);
+                        memory.storeByte((addressA0 + 0), (byte) timeInMillisAsArray[7]);
+                        memory.storeByte((addressA0 + 1), (byte) timeInMillisAsArray[6]);
+                        memory.storeByte((addressA0 + 2), (byte) timeInMillisAsArray[5]);
+                        memory.storeByte((addressA0 + 3), (byte) timeInMillisAsArray[4]);
+                        memory.storeByte((addressA0 + 4), (byte) timeInMillisAsArray[3]);
+                        memory.storeByte((addressA0 + 5), (byte) timeInMillisAsArray[2]);
+                        memory.storeByte((addressA0 + 6), (byte) timeInMillisAsArray[1]);
+                        memory.storeByte((addressA0 + 7), (byte) timeInMillisAsArray[0]);
+                        
                         // System.out.println("[6]: " + (byte) ((int) (timeInMillisAsArray[6]) & 0xFF));
-                        memory.storeByte((int) (addressA0 + 2), (byte) timeInMillisAsArray[5]);
-                        memory.storeByte((int) (addressA0 + 3), (byte) timeInMillisAsArray[4]);
-                        memory.storeByte((int) (addressA0 + 4), (byte) timeInMillisAsArray[3]);
-                        memory.storeByte((int) (addressA0 + 5), (byte) timeInMillisAsArray[2]);
-                        memory.storeByte((int) (addressA0 + 6), (byte) timeInMillisAsArray[1]);
-                        memory.storeByte((int) (addressA0 + 7), (byte) timeInMillisAsArray[0]);
-
+                        // System.out.println("[7]: " + (byte) ((int) (timeInMillisAsArray[7]& 0xFF) ));
                         // memory.storeByte(addressA0 + 0, (byte) 0x78);
                         // memory.storeByte(addressA0 + 1, (byte) 0x56);
                         // memory.storeByte(addressA0 + 2, (byte) 0x34);
@@ -1120,14 +1138,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         // 0xFF);
                         // System.out.println("[6]: " + (byte) (int) timeInMillisAsArray2[6]);
 
-                        timeInMillisAsArray2[7] = (byte) memory.getByte((int) (addressA0 + 0));
-                        timeInMillisAsArray2[6] = (byte) memory.getByte((int) (addressA0 + 1));
-                        timeInMillisAsArray2[5] = (byte) memory.getByte((int) (addressA0 + 2));
-                        timeInMillisAsArray2[4] = (byte) memory.getByte((int) (addressA0 + 3));
-                        timeInMillisAsArray2[3] = (byte) memory.getByte((int) (addressA0 + 4));
-                        timeInMillisAsArray2[2] = (byte) memory.getByte((int) (addressA0 + 5));
-                        timeInMillisAsArray2[1] = (byte) memory.getByte((int) (addressA0 + 6));
-                        timeInMillisAsArray2[0] = (byte) memory.getByte((int) (addressA0 + 7));
+                        timeInMillisAsArray2[7] = (byte) memory.getByte((addressA0 + 0));
+                        timeInMillisAsArray2[6] = (byte) memory.getByte((addressA0 + 1));
+                        timeInMillisAsArray2[5] = (byte) memory.getByte((addressA0 + 2));
+                        timeInMillisAsArray2[4] = (byte) memory.getByte((addressA0 + 3));
+                        timeInMillisAsArray2[3] = (byte) memory.getByte((addressA0 + 4));
+                        timeInMillisAsArray2[2] = (byte) memory.getByte((addressA0 + 5));
+                        timeInMillisAsArray2[1] = (byte) memory.getByte((addressA0 + 6));
+                        timeInMillisAsArray2[0] = (byte) memory.getByte((addressA0 + 7));
 
                         long timeInMillisUTC = ByteArrayUtil.bytesToLong(timeInMillisAsArray2);
                         // System.out.println("millis: " + timeInMillisUTC);
@@ -1166,24 +1184,24 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                         // tm_sec
                         byte[] temp = ByteArrayUtil.intToFourByte(seconds, ByteOrder.LITTLE_ENDIAN);
-                        memory.storeByte(resultAddress + 0, (byte) temp[0]);
-                        memory.storeByte(resultAddress + 1, (byte) temp[1]);
-                        memory.storeByte(resultAddress + 2, (byte) temp[2]);
-                        memory.storeByte(resultAddress + 3, (byte) temp[3]);
+                        memory.storeByte((long) (resultAddress + 0), (byte) temp[0]);
+                        memory.storeByte((long) (resultAddress + 1), (byte) temp[1]);
+                        memory.storeByte((long) (resultAddress + 2), (byte) temp[2]);
+                        memory.storeByte((long) (resultAddress + 3), (byte) temp[3]);
 
                         // tm_min
                         temp = ByteArrayUtil.intToFourByte(mins, ByteOrder.LITTLE_ENDIAN);
-                        memory.storeByte(resultAddress + 4, (byte) temp[0]);
-                        memory.storeByte(resultAddress + 5, (byte) temp[1]);
-                        memory.storeByte(resultAddress + 6, (byte) temp[2]);
-                        memory.storeByte(resultAddress + 7, (byte) temp[3]);
+                        memory.storeByte((long) (resultAddress + 4), (byte) temp[0]);
+                        memory.storeByte((long) (resultAddress + 5), (byte) temp[1]);
+                        memory.storeByte((long) (resultAddress + 6), (byte) temp[2]);
+                        memory.storeByte((long) (resultAddress + 7), (byte) temp[3]);
 
                         // tm_sec
                         temp = ByteArrayUtil.intToFourByte(hours, ByteOrder.LITTLE_ENDIAN);
-                        memory.storeByte(resultAddress + 8, (byte) temp[0]);
-                        memory.storeByte(resultAddress + 9, (byte) temp[1]);
-                        memory.storeByte(resultAddress + 10, (byte) temp[2]);
-                        memory.storeByte(resultAddress + 11, (byte) temp[3]);
+                        memory.storeByte((long) (resultAddress + 8), (byte) temp[0]);
+                        memory.storeByte((long) (resultAddress + 9), (byte) temp[1]);
+                        memory.storeByte((long) (resultAddress + 10), (byte) temp[2]);
+                        memory.storeByte((long) (resultAddress + 11), (byte) temp[3]);
 
                         // System.out.println("done");
                         break;
@@ -1225,13 +1243,17 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                         // path to file as string is stored via the address in addressA0
                         addressA0 = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                        String filepath = toStringFromAddress((int) addressA0);
-                        logger.trace("fopen() filepath=\"" + filepath + "\"");
+                        String filepath = toStringFromAddress(addressA0);
+
+                        // DEBUG
+                        // logger.trace("fopen() filepath=\"" + filepath + "\"");
 
                         // file mode as string is stored via the address in addressA1
                         addressA1 = readRegisterFile(RISCVRegister.REG_A1.getIndex());
-                        String filemode = toStringFromAddress((int) addressA1);
-                        logger.trace("fopen() filemode=\"" + filemode + "\"");
+                        String filemode = toStringFromAddress(addressA1);
+
+                        // DEBUG
+                        // logger.trace("fopen() filemode=\"" + filemode + "\"");
 
                         fileHandle = fileHandling.fopen(filepath, filemode);
 
@@ -1290,7 +1312,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                             for (int i = 0; i < inputValue.length(); i++) {
                                 char inputValueAsChar = inputValue.charAt(i);
-                                memory.storeByte((int) addressA0 + i, (byte) inputValueAsChar);
+                                memory.storeByte((long) (addressA0 + i), (byte) inputValueAsChar);
 
                                 if (inputValueAsChar == 0) {
                                     break;
@@ -1499,6 +1521,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
             case I_FENCEI:
                 // TODO
+
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1545,6 +1569,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // writeRegisterFile(asmLine.register_1.getIndex(), newCsrValue);
                 heartIdCSRRegister = newCsrValue;
 
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1569,6 +1594,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 register_2_value_l = readRegisterFile(asmLine.register_2.getIndex());
                 writeCSRById(asmLine.numeric_1.intValue(), (int) register_2_value_l);
 
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1593,6 +1619,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 register_2_value_l = asmLine.numeric_2;
                 writeCSRById(asmLine.numeric_1.intValue(), (int) register_2_value_l);
 
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1604,6 +1631,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace("mul");
                 writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
                         * readRegisterFile(asmLine.register_2.getIndex()));
+
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1623,6 +1652,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 int mulhResultShifted = (int) ((mulhResult >> 32) & 0xFFFFFFFF);
 
                 writeRegisterFile(asmLine.register_0.getIndex(), mulhResultShifted);
+
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1673,6 +1704,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), (int) divuResult);
 
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1694,6 +1726,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), remResult);
 
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1721,6 +1754,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), remuResult);
 
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1730,7 +1764,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
             // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
             case I_VSETVLI:
-                logger.warn("I_VSETVLI not implemented! " + asmLine);
+                logger.info("I_VSETVLI: " + asmLine);
                 // int upperOpCode = (instruction >> 25) & 0b111111;
                 // switch (upperOpCode) {
                 // case 0b011001: // one of vmsne{.vv, .vx, .vi}
@@ -1741,32 +1775,224 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // logger.warn("I_VSETVLI not implemented!");
                 // break;
                 // }
+
+                // application vector length
+                avl = readRegisterFile(asmLine.register_1.getIndex());
+
+                switch (asmLine.rvvLmul) {
+                    case "mf8":
+                        System.out.println("mf8");
+                        lMultiplier = 1/8;
+                        break;
+                    case "mf4":
+                        System.out.println("mf4");
+                        lMultiplier = 1/4;
+                        break;
+                    case "mf2":
+                        System.out.println("mf2");
+                        lMultiplier = 1/2;
+                        break;
+                    case "m1":
+                        System.out.println("m1");
+                        lMultiplier = 1;
+                        break;
+                    case "m2":
+                        System.out.println("m2");
+                        lMultiplier = 2;
+                        break;
+                    case "m4":
+                        System.out.println("m4");
+                        lMultiplier = 4;
+                        break;
+                    case "m8":
+                        System.out.println("m8");
+                        lMultiplier = 8;
+                        break;
+                }
+
+                switch (asmLine.rvvSew) {
+
+                    case "e8":
+                        System.out.println("e8");
+                        sew = 8;
+                        break;
+
+                    case "e16":
+                        System.out.println("e16");
+                        sew = 16;
+                        break;
+
+                    case "e32":
+                        System.out.println("e32");
+                        sew = 32;
+                        break;
+
+                    case "e64":
+                        System.out.println("e64");
+                        sew = 64;
+                        break;
+
+                    default:
+                        throw new RuntimeException("unknown SEW");
+
+                }
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_VLE8_V:
+                logger.warn("I_VLE8_V not implemented! " + asmLine);
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_VLE16_V:
+                logger.warn("I_VLE16_V not implemented! " + asmLine);
+
+                // increment PC
                 pc += 4;
                 break;
 
             case I_VLE32_V:
                 logger.warn("I_VLE32_V not implemented! " + asmLine);
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_VLE64_V:
+                logger.info("I_VLE64_V: " + asmLine);
+
+                // Register 0 is a RVV registers
+                // register_0_value_l = readRegisterFile(asmLine.register_0.getIndex());
+
+                switch (asmLine.register_0.getIndex()) {
+                    case 0:
+                        rvvReg = v0;
+                        break;
+                    case 1:
+                        rvvReg = v1;
+                        break;
+                    case 2:
+                        rvvReg = v2;
+                        break;
+                    default:
+                        throw new RuntimeException("unknown RVV register: " + asmLine.register_0.getIndex());
+                }
+
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+
+                for (int i = 0; i < avl; i++) {
+
+                    long memoryValue = memory.readLong(register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+                    logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
+
+                    memory.readLong(rvvReg, (i*sew) / 8, register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+
+                    //System.arraycopy(let, immValSignExtended, stringBuilder, result, csrId);
+
+                    register_1_value_l += (sew / 8);
+                }
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_VSE8_V:
+                logger.warn("I_VSE8_V not implemented! " + asmLine);
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_VSE16_V:
+                logger.warn("I_VSE16_V not implemented! " + asmLine);
+
+                // increment PC
                 pc += 4;
                 break;
 
             case I_VSE32_V:
                 logger.warn("I_VSE32_V not implemented! " + asmLine);
+
+                // increment PC
+                pc += 4;
+                break;
+
+            case I_VSE64_V:
+                logger.info("I_VSE64_V: " + asmLine);
+
+                register_0_value_l = readRegisterFile(asmLine.register_1.getIndex());
+
+                switch (asmLine.register_0.getIndex()) {
+                    case 0:
+                        rvvReg = v0;
+                        break;
+                    case 1:
+                        rvvReg = v1;
+                        break;
+                    case 2:
+                        rvvReg = v2;
+                        break;
+                    default:
+                        throw new RuntimeException("unknown RVV register: " + asmLine.register_1.getIndex());
+                }
+
+                for (int i = 0; i < avl; i++) {
+
+                    // long memoryValue = 
+                    // logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
+
+                    // memory.readLong(rvvReg, (i*sew) / 8, register_0_value_l, ByteOrder.LITTLE_ENDIAN);
+
+                    //System.arraycopy(let, immValSignExtended, stringBuilder, result, csrId);
+
+                    long val = ByteArrayUtil.eightByteToLong(rvvReg, (i*sew) / 8, ByteOrder.LITTLE_ENDIAN);
+
+                    memory.storeLong(register_0_value_l, val);
+
+                    register_0_value_l += (sew / 8);
+                }
+
+                // increment PC
                 pc += 4;
                 break;
 
             // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
             case I_VMSNE_VI:
                 logger.warn("I_VMSNE_VI not implemented! " + asmLine);
+
+                // increment PC
                 pc += 4;
                 break;
 
             case I_VADD_VV:
-                logger.warn("I_VADD_VV not implemented! " + asmLine);
+                logger.info("I_VADD_VV: " + asmLine);
+
+                byte[] rvvRegisterRD = getRVVRegister(asmLine.register_0.getIndex());
+                byte[] rvvRegisterRS0 = getRVVRegister(asmLine.register_1.getIndex());
+                byte[] rvvRegisterRS1 = getRVVRegister(asmLine.register_1.getIndex());
+
+                for (int i = 0; i < avl; i++) {
+
+                    long a = ByteArrayUtil.eightByteToLong(rvvRegisterRS0, (i*sew) / 8, ByteOrder.LITTLE_ENDIAN);
+                    long b = ByteArrayUtil.eightByteToLong(rvvRegisterRS1, (i*sew) / 8, ByteOrder.LITTLE_ENDIAN);
+
+                    long c = a + b;
+
+                    ByteArrayUtil.longToEightByte(rvvRegisterRD, (i*sew) / 8, c, ByteOrder.LITTLE_ENDIAN);
+                }
+
+                // increment PC
                 pc += 4;
                 break;
 
             case I_VMV_V_I:
                 logger.warn("I_VMV_V_I not implemented! " + asmLine);
+
+                // increment PC
                 pc += 4;
                 break;
 
@@ -1776,6 +2002,19 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         }
 
         return true;
+    }
+
+    private byte[] getRVVRegister(int index) {
+        switch (index) {
+            case 0:
+                return v0;
+            case 1:
+                return v1;
+            case 2:
+                return v2;
+            default:
+                throw new RuntimeException("Unknown RVV register " + index);
+        }
     }
 
     private long signExtend32BitTo64Bit(long result_w) {
@@ -1880,7 +2119,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
      * 
      * @param startAddress read a zero terminated string starting at this address
      */
-    private void printStringFromAddress(int startAddress) {
+    private void printStringFromAddress(long startAddress) {
         int c = 0xFF;
         do {
             c = memory.getByte(startAddress++);
@@ -1893,7 +2132,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
      * 
      * @param startAddress read a zero terminated string starting at this address
      */
-    private String toStringFromAddress(int startAddress) {
+    private String toStringFromAddress(long startAddress) {
         StringBuilder stringBuilder = new StringBuilder();
         int c = 'a';
         do {

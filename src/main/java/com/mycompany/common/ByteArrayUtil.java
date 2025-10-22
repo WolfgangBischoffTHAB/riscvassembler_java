@@ -99,7 +99,30 @@ public class ByteArrayUtil {
         return "0x" + String.format("%1$02X", data);
     }
 
+    /**
+     * * Formats for leading zeroes: "%1$016X" "%1$08X"
+     * 
+     * @param data
+     * @param prefix
+     * @param format
+     * @return
+     */
     public static String byteToHex(final int data, final String prefix, final String format) {
+        if (StringUtil.isNullOrEmpty(prefix)) {
+            return String.format(format, data);
+        }
+        return "0x" + String.format(format, data);
+    }
+
+    /**
+     * Formats for leading zeroes: "%1$016X" "%1$08X"
+     * 
+     * @param data
+     * @param prefix
+     * @param format
+     * @return
+     */
+    public static String byteToHex(final long data, final String prefix, final String format) {
         if (StringUtil.isNullOrEmpty(prefix)) {
             return String.format(format, data);
         }
@@ -320,6 +343,21 @@ public class ByteArrayUtil {
         return byteBuffer.getLong();
     }
 
+    public static long eightByteToLong(final byte[] data, int offset, final ByteOrder byteOrder) {
+
+        return eightByteToLong(
+            data[offset + 0],
+            data[offset + 1],
+            data[offset + 2],
+            data[offset + 3],
+            data[offset + 4],
+            data[offset + 5],
+            data[offset + 6],
+            data[offset + 7],
+            byteOrder
+            );
+    }
+
     public static short twoByteToInt(final byte a, final byte b, final ByteOrder byteOrder) {
         byte[] data = new byte[2];
         data[0] = a;
@@ -351,7 +389,7 @@ public class ByteArrayUtil {
         data[6] = g;
         data[7] = h;
 
-        return fourByteToInt(data, byteOrder);
+        return eightByteToLong(data, ByteOrder.BIG_ENDIAN);
     }
 
     public static int decodeInt32FromArrayLittleEndian(byte[] array, int pos) {
@@ -416,5 +454,19 @@ public class ByteArrayUtil {
         buffer.put(bytes, 0, bytes.length);
         buffer.flip(); // need flip
         return buffer.getLong();
+    }
+
+    public static void longToEightByte(byte[] target, int offsetInTarget, long data, ByteOrder littleEndian) {
+
+        byte[] temp = longToEightByte(data, littleEndian);
+
+        target[offsetInTarget + 0] = temp[0];
+        target[offsetInTarget + 1] = temp[1];
+        target[offsetInTarget + 2] = temp[2];
+        target[offsetInTarget + 3] = temp[3];
+        target[offsetInTarget + 4] = temp[4];
+        target[offsetInTarget + 5] = temp[5];
+        target[offsetInTarget + 6] = temp[6];
+        target[offsetInTarget + 7] = temp[7];
     }
 }

@@ -99,6 +99,38 @@ public class Memory64 implements Memory<Long> {
     }
 
     @Override
+    public void storeLong(Long addr, long data) {
+
+        // memory align address to MB
+        long addressAligned = addr & 0xFFFFFFFFFFF00000L;
+
+        MemoryBlock memoryBlock = null;
+        if (!memoryBlocksByAddress.containsKey(addressAligned)) {
+            memoryBlock = new MemoryBlock();
+            memoryBlock.decoder = decoder;
+            memoryBlock.address = addressAligned;
+            memoryBlocksByAddress.put(addressAligned, memoryBlock);
+        } else {
+            memoryBlock = memoryBlocksByAddress.get(addressAligned);
+        }
+
+        byte[] longAsBytes = ByteArrayUtil.longToBytes(data);
+
+        long a = (addr - addressAligned);
+
+        memoryBlock.memory[(int) a + 0] = longAsBytes[0];
+        memoryBlock.memory[(int) a + 1] = longAsBytes[1];
+        memoryBlock.memory[(int) a + 2] = longAsBytes[2];
+        memoryBlock.memory[(int) a + 3] = longAsBytes[3];
+        memoryBlock.memory[(int) a + 4] = longAsBytes[4];
+        memoryBlock.memory[(int) a + 5] = longAsBytes[5];
+        memoryBlock.memory[(int) a + 6] = longAsBytes[6];
+        memoryBlock.memory[(int) a + 7] = longAsBytes[7];
+
+        // System.out.println(memoryBlock.memory[(int) a + 7]);
+    }
+
+    @Override
     public int readShort(Long addr, ByteOrder byteOrder) {
 
         logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
@@ -166,6 +198,26 @@ public class Memory64 implements Memory<Long> {
 
         return data;
     }
+
+    /**
+     * Read bytes from the memory block into the byte array passed as first parameter.
+     */
+    @Override
+    public void readLong(byte[] rd, int rdOffset, long addr, ByteOrder littleEndian) {
+        MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
+        int offsetAddress = (int)(addr - memoryBlock.address);
+
+        System.arraycopy(
+            
+            // source and sourceOffset
+            memoryBlock.memory, offsetAddress, 
+            
+            // dest and destOffset
+            rd, rdOffset, 
+            
+            // how many bytes to copy
+            8);
+    }  
 
     private MemoryBlock retrieveMemoryBlockByAddress(long addr) {
         
@@ -235,6 +287,8 @@ public class Memory64 implements Memory<Long> {
     @Override
     public void setDecoder(Decoder decoder) {
         this.decoder = decoder;
-    }  
+    }
+
+    
     
 }

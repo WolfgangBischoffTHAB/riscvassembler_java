@@ -43,9 +43,4 @@ public class RISCVEncoder implements Encoder {
                 return 0;
         }
     }
-
-    // @Override
-    // public ByteArrayOutputStream getByteArrayOutStream() {
-    //     return byteArrayOutStream;
-    // }
 }
