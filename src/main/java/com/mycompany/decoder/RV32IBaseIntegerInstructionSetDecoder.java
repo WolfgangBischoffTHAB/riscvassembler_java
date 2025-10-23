@@ -4,6 +4,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.v4.parse.v3TreeGrammarException;
+import org.antlr.v4.parse.ANTLRParser.blockEntry_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,6 +271,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         int opcode = data & 0b11;
         int funct3 = (data >> 13) & 0b111;
+        int funct6 = (data >> 10) & 0b111111;
+        int funct2 = (data >> 5) & 0b11;
 
         int imm_12 = (data >> 12) & 0b1;
         int imm_11_7 = (data >> 7) & 0b11111;
@@ -276,7 +280,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int imm_6_2 = (data >> 2) & 0b11111;
 
         int imm_4_2 = (data >> 2) & 0b111;
-        // int imm_9_7 = (data >> 7) & 0b111;
 
         int imm_8 = (data >> 12) & 0b1;
         int imm_7_6 = (data >> 5) & 0b11;
@@ -296,17 +299,89 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         long imm_6_2_combined = (imm_6 << 6) | (imm_5_3 << 3) | (imm_2 << 2);
 
+        int imm_9 = (data >> 12) & 0b1;
+        int imm_4 = (data >> 6) & 0b1;
+        int imm_8_7 = (data >> 3) & 0b11;
+
+        int imm_9_4 = (imm_9 << 9) | (imm_8_7 << 7) | (imm_6 << 6) | (imm_5 << 5) | (imm_4 << 4);
+
+        int imm_5_2_c = (data >> 9) & 0b1111;
+        int imm_7_6_c = (data >> 7) & 0b11;
+
+        int imm_7_2_c = (imm_7_6_c << 6) | (imm_5_2_c << 2);
+
+        int imm_5_4_c = (data >> 11) & 0b11;
+        int imm_9_6_c = (data >> 7) & 0b1111;
+        int imm_3 = (data >> 5) & 0b1;
+
+        int imm_9_2_c = (imm_9_6_c << 6) | (imm_5_4_c << 4) | (imm_3 << 3) | (imm_2 << 2);
+
+        int imm_3_1 = (data >> 3) & 0b111;
+        int imm_7 = (data >> 6) & 0b1;
+        int imm_4_c = (data >> 11) & 0b1;
+        int imm_6_c = (data >> 7) & 0b1;
+        int imm_10_c = (data >> 8) & 0b1;
+        int imm_9_8 = (data >> 9) & 0b11;
+        int imm_11 = (data >> 12) & 0b1;
+
+        int imm_11_1_c = (imm_11 << 11) | (imm_10_c << 10) | (imm_9_8 << 8) | (imm_7 << 7) | (imm_6_c << 6) | (imm_5 << 5) | (imm_4_c << 4) | (imm_3_1 << 1);
+
+        int imm_4_2_c = (data >> 4) & 0b111;
+        int imm_7_6_c_2 = (data >> 2) & 0b11;
+        int imm_5_c = (data >> 12) & 0b1;
+
+        int imm_7_2 = (imm_7_6_c_2 << 6) | (imm_5_c << 5) | (imm_4_2_c << 2);
+
+        int imm_16_12_c = (data >> 2) & 0b11111;
+        int imm_17 = (data >> 12) & 0b1;
+
+        int imm_17_12 = (imm_17 << 17) | (imm_16_12_c << 12);
+
+        int imm_11_10 = (data >> 10) & 0b11;
+
+        // int imm_5_0 = 
+
+        // if ((data == 0x8f75) || (data == 0x8fd1)) {
+        //     logger.info("test");
+        // }
+
+        // if (data == 0xa0b5) {
+        //     logger.info("test");
+        // }
+
         switch (opcode) {
 
             case QUADRANT_0:
 
                 switch (funct3) {
 
+                    case 0b000:
+                        // c.addi4spn
+                        // Expansion: addi rd', x2, nzuimm
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.register_1 = RISCVRegister.REG_SP;
+                        asmLine.numeric_2 = (long) imm_9_2_c;
+                        asmLine.mnemonic = Mnemonic.I_ADDI;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+                        break;
+
                     case 0b010:
                         asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
                         asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
                         asmLine.offset_1 = imm_6_2_combined;
                         asmLine.mnemonic = Mnemonic.I_LW;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+                        break;
+
+                    case 0b110:
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.offset_1 = imm_6_2_combined;
+                        asmLine.mnemonic = Mnemonic.I_SW;
                         if (debugOutput) {
                             logger.info(asmLine.toString());
                         }
@@ -321,52 +396,35 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
             case QUADRANT_1:
 
-                switch (funct3) {
+                if (funct6 == 0b100011) {
+                    // logger.info("funct6");
 
-                    case 0b000:
-                        if (imm_11_7 == 0) {
+                    if (funct2 == 0b00) {
 
-                            asmLine.mnemonic = Mnemonic.I_NOP;
-
-                        } else if (imm_11_7 != 0) {
-
-                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_addi
-                            asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
-                            asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
-                            asmLine.numeric_2 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
-                            asmLine.mnemonic = Mnemonic.I_ADDI;
-                            if (debugOutput) {
-                                logger.info(asmLine.toString());
-                            }
-
-                        } else {
-
-                            throw new UnsupportedOperationException(
-                                    "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
-
+                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_xor
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_2 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.mnemonic = Mnemonic.I_SUB;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
                         }
                         break;
 
-                    case 0b010:
-                        // li pseudo instruction - https://msyksphinz-self.github.io/riscv-isadoc/#_c_li
-                        asmLine.register_0 = RISCVRegister.fromInt((int) imm_11_7);
-                        asmLine.numeric_1 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
-                        asmLine.mnemonic = Mnemonic.I_LI;
-                        if (debugOutput) {
-                            logger.info(">> Pseudo: " + asmLine.toString());
-                        }
+                    } else if (funct2 == 0b01) {
 
-                        // addi rd, x0, imm[5:0]
-                        asmLine.register_1 = RISCVRegister.REG_ZERO;
-                        asmLine.numeric_2 = asmLine.numeric_1;
-                        asmLine.numeric_1 = null;
-                        asmLine.mnemonic = Mnemonic.I_ADDI;
+                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_xor
+                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_2 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.mnemonic = Mnemonic.I_XOR;
                         if (debugOutput) {
-                            logger.info("<< Resolved: " + asmLine.toString());
+                            logger.info(asmLine.toString());
                         }
                         break;
 
-                    case 0b100:
+                    } else if (funct2 == 0b10) {
+
                         // https://msyksphinz-self.github.io/riscv-isadoc/#_c_or
                         asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
                         asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
@@ -377,42 +435,216 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
-                    case 0b110:
-                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_beqz
-                        // c.beqz rs1',offset --> beq rs1',x0,offset[8:1]
+                    } else if (funct2 == 0b11) {
+                        // logger.info("funct2 == 3 ---- c.and");
+
                         asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
-                        asmLine.register_1 = RISCVRegister.REG_ZERO;
-                        asmLine.numeric_2 = immediate_8_1_combined;
-                        asmLine.mnemonic = Mnemonic.I_BEQ;
-                        if (debugOutput) {
-                            logger.info(asmLine.toString());
-                        }
-                        break;
+                        asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        asmLine.register_2 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        asmLine.mnemonic = Mnemonic.I_AND;
+                    }
+                } else {
 
-                    case 0b111:
-                        // bnez pseudo instruction -
-                        // https://msyksphinz-self.github.io/riscv-isadoc/#_c_bnez
-                        // asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_9_7);
-                        asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_9_7);
-                        asmLine.numeric_1 = NumberParseUtil.sign_extend_9_bit_to_int32_t(immediate_8_1_combined);
-                        asmLine.mnemonic = Mnemonic.I_BNEZ;
-                        if (debugOutput) {
-                            logger.info(">> Pseudo: " + asmLine.toString());
-                        }
+                    switch (funct3) {
 
-                        // bne rs1', x0, offset[8:1]
-                        asmLine.register_1 = RISCVRegister.REG_ZERO;
-                        asmLine.numeric_2 = asmLine.numeric_1;
-                        asmLine.numeric_1 = null;
-                        asmLine.mnemonic = Mnemonic.I_BNE;
-                        if (debugOutput) {
-                            logger.info("<< Resolved: " + asmLine.toString());
-                        }
-                        break;
+                        case 0b000:
+                            if (imm_11_7 == 0) {
 
-                    default:
-                        throw new UnsupportedOperationException(
-                                "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                                asmLine.mnemonic = Mnemonic.I_NOP;
+
+                            } else if (imm_11_7 != 0) {
+
+                                // https://msyksphinz-self.github.io/riscv-isadoc/#_c_addi
+                                asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                                asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
+                                asmLine.numeric_2 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
+                                asmLine.mnemonic = Mnemonic.I_ADDI;
+                                if (debugOutput) {
+                                    logger.info(asmLine.toString());
+                                }
+
+                            } else {
+
+                                throw new UnsupportedOperationException(
+                                        "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+
+                            }
+                            break;
+
+                        case 0b001:
+                            // imm[11|4|9:8|10|6|7|3:1|5]
+                            // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-jal
+                            asmLine.register_0 = RISCVRegister.REG_X1;
+                            asmLine.numeric_1 = (long) imm_11_1_c;
+                            // Expansion: jal x1, offset[11:1]
+                            asmLine.mnemonic = Mnemonic.I_JAL;
+                            if (debugOutput) {
+                                logger.info(">> Pseudo: " + asmLine.toString());
+                            }
+                            break;
+
+                        case 0b010:
+                            // c.li
+                            // li pseudo instruction - https://msyksphinz-self.github.io/riscv-isadoc/#_c_li
+                            asmLine.register_0 = RISCVRegister.fromInt((int) imm_11_7);
+                            asmLine.numeric_1 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
+                            asmLine.mnemonic = Mnemonic.I_LI;
+                            if (debugOutput) {
+                                logger.info(">> Pseudo: " + asmLine.toString());
+                            }
+
+                            // addi rd, x0, imm[5:0]
+                            asmLine.register_1 = RISCVRegister.REG_ZERO;
+                            asmLine.numeric_2 = asmLine.numeric_1;
+                            asmLine.numeric_1 = null;
+                            asmLine.mnemonic = Mnemonic.I_ADDI;
+                            if (debugOutput) {
+                                logger.info("<< Resolved: " + asmLine.toString());
+                            }
+                            break;
+
+                        case 0b011:
+                            if (imm_11_7 == 0b00010) {
+
+                                // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-addi16sp
+                                // c.addi16sp
+                                //
+                                // https://stackoverflow.com/questions/78900543/what-does-n-stand-for-in-c-addi4spn
+                                // c.addi16sp is the destructive operation on the stack pointer register.
+                                // There is also a non-desctructive version called c.addi4spn
+
+                                // logger.info("<< Resolved: " + asmLine.toString());
+                                long immResult = NumberParseUtil.sign_extend_9_bit_to_int32_t(imm_9_4);
+                                // logger.info("" + immResult);
+
+                                // c.addi16sp imm
+                                asmLine.numeric_0 = immResult;
+                                asmLine.mnemonic = Mnemonic.I_C_ADDI16SP;
+
+                                // Expansion addi x2, x2, nzimm[9:4]
+                                asmLine.register_0 = RISCVRegister.REG_SP;
+                                asmLine.register_1 = RISCVRegister.REG_SP;
+                                asmLine.numeric_2 = immResult;
+                                asmLine.numeric_1 = null;
+                                asmLine.mnemonic = Mnemonic.I_ADDI;
+                                if (debugOutput) {
+                                    logger.info("<< Resolved: " + asmLine.toString());
+                                }
+
+                            } else {
+
+                                // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-lui
+
+                                asmLine.register_0 = RISCVRegister.fromInt((int) imm_11_7);
+                                asmLine.numeric_1 = NumberParseUtil.sign_extend_17_bit_to_int32_t(imm_17_12);
+                                asmLine.mnemonic = Mnemonic.I_LUI;
+                                if (debugOutput) {
+                                    logger.info("<< Resolved: " + asmLine.toString());
+                                }
+
+                                // throw new UnsupportedOperationException(
+                                //         "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+
+                            }
+                            break;
+
+                        // case 0b100:
+                        //     // https://msyksphinz-self.github.io/riscv-isadoc/#_c_or
+                        //     asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        //     asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                        //     asmLine.register_2 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
+                        //     asmLine.mnemonic = Mnemonic.I_OR;
+                        //     if (debugOutput) {
+                        //         logger.info(asmLine.toString());
+                        //     }
+                        //     break;
+
+                        case 0b100:
+                            if (imm_11_10 == 0b00) {
+
+                                // c.srli -- https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-srli
+                                logger.info("c.srli");
+
+                                // int a = imm_9_7;
+                                int b = (imm_12 << 5) | (imm_6_2 << 0);
+
+                                asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                                asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                                asmLine.numeric_2 = (long) b;
+                                asmLine.mnemonic = Mnemonic.I_SRLI;
+
+                            } else if (imm_11_10 == 0b01) {
+
+                                // c.srai -- https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-srai
+                                logger.info("c.srai");
+
+                            } else if (imm_11_10 == 0b10) {
+
+                                // c.andi -- https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-andi
+                                // logger.info("c.andi");
+
+                                int b = (imm_12 << 5) | (imm_6_2 << 0);
+
+                                asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                                asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                                asmLine.numeric_2 = (long) NumberParseUtil.sign_extend_6_bit_to_int32_t(b);
+                                asmLine.mnemonic = Mnemonic.I_ANDI;
+
+                            }
+                            
+                            break;
+
+                        case 0b101:
+                            // c.j
+                            // imm[11|4|9:8|10|6|7|3:1|5]
+                            // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-j
+                            asmLine.register_0 = RISCVRegister.REG_X0;
+                            // asmLine.numeric_1 = (long) imm_11_1_c;
+                            asmLine.numeric_1 = (long) NumberParseUtil.sign_extend_12_bit_to_int32_t(imm_11_1_c);
+                            // Expansion: jal x0, offset[11:1]
+                            asmLine.mnemonic = Mnemonic.I_JAL;
+                            if (debugOutput) {
+                                logger.info(">> Pseudo: " + asmLine.toString());
+                            }
+                            break;
+
+                        case 0b110:
+                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_beqz
+                            // c.beqz rs1', offset --> beq rs1', x0, offset[8:1]
+                            asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
+                            asmLine.register_1 = RISCVRegister.REG_ZERO;
+                            asmLine.numeric_2 = immediate_8_1_combined;
+                            asmLine.mnemonic = Mnemonic.I_BEQ;
+                            if (debugOutput) {
+                                logger.info(asmLine.toString());
+                            }
+                            break;
+
+                        case 0b111:
+                            // bnez pseudo instruction -
+                            // https://msyksphinz-self.github.io/riscv-isadoc/#_c_bnez
+                            // asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_9_7);
+                            asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction(imm_9_7);
+                            asmLine.numeric_1 = NumberParseUtil.sign_extend_9_bit_to_int32_t(immediate_8_1_combined);
+                            asmLine.mnemonic = Mnemonic.I_BNEZ;
+                            if (debugOutput) {
+                                logger.info(">> Pseudo: " + asmLine.toString());
+                            }
+
+                            // bne rs1', x0, offset[8:1]
+                            asmLine.register_1 = RISCVRegister.REG_ZERO;
+                            asmLine.numeric_2 = asmLine.numeric_1;
+                            asmLine.numeric_1 = null;
+                            asmLine.mnemonic = Mnemonic.I_BNE;
+                            if (debugOutput) {
+                                logger.info("<< Resolved: " + asmLine.toString());
+                            }
+                            break;
+
+                        default:
+                            throw new UnsupportedOperationException(
+                                    "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                    }
                 }
 
                 break;
@@ -420,6 +652,35 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             case QUADRANT_2:
 
                 switch (funct3) {
+
+                    case 0b000:
+                        // c.slli - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-slli
+                        // logger.info("c.slli");
+
+                        // Expansion: slli rd, rd, shamt[5:0]
+                        asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                        asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
+                        asmLine.numeric_2 = NumberParseUtil.sign_extend_9_bit_to_int32_t(imm_7_2);
+                        asmLine.mnemonic = Mnemonic.I_SLLI;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+
+                        break;
+
+                    case 0b010:
+                        // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-lwsp
+                        
+                        // Expansion: lw rd, offset[7:2](x2)
+                        asmLine.register_0 = RISCVRegister.fromInt(imm_11_7);
+                        asmLine.register_1 = RISCVRegister.REG_X2;
+                        asmLine.offset_1 = NumberParseUtil.sign_extend_9_bit_to_int32_t(imm_7_2);
+                        asmLine.mnemonic = Mnemonic.I_LW;
+                        if (debugOutput) {
+                            logger.info(asmLine.toString());
+                        }
+                        
+                        break;
 
                     case 0b100:
 
@@ -479,6 +740,24 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         } else {
                             throw new UnsupportedOperationException(
                                     "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                        }
+                        break;
+
+                    case 0b110:
+                        // c.swsp - store word to stack
+
+                        long tem = NumberParseUtil.sign_extend_8_bit_to_int32_t(imm_7_2_c);
+                        // logger.info("" + tem);
+
+                        // c.swsp x12, 40
+
+                        // Expansion: sw rs2, offset[7:2](x2)
+                        asmLine.register_0 = RISCVRegister.fromInt(imm_6_2);
+                        asmLine.register_1 = RISCVRegister.REG_SP;
+                        asmLine.offset_1 = tem;
+                        asmLine.mnemonic = Mnemonic.I_SW;
+                        if (debugOutput) {
+                            logger.info("<< Resolved: " + asmLine.toString());
                         }
                         break;
 
@@ -888,10 +1167,15 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 break;
 
             case J_TYPE:
+
+                if (data == 0x9e7fc0ef) {
+                    System.out.println("");
+                }
+
                 int imm_19_12 = (data >> 12) & 0b11111111;
                 imm_11 = (data >> 20) & 0b1;
-                int imm_10_1 = (data >> 21) & 0b1111111111;
-                int imm_20 = (data >> 30) & 0b1;
+                int imm_10_1 = (data >> 21) & 0b11_1111_1111;
+                int imm_20 = (data >> 31) & 0b1;
 
                 imm = (imm_20 << 20) | (imm_19_12 << 12) | (imm_11) << 11 | (imm_10_1 << 1);
                 decodeJType(asmLine, rd, imm);
@@ -1376,14 +1660,14 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     private static void decodeJType(AsmLine asmLine, int rd, int imm) {
 
         asmLine.register_0 = RISCVRegister.fromInt(rd);
-        asmLine.numeric_1 = (long) imm;
+        asmLine.numeric_1 = NumberParseUtil.sign_extend_21_bit_to_int32_t(imm);
 
-        // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
-        // the number negative if it was negative
-        if ((imm & 0x800) > 0) {
-            asmLine.numeric_1 = (long) twosComplement(imm | 0xFFFFF000);
-            asmLine.numeric_1 *= -1;
-        }
+        // // first sign extend for a 12 bit immediate to a whole 32 bit value, then make
+        // // the number negative if it was negative
+        // if ((imm & 0x800) > 0) {
+        //     asmLine.numeric_1 = (long) twosComplement(imm | 0xFFFFF000);
+        //     asmLine.numeric_1 *= -1;
+        // }
     }
 
 }

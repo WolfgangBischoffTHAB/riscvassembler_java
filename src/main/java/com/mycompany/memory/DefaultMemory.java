@@ -233,6 +233,22 @@ public class DefaultMemory implements Memory<Integer> {
     @Override
     public void setDecoder(Decoder decoder) {
         this.decoder = decoder;
+    }
+
+    //
+    // 64 bit
+    //
+
+    @Override
+    public void storeLong(Integer addr, long data) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'storeLong'");
+    }
+
+    @Override
+    public void readLong(byte[] rvvReg, int rdOffset, long addr, ByteOrder byteOrder) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'readLong'");
     }    
 
 }

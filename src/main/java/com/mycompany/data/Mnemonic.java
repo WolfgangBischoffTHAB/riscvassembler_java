@@ -106,7 +106,14 @@ public enum Mnemonic {
     I_FENCEI(false),
 
     //
-    // Zicsr Extension
+    // RV32C, C Expression 
+    //
+
+    I_C_ADDI16SP(false), // add to stack pointer (non destructive)
+    I_C_SWSP(false), // store word to stack
+
+    //
+    // Zicsr Extension (Command and Status Register)
     //
 
     I_CSRR(true),
@@ -604,6 +611,8 @@ public enum Mnemonic {
                 return "mul";
             case I_MULH:
                 return "mulh";
+            case I_MULHU:
+                return "mulhu";
             case I_DIV:
                 return "div";
             case I_DIVU:

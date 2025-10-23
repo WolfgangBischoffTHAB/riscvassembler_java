@@ -132,6 +132,8 @@ public class AsmLine<T extends Register> {
 
     public int encodedLength;
 
+    public boolean branchTaken;
+
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();

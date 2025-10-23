@@ -1053,11 +1053,14 @@ public class Elf32 extends BaseElf {
             System.out.println("machine_code_offset: " + ByteArrayUtil.byteToHex(machine_code_offset));
             System.out.println("p_memsz (size_in_bytes): " + ByteArrayUtil.byteToHex(programHeader.p_memsz));
 
-            // memory.copy(programHeader.p_paddr, buffer, machine_code_offset,
-            // programHeader.p_memsz);
+            // for 32 bit
+            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_memsz);
 
-
-            memory.copy((long) programHeader.p_paddr, buffer, (long) machine_code_offset, (long) programHeader.p_filesz);
+            // // for 64 bit
+            // long addr = (long) programHeader.p_paddr;
+            // long off = (long) machine_code_offset;
+            // long size = (long) programHeader.p_filesz;
+            // memory.copy(addr, buffer, off, size);
 
             // DEBUG
 

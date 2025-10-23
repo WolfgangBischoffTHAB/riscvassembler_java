@@ -245,7 +245,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 value_l = register_0_value_l + register_1_value_l;
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
                 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_ADDI:
@@ -269,7 +270,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), result_w);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_AND:
@@ -278,7 +279,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
                         & readRegisterFile(asmLine.register_2.getIndex()));
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_ANDI:
@@ -301,7 +303,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 value_l = register_1_value_l & immediate_value;
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LUI:
@@ -319,7 +322,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), luiImmediate);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_AUIPC:
@@ -328,8 +332,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // rd <- PC + imm20 << 12; pc += 4;
                 logger.trace("auipc");
                 writeRegisterFile(asmLine.register_0.getIndex(), (pc + (asmLine.numeric_1 << 12L)));
+                
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_JAL:
@@ -341,24 +346,21 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 // System.out.println("instruction: " + ByteArrayUtil.byteToHex(instruction));
 
-                int imm_10_1 = (asmLine.instruction >> (9 + 12)) & 0b1111111111;
-                int imm_11 = (asmLine.instruction >> (8 + 12)) & 0b1;
-                int imm_19_12 = (asmLine.instruction >> (0 + 12)) & 0b11111111;
-                int imm_20 = (asmLine.instruction >> (19 + 12)) & 0b1;
+                // int imm_10_1 = (asmLine.instruction >> (9 + 12)) & 0b1111111111;
+                // int imm_11 = (asmLine.instruction >> (8 + 12)) & 0b1;
+                // int imm_19_12 = (asmLine.instruction >> (0 + 12)) & 0b11111111;
+                // int imm_20 = (asmLine.instruction >> (19 + 12)) & 0b1;
 
-                int jumpDistance = (imm_20 << 20) + (imm_19_12 << 12) + (imm_11 << 11) + (imm_10_1 << 1);
-                // jumpDistance <<= 11;
+                // int jumpDistance = (imm_20 << 20) + (imm_19_12 << 12) + (imm_11 << 11) + (imm_10_1 << 1);
+                // jumpDistance = (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(jumpDistance);
 
-                // int jumpDistance = (int)
-                // NumberParseUtil.sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
-                // System.out.println("jumpDistance: " + ByteArrayUtil.byteToHex(jumpDistance));
+                long jumpDistance = asmLine.numeric_1;
 
-                jumpDistance = (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(jumpDistance);
+                asmLine.branchTaken = true;
 
+                // increment PC
                 pc += jumpDistance;
-
                 // System.out.println("newPC: " + ByteArrayUtil.byteToHex(pc));
-
                 break;
 
             case I_JALR:
@@ -388,6 +390,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace("Current PC: " + ByteArrayUtil.byteToHex(pc));
                 logger.trace("New PC: " + ByteArrayUtil.byteToHex(pcReplacement));
 
+                asmLine.branchTaken = true;
+
+                // increment PC
                 pc = pcReplacement;
                 break;
 
@@ -397,9 +402,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace("beq");
                 if (readRegisterFile(asmLine.register_0.getIndex()) == readRegisterFile(
                         asmLine.register_1.getIndex())) {
+                    asmLine.branchTaken = true;
                     pc += asmLine.numeric_2.intValue();
                 } else {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                 }
                 break;
 
@@ -410,9 +416,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 register_0_value_l = readRegisterFile(asmLine.register_0.getIndex());
                 register_1_value_l = readRegisterFile( asmLine.register_1.getIndex());
                 if (register_0_value_l != register_1_value_l) {
+                    asmLine.branchTaken = true;
                     pc += asmLine.numeric_2.intValue();
                 } else {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                 }
                 break;
 
@@ -436,10 +443,12 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                     // pc += immValSignExtended;
 
+                    asmLine.branchTaken = true;
+
                     pc += asmLine.numeric_2.intValue();
                 } else {
                     logger.trace("blt " + blt_a + " < " + blt_b + ". Branch is NOT taken!");
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                 }
                 break;
 
@@ -462,9 +471,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                     // pc += immValSignExtended;
 
+                    asmLine.branchTaken = true;
+
                     pc += asmLine.numeric_2.intValue();
                 } else {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                 }
                 break;
 
@@ -540,9 +551,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 register_0_value_l = readRegisterFile(asmLine.register_0.getIndex()) & 0x00000000ffffffffL;
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex()) & 0x00000000ffffffffL;
                 if (register_0_value_l < register_1_value_l) {
+                    asmLine.branchTaken = true;
                     pc += asmLine.numeric_2.intValue();
                 } else {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                 }
                 break;
 
@@ -553,9 +565,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 register_0_value_l = readRegisterFile(asmLine.register_0.getIndex());
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
                 if (register_0_value_l >= register_1_value_l) {
+                    asmLine.branchTaken = true;
                     pc += asmLine.numeric_2.intValue();
                 } else {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                 }
                 break;
 
@@ -584,7 +597,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 // stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
                 logger.trace(stringBuilder.toString());
-                pc += 4;
+
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LH:
@@ -610,7 +625,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // place read value into the destination register
                 writeRegisterFile(asmLine.register_0.getIndex(), lhValSignExtended);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LHU:
@@ -637,7 +653,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // place read value into the destination register
                 writeRegisterFile(asmLine.register_0.getIndex(), lhuVal);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LW:
@@ -670,24 +687,25 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace(stringBuilder.toString());
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LBU:
-                try {
-                    addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
+                addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
 
-                    // DEBUG
-                    logger.trace("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
+                // DEBUG
+                logger.trace("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
 
-                    value = memory.getByte((long)addr);
-                    writeRegisterFile(asmLine.register_0.getIndex(), value);
+                // 32 bit
+                value = memory.getByte((int)addr);
 
-                    // increment PC
-                    pc += 4;
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
+                // 64 bit
+                //value = memory.getByte((long)addr);
+
+                writeRegisterFile(asmLine.register_0.getIndex(), value);
+
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LBW:
@@ -709,8 +727,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 memory.storeByte((long) (addr + 0), (byte) (value & 0xFF));
                 // memory.print(0x80002000, 0x80002020, ByteOrder.LITTLE_ENDIAN);
 
-                // Increment PC
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SH:
@@ -726,7 +744,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 memory.storeByte(addr + 0, let[0]);
                 memory.storeByte(addr + 1, let[1]);
                 // Increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SW:
@@ -739,11 +757,20 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // retrieve the value to write into the address
                 value = (int) readRegisterFile(asmLine.register_0.getIndex());
                 let = ByteArrayUtil.intToFourByte((int) value, ByteOrder.LITTLE_ENDIAN);
+                
                 // write value into memory (MEMORY STAGE)
-                memory.storeByte((long)(addr + 0), let[0]);
-                memory.storeByte((long)(addr + 1), let[1]);
-                memory.storeByte((long)(addr + 2), let[2]);
-                memory.storeByte((long)(addr + 3), let[3]);
+
+                // 32bit
+                memory.storeByte((int)(addr + 0), let[0]);
+                memory.storeByte((int)(addr + 1), let[1]);
+                memory.storeByte((int)(addr + 2), let[2]);
+                memory.storeByte((int)(addr + 3), let[3]);
+
+                // // 64 bit
+                // memory.storeByte((long)(addr + 0), let[0]);
+                // memory.storeByte((long)(addr + 1), let[1]);
+                // memory.storeByte((long)(addr + 2), let[2]);
+                // memory.storeByte((long)(addr + 3), let[3]);
 
                 // DEBUG
                 if (logger.isTraceEnabled()) {
@@ -756,8 +783,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     logger.trace(stringBuilder.toString());
                 }
 
-                // Increment PC
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SLTI:
@@ -777,7 +804,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 immediate_value = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
                 writeRegisterFile(asmLine.register_0.getIndex(), (value < immediate_value) ? 1 : 0);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SLTIU:
@@ -797,7 +825,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     writeRegisterFile(asmLine.register_0.getIndex(), 0);
                 }
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_XORI:
@@ -810,7 +839,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         ^ ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
                 writeRegisterFile(asmLine.register_0.getIndex(), value);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_ORI:
@@ -827,7 +857,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), oriResult);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SLLI:
@@ -842,7 +873,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SRLI:
@@ -856,7 +888,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 value_l = register_1_value_l >> immediate_value;
                 writeRegisterFile(asmLine.register_0.getIndex(), (int) value_l);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SRAI:
@@ -875,7 +908,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     registerValue |= (signBit << 63);
                 }
                 writeRegisterFile(asmLine.register_0.getIndex(), registerValue);
-                pc += 4;
+
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SUB:
@@ -893,7 +928,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result_w);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SLL:
@@ -902,7 +938,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 value_l = readRegisterFile(asmLine.register_1.getIndex()) << shiftValue;
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SLT:
@@ -920,8 +957,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 } else {
                     writeRegisterFile(asmLine.register_0.getIndex(), 0);
                 }
+
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SLTU:
@@ -952,7 +990,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 }
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_XOR:
@@ -972,7 +1010,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
                 // increment pc
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SRL:
@@ -1000,8 +1038,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), value_l);
 
-                // Increment PC
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SRA:
@@ -1014,8 +1052,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         asmLine.register_2.getIndex());
                 writeRegisterFile(asmLine.register_0.getIndex(), value);
 
-                // Increment PC
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_OR:
@@ -1027,7 +1065,8 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
                         | readRegisterFile(asmLine.register_2.getIndex()));
 
-                pc += 4;
+                // increment PC
+                pc += asmLine.encodedLength;
                 break;
 
             case I_ECALL: {
@@ -1342,7 +1381,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                                 + ") NOT IMPLEMENTED!");
                 }
             }
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_FENCE:
@@ -1350,8 +1389,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 
                 // long gp = readRegisterFile(RISCVRegister.REG_GP.getIndex());
                 // logger.info("Unit Test " + gp + " failed!");
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
+
             // case I_FENCE_I:
             // break;
 
@@ -1363,7 +1403,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 printMemoryAroundPC(5);
 
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             // case I_NOP:
@@ -1373,7 +1413,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
             case I_BRK:
                 // logger.trace("mnemonic: BRK");
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             // case I_PUTS:
@@ -1407,7 +1447,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_MRET:
                 logger.warn("I_MRET Not implemented yet!");
                 // increment pc
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             //
@@ -1430,7 +1470,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), result_w);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_ADDW:
@@ -1440,7 +1480,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 result_w = register_1_value + register_2_value;
                 writeRegisterFile(asmLine.register_0.getIndex(), result_w);
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_LD:
@@ -1479,7 +1519,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.info(stringBuilder.toString());
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_SD:
@@ -1512,7 +1552,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // logger.trace(stringBuilder.toString());
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             //
@@ -1523,7 +1563,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // TODO
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             //
@@ -1570,7 +1610,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 heartIdCSRRegister = newCsrValue;
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_CSRRW:
@@ -1579,7 +1619,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // 0. If xd=x0, then the instruction shall not read the CSR and shall not cause
                 // any of the side effects that might occur on a CSR read.
                 if (asmLine.register_0 == RISCVRegister.REG_X0) {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                     break;
                 }
 
@@ -1595,7 +1635,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeCSRById(asmLine.numeric_1.intValue(), (int) register_2_value_l);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_CSRRWI:
@@ -1604,7 +1644,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // 0. If xd=x0, then the instruction shall not read the CSR and shall not cause
                 // any of the side effects that might occur on a CSR read.
                 if (asmLine.register_0 == RISCVRegister.REG_X0) {
-                    pc += 4;
+                    pc += asmLine.encodedLength;
                     break;
                 }
 
@@ -1620,7 +1660,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeCSRById(asmLine.numeric_1.intValue(), (int) register_2_value_l);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             //
@@ -1633,7 +1673,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         * readRegisterFile(asmLine.register_2.getIndex()));
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_MULH:
@@ -1654,7 +1694,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), mulhResultShifted);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_DIV:
@@ -1677,7 +1717,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 writeRegisterFile(asmLine.register_0.getIndex(), divResult);
 
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_DIVU:
@@ -1705,7 +1745,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), (int) divuResult);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_REM:
@@ -1727,7 +1767,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), remResult);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_REMU:
@@ -1755,7 +1795,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), remuResult);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             //
@@ -1838,28 +1878,28 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 }
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VLE8_V:
                 logger.warn("I_VLE8_V not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VLE16_V:
                 logger.warn("I_VLE16_V not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VLE32_V:
                 logger.warn("I_VLE32_V not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VLE64_V:
@@ -1897,28 +1937,28 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 }
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VSE8_V:
                 logger.warn("I_VSE8_V not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VSE16_V:
                 logger.warn("I_VSE16_V not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VSE32_V:
                 logger.warn("I_VSE32_V not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VSE64_V:
@@ -1957,7 +1997,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 }
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
@@ -1965,7 +2005,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.warn("I_VMSNE_VI not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VADD_VV:
@@ -1986,14 +2026,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 }
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             case I_VMV_V_I:
                 logger.warn("I_VMV_V_I not implemented! " + asmLine);
 
                 // increment PC
-                pc += 4;
+                pc += asmLine.encodedLength;
                 break;
 
             default:

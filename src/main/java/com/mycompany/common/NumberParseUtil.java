@@ -64,9 +64,23 @@ public class NumberParseUtil {
         return extended;
     }
 
+    public static long sign_extend_17_bit_to_int32_t(long value) {
+        long unpacked = value & 0x1FFFF;
+        long extended = (unpacked ^ 0x10000) - 0x10000;
+
+        return extended;
+    }
+
     public static long sign_extend_20_bit_to_int32_t(long value) {
         long unpacked = value & 0xFFFFF;
         long extended = (unpacked ^ 0x80000) - 0x80000;
+
+        return extended;
+    }
+
+    public static long sign_extend_21_bit_to_int32_t(long value) {
+        long unpacked = value & 0x1FFFFF;
+        long extended = (unpacked ^ 0x100000) - 0x100000;
 
         return extended;
     }
