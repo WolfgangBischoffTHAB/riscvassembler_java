@@ -173,9 +173,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
         //         + "] " + asmLine.toString());
 
-        if (pc == 0x10) {
-            System.out.println("");
-        }
+        // if (pc == 0x10) {
+        //     System.out.println("");
+        // }
 
         if (asmLine.encodedLength <= 0) {
             throw new RuntimeException("Encoded length is zero! System is bugged!");
@@ -341,14 +341,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 
                 long jumpDistance = asmLine.numeric_1;
 
-                logger.info("jumpDistance: " + ByteArrayUtil.byteToHex(jumpDistance) + " (" + jumpDistance + ")");
+                logger.trace("jumpDistance: " + ByteArrayUtil.byteToHex(jumpDistance) + " (" + jumpDistance + ")");
                 
                 asmLine.branchTaken = true;
 
                 // increment PC
                 pc += jumpDistance;
                 
-                logger.info("newPC: " + ByteArrayUtil.byteToHex(pc) + " (" + pc + ")");
+                logger.trace("newPC: " + ByteArrayUtil.byteToHex(pc) + " (" + pc + ")");
                 
                 break;
 
@@ -456,7 +456,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
                 
                 // DEBUG
-                logger.info("bge: " + register_0_value + " >= " + register_1_value + " is " + (register_0_value >= register_1_value));
+                logger.trace("bge: " + register_0_value + " >= " + register_1_value + " is " + (register_0_value >= register_1_value));
                 
                 // Implementation
                 if (register_0_value >= register_1_value) {
@@ -801,13 +801,15 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 memory.storeByte(addr + 3, let[3]);
 
                 // DEBUG
-                stringBuilder = new StringBuilder();
-                stringBuilder.append("sw");
-                stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
-                stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
-                stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
-                stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.info(stringBuilder.toString());
+                if (logger.isTraceEnabled()) {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append("sw");
+                    stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
+                    stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
+                    stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
+                    stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
+                    logger.trace(stringBuilder.toString());
+                }
 
                 // Increment PC
                 pc += asmLine.encodedLength;

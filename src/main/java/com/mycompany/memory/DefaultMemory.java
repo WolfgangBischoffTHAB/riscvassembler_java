@@ -20,7 +20,7 @@ public class DefaultMemory implements Memory<Integer> {
 
     @Override
     public void copy(Integer targetAddress, byte[] srcBuffer, Integer offsetInSrcBuffer, Integer sizeInBytes) {
-        
+
         // memory align address to MB
         long addressAligned = targetAddress & 0xFFFFFFFFFFF00000L;
 
@@ -34,7 +34,7 @@ public class DefaultMemory implements Memory<Integer> {
             memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
-        // address is the location in the destination buffer. 
+        // address is the location in the destination buffer.
         // It is a local offset from the start of the current buffet
         long addr = targetAddress - addressAligned;
 
@@ -42,7 +42,7 @@ public class DefaultMemory implements Memory<Integer> {
         if ((addr + sizeInBytes) > memoryBlock.size) {
             throw new RuntimeException("Data does not fit!");
         }
-        
+
         System.arraycopy(srcBuffer, offsetInSrcBuffer, memoryBlock.memory, (int) addr, sizeInBytes);
     }
 
@@ -75,11 +75,6 @@ public class DefaultMemory implements Memory<Integer> {
     }
 
     @Override
-    public int readByte(Integer addr) {
-        return getByte(addr);
-    }
-
-    @Override
     public void storeByte(Integer addr, byte data) {
 
         // memory align address to MB
@@ -98,6 +93,21 @@ public class DefaultMemory implements Memory<Integer> {
         memoryBlock.memory[(int) (addr - addressAligned)] = data;
     }
 
+    //
+    // 64 bit
+    //
+
+    @Override
+    public void storeLong(Integer addr, long data) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'storeLong'");
+    }
+
+    @Override
+    public int readByte(Integer addr) {
+        return getByte(addr);
+    }
+
     @Override
     public int readShort(Integer addr, ByteOrder byteOrder) {
 
@@ -105,16 +115,18 @@ public class DefaultMemory implements Memory<Integer> {
 
         MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
 
-        int offsetAddress = (int)(addr - memoryBlock.address);
+        int offsetAddress = (int) (addr - memoryBlock.address);
         logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
 
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " (" + memoryBlock.memory[offsetAddress + 0] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " (" + memoryBlock.memory[offsetAddress + 1] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " ("
+                + memoryBlock.memory[offsetAddress + 0] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " ("
+                + memoryBlock.memory[offsetAddress + 1] + ")");
 
         final int data = ByteArrayUtil.twoByteToInt(
-            memoryBlock.memory[offsetAddress + 0], 
-            memoryBlock.memory[offsetAddress + 1], 
-            byteOrder);
+                memoryBlock.memory[offsetAddress + 0],
+                memoryBlock.memory[offsetAddress + 1],
+                byteOrder);
 
         logger.trace(ByteArrayUtil.byteToHex(data));
 
@@ -128,19 +140,23 @@ public class DefaultMemory implements Memory<Integer> {
 
         MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
 
-        int offsetAddress = (int)(addr - memoryBlock.address);
+        int offsetAddress = (int) (addr - memoryBlock.address);
         logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
 
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " (" + memoryBlock.memory[offsetAddress + 0] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " (" + memoryBlock.memory[offsetAddress + 1] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 2]) + " (" + memoryBlock.memory[offsetAddress + 2] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 3]) + " (" + memoryBlock.memory[offsetAddress + 3] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " ("
+                + memoryBlock.memory[offsetAddress + 0] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " ("
+                + memoryBlock.memory[offsetAddress + 1] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 2]) + " ("
+                + memoryBlock.memory[offsetAddress + 2] + ")");
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 3]) + " ("
+                + memoryBlock.memory[offsetAddress + 3] + ")");
 
         final int data = ByteArrayUtil.fourByteToInt(
-            memoryBlock.memory[offsetAddress + 0], 
-            memoryBlock.memory[offsetAddress + 1], 
-            memoryBlock.memory[offsetAddress + 2],
-            memoryBlock.memory[offsetAddress + 3], byteOrder);
+                memoryBlock.memory[offsetAddress + 0],
+                memoryBlock.memory[offsetAddress + 1],
+                memoryBlock.memory[offsetAddress + 2],
+                memoryBlock.memory[offsetAddress + 3], byteOrder);
 
         logger.trace(ByteArrayUtil.byteToHex(data));
 
@@ -150,21 +166,31 @@ public class DefaultMemory implements Memory<Integer> {
     @Override
     public long readLong(Integer addr, ByteOrder byteOrder) {
         MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
-        int offsetAddress = (int)(addr - memoryBlock.address);
+        int offsetAddress = (int) (addr - memoryBlock.address);
         final long data = ByteArrayUtil.eightByteToLong(
-            memoryBlock.memory[offsetAddress + 0], 
-            memoryBlock.memory[offsetAddress + 1], 
-            memoryBlock.memory[offsetAddress + 2],
-            memoryBlock.memory[offsetAddress + 3], 
-            memoryBlock.memory[offsetAddress + 4], 
-            memoryBlock.memory[offsetAddress + 5], 
-            memoryBlock.memory[offsetAddress + 6],
-            memoryBlock.memory[offsetAddress + 7],            
-            byteOrder);
+                memoryBlock.memory[offsetAddress + 0],
+                memoryBlock.memory[offsetAddress + 1],
+                memoryBlock.memory[offsetAddress + 2],
+                memoryBlock.memory[offsetAddress + 3],
+                memoryBlock.memory[offsetAddress + 4],
+                memoryBlock.memory[offsetAddress + 5],
+                memoryBlock.memory[offsetAddress + 6],
+                memoryBlock.memory[offsetAddress + 7],
+                byteOrder);
 
         logger.trace(ByteArrayUtil.byteToHex(data));
 
         return data;
+    }
+
+    //
+    // 64 bit
+    //
+
+    @Override
+    public void readLong(byte[] rvvReg, int rdOffset, long addr, ByteOrder byteOrder) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'readLong'");
     }
 
     private MemoryBlock retrieveMemoryBlockByAddress(Integer addr) {
@@ -201,7 +227,7 @@ public class DefaultMemory implements Memory<Integer> {
 
         long s = startAddress & 0x00000000ffffffffL;
         long e = endAddress & 0x00000000ffffffffL;
-        
+
         // logger.info(ByteArrayUtil.byteToHex(s));
         // logger.info(ByteArrayUtil.byteToHex(e));
 
@@ -234,21 +260,5 @@ public class DefaultMemory implements Memory<Integer> {
     public void setDecoder(Decoder decoder) {
         this.decoder = decoder;
     }
-
-    //
-    // 64 bit
-    //
-
-    @Override
-    public void storeLong(Integer addr, long data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'storeLong'");
-    }
-
-    @Override
-    public void readLong(byte[] rvvReg, int rdOffset, long addr, ByteOrder byteOrder) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'readLong'");
-    }    
 
 }

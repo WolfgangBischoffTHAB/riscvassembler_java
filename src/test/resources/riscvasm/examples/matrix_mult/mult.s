@@ -40,10 +40,11 @@ fuse:
 
 
     # i*columns + k
-    mul t3, t0, a0          # mul
+    mul t3, t0, a0          # mul, a0 == ROWS, t0 = i, t2 = k
     add t3, t3, t2          # add
     slli s11, t3, 2         # multiply by 4 for word size
 
+    # offset by matrix ptr
     # la t4, matrix_a + t3  # pseudo instruction load address. Resolved: pc relative!
     la t4, matrix_a         # pseudo instruction load address. Resolved: pc relative!
     add t4, t4, s11         # advance pointer
@@ -51,10 +52,11 @@ fuse:
 
 
     # k*columns + j
-    mul s1, t2, a0          # mul
-    add s1, s1, t1          # add
+    mul s1, t2, a0          # mul, t2 = k
+    add s1, s1, t1          # add, t1 = j
     slli s11, s1, 2         # multiply by 4 for word size
 
+    # offset by matrix ptr
     la t4, matrix_b         # pseudo instruction load address. Resolved: pc relative!
     add t4, t4, s11         # advance pointer
     lw t6, (t4)             # load matrix B cell
@@ -70,17 +72,16 @@ fuse:
 end_fuse:
     nop     # end of cols A
 
-    nop     # end of cols A
-    nop     # end of cols A
-    nop     # end of cols A
-    nop     # end of cols A
-
     # write result back to memory
     # i*rows + j
     mul t3, t0, a0
     add t3, t3, t1
     slli s11, t3, 2
-    sw s10, (s11)
+
+    # offset by matrix ptr
+    la t4, result_data      # pseudo instruction load address. Resolved: pc relative!
+    add t4, t4, s11         # advance pointer
+    sw s10, (t4)
 
     addi t1, t1, 1          # increment for loop counter (t1 = j)
     j cols_a                # next for loop iteration
@@ -96,7 +97,7 @@ end_rows_b:
 
 
     .section .data
-resultdata: .zero 36
+result_data: .zero 36
 
 matrix_a:   .word 0x00000001, 0x00000002, 0x00000003
             .word 0x00000004, 0x00000005, 0x00000006
