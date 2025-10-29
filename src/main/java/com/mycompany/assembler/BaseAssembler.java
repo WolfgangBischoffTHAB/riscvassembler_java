@@ -533,6 +533,9 @@ public abstract class BaseAssembler {
                 if (asmLine.mnemonic != null) {
 
                     int delta = 50 - asmLineAsString.length();
+                    if (delta < 0) {
+                        delta = 0;
+                    }
                     String filler = spaces(delta);
                     bufferedWriter.write(
                             filler + "# " + ByteArrayUtil.byteToHex(asmLine.offset) + " (" + asmLine.offset + ")");
