@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
-// import org.newdawn.slick.AppGameContainer;
-// import org.newdawn.slick.SlickException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +54,8 @@ public class App {
     public static final int XLEN = 32;
     // public static final int XLEN = 64;
 
-    private static final String MAIN_ENTRY_POINT_LABEL = "main";
+    // private static final String MAIN_ENTRY_POINT_LABEL = "main";
+    private static final String MAIN_ENTRY_POINT_LABEL = "_start";
 
     private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
 
@@ -64,15 +63,15 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -109,14 +108,25 @@ public class App {
 
         args = new String[1];
 
-        // String inputFile =
-        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
+        // @formatter:off
+
+        // String inputFile = "src/test/resources/projects/snake/Main.asm";
+
+        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
+        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
+        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
+
+        // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/add.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv64i/addiw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
 
         // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
         // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
@@ -127,76 +137,48 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
         // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
         // String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/square_with_driver.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
         // String inputFile = "src/test/resources/riscvasm/examples/if.s";
         // String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/function_call_c_abi.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/function_call_c_abi.s";
         // String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
         // String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
         // String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
-
-        // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
-
-        // String inputFile = "src/test/resources/projects/snake/Main.asm";
-
-        // String inputFile = "src/test/resources/riscvasm/instructions/add.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
-
+        // String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
         // String inputFile = "src/test/resources/riscvasm/examples/printf.s";
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
         // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
         // String inputFile = "src/test/resources/riscvasm/examples/slti.s";
         // String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
         // String inputFile = "src/test/resources/riscvasm/examples/fib.s";
         // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
-
-        // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
         // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
         // String inputFile = "src/test/resources/riscvasm/examples/div.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/recursive_sum_of_n.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/recursive_sum_of_n_other_syntax.s";
-
+        // String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n_other_syntax.s";
         // String inputFile = "src/test/resources/riscvasm/examples/sample_1.s";
-
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
-        // String inputFile =
-        // "src/test/resources/riscvasm/examples/vector_add_example.s";
-
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
-
-        // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
-
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv64i/addiw.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/linux_printf.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample_2.s";
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample_3.s";
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample_7.s";
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample_11.s";
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
-
         // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
-
-        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
-        String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
-
         // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
+        String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/mult.s";
+
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
+        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
+
+        // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+
+        // @formatter:on
 
         args[0] = inputFile;
         mainRISCV(args);
@@ -323,8 +305,9 @@ public class App {
                     // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
                     // outputHexMachineCode(byteArray, byteOrder);
 
-                    long curPos = section.outputSection.currentPosition;
-                    memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
+                    int curPos = (int) section.outputSection.currentPosition;
+                    // memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
+                    memory.copy(curPos, machineCode, 0, machineCode.length);
                     section.outputSection.currentPosition += machineCode.length;
                 }
 
@@ -660,39 +643,39 @@ public class App {
 
             // if (XLEN == 64) {
 
-            //     // //
-            //     // // 32 bit elf file for 64 bit CPU
-            //     // //
+            // // //
+            // // // 32 bit elf file for 64 bit CPU
+            // // //
 
-            //     // Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
-            //     // Elf32Sym mainEntryPointSymbol = null;
-            //     // if (optionalSymbol.isPresent()) {
-            //     //     mainEntryPointSymbol = optionalSymbol.get();
-            //     // } else {
-            //     //     optionalSymbol = elf.getSymbolFromSymbolTable("_start");
-            //     //     if (optionalSymbol.isPresent()) {
-            //     //         mainEntryPointSymbol = optionalSymbol.get();
-            //     //     }
-            //     // }
-            //     // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+            // // Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+            // // Elf32Sym mainEntryPointSymbol = null;
+            // // if (optionalSymbol.isPresent()) {
+            // // mainEntryPointSymbol = optionalSymbol.get();
+            // // } else {
+            // // optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+            // // if (optionalSymbol.isPresent()) {
+            // // mainEntryPointSymbol = optionalSymbol.get();
+            // // }
+            // // }
+            // // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
 
-            //     //
-            //     // 64 bit elf file for 64 bit CPU
-            //     //
+            // //
+            // // 64 bit elf file for 64 bit CPU
+            // //
 
-            //     // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
-            //     // the spice simulator uses the _start symbol
-            //     Optional<Elf64Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
-            //     Elf64Sym mainEntryPointSymbol = null;
-            //     if (optionalSymbol.isPresent()) {
-            //         mainEntryPointSymbol = optionalSymbol.get();
-            //     } else {
-            //         optionalSymbol = elf.getSymbolFromSymbolTable("_start");
-            //         if (optionalSymbol.isPresent()) {
-            //             mainEntryPointSymbol = optionalSymbol.get();
-            //         }
-            //     }
-            //     startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+            // // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
+            // // the spice simulator uses the _start symbol
+            // Optional<Elf64Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+            // Elf64Sym mainEntryPointSymbol = null;
+            // if (optionalSymbol.isPresent()) {
+            // mainEntryPointSymbol = optionalSymbol.get();
+            // } else {
+            // optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+            // if (optionalSymbol.isPresent()) {
+            // mainEntryPointSymbol = optionalSymbol.get();
+            // }
+            // }
+            // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
             // }
 
             //
@@ -778,7 +761,7 @@ public class App {
             throw new RuntimeException("change CPU to correct XLEN!");
         }
         // if (XLEN != 64) {
-        //     throw new RuntimeException("change CPU to correct XLEN!");
+        // throw new RuntimeException("change CPU to correct XLEN!");
         // }
 
         SingleCycle32BitCPU cpu = new SingleCycle32BitCPU();
@@ -788,7 +771,7 @@ public class App {
         // DEBUG main entry point address
         logger.trace("Main Entry Point: " + ByteArrayUtil.byteToHex((int) main_entry_point_address, null, "%1$08X"));
         // logger.trace("" + main_entry_point_address);
-        
+
         if (XLEN == 32) {
             // for 32 bit
             cpu.pc = (int) (main_entry_point_address & 0x00000000FFFFFFFFL);

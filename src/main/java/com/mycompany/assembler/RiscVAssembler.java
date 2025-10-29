@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
@@ -19,6 +21,8 @@ import riscvasm.RISCVASMLexer;
 import riscvasm.RISCVASMParser;
 
 public class RiscVAssembler extends BaseAssembler {
+
+    private static final Logger logger = LoggerFactory.getLogger(RiscVAssembler.class);
 
     private CharStream asmCharStream;
 
@@ -72,6 +76,11 @@ public class RiscVAssembler extends BaseAssembler {
     @Override
     public Encoder getEncoder() {
         return encoder;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 
 }

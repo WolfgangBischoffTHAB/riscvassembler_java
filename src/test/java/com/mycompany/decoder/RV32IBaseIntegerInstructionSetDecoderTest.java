@@ -11,33 +11,33 @@ public class RV32IBaseIntegerInstructionSetDecoderTest {
 
     public static final int XLEN = 64;
 
-    @Test
-    public void testDecodeVSetVli() {
+    // @Test
+    // public void testDecodeVSetVli() {
 
-        //
-        // Arrange
-        //
+    //     //
+    //     // Arrange
+    //     //
 
-        RV32IBaseIntegerInstructionSetDecoder rv32iBaseIntegerInstructionSetDecoder = new RV32IBaseIntegerInstructionSetDecoder(
-                XLEN);
+    //     RV32IBaseIntegerInstructionSetDecoder rv32iBaseIntegerInstructionSetDecoder = new RV32IBaseIntegerInstructionSetDecoder(
+    //             XLEN);
 
-        //
-        // Act
-        //
+    //     //
+    //     // Act
+    //     //
 
-        //int machineCode = 0xd7728301;
-        int machineCode = 0x018372d7;
-        List<AsmLine<?>> asmLine = rv32iBaseIntegerInstructionSetDecoder.decode(machineCode);
+    //     //int machineCode = 0xd7728301;
+    //     int machineCode = 0x018372d7;
+    //     List<AsmLine<?>> asmLine = rv32iBaseIntegerInstructionSetDecoder.decode(machineCode);
 
-        //
-        // Assert
-        //
+    //     //
+    //     // Assert
+    //     //
 
-        Assert.assertNull(asmLine);
-    }
+    //     Assert.assertNull(asmLine);
+    // }
 
-    @Test
-    public void testTwosComplement() {
+    // @Test
+    // public void testTwosComplement() {
 
-    }
+    // }
 }

@@ -45,6 +45,10 @@ public class AsmInstructionEncoder {
 
         switch (asmLine.asmInstruction) {
 
+            case ZERO:
+                // reserve space and prefill the space with 0x00
+                return encodeZeroAssemblerInstruction(byteArrayOutStream, asmLine);
+
             case SPACE:
                 return encodeSpaceAssemblerInstruction(byteArrayOutStream, asmLine);
 
@@ -95,6 +99,19 @@ public class AsmInstructionEncoder {
     private int encodeAsciiAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine<?> asmLine) {
         return EncoderUtils.encodeStringResolveEscapedCharacters(byteArrayOutStream, asmLine.stringValue, false);
+    }
+
+    private int encodeZeroAssemblerInstruction(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+        int length = asmLine.numeric_0.intValue();
+        byte space[] = new byte[length];
+        // Java prefills everything with the default value which is zero for byte. 
+        // Lets prefill anyways because of paranoia
+        for (int i = 0; i < length; i++) {
+            space[i] = 0x00;
+        }
+        byteArrayOutStream.writeBytes(space);
+
+        return length;
     }
 
     private int encodeSpaceAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream,

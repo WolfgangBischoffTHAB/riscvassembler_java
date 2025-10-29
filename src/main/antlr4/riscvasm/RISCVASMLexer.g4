@@ -72,6 +72,7 @@ DOT_OPTION : DOT O P T I O N ;
 DOT_SIZE : DOT S I Z E ;
 DOT_IDENT : DOT I D E N T ;
 DOT_QUAD : DOT Q U A D ;
+DOT_ZERO : DOT Z E R O ;
 
 //
 // RV32 I
@@ -208,10 +209,15 @@ I_REMU : R E M U ;
 
 I_VSETVLI : V S E T V L I ;
 I_VSETVL : V S E T V L ;
+I_VLE8_V : V L E '8' DOT V ;
+I_VLE16_V : V L E '1' '6' DOT V ;
 I_VLE32_V : V L E '3' '2' DOT V ;
 I_VLE64_V : V L E '6' '4' DOT V ;
 I_VMSNE_VI : V M S N E DOT V I ;
 I_VADD_VV : V A D D DOT V V ;
+I_VAADD_VV : V A A D D DOT V V ;
+I_VSE8_V : V S E '8' DOT V ;
+I_VSE16_V : V S E '1' '6' DOT V ;
 I_VSE32_V : V S E '3' '2' DOT V ;
 I_VSE64_V : V S E '6' '4' DOT V ;
 I_VMV_V_I : V M V DOT V DOT I ;

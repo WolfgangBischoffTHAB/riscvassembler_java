@@ -96,6 +96,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // parameters and opcode
         decoder.memory = memory;
         List<AsmLine<?>> asmLines = decoder.decode(pc);
+        if (asmLines == null) {
+            return false;
+        }
 
         boolean result = true;
 
@@ -124,8 +127,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         boolean printInstructions = false;
 
-        // singleStepping = true;
-        singleStepping = false;
+        singleStepping = true;
+        // singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
@@ -797,7 +800,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
                 stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                 stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.trace(stringBuilder.toString());
+                logger.info(stringBuilder.toString());
 
                 // Increment PC
                 pc += asmLine.encodedLength;
@@ -1614,8 +1617,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("mul: " + asmLine);
                 }
 
-                writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
-                        * readRegisterFile(asmLine.register_2.getIndex()));
+                register_0_value = readRegisterFile(asmLine.register_1.getIndex());
+                register_1_value = readRegisterFile(asmLine.register_2.getIndex());
+
+                int tempResult = register_0_value * register_1_value;
+
+                System.out.println(tempResult + " = " + register_0_value + " * " + register_1_value);
+
+                writeRegisterFile(asmLine.register_0.getIndex(), tempResult);
 
                 // increment PC
                 pc += asmLine.encodedLength;

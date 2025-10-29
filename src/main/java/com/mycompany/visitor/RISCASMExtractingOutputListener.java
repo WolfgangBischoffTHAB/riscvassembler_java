@@ -22,8 +22,6 @@ import com.mycompany.data.Section;
 import riscvasm.RISCVASMParser;
 import riscvasm.RISCVASMParser.Csv_numeric_listContext;
 import riscvasm.RISCVASMParser.ExprContext;
-import riscvasm.RISCVASMParser.ModifierContext;
-import riscvasm.RISCVASMParser.OffsetContext;
 import riscvasm.RISCVASMParser.RegisterContext;
 import riscvasm.RISCVASMParserBaseListener;
 
@@ -95,7 +93,7 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitExpr(RISCVASMParser.ExprContext ctx) {
         
-        logger.info("exitExpr: " + ctx.getText());
+        logger.trace("exitExpr: " + ctx.getText());
 
         ASTNode astNode = new ASTNode();
 
@@ -276,8 +274,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override 
     public void exitParam(RISCVASMParser.ParamContext ctx) {
 
-        System.out.println("--------------------------------------");
-        System.out.println(paramIndex + ") " + ctx.getText());
+        logger.trace("--------------------------------------");
+        logger.trace(paramIndex + ") " + ctx.getText());
 
         // OffsetContext offsetContext = ctx.offset();
         // if (offsetContext != null) {
@@ -710,6 +708,13 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     }
 
     @Override
+    public void exitZero_assembler_instruction(RISCVASMParser.Zero_assembler_instructionContext ctx) {
+        asmLine.asmInstruction = AsmInstruction.ZERO;
+        ExprContext expr = ctx.expr();
+        asmLine.numeric_0 = convertExpressionToLongValue(expr);
+    }
+	
+    @Override
     public void exitByte_assembler_instruction(RISCVASMParser.Byte_assembler_instructionContext ctx) {
         asmLine.asmInstruction = AsmInstruction.BYTE;
 
@@ -781,22 +786,19 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
         ExprContext expr = ctx.expr();
 
+        asmLine.numeric_1 = convertExpressionToLongValue(expr);
+    }
+
+    private long convertExpressionToLongValue(ExprContext expr) {
         if (expr.NUMERIC() != null) {
-
             String numericAsString = expr.NUMERIC().getText();
-            asmLine.numeric_1 = Long.parseLong(numericAsString);
-
+            return Long.parseLong(numericAsString);
         } else if (expr.HEX_NUMERIC() != null) {
-
             String numericAsString = expr.HEX_NUMERIC().getText();
-
             numericAsString = numericAsString.substring(2);
-            asmLine.numeric_1 = Long.parseLong(numericAsString, 16);
-
+            return Long.parseLong(numericAsString, 16);
         } else {
-
             throw new RuntimeException();
-
         }
     }
 

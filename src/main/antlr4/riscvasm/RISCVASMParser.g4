@@ -85,7 +85,11 @@ mnemonic :
 
     // V Extension (RVV Vektor extension)
 
-    I_VSETVLI | I_VLE32_V | I_VLE64_V | I_VMSNE_VI | I_VADD_VV | I_VSE32_V | I_VSE64_V | I_VMV_V_I
+    I_VSETVLI | I_VMSNE_VI |
+    I_VLE8_V | I_VLE16_V | I_VLE32_V | I_VLE64_V | 
+    I_VSE8_V | I_VSE16_V | I_VSE32_V | I_VSE64_V | 
+    I_VMV_V_I |
+    I_VADD_VV | I_VAADD_VV
     ;
 
 // RVV selected element width (SEW)
@@ -273,6 +277,8 @@ assembler_instruction :
     |
     quad_assembler_instruction
     |
+    zero_assembler_instruction
+    |
     extern_assembler_instruction
 //    |
 //    section_text_assembler_instruction
@@ -334,6 +340,10 @@ equ_assembler_instruction :
 
 quad_assembler_instruction :
     DOT_QUAD csv_numeric_list
+    ;
+
+zero_assembler_instruction :
+    DOT_ZERO expr
     ;
 
 extern_assembler_instruction :

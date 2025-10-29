@@ -22,7 +22,8 @@ public enum AsmInstruction {
     ASCIIZ,
     STRING,
     OPTION,
-    QUAD;
+    QUAD,
+    ZERO;
 
     public static String toString(final AsmInstruction asmInstruction) {
 
@@ -69,6 +70,8 @@ public enum AsmInstruction {
                 return ".option";
             case QUAD:
                 return ".quad";
+            case ZERO:
+                return ".zero";
 
             default:
                 throw new RuntimeException("Unknown AsmInstruction: \"" + asmInstruction + "\"");

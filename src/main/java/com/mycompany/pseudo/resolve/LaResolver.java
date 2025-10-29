@@ -10,6 +10,43 @@ import com.mycompany.data.Modifier;
 import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
+/**
+ * Converts (resolve) the pseudo instruction la (load address) to real or
+ * non-pseudo instructions that can be executed on a RISC-V CPU.<br />
+ * <br />
+ * 
+ * la produces pc-relative addresses (as opposed to absolute addressing) because
+ * it is resolved to an auipc call. auipc is pc-relative by specification.<br />
+ * <br />
+ * 
+ * The pseudo instruction la (load address) is defined in the RISC-V Assembler
+ * Programmer's Manual on page 41.<br />
+ * <br />
+ * 
+ * Chapter 29. A listing of standard RISC-V pseudoinstructions<br />
+ * <br />
+ * 
+ * The resolution of la to non-pseudo instructions is affected by the .option
+ * nopic or .option pic. This resolver currently works as if option .nopic is
+ * used.
+ * <br />
+ * <br />
+ * 
+ * This means the resolution will be:
+ * ```
+ * la rd, symbol
+ * auipc rd, symbol[31:12]
+ * addi rd, rd, symbol[11:0]
+ * ```
+ * <br />
+ * <br />
+ * https://stackoverflow.com/questions/52574537/risc-v-pc-absolute-vs-pc-relative
+ * <br />
+ * <br />
+ * auipc auipc - (Add Upper Immediate to Program Counter): this sets rd to the
+ * sum of the current PC and a 32-bit value with the low 12 bits as 0 and the
+ * high 20 bits coming from the U-type immediate.
+ */
 public class LaResolver<T extends Register> implements AsmInstructionListModifier<T> {
 
     @Override
@@ -32,8 +69,6 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
                     continue;
                 }
 
-                //System.out.println(asmLine);
-
                 found = true;
                 foundAsmLine = asmLine;
 
@@ -41,18 +76,6 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
             }
 
             if (found) {
-
-                // int data_0 = 0;
-
-                // // split it into a 20 bit (upper_data) and a lower twelve bit part (is ignored)
-                // int upper_data = ((data_0 & 0b11111111111111111111000000000000) >> 12);
-                // //printf("upper_data: %08" PRIx32 "\n", upper_data);
-
-                // int lower_data = data_0 & 0xFFF;
-                // //printf("lower_data: %08" PRIx32 "\n", lower_data);
-
-                // int upper_part_used = upper_data;
-                // int lower_part_used = lower_data;
 
                 asmLines.remove(foundAsmLine);
 
@@ -75,7 +98,7 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
                 // TODO: resolve the label 'foundAsmLine.identifier_1' to its absolute address
                 // then perform the computations outlined in
 
-                //C:\Users\wolfg\dev\Java\riscvassembler_java\src\test\resources\riscvasm\la.s
+                // C:\Users\wolfg\dev\Java\riscvassembler_java\src\test\resources\riscvasm\la.s
 
                 auipc.offsetLabel_1 = foundAsmLine.identifier_1;
                 auipc.modifier_1 = Modifier.HI;
@@ -98,7 +121,7 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
                 addi.mnemonic = Mnemonic.I_ADDI;
                 addi.register_0 = foundAsmLine.register_0;
                 addi.register_1 = foundAsmLine.register_0;
-                //addi.numeric_2 = sign_extend_12_bit_to_int32_t(lower_part);
+                // addi.numeric_2 = sign_extend_12_bit_to_int32_t(lower_part);
 
                 addi.offsetLabel_2 = foundAsmLine.identifier_1;
                 addi.modifier_2 = Modifier.LO;
@@ -106,7 +129,7 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
                 // // DEBUG
                 // System.out.println("\n\n\n");
                 // for (AsmLine asmLine : asmLines) {
-                //     System.out.println(asmLine);
+                // System.out.println(asmLine);
                 // }
 
                 continue;

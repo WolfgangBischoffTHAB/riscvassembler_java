@@ -1029,7 +1029,20 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
+    /**
+     * Branch Greater than or equal
+     * https://riscv-software-src.github.io/riscv-unified-db/manual/html/isa/isa_20240411/insts/bge.html
+     * 
+     * format: bge rs1, rs2, offset
+     * example: bge x0, x0, 0
+     * 
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return
+     * @throws IOException
+     */
     private int encodeBGE(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        
         byte funct3 = 0b101;
         byte opcode = 0b1100011;
 
@@ -1226,7 +1239,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte rs1 = (byte) asmLine.register_1.getIndex();
         byte rd = (byte) asmLine.register_0.getIndex();
         short imm = asmLine.offset_1.shortValue();
-        // short imm = asmLine.numeric_2.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));

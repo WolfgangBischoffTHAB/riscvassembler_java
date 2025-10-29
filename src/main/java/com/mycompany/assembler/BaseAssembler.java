@@ -55,7 +55,7 @@ import com.mycompany.pseudo.resolve.RetResolver;
 
 public abstract class BaseAssembler {
 
-    private static final Logger logger = LoggerFactory.getLogger(BaseAssembler.class);
+    // private static final Logger logger = LoggerFactory.getLogger(BaseAssembler.class);
 
     /** Combine far calls (auipc+jalr) into near calls (jal) if possible */
     public static final boolean USE_CALL_OPTIMIZER = true;
@@ -79,6 +79,8 @@ public abstract class BaseAssembler {
 
     /** maps an address to the AsmLine the data at that address was encoded from */
     public Map<Long, AsmLine<?>> addressSourceAsmLineMap;
+
+    public abstract Logger getLogger();
 
     public void assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
@@ -457,8 +459,8 @@ public abstract class BaseAssembler {
 
             } catch (Exception e) {
 
-                logger.error("Cannot process: " + asmLine + "");
-                logger.error(e.getMessage(), e);
+                getLogger().info("Cannot process: " + asmLine + "");
+                getLogger().info(e.getMessage(), e);
 
                 return;
                 
@@ -484,14 +486,14 @@ public abstract class BaseAssembler {
         callOptimizer.resolveLabels(asmLines, labelAddressMap);
 
         // DEBUG output label address map
-        System.out.println("\n\n\n");
-        System.out.println("* LABEL-ADDRESS-MAP **************************");
+        getLogger().info("\n\n\n");
+        getLogger().info("* LABEL-ADDRESS-MAP **************************");
         for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
 
-            System.out.println("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
+            getLogger().info("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
                     + ByteArrayUtil.longToHex(entry.getValue()));
         }
-        System.out.println("***************************");
+        getLogger().info("***************************");
 
         // write label map to map_file.txt
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("build//map_file.txt"))) {
@@ -511,17 +513,17 @@ public abstract class BaseAssembler {
                 new FileWriter("build//resolved_assembly.s"))) {
 
             // DEBUG
-            System.out.println("\n\n\n");
-            System.out.println("***************************");
+            getLogger().info("\n\n\n");
+            getLogger().info("***************************");
             for (AsmLine<?> asmLine : asmLines) {
 
                 try {
-                    System.out.print(asmLine);
+                    getLogger().info(asmLine.toString());
                     // System.out.print(" SourceLine: " + asmLine.sourceLine);
-                    System.out.println("");
+                    getLogger().info("");
                 } catch (Throwable e) {
-                    e.printStackTrace();
-                    System.out.println("error!");
+                    getLogger().error(e.getMessage(), e);
+                    getLogger().info("error!");
                 }
 
                 String asmLineAsString = asmLine.toString();
@@ -540,7 +542,7 @@ public abstract class BaseAssembler {
 
             bufferedWriter.flush();
         }
-        System.out.println("***************************");
+        getLogger().info("***************************");
 
         //
         // Encode
@@ -578,8 +580,8 @@ public abstract class BaseAssembler {
 
         } catch (Exception e) {
 
-            logger.error(e.getMessage(), e);
-            System.out.println("Failure while encoding: " + errorAsmLine);
+            getLogger().info(e.getMessage(), e);
+            getLogger().info("Failure while encoding: " + errorAsmLine);
 
             throw new RuntimeException("Error during encoding!");
 
@@ -596,7 +598,7 @@ public abstract class BaseAssembler {
 
             Section section = entry.getValue();
 
-            logger.info("-- Section: " + section.name + " ----------------------");
+            getLogger().info("-- Section: " + section.name + " ----------------------");
 
             byte[] byteArray = section.byteArrayOutStream.toByteArray();
 
@@ -605,7 +607,7 @@ public abstract class BaseAssembler {
             // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
             outputHexMachineCode(byteArray, byteOrder);
 
-            logger.info("");
+            getLogger().info("");
 
         }
 
@@ -660,6 +662,7 @@ public abstract class BaseAssembler {
     public String spaces(int spaces) {
         return CharBuffer.allocate(spaces).toString().replace('\0', ' ');
     }
+
 }
 
 

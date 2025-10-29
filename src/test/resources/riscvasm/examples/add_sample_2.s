@@ -1,6 +1,6 @@
 fail:
 fence
-main:
+_start:
 li	    gp, 21
 li	    tp, 0
 test_21_8:

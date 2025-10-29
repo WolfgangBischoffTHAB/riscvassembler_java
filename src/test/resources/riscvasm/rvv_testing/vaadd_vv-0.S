@@ -5,6 +5,11 @@
 # #include "riscv_test.h"
 # #include "test_macros.h"
 
+# Because this test was taken from a folder that is called v128x32machine 
+# Therefore I assume that VLEN is 128 and the CPU is a 32 bit variant
+# XLEN = 32
+# VLEN = 128 
+
 # RVTEST_RV32UVX
 
 # RVTEST_CODE_BEGIN

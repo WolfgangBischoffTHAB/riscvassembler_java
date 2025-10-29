@@ -196,14 +196,14 @@ public class DefaultMemory implements Memory<Integer> {
 
     public void print(Integer startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress) {
 
-        logger.info(ByteArrayUtil.byteToHex(startAddress));
-        logger.info(ByteArrayUtil.byteToHex(endAddress));
+        // logger.info(ByteArrayUtil.byteToHex(startAddress));
+        // logger.info(ByteArrayUtil.byteToHex(endAddress));
 
         long s = startAddress & 0x00000000ffffffffL;
         long e = endAddress & 0x00000000ffffffffL;
         
-        logger.info(ByteArrayUtil.byteToHex(s));
-        logger.info(ByteArrayUtil.byteToHex(e));
+        // logger.info(ByteArrayUtil.byteToHex(s));
+        // logger.info(ByteArrayUtil.byteToHex(e));
 
         if (e <= s) {
             throw new RuntimeException("Invalid interval!");
