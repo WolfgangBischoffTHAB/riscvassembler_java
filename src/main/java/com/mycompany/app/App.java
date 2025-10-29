@@ -170,7 +170,7 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
         // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
         // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
-        String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/mult.s";
+        String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/standard_matrix_mult.s";
 
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
