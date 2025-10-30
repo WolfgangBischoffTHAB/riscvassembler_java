@@ -128,8 +128,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         boolean printInstructions = true;
         // boolean printInstructions = false;
 
-        singleStepping = true;
-        // singleStepping = false;
+        // singleStepping = true;
+        singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
@@ -688,13 +688,15 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 writeRegisterFile(asmLine.register_0.getIndex(), value);
 
                 // DEBUG
-                stringBuilder = new StringBuilder();
-                stringBuilder.append("lw");
-                stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
-                stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
-                stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
-                stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
-                logger.trace(stringBuilder.toString());
+                if (logger.isTraceEnabled()) {
+                    stringBuilder = new StringBuilder();
+                    stringBuilder.append("lw");
+                    stringBuilder.append(" mem: " + (addr + 0) + " = " + let[0]);
+                    stringBuilder.append(", mem: " + (addr + 1) + " = " + let[1]);
+                    stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
+                    stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
+                    logger.trace(stringBuilder.toString());
+                }
 
                 // increment PC
                 pc += asmLine.encodedLength;
@@ -811,7 +813,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.trace(stringBuilder.toString());
                 }
 
-                // Increment PC
+                // increment PC
                 pc += asmLine.encodedLength;
                 break;
 

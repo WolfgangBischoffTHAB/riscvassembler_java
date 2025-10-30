@@ -117,15 +117,14 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
         // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
 
-        // String inputFile = "src/test/resources/riscvasm/instructions/beq.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/add.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/sw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/lw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/la.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/beq.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/add.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/sw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/lw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/la.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/rv64i/addiw.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
+        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
         // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
 
         // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";

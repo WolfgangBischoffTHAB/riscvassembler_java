@@ -12,6 +12,7 @@ public class AsmLine<T extends Register> {
 
     public int sourceLine = -1;
 
+    /** offset is the absolute offset of this assembler line amongst all instructions in the application */
     public long offset;
     public Section section;
 

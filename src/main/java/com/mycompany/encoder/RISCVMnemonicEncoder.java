@@ -1255,8 +1255,12 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte rs1 = (byte) asmLine.register_1.getIndex();
         byte rd = (byte) asmLine.register_0.getIndex();
         
-        //short imm = asmLine.offset_1.shortValue();
-        short imm = (short) asmLine.offset;
+        short imm = 0;
+        if (asmLine.offset_expr_1 != null) {
+            imm = asmLine.offset_expr_1.evaluate().shortValue();
+        } else {
+            imm = asmLine.offset_1.shortValue();
+        }
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
@@ -1314,10 +1318,12 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         byte rs2 = (byte) asmLine.register_0.getIndex();
         byte rs1 = (byte) asmLine.register_1.getIndex();
 
-        short imm = (short) asmLine.offset;
-
-        //short imm = asmLine.offset_1.shortValue();
-        // short imm = asmLine.numeric_2.shortValue();
+        short imm = 0;
+        if (asmLine.offset_expr_1 != null) {
+            imm = asmLine.offset_expr_1.evaluate().shortValue();
+        } else {
+            imm = asmLine.offset_1.shortValue();
+        }
 
         int result = encodeSType(imm, rs2, rs1, funct3, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
