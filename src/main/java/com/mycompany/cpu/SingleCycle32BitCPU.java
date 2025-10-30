@@ -125,8 +125,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     private boolean executeAsmLine(AsmLine<?> asmLine) throws IOException {
 
-        boolean printInstructions = true;
-        // boolean printInstructions = false;
+        // boolean printInstructions = true;
+        boolean printInstructions = false;
 
         // singleStepping = true;
         singleStepping = false;

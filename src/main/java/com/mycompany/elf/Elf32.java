@@ -1054,7 +1054,15 @@ public class Elf32 extends BaseElf {
             System.out.println("p_memsz (size_in_bytes): " + ByteArrayUtil.byteToHex(programHeader.p_memsz));
 
             // for 32 bit
-            memory.copy(programHeader.p_paddr, buffer, machine_code_offset, programHeader.p_memsz);
+            int targetAddress = programHeader.p_paddr;
+            int offset = machine_code_offset;
+            int size = programHeader.p_filesz;
+
+            if ((offset + size) > buffer.length) {
+                throw new RuntimeException("too large! LastIndex: " + (offset + size) + " Size: " + buffer.length);
+            }
+
+            memory.copy(targetAddress, buffer, offset, size);
 
             // // for 64 bit
             // long addr = (long) programHeader.p_paddr;

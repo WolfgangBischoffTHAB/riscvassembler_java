@@ -63,15 +63,15 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // plain .s assembler source code
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // // .elf file
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // // plain .s assembler source code
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // .elf file
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -345,10 +345,10 @@ public class App {
             Elf32 elf = new Elf32();
             elf.memory = memory;
 
-            elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
+            // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
             // // elf.setFile("src/test/resources/riscvelf/factorial.out");
             // // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            // elf.setFile("C:/Users/lapto/dev/riscv/zork_riscv/zork.elf");
+            elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
 
             // elf.load();
 

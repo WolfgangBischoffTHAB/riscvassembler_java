@@ -25,13 +25,13 @@ public class DefaultMemory implements Memory<Integer> {
         long addressAligned = targetAddress & 0xFFFFFFFFFFF00000L;
 
         MemoryBlock memoryBlock = null;
-        if (!memoryBlocksByAddress.containsKey(addressAligned)) {
+        if (memoryBlocksByAddress.containsKey(addressAligned)) {
+            memoryBlock = memoryBlocksByAddress.get(addressAligned);
+        } else {
             memoryBlock = new MemoryBlock();
             memoryBlock.decoder = decoder;
             memoryBlock.address = addressAligned;
             memoryBlocksByAddress.put(addressAligned, memoryBlock);
-        } else {
-            memoryBlock = memoryBlocksByAddress.get(addressAligned);
         }
 
         // address is the location in the destination buffer.

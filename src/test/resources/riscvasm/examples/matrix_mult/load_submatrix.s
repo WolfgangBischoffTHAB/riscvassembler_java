@@ -7,13 +7,15 @@ _start:
     li a2, 0    # start y
     li a3, 3    # sub matrix dimensions
 
-    li t0, 0    # i
-rows_b:
-    bge t0, a0, end_rows_b
-
     li t1, 0    # j
 cols_a:
-    bge t1, a0, end_cols_a
+    bge t1, a3, end_cols_a
+
+    li t0, 0    # i
+rows_b:
+    bge t0, a3, end_rows_b
+
+    
 
 
 
@@ -43,15 +45,17 @@ cols_a:
 
 
 
-    addi t1, t1, 1          # increment for loop counter (t1 = j)
-    j cols_a                # next for loop iteration
-end_cols_a:
-    nop                     # end of cols A
+
 
     addi t0, t0, 1          # increment for loop counter (t0 = i)
     j rows_b                # next for loop iteration
 end_rows_b:
     nop                     # end of rows B, end of matrix mult
+
+    addi t1, t1, 1          # increment for loop counter (t1 = j)
+    j cols_a                # next for loop iteration
+end_cols_a:
+    nop                     # end of cols A
 
 
     
