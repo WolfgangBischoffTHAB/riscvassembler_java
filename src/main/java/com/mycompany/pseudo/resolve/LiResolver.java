@@ -48,6 +48,10 @@ public class LiResolver implements AsmInstructionListModifier<RISCVRegister> {
 
                 foundAsmLine.optimized = false;
 
+                if (foundAsmLine.numeric_1 == null) {
+                    throw new RuntimeException("Invalid use of li pseudo instruction! Used without an immediate value! " + foundAsmLine.toString());
+                }
+
                 long value = foundAsmLine.numeric_1;
 
                 long upper_part = (value >> 12) & 0xFFFFF;

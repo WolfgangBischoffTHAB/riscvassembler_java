@@ -941,6 +941,22 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
+    private int encodeOR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        byte funct7 = 0b0000000;
+        byte funct3 = 0b110;
+        byte opcode = 0b0110011;
+
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rd = (byte) asmLine.register_0.getIndex();
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     private int encodeSUB(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
         byte funct7 = 0b0100000;
         byte funct3 = 0b000;
@@ -1238,25 +1254,11 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         byte rs1 = (byte) asmLine.register_1.getIndex();
         byte rd = (byte) asmLine.register_0.getIndex();
-        short imm = asmLine.offset_1.shortValue();
+        
+        //short imm = asmLine.offset_1.shortValue();
+        short imm = (short) asmLine.offset;
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
-        System.out.println(asmLine + " -> " + String.format("%08X", result));
-        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
-
-        return 4;
-    }
-
-    private int encodeOR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
-        byte funct7 = 0b0000000;
-        byte funct3 = 0b110;
-        byte opcode = 0b0110011;
-
-        byte rs1 = (byte) asmLine.register_1.getIndex();
-        byte rs2 = (byte) asmLine.register_2.getIndex();
-        byte rd = (byte) asmLine.register_0.getIndex();
-
-        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
@@ -1280,6 +1282,44 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         short imm = asmLine.offset_1.shortValue();
 
         int result = encodeIType(imm, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    @SuppressWarnings("unused")
+    private int encodeSD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        byte funct3 = 0b011;
+        byte opcode = 0b0100011;
+        
+        byte rs2 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+        short imm = asmLine.offset_1.shortValue();
+
+        int result = encodeSType(imm, rs2, rs1, funct3, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeSW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        
+        System.out.println(asmLine);
+
+        byte funct3 = 0b010;
+        byte opcode = 0b0100011;
+
+        byte rs2 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        short imm = (short) asmLine.offset;
+
+        //short imm = asmLine.offset_1.shortValue();
+        // short imm = asmLine.numeric_2.shortValue();
+
+        int result = encodeSType(imm, rs2, rs1, funct3, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
@@ -1401,42 +1441,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         return 4;
     }
-
-    @SuppressWarnings("unused")
-    private int encodeSD(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
-        byte funct3 = 0b011;
-        byte opcode = 0b0100011;
-        
-        byte rs2 = (byte) asmLine.register_0.getIndex();
-        byte rs1 = (byte) asmLine.register_1.getIndex();
-        short imm = asmLine.offset_1.shortValue();
-
-        int result = encodeSType(imm, rs2, rs1, funct3, opcode);
-        System.out.println(asmLine + " -> " + String.format("%08X", result));
-        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
-
-        return 4;
-    }
-
-    private int encodeSW(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
-        
-        System.out.println(asmLine);
-
-        byte funct3 = 0b010;
-        byte opcode = 0b0100011;
-
-        byte rs2 = (byte) asmLine.register_0.getIndex();
-        byte rs1 = (byte) asmLine.register_1.getIndex();
-        short imm = asmLine.offset_1.shortValue();
-        // short imm = asmLine.numeric_2.shortValue();
-
-        int result = encodeSType(imm, rs2, rs1, funct3, opcode);
-        System.out.println(asmLine + " -> " + String.format("%08X", result));
-        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
-
-        return 4;
-    }
-
+    
     private int encodeRType(byte funct7, byte rs2, byte rs1, byte funct3, byte rd, byte opcode) throws IOException {
 
         return ((opcode & 0b1111111) << 0) |

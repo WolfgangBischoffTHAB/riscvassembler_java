@@ -128,8 +128,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         boolean printInstructions = true;
         // boolean printInstructions = false;
 
-        // singleStepping = true;
-        singleStepping = false;
+        singleStepping = true;
+        // singleStepping = false;
         if (singleStepping) {
             printMemoryAroundPC(5);
             System.out.println("");
@@ -1132,6 +1132,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     // ???
                     case 0x50: // 80dec
                         logger.trace("putchar()");
+                        // a0 contains the data to print
                         register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         System.out.print((char) register_1_value);
                         break;

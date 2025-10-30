@@ -70,7 +70,7 @@ fuse:
     addi t2, t2, 1          # increment for loop counter
     j fuse                  # next for loop iteration
 end_fuse:
-    nop     # end of cols A
+    nop                     # end of cols A
 
     # write result back to memory
     # i*rows + j
