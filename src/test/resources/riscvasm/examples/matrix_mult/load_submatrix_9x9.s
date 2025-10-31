@@ -2,16 +2,18 @@
     .section .text
 
 _start:
-    li a0, 9    # source matrix dimensions
-    li a1, 0    # start x
-    li a2, 0    # start y
-    li a3, 3    # sub matrix dimensions
+    li a0, 9                # source matrix dimensions
+    li a1, 0                # start x
+    li a2, 0                # start y
+    li a3, 3                # sub matrix dimensions
 
-    li t1, 0    # j
+    li t6, 0                # counter for sub_matrix cell amount
+
+    li t1, 0                # j
 cols_a:
     bge t1, a3, end_cols_a
 
-    li t0, 0    # i
+    li t0, 0                # i
 rows_b:
     bge t0, a3, end_rows_b
 
@@ -20,31 +22,55 @@ rows_b:
 
 
     # index = (start_x + t0) + (start_y + t1) * source_matrix_dimensions
-    # t2 = (a1 + t0) + (a2 + t1) * a3
+    # t2 = (a1 + t0) + (a2 + t1) * a0
     add t2, a1, t0
+
     add t3, a2, t1
-    mul t3, t3, a3
+    mul t3, t3, a0
+
     add t2, t2, t3
 
-    # add ASCII offset
-    addi t2, t2, 0x30
+    ; #
+    ; # DEBUG print the indexes
+    ; #
 
-    # save a0, a7
-    addi sp, sp, -8     # stack grows downwards
-    sw a0, 0(sp)
-    sw a7, 4(sp)
-    # perform ecall
-    mv a0, t2         # char to print
-    li a7, 0x50         # ecall: putchar
-    ecall 
-    # restore a7, a0
-    lw a7, 4(sp)
-    lw a0, 0(sp)
-    addi sp, sp, 8      # stack grows downwards and we move it after we loaded the integers
+    ; # add ASCII offset
+    ; addi t2, t2, 0x30
+
+    ; # save a0, a7
+    ; addi sp, sp, -8         # stack grows downwards
+    ; sw a0, 0(sp)
+    ; sw a7, 4(sp)
+    ; # perform ecall
+    ; mv a0, t2               # char to print
+    ; li a7, 0x50             # ecall: putchar
+    ; ecall 
+    ; # restore a7, a0
+    ; lw a7, 4(sp)
+    ; lw a0, 0(sp)
+    ; addi sp, sp, 8          # stack grows downwards and we move it after we loaded the integers
 
 
+    #
+    # Load data from the source matrix into the target matrix
+    #
 
+    # offset by matrix ptr
+    # la t4, matrix_a + t3  # pseudo instruction load address. Resolved: pc relative!
+    la t4, matrix_a         # pseudo instruction load address. Resolved: pc relative!
+    slli t2, t2, 2          # mult by 4 for sizeof(word)
+    add t4, t4, t2          # advance pointer
+    lw t5, (t4)             # load matrix A cell
 
+    print_reg t5            # DEBUG output the register content to the console
+
+    # load data into sub matrix
+    la t4, sub_matrix_a
+    slli t6, t6, 2          # mult by 4 for sizeof(word)
+    add t4, t4, t6          # advance pointer
+    sw t5, (t4)             # load matrix A cell
+
+    addi t6, t6, 1
 
 
     addi t0, t0, 1          # increment for loop counter (t0 = i)
@@ -61,7 +87,11 @@ end_cols_a:
     
 
     .section .data
-result_data: .zero 36   # 9x4 = 36
+result_data:    .zero 36       # 9x4 = 36
+
+sub_matrix_a:   .zero 36       # 9x4 = 36
+
+sub_matrix_b:   .zero 36       # 9x4 = 36
 
 matrix_a:   .word 0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000005, 0x00000006, 0x00000007, 0x00000008, 0x00000009
             .word 0x0000000A, 0x0000000B, 0x0000000C, 0x0000000D, 0x0000000E, 0x0000000F, 0x00000010, 0x00000011, 0x00000012

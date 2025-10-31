@@ -54,7 +54,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     // Uncompressed instructions (bit [0:1] are 11)
     //
 
-    /**  */
+    /** 0b1111111 */
+    private static final int CUSTOM = 0b1111111;
+
+    /** 0b0001111 */
     private static final int FENCE_TYPE = 0b0001111;
 
     /** 0b0110011 */
@@ -814,6 +817,20 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int vm = 0;
 
         switch (opcode) {
+
+            case CUSTOM:
+                switch (funct3) {
+
+                    case 0b000:
+                        asmLine.mnemonic = Mnemonic.I_PRINT_REG;
+                        asmLine.register_0 = RISCVRegister.fromInt(rd);
+                        break;
+
+                    default:
+                        throw new RuntimeException(
+                                "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                }
+                break;
 
             case FENCE_TYPE:
 

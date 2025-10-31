@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
-
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
@@ -33,6 +31,17 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         }
 
         switch (asmLine.mnemonic) {
+
+            //
+            // Custom
+            //
+
+            case I_BRK:
+                // custom breakpoint instruction
+                return encodeBRK(byteArrayOutStream, asmLine);
+            case I_PRINT_REG:
+                // custom print register debug instruction
+                return encodePrintReg(byteArrayOutStream, asmLine);
 
             //
             // RV32I
@@ -70,10 +79,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             case I_BLTU:
                 return encodeBLTU(byteArrayOutStream, asmLine);
-
-            case I_BRK:
-                // custom breakpoint instruction
-                return encodeBRK(byteArrayOutStream, asmLine);
 
             case I_ECALL:
                 return encodeECALL(byteArrayOutStream, asmLine);
@@ -237,6 +242,38 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             default:
                 throw new RuntimeException("Unknown mnemonic: " + asmLine);
         }
+    }
+
+    /**
+     * Custom breakpoint instruction
+     *
+     * @param byteArrayOutStream
+     * @param asmLine
+     * @return encoded size of the instruction
+     */
+    private int encodeBRK(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, 0x1f1f1f1f);
+
+        return 4;
+    }
+
+    private int encodePrintReg(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct7 = 0b0000000;
+        byte funct3 = 0b000;
+        byte opcode = 0b1111111;
+
+        byte rd = (byte) asmLine.register_0.getIndex();
+        // byte rs1 = (byte) asmLine.register_1.getIndex();
+        byte rs1 = rd;
+        // byte rs2 = (byte) asmLine.register_2.getIndex();
+        byte rs2 = rd;
+
+        int result = encodeRType(funct7, rs2, rs1, funct3, rd, opcode);
+        System.out.println(asmLine + " -> " + String.format("%08X", result));
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
     }
 
     private int encodeVMV_V_I(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
@@ -1128,19 +1165,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         int result = encodeBType(imm, rs2, rs1, funct3, opcode);
         System.out.println(asmLine + " -> " + String.format("%08X", result));
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
-
-        return 4;
-    }
-
-    /**
-     * Custom breakpoint instruction
-     *
-     * @param byteArrayOutStream
-     * @param asmLine
-     * @return encoded size of the instruction
-     */
-    private int encodeBRK(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
-        EncoderUtils.convertToUint32_t(byteArrayOutStream, 0x1f1f1f1f);
 
         return 4;
     }

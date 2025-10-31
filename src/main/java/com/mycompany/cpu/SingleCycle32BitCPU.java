@@ -173,10 +173,6 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" + ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
         //         + "] " + asmLine.toString());
 
-        // if (pc == 0x10) {
-        //     System.out.println("");
-        // }
-
         if (asmLine.encodedLength <= 0) {
             throw new RuntimeException("Encoded length is zero! System is bugged!");
         }
@@ -208,6 +204,26 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int csrValue;
 
         switch (asmLine.mnemonic) {
+
+            //
+            // Custom
+            //
+
+            case I_PRINT_REG:
+                if (printInstructions) {
+                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " add: " + asmLine);
+                }
+                String registerName = RISCVRegister.toStringAbi((RISCVRegister) asmLine.register_0);
+                register_0_value = readRegisterFile(asmLine.register_0.getIndex());
+                logger.info("Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " (" + register_0_value + ")");
+                
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
+            //
+            // RV32I
+            //
 
             case I_ADD:
                 if (printInstructions) {
@@ -1137,6 +1153,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         // a0 contains the data to print
                         register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         System.out.print((char) register_1_value);
+                        // System.out.println(ByteArrayUtil.byteToHex(register_1_value) + " (" + register_1_value + ")");
                         break;
 
                     case 0xD6: // (214dec)

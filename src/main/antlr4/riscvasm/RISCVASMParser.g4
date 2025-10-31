@@ -48,10 +48,15 @@ label :
 
 mnemonic :
 
+    // Custom
+
+    I_BRK |
+    I_PRINT_REG |
+
     // RV32 I
     
     I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
-    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BGTU | I_BLE | I_BLEU | I_BLT | I_BLTU | I_BNE | I_BNEZ | I_BRK |
+    I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BGTU | I_BLE | I_BLEU | I_BLT | I_BLTU | I_BNE | I_BNEZ |
     I_CALL | 
     I_ECALL | I_EBREAK |
     I_FENCE |

@@ -63,15 +63,15 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -170,7 +170,7 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
         // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
         // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/standard_matrix_mult.s";
-        String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix.s";
+        String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix_9x9.s";
 
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";

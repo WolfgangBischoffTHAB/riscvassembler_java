@@ -6,6 +6,13 @@ package com.mycompany.data;
 public enum Mnemonic {
 
     //
+    // Custom
+    //
+
+    I_BRK(false), // custom breakpoint instruction
+    I_PRINT_REG(false), // print register debug instruction
+
+    //
     // RV32 I
     //
 
@@ -32,8 +39,6 @@ public enum Mnemonic {
     I_BNE(false),
     I_BNEU(false),
     I_BNEZ(true),
-
-    I_BRK(false), // custom breakpoint instruction
 
     I_CALL(true),
 
@@ -181,7 +186,21 @@ public enum Mnemonic {
 
     public static Mnemonic fromString(final String mnemonic) {
 
-        if (mnemonic.equalsIgnoreCase("ADD")) {
+        //
+        // Custom
+        //
+
+        if (mnemonic.equalsIgnoreCase("BRK")) {
+            return I_BRK; // custom instruction
+        } else if (mnemonic.equalsIgnoreCase("PRINT_REG")) {
+            return I_PRINT_REG; // custom instruction
+        } 
+
+        //
+        // RV32I
+        //
+
+        else if (mnemonic.equalsIgnoreCase("ADD")) {
             return I_ADD;
         } else if (mnemonic.equalsIgnoreCase("ADDI")) {
             return I_ADDI;
@@ -215,8 +234,6 @@ public enum Mnemonic {
             return I_BNEZ;
         } else if (mnemonic.equalsIgnoreCase("BEQZ")) {
             return I_BEQZ;
-        } else if (mnemonic.equalsIgnoreCase("BRK")) {
-            return I_BRK; // custom instruction
         } else if (mnemonic.equalsIgnoreCase("CALL")) {
             return I_CALL;
         } else if (mnemonic.equalsIgnoreCase("ECALL")) {
@@ -395,6 +412,20 @@ public enum Mnemonic {
     public static String toString(final Mnemonic mnemonic) {
 
         switch (mnemonic) {
+
+            //
+            // Custom
+            //
+
+            case I_BRK: // custom breakpoint instruction
+                return "brk";
+            case I_PRINT_REG: // custom print register debug instruction
+                return "print_reg";
+
+            //
+            // RV32i
+            //
+
             case I_ADD:
                 return "add";
             case I_ADDI:
@@ -453,9 +484,6 @@ public enum Mnemonic {
                 return "bneu";
             case I_BNEZ: // pseudo instruction
                 return "bnez";
-
-            case I_BRK: // custom breakpoint instruction
-                return "brk";
 
             case I_CALL: // pseudo instruction
                 return "call";

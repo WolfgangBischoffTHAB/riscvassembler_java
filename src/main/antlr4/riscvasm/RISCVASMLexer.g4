@@ -75,6 +75,13 @@ DOT_QUAD : DOT Q U A D ;
 DOT_ZERO : DOT Z E R O ;
 
 //
+// CUSTOM these instructions do not exist in the RISC-V Spec!
+//
+
+I_BRK : B R K ;                                 // custom break point instruction 0x1f1f1f1f
+I_PRINT_REG : P R I N T UNDERSCORE R E G ;      // print a register
+
+//
 // RV32 I
 //
 
@@ -95,8 +102,6 @@ I_BLE : B L E ;
 I_BLEU : B L E U ;
 I_BNE : B N E ;
 I_BNEZ : B N E Z ;
-
-I_BRK : B R K ;     // custom break point instruction 0x1f1f1f1f
 
 I_CALL : C A L L ;
 
@@ -334,6 +339,7 @@ RVV_TAIL_MU : M U ;
 ASTERISK : '*' ;
 PLUS : '+' ;
 MINUS : '-' ;
+UNDERSCORE : '_' ;
 PERCENT : '%' ;
 DOT : '.' ;
 DOLLAR : '$' ;
