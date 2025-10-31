@@ -687,6 +687,11 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
                 logger.trace("addr: " + addr);
 
+                // // DEBUG
+                // if (addr == 0x10078) {
+                //     logger.info("");
+                // }
+
                 // read from memory (MEMORY STAGE)
                 let = new byte[4];
                 let[0] = (byte) memory.getByte(addr + 0);
