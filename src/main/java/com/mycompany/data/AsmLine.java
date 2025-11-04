@@ -18,6 +18,12 @@ public class AsmLine<T extends Register> {
 
     public String label;
 
+    public MIPSMnemonic mipsMnemonic;
+
+    public T mips_register_0 = null;
+    public T mips_register_1 = null;
+    public T mips_register_2 = null;
+
     public Mnemonic mnemonic;
 
     public T register_0 = null;

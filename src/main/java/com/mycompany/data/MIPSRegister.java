@@ -85,7 +85,7 @@ public enum MIPSRegister implements Register {
      * @param register
      * @return
      */
-	public static Register fromString(String register) {
+	public static MIPSRegister fromString(String register) {
 
 		if (register.equalsIgnoreCase("$zero")) { // 0
             return REG_ZERO;

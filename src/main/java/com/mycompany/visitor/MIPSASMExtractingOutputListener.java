@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.MIPSMnemonic;
 import com.mycompany.data.MIPSRegister;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
@@ -32,8 +33,7 @@ public class MIPSASMExtractingOutputListener extends MIPSParserBaseListener {
 
     public List<AsmLine<MIPSRegister>> asmLines;
 
-    @SuppressWarnings("rawtypes")
-    private AsmLine asmLine = new AsmLine();
+    private AsmLine<MIPSRegister> asmLine = new AsmLine<>();
 
     private int sourceLine = 1;
 
@@ -52,7 +52,8 @@ public class MIPSASMExtractingOutputListener extends MIPSParserBaseListener {
 
     @Override
     public void exitMnemonic(MIPSParser.MnemonicContext ctx) {
-        asmLine.mnemonic = Mnemonic.fromString(ctx.getText());
+        String mnemonic = ctx.getText();
+        asmLine.mipsMnemonic = MIPSMnemonic.fromString(mnemonic);
     }
 
     @Override
@@ -162,13 +163,13 @@ public class MIPSASMExtractingOutputListener extends MIPSParserBaseListener {
 
                         switch (index) {
                             case 0:
-                                asmLine.register_0 = MIPSRegister.fromString(registerContext.getText());
+                                asmLine.mips_register_0 = MIPSRegister.fromString(registerContext.getText());
                                 break;
                             case 1:
-                                asmLine.register_1 = MIPSRegister.fromString(registerContext.getText());
+                                asmLine.mips_register_1 = MIPSRegister.fromString(registerContext.getText());
                                 break;
                             case 2:
-                                asmLine.register_2 = MIPSRegister.fromString(registerContext.getText());
+                                asmLine.mips_register_2 = MIPSRegister.fromString(registerContext.getText());
                                 break;
                         }
                     }

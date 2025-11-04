@@ -1,80 +1,151 @@
-// package com.mycompany.assembler;
+package com.mycompany.assembler;
 
-// import java.io.IOException;
-// import java.util.List;
-// import java.util.Map;
+import java.io.IOException;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
 
-// import org.antlr.v4.runtime.CharStream;
-// import org.antlr.v4.runtime.CharStreams;
-// import org.antlr.v4.runtime.CommonTokenStream;
-// import org.antlr.v4.runtime.Parser;
-// import org.antlr.v4.runtime.ParserRuleContext;
-// import org.antlr.v4.runtime.TokenSource;
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.TokenSource;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-// import com.mycompany.data.AsmLine;
-// import com.mycompany.data.Section;
-// import com.mycompany.encoder.Encoder;
-// import com.mycompany.encoder.MIPSEncoder;
-// import com.mycompany.visitor.MIPSASMExtractingOutputListener;
+import com.mycompany.data.AsmLine;
+import com.mycompany.data.MIPSRegister;
+import com.mycompany.data.Section;
+import com.mycompany.encoder.Encoder;
+import com.mycompany.encoder.MIPSEncoder;
+import com.mycompany.visitor.MIPSASMExtractingOutputListener;
 
-// import mipsasm.MIPSLexer;
-// import mipsasm.MIPSParser;
+import mipsasm.MIPSLexer;
+import mipsasm.MIPSParser;
 
-// public class MIPSAssembler extends BaseAssembler {
+public class MIPSAssembler extends BaseAssembler<MIPSRegister> {
 
-//     private CharStream asmCharStream;
+    private static final Logger logger = LoggerFactory.getLogger(MIPSAssembler.class);
 
-//     private MIPSLexer lexer;
+    private CharStream asmCharStream;
 
-//     private MIPSParser parser;
+    private MIPSLexer lexer;
 
-//     private MIPSEncoder encoder = new MIPSEncoder();
+    private MIPSParser parser;
 
-//     public MIPSAssembler(Map<String, Section> sectionMap, Section dummySection) {
+    private MIPSEncoder encoder = new MIPSEncoder();
 
-//         currentSection = sectionMap.get(".text");
+    public MIPSAssembler(Map<String, Section> sectionMap, Section dummySection) {
 
-//         // set up the visitor
-//         // the extractor assembles AsmLineS by visiting the antlr4 AST
-//         MIPSASMExtractingOutputListener asmListener = new MIPSASMExtractingOutputListener();
-//         asmListener.dummySection = dummySection;
-//         asmListener.asmLines = asmLines;
-//         asmListener.sectionMap = sectionMap;
-//         asmListener.currentSection = currentSection;
+        currentSection = sectionMap.get(".text");
 
-//         this.asmListener = asmListener;
-//     }
+        // set up the visitor
+        // the extractor assembles AsmLineS by visiting the antlr4 AST
+        MIPSASMExtractingOutputListener asmListener = new MIPSASMExtractingOutputListener();
+        asmListener.dummySection = dummySection;
+        asmListener.asmLines = asmLines;
+        asmListener.sectionMap = sectionMap;
+        asmListener.currentSection = currentSection;
 
-//     @Override
-//     public TokenSource getLexer(String asmInputFile) throws IOException {
+        this.asmListener = asmListener;
+    }
 
-//         asmCharStream = CharStreams.fromFileName(asmInputFile);
-//         lexer = new MIPSLexer(asmCharStream);
+    @Override
+    public void assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
+        
+        // create a buffer of tokens pulled from the lexer
+        final CommonTokenStream asmTokens = new CommonTokenStream(getLexer(asmInputFile));
 
-//         return lexer;
-//     }
+        final Parser asmParser = getParser(asmTokens);
+        asmParser.addErrorListener(new ANTLRErrorListener() {
 
-//     @Override
-//     public Parser getParser(CommonTokenStream asmTokens) {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                    int charPositionInLine, String msg, RecognitionException e) {
+                throw new UnsupportedOperationException(
+                        "SyntaxError (line:col) (" + line + ":" + charPositionInLine + ")");
+            }
 
-//         parser = new MIPSParser(asmTokens);
+            @Override
+            public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, boolean exact,
+                    BitSet ambigAlts, ATNConfigSet configs) {
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'reportAmbiguity'");
+            }
 
-//         return parser;
-//     }
+            @Override
+            public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+                    BitSet conflictingAlts, ATNConfigSet configs) {
+                // System.out.println("startIndex: " + startIndex + " stopIndex: " + stopIndex);
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'reportAttemptingFullContext'");
+            }
 
-//     @Override
-//     public ParserRuleContext getRoot() {
-//         return parser.asm_file();
-//     }
+            @Override
+            public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex,
+                    int prediction, ATNConfigSet configs) {
+                throw new UnsupportedOperationException("Unimplemented method 'reportContextSensitivity'");
+            }
 
-//     // @Override
-//     // public List<AsmLine<?>> getAsmLines() {
-//     //     return asmLines;
-//     // }
+        });
 
-//     @Override
-//     public Encoder getEncoder() {
-//         return encoder;
-//     }
+        //
+        // parse
+        //
 
-// }
+        System.out.println("Parsing ...");
+
+        ParserRuleContext asmRoot = getRoot();
+
+        System.out.println("Parsing done.");
+
+        // create a generic parse tree walker that can trigger callbacks
+        final ParseTreeWalker asmWalker = new ParseTreeWalker();
+
+        // walk the tree created during the parse, trigger callbacks
+        asmWalker.walk(asmListener, asmRoot);
+
+        // List<AsmLine<?>> asmLines = getAsmLines();
+
+        // DEBUG
+        for (AsmLine<?> asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
+    }
+
+    @Override
+    public TokenSource getLexer(String asmInputFile) throws IOException {
+        asmCharStream = CharStreams.fromFileName(asmInputFile);
+        lexer = new MIPSLexer(asmCharStream);
+        return lexer;
+    }
+
+    @Override
+    public Parser getParser(CommonTokenStream asmTokens) {
+        parser = new MIPSParser(asmTokens);
+        return parser;
+    }
+
+    @Override
+    public ParserRuleContext getRoot() {
+        return parser.asm_file();
+    }
+
+    @Override
+    public Encoder getEncoder() {
+        return encoder;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+}

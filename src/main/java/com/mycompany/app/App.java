@@ -15,6 +15,8 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.assembler.BaseAssembler;
+import com.mycompany.assembler.MIPSAssembler;
 import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.cpu.CPU;
@@ -170,7 +172,7 @@ public class App {
         // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
         // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
         // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/standard_matrix_mult.s";
-        String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix_9x9.s";
+        // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix_9x9.s";
 
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
         // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
@@ -180,18 +182,18 @@ public class App {
 
         // @formatter:on
 
-        args[0] = inputFile;
-        mainRISCV(args);
+        // args[0] = inputFile;
+        // mainRISCV(args);
 
         //
         // MIPS
         //
 
         // args = new String[1];
-        // //String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
+        String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
         // String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
-        // args[0] = inputFile;
-        // mainMIPS(args);
+        args[0] = inputFile;
+        mainMIPS(args);
     }
 
     public static void mainRISCV(String[] args) throws IOException {
@@ -875,65 +877,64 @@ public class App {
         System.out.println("Precprocessing input done ...");
     }
 
-    /*
-     * public static void mainMIPS(String[] args) throws IOException {
-     * 
-     * //
-     * // global variables
-     * //
-     * 
-     * // the GCC compiler adds a funny line: .section .note.GNU-stack,"",@progbits
-     * // The section .note.GNU-stack is not defined
-     * // To not break the code, a dummy section is inserted which is used as a
-     * // catch-all
-     * // for all sections that are not defined
-     * Section dummySection = new Section();
-     * dummySection.name = "dummy-section";
-     * 
-     * //
-     * // preprocess
-     * //
-     * 
-     * // create build folder
-     * Files.createDirectories(Paths.get("build"));
-     * 
-     * // the first step is always to let the preprocessor resolve .include
-     * // instructions. Let the compiler run on the combined file in a second step!
-     * 
-     * String inputFile = args[0];
-     * String outputFile = INTERMEDIATE_FILE;
-     * preprocess(inputFile, outputFile);
-     * 
-     * //
-     * // linker script
-     * //
-     * 
-     * Map<String, Section> sectionMap = new HashMap<>();
-     * sectionMap.put(dummySection.name, dummySection);
-     * 
-     * LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
-     * linkerScriptParser.parseLinkerScript(sectionMap);
-     * 
-     * //
-     * // assemble
-     * //
-     * 
-     * MIPSAssembler assembler = new MIPSAssembler(sectionMap, dummySection);
-     * 
-     * String asmInputFile = INTERMEDIATE_FILE;
-     * 
-     * // the raw listener just prints the AST to the console
-     * // RawOutputListener listener = new RawOutputListener();
-     * 
-     * //
-     * // assemble to machine code
-     * //
-     * 
-     * byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
-     * 
-     * ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-     * // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-     * BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
-     * }
-     */
+    public static void mainMIPS(String[] args) throws IOException {
+
+        //
+        // global variables
+        //
+
+        // the GCC compiler adds a funny line: .section .note.GNU-stack,"",@progbits
+        // The section .note.GNU-stack is not defined
+        // To not break the code, a dummy section is inserted which is used as a
+        // catch-all
+        // for all sections that are not defined
+        Section dummySection = new Section();
+        dummySection.name = "dummy-section";
+
+        //
+        // preprocess
+        //
+
+        // create build folder
+        Files.createDirectories(Paths.get("build"));
+
+        // the first step is always to let the preprocessor resolve .include
+        // instructions. Let the compiler run on the combined file in a second step!
+
+        String inputFile = args[0];
+        String outputFile = INTERMEDIATE_FILE;
+        preprocess(inputFile, outputFile);
+
+        //
+        // linker script
+        //
+
+        Map<String, Section> sectionMap = new HashMap<>();
+        sectionMap.put(dummySection.name, dummySection);
+
+        LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
+        linkerScriptParser.parseLinkerScript(sectionMap);
+
+        //
+        // assemble
+        //
+
+        MIPSAssembler assembler = new MIPSAssembler(sectionMap, dummySection);
+
+        String asmInputFile = INTERMEDIATE_FILE;
+
+        // the raw listener just prints the AST to the console
+        // RawOutputListener listener = new RawOutputListener();
+
+        //
+        // assemble to machine code
+        //
+
+        assembler.assemble(sectionMap, asmInputFile);
+
+        // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+        // BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+    }
+
 }
