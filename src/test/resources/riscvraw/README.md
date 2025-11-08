@@ -1,0 +1,1 @@
+To convert ASCII hex representation to binary data, you can use: https://tomeko.net/online_tools/hex_to_file.php

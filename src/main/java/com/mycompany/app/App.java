@@ -65,19 +65,28 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // plain .s assembler source code
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // // plain .s assembler source code
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // .elf file
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_RAW = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
-    // // .elf file
+    // // Raw Machine Code
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = true;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
     // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = true;
 
     public static void main(String[] args) throws IOException {
@@ -109,91 +118,18 @@ public class App {
         //
 
         args = new String[1];
-
-        // @formatter:off
-
-        // String inputFile = "src/test/resources/projects/snake/Main.asm";
-
-        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
-        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
-        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
-        // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
-
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/beq.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/add.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/sw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/lw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/la.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rv64i/addiw.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
-        // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
-
-        // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/if.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/function_call_c_abi.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/printf.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/slti.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/fib.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/div.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n_other_syntax.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/sample_1.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/linux_printf.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/add_sample_2.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/add_sample_3.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/add_sample_7.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/add_sample_11.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/standard_matrix_mult.s";
-        // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix_9x9.s";
-
-        // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
-        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
-        // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-
-        // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
-
-        // @formatter:on
-
         // args[0] = inputFile;
-        // mainRISCV(args);
+        mainRISCV(args);
 
-        //
-        // MIPS
-        //
+        // //
+        // // MIPS
+        // //
 
-        // args = new String[1];
-        String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
-        // String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
-        args[0] = inputFile;
-        mainMIPS(args);
+        // // args = new String[1];
+        // String inputFile = "src/test/resources/mipsasm/examples/basic_example.asm";
+        // // String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
+        // args[0] = inputFile;
+        // mainMIPS(args);
     }
 
     public static void mainRISCV(String[] args) throws IOException {
@@ -210,54 +146,6 @@ public class App {
         Section dummySection = new Section();
         dummySection.name = "dummy-section";
 
-        //
-        // preprocess
-        //
-
-        // create build folder
-        Files.createDirectories(Paths.get("build"));
-
-        // the first step is always to let the preprocessor resolve .include
-        // instructions. Let the compiler run on the combined file in a second step!
-
-        // write preprocessed output into the INTERMEDIATE_FILE which is a hardcoded
-        // fixed file
-        String inputFile = args[0];
-        String outputFile = INTERMEDIATE_FILE;
-        preprocess(inputFile, outputFile);
-
-        //
-        // linker script
-        //
-
-        Map<String, Section> sectionMap = new HashMap<>();
-        sectionMap.put(dummySection.name, dummySection);
-
-        LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
-        linkerScriptParser.parseLinkerScript(sectionMap);
-
-        //
-        // assemble
-        //
-
-        RiscVAssembler assembler = new RiscVAssembler(sectionMap, dummySection);
-
-        // use the fixed, hardcoded intermediate file which is the result of
-        // preprocessing
-        String asmInputFile = INTERMEDIATE_FILE;
-
-        // // set up the visitor
-        // // the extractor assembles AsmLineS by visiting the antlr4 AST
-        // RISCASMExtractingOutputListener asmListener = new
-        // RISCASMExtractingOutputListener();
-        // asmListener.dummySection = dummySection;
-        // asmListener.asmLines = assembler.asmLines;
-        // asmListener.sectionMap = sectionMap;
-        // asmListener.currentSection = assembler.currentSection;
-
-        // the raw listener just prints the AST to the console
-        // RawOutputListener listener = new RawOutputListener();
-
         Memory memory = null;
         if (XLEN == 32) {
             memory = new DefaultMemory();
@@ -271,6 +159,129 @@ public class App {
         int stackPointerValue = 0x00020000;
 
         if (MACHINE_CODE_SOURCE_ASSEMBLY_FILE) {
+
+            // @formatter:off
+
+            // String inputFile = "src/test/resources/projects/snake/Main.asm";
+
+            // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard.s";
+            // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_2.s";
+            // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
+            // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
+
+            // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/beq.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/add.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/sw.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/lw.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/la.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rv64i/addiw.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/m/remu.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vmv_v_i.s";
+            // String inputFile = "src/test/resources/riscvasm/instructions/rvv/vle64_v.s";
+
+            // String inputFile = "src/test/resources/riscvasm/examples/fibonacci_rvcc.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/argmax.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/blinker.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/memory.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/uart.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/modifiers.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/hello_world.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_orig.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/for_loop_2.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/square_with_driver.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/if.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/riscvtest.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/riscvtest_harris_harris.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/while_true_endless_loop_writeMem.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/function_call_c_abi.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/quicksort.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/quicksort_2.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/quicksort_clang.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/blinky_memory_mapped_LED.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/printf.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/add_sample.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/string_length.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/slti.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/bltu.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/fib.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/expression.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/gcd.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/div.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/recursive_sum_of_n_other_syntax.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/sample_1.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/linux_printf.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/vector_mult_with_masking.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/vector_add_example.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/add_sample_2.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/add_sample_3.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/add_sample_7.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/add_sample_11.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/add_sample_16.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/addi_sample_10.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/standard_matrix_mult.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix_9x9.s";
+
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
+
+            String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+
+            // @formatter:on
+
+            //
+            // preprocess
+            //
+
+            // create build folder
+            Files.createDirectories(Paths.get("build"));
+
+            // the first step is always to let the preprocessor resolve .include
+            // instructions. Let the compiler run on the combined file in a second step!
+
+            // write preprocessed output into the INTERMEDIATE_FILE which is a hardcoded
+            // fixed file
+            // String inputFile = args[0];
+            if (inputFile == null) {
+                throw new RuntimeException("No input file!");
+            }
+            String outputFile = INTERMEDIATE_FILE;
+            preprocess(inputFile, outputFile);
+
+            //
+            // linker script
+            //
+
+            Map<String, Section> sectionMap = new HashMap<>();
+            sectionMap.put(dummySection.name, dummySection);
+
+            LinkerScriptParser linkerScriptParser = new LinkerScriptParser();
+            linkerScriptParser.parseLinkerScript(sectionMap);
+
+            //
+            // assemble
+            //
+
+            RiscVAssembler assembler = new RiscVAssembler(sectionMap, dummySection);
+
+            // use the fixed, hardcoded intermediate file which is the result of
+            // preprocessing
+            String asmInputFile = INTERMEDIATE_FILE;
+
+            // // set up the visitor
+            // // the extractor assembles AsmLineS by visiting the antlr4 AST
+            // RISCASMExtractingOutputListener asmListener = new
+            // RISCASMExtractingOutputListener();
+            // asmListener.dummySection = dummySection;
+            // asmListener.asmLines = assembler.asmLines;
+            // asmListener.sectionMap = sectionMap;
+            // asmListener.currentSection = assembler.currentSection;
+
+            // the raw listener just prints the AST to the console
+            // RawOutputListener listener = new RawOutputListener();
 
             //
             // assemble to machine code
@@ -348,9 +359,11 @@ public class App {
             elf.memory = memory;
 
             // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
-            // // elf.setFile("src/test/resources/riscvelf/factorial.out");
-            // // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
+            // elf.setFile("src/test/resources/riscvelf/factorial.out");
+            // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
+            // elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
+            // elf.setFile("C:/Users/lapto/dev/riscv/egos/src/P0_Hello_World/hello.elf");
+            elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/demo_cfu/main.elf");
 
             // elf.load();
 
@@ -683,6 +696,35 @@ public class App {
             // set the global pointer register
             //
             globalPointerValue = (int) elf.globalPointerValue;
+
+        }
+
+        if (MACHINE_CODE_SOURCE_RAW) {
+
+            // String inputFile = "src/test/resources/riscvraw/neorv32_bootloader.bin";
+            String inputFile = "src/test/resources/riscvraw/neorv32_bootloader_little_endian.bin";
+
+            if (inputFile == null) {
+                throw new RuntimeException("No input file!");
+            }
+
+            // the neorv32 processor loads the bootloader into NEORV32_BOOTROM_BASE which
+            // is defined to be 0xFFE00000U in neorv32.h. The precompiled raw bootloader
+            // consists of code that is not relocatable but hardwired to those locations!
+            // int curPos = 0;
+            int curPos = 0xFFE00000;
+
+            startAddress = 0xFFE00000;
+
+            byte[] machineCode = Files.readAllBytes(Paths.get(inputFile));
+
+            memory.copy(curPos, machineCode, 0, machineCode.length);
+
+            //
+            // emulate
+            //
+
+            CPU cpu = emulate(memory, startAddress, globalPointerValue, stackPointerValue);
 
         }
 

@@ -172,6 +172,22 @@ public enum Mnemonic {
 
     // I_PUTS(true),
 
+    //
+    // NEORV32
+    //
+
+    // I-Type
+    I_NEORV32_XTEA_KEY_WRITE(false),
+    I_NEORV32_XTEA_KEY_READ(false),
+
+    // R-Type
+    I_NEORV32_XTEA_ENC_V0_C(false),
+    I_NEORV32_XTEA_ENC_V1_C(false),
+    I_NEORV32_XTEA_DEC_V0_C(false),
+    I_NEORV32_XTEA_DEC_V1_C(false),
+    I_NEORV32_XTEA_INIT_C(false),
+    I_NEORV32_XTEA_ILLEGAL_INST_C(false),
+
     I_UNKNOWN(true);
 
     private boolean pseudo;

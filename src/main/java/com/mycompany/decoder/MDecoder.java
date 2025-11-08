@@ -1,6 +1,5 @@
 package com.mycompany.decoder;
 
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +29,10 @@ public class MDecoder implements Decoder {
 
         logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
 
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
         // for 32 bit cast to int
-        final int instruction = memory.readWord((int) address, byteOrder);
+        final int instruction = memory.readWord((int) address, Decoder.byteOrder);
 
         // // for 64 bit
         // final int instruction = memory.readWord(address, byteOrder);

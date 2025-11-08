@@ -55,42 +55,49 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     //
 
     /** 0b1111111 */
-    private static final int CUSTOM = 0b1111111;
+    private static final int CUSTOM                 = 0b1111111;
 
     /** 0b0001111 */
-    private static final int FENCE_TYPE = 0b0001111;
+    private static final int FENCE_TYPE             = 0b0001111;
 
     /** 0b0110011 */
-    private static final int R_TYPE_1 = 0b0110011;
+    private static final int R_TYPE_1               = 0b0110011;
 
     /** 0b0111011 */
-    private static final int R_TYPE_2 = 0b0111011;
+    private static final int R_TYPE_2               = 0b0111011;
 
-    private static final int I_TYPE_1 = 0b1100111;
-    private static final int I_TYPE_2 = 0b0010011;
+    private static final int I_TYPE_1               = 0b1100111;
+    private static final int I_TYPE_2               = 0b0010011;
     /** 0b0000011 */
-    private static final int I_TYPE_3 = 0b0000011;
+    private static final int I_TYPE_3               = 0b0000011;
     /** 0b1110011 */
-    private static final int I_TYPE_4 = 0b1110011;
+    private static final int I_TYPE_4               = 0b1110011;
     /** 0b0011011 = 27dec = 0x1B */
-    private static final int I_TYPE_5 = 0b0011011;
+    private static final int I_TYPE_5               = 0b0011011;
 
     /** 0b0100011 */
-    private static final int S_TYPE = 0b0100011;
+    private static final int S_TYPE                 = 0b0100011;
 
-    private static final int B_TYPE = 0b1100011;
+    private static final int B_TYPE                 = 0b1100011;
 
-    private static final int U_TYPE_1 = 0b0010111;
-    private static final int U_TYPE_2 = 0b0110111;
+    private static final int U_TYPE_1               = 0b0010111;
+    private static final int U_TYPE_2               = 0b0110111;
 
-    private static final int J_TYPE = 0b1101111;
+    private static final int J_TYPE                 = 0b1101111;
 
     /** 0b1010111 */
-    private static final int V_EXTENSION_OPERATION = 0b1010111;
+    private static final int V_EXTENSION_OPERATION  = 0b1010111;
     /** 0b0000111 */
-    private static final int V_EXTENSION_LOAD = 0b0000111;
+    private static final int V_EXTENSION_LOAD       = 0b0000111;
     /** 0b0100111 */
-    private static final int V_EXTENSION_STORE = 0b0100111;
+    private static final int V_EXTENSION_STORE      = 0b0100111;
+
+    //
+    // NEORV32 - XTEA extensions
+    //
+
+    private static final int NEORV32_XTEA_EXTENSION_I_TYPE      = 0b0101011;
+    private static final int NEORV32_XTEA_EXTENSION_R_TYPE      = 0b0001011;
 
     // unprivileged spec, page 175
     private static final int QUADRANT_0 = 0b00;
@@ -126,13 +133,11 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
 
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-
         int instruction = 0;
 
         if (App.XLEN == 32) {
             // for 32 bit cast to int
-            instruction = memory.readWord((int)address, byteOrder);
+            instruction = memory.readWord((int)address, Decoder.byteOrder);
         }
         if (App.XLEN == 64) {
             // for 64 bit
@@ -1469,6 +1474,65 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 }
                 break;
 
+            case NEORV32_XTEA_EXTENSION_I_TYPE:
+                System.out.println("XTEA_EXTENSION I_TYPE");
+                switch (funct3) {
+
+                    case 0b000:
+                        logger.info("xtea_key_read");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_KEY_READ;
+                        break;
+
+                    case 0b001:
+                        logger.info("xtea_key_write");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_KEY_WRITE;
+                        decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
+                        break;
+
+                    default:
+                        throw new RuntimeException("Not implemented yet!");
+                }
+                break;
+            
+            case NEORV32_XTEA_EXTENSION_R_TYPE:
+                System.out.println("XTEA_EXTENSION R_TYPE");
+                switch (funct3) {
+
+                    case 0b000:
+                        logger.info("xtea_hw_enc_v0_step");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_ENC_V0_C;
+                        break;
+
+                    case 0b001:
+                        logger.info("xtea_hw_enc_v1_step");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_ENC_V1_C;
+                        break;
+
+                    case 0b010:
+                        logger.info("xtea_hw_dec_v0_step");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_DEC_V0_C;
+                        break;
+
+                    case 0b011:
+                        logger.info("xtea_hw_dec_v1_step");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_DEC_V1_C;
+                        break;
+
+                    case 0b100:
+                        logger.info("xtea_hw_init");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_INIT_C;
+                        break;
+
+                    case 0b111:
+                        logger.info("xtea_hw_illegal_inst");
+                        asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_ILLEGAL_INST_C;
+                        break;
+                    
+                    default:
+                        throw new RuntimeException("Not implemented yet!");
+                }
+                break;
+            
             default:
                 throw new RuntimeException("Decoding HEX: " + ByteArrayUtil.intToHex("0x%08x", data)
                         + ". Unknown Instruction Type! opcode = " + opcode);

@@ -552,12 +552,12 @@ public class Elf64 extends BaseElf {
             programHeader = new Elf64_Phdr();
             programHeader.load(buffer, (int) programHeaderOffset);
 
-            // the first program header is checked it if has the PL_LOAD type and if it has
+            // the program header is checked it if has the PL_LOAD type and if it has
             // the executable flag
             if (programHeader.p_type != SEGMENT_TYPE.PT_LOAD) {
 
-                // throw new RuntimeException("Not an loadable program header!");
-                System.out.println("Not an loadable program header!");
+                // throw new RuntimeException("Not a loadable program header!");
+                System.out.println("Not a loadable program header!");
 
                 // next program header
                 programHeaderOffset += elf64_Ehdr.e_phentsize;
