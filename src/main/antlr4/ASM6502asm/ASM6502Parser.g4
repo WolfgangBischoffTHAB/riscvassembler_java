@@ -24,12 +24,13 @@ asm_file :
     ;
 
 asm_line :
-//    ( label COLON )?
     ( label COLON? )?
     (
         mnemonic params?
         |
         assembler_instruction
+        |
+        macro_usage
     )?
     ;
 
@@ -56,6 +57,7 @@ label :
 
 mnemonic :
     I_ADC | I_AND |
+    I_BCC | I_BCS | I_BNE | I_BEQ | I_BPL | I_BMI | I_BVC | I_BVS |
     I_CLC |
     I_INC |
     I_JMP |
@@ -167,6 +169,8 @@ assembler_instruction :
     size_assembler_instruction
     |
     ident_assembler_instruction
+    |
+    macro_assembler_instruction
     ;
 
 attribute_assembler_instruction :
@@ -277,14 +281,25 @@ ident_assembler_instruction :
     DOT_IDENT STRING_LITERAL
     ;
 
-// csv_identifier_list :
-//    IDENTIFIER COMMA csv_identifier_list
-//    |
-//    IDENTIFIER
-//    ;
+macro_assembler_instruction :
+    DOT_MACRO IDENTIFIER OPENING_BRACKET csv_identifier_list? CLOSING_BRACKET ( NEWLINE )*
+    CURLY_OPENING_BRACKET ( NEWLINE )*
+    asm_file
+    CURLY_CLOSING_BRACKET ( NEWLINE )*
+    ;
+
+csv_identifier_list :
+    IDENTIFIER COMMA csv_identifier_list
+    |
+    IDENTIFIER
+    ;
 
 csv_numeric_list :
     ( BIN_NUMERIC | DEC_NUMERIC | HEX_NUMERIC ) COMMA csv_numeric_list
     |
     ( BIN_NUMERIC | DEC_NUMERIC | HEX_NUMERIC )
+    ;
+
+macro_usage :
+    IDENTIFIER OPENING_BRACKET csv_identifier_list? CLOSING_BRACKET
     ;

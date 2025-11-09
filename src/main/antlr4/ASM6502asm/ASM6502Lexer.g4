@@ -70,6 +70,7 @@ DOT_STRING : DOT S T R I N G ;
 DOT_OPTION : DOT O P T I O N ;
 DOT_SIZE : DOT S I Z E ;
 DOT_IDENT : DOT I D E N T ;
+DOT_MACRO : DOT M A C R O ;
 
 I_ADC : A D C ;
 I_AND : A N D ;
@@ -88,6 +89,15 @@ I_AND : A N D ;
 //I_BLE : B L E ;
 //I_BNE : B N E ;
 //I_BNEZ : B N E Z ;
+
+I_BCC : B C C ; // Branch on Carry Clear
+I_BCS : B C S ; // Branch on Carry Set
+I_BNE : B N E ; // Branch on Not Equal
+I_BEQ : B E Q ; // Branch on EQual
+I_BPL : B P L ; // Branch on PLus
+I_BMI : B M I ; // Branch on MInus
+I_BVC : B V C ; // Branch on oVerflow Clear
+I_BVS : B V S ; // Branch on oVerflow Set
 
 //I_CALL : C A L L ;
 I_CLC : C L C ;
@@ -150,6 +160,8 @@ COLON : ':' ;
 COMMA : ',' ;
 OPENING_BRACKET : '(' ;
 CLOSING_BRACKET : ')' ;
+CURLY_OPENING_BRACKET : '{' ;
+CURLY_CLOSING_BRACKET : '}' ;
 HASH : '#' ;
 
 // https://en.wikibooks.org/wiki/6502_Assembly
