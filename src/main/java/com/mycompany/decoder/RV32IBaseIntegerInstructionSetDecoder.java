@@ -1475,16 +1475,17 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 break;
 
             case NEORV32_XTEA_EXTENSION_I_TYPE:
-                System.out.println("XTEA_EXTENSION I_TYPE");
+                // System.out.println("XTEA_EXTENSION I_TYPE");
                 switch (funct3) {
 
                     case 0b000:
-                        logger.info("xtea_key_read");
+                        // logger.info("xtea_key_read");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_KEY_READ;
+                        decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                         break;
 
                     case 0b001:
-                        logger.info("xtea_key_write");
+                        // logger.info("xtea_key_write");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_KEY_WRITE;
                         decodeIType_1(asmLine, funct3, funct7, rd, rs1, imm_11_0);
                         break;
@@ -1495,37 +1496,43 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 break;
             
             case NEORV32_XTEA_EXTENSION_R_TYPE:
-                System.out.println("XTEA_EXTENSION R_TYPE");
+                // System.out.println("XTEA_EXTENSION R_TYPE");
                 switch (funct3) {
 
                     case 0b000:
-                        logger.info("xtea_hw_enc_v0_step");
+                        // logger.info("xtea_hw_enc_v0_step");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_ENC_V0_C;
+                        decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                         break;
 
                     case 0b001:
-                        logger.info("xtea_hw_enc_v1_step");
+                        // logger.info("xtea_hw_enc_v1_step");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_ENC_V1_C;
+                        decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                         break;
 
                     case 0b010:
-                        logger.info("xtea_hw_dec_v0_step");
+                        // logger.info("xtea_hw_dec_v0_step");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_DEC_V0_C;
+                        decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                         break;
 
                     case 0b011:
-                        logger.info("xtea_hw_dec_v1_step");
+                        // logger.info("xtea_hw_dec_v1_step");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_DEC_V1_C;
+                        decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                         break;
 
                     case 0b100:
-                        logger.info("xtea_hw_init");
+                        // logger.info("xtea_hw_init");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_INIT_C;
+                        decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                         break;
 
                     case 0b111:
                         logger.info("xtea_hw_illegal_inst");
                         asmLine.mnemonic = Mnemonic.I_NEORV32_XTEA_ILLEGAL_INST_C;
+                        decodeRType(asmLine, funct3, funct7, rd, rs1, rs2);
                         break;
                     
                     default:

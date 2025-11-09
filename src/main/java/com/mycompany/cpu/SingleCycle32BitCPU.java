@@ -77,6 +77,17 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     private BufferedWriter traceBufferedWriter;
 
+    //
+    // NEORV32 xtea
+    //
+
+    int xtea_sum = 0;
+    final int xtea_delta = 0x000000009e3779b9;
+    int[] xtea_key = new int[4];
+
+    int v0;
+    int v1;
+
     public int readRegisterFile(int index) {
 
         // register zero is hardcoded zero
@@ -213,6 +224,11 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int register_0_value;
         int register_1_value;
         int register_2_value;
+
+        Long numeric_0_value;
+        Long numeric_1_value;
+        Long numeric_2_value;
+
         byte[] let;
         StringBuilder stringBuilder;
 
@@ -229,6 +245,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         int csrId;
         int csrValue;
+
+        
 
         switch (asmLine.mnemonic) {
 
@@ -1945,6 +1963,18 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_NEORV32_XTEA_KEY_READ: " + asmLine);
                 }
+
+                // the register rs1 contains the 32-bit key to write
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+
+                // numeric_2 is the index of the key-store to place the key into
+                numeric_2_value = asmLine.numeric_2;
+
+                logger.info("key[" + numeric_2_value.intValue() + "] = " + ByteArrayUtil.intToHex(register_1_value));
+                
+                // store the key from the key array into the return register
+                writeRegisterFile(asmLine.register_0.getIndex(), (int)xtea_key[numeric_2_value.intValue()]);
+
                 pc += asmLine.encodedLength;
                 break;
 
@@ -1955,10 +1985,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // the register rs1 contains the 32-bit key to write
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
 
-                Long numeric_2 = asmLine.numeric_2;
+                // numeric_2 is the index of the key-store to place the key into
+                numeric_2_value = asmLine.numeric_2;
 
-                logger.info("key[" + numeric_2.intValue() + "] = " + ByteArrayUtil.intToHex(register_1_value));
+                logger.info("key[" + numeric_2_value.intValue() + "] = " + ByteArrayUtil.intToHex(register_1_value));
                 
+                // store the key into the key array
+                xtea_key[numeric_2_value.intValue()] = register_1_value;
+
                 pc += asmLine.encodedLength;
                 break;
 
@@ -1966,6 +2000,30 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_NEORV32_XTEA_ENC_V0_C: " + asmLine);
                 }
+
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value = readRegisterFile(asmLine.register_2.getIndex());
+
+                v0 = register_1_value;
+                v1 = register_2_value;
+
+                // v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
+                // IN JAVA: YOU NEED TO USE THE tripple RIGHT SHIFT OPERATOR!!!
+                v0 += (int) (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (xtea_sum + xtea_key[(int)(xtea_sum & 3)]);
+
+                logger.info("v0: " + ByteArrayUtil.byteToHex(v0));
+                
+                // sum += xtea_delta;
+                //xtea_sum += xtea_delta;
+                xtea_sum += 0x9e3779b9;
+
+                logger.info("sum: " + ByteArrayUtil.byteToHex(xtea_sum));
+
+                // v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum>>11) & 3]);
+                // v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (xtea_sum + xtea_key[(xtea_sum>>11) & 3]);
+
+                writeRegisterFile(asmLine.register_1.getIndex(), (int) v0);
+
                 pc += asmLine.encodedLength;
                 break;
 
@@ -1973,6 +2031,44 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_NEORV32_XTEA_ENC_V1_C: " + asmLine);
                 }
+
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value = readRegisterFile(asmLine.register_2.getIndex());
+
+                v0 = register_1_value;
+                v1 = register_2_value;
+
+                // v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
+                //v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (xtea_sum + xtea_key[xtea_sum & 3]);
+                
+                // sum += xtea_delta;
+                //xtea_sum += xtea_delta;
+
+                // v1  += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum>>11) & 3]);
+                int keyIndexV1 =  (int) ( (((int) xtea_sum) >> 11) & 3L);
+                // v1 += (int) (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (xtea_sum + xtea_key[ keyIndexV1 ]);
+
+                int a = (v0 << 4);
+                logger.info("a: " + ByteArrayUtil.byteToHex(a));
+                // IN JAVA: YOU NEED TO USE THE tripple RIGHT SHIFT OPERATOR!!!
+                int b = (v0 >>> 5);
+                logger.info("b: " + ByteArrayUtil.byteToHex(b));
+                int c = a ^ b;
+                logger.info("c: " + ByteArrayUtil.byteToHex(c));
+                int d = c + v0;
+                logger.info("d: " + ByteArrayUtil.byteToHex(d));
+                int e = xtea_sum + xtea_key[keyIndexV1];
+                logger.info("e: " + ByteArrayUtil.byteToHex(e));
+                int f = d ^ e;
+                logger.info("f: " + ByteArrayUtil.byteToHex(f));
+
+                v1 += f;
+
+                logger.info("v1: " + ByteArrayUtil.byteToHex(v1));
+                logger.info("");
+
+                writeRegisterFile(asmLine.register_2.getIndex(), v1);
+
                 pc += asmLine.encodedLength;
                 break;
 
@@ -1980,6 +2076,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_NEORV32_XTEA_DEC_V0_C: " + asmLine);
                 }
+
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value = readRegisterFile(asmLine.register_2.getIndex());
+
                 pc += asmLine.encodedLength;
                 break;
 
@@ -1987,6 +2087,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_NEORV32_XTEA_DEC_V1_C: " + asmLine);
                 }
+
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value = readRegisterFile(asmLine.register_2.getIndex());
+
                 pc += asmLine.encodedLength;
                 break;
 
@@ -1994,6 +2098,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_NEORV32_XTEA_INIT_C: " + asmLine);
                 }
+
+                // initial sum value is stored in register rs1
+                xtea_sum = readRegisterFile(asmLine.register_1.getIndex());
+
                 pc += asmLine.encodedLength;
                 break;
 
