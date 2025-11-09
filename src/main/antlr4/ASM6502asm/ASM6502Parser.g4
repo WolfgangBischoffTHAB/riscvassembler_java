@@ -1,6 +1,8 @@
 // $antlr-format alignTrailingComments true, columnLimit 150, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments false, useTab false
 // $antlr-format allowShortRulesOnASingleLine false, allowShortBlocksOnASingleLine true, alignSemicolons hanging, alignColons hanging
 
+// start-symbol: asm_file
+
 parser grammar ASM6502Parser;
 
 options {
@@ -22,9 +24,10 @@ asm_file :
     ;
 
 asm_line :
-    ( label COLON )?
+//    ( label COLON )?
+    ( label COLON? )?
     (
-        mnemonic params
+        mnemonic params?
         |
         assembler_instruction
     )?
@@ -32,8 +35,8 @@ asm_line :
 
 label :
     IDENTIFIER
-    |
-    BIN_NUMERIC | DEC_NUMERIC | HEX_NUMERIC
+//   |
+//    BIN_NUMERIC | DEC_NUMERIC | HEX_NUMERIC
     ;
 
 // mnemonic :
@@ -52,11 +55,12 @@ label :
 //    ;
 
 mnemonic :
-    I_AND
-    |
-    I_LDA
-    |
-    I_STA
+    I_ADC | I_AND |
+    I_CLC |
+    I_INC |
+    I_JMP |
+    I_LDA |
+    I_SEC | I_STA
     ;
 
 params :
@@ -66,13 +70,19 @@ params :
 param :
     immediate
     |
-    expr
+    address
+//    |
+//    expr
 //    |
 //    offset ( OPENING_BRACKET expr CLOSING_BRACKET )?
     ;
 
 immediate :
     HASH expr
+    ;
+
+address :
+    expr
     ;
 
 offset :
@@ -94,8 +104,6 @@ expr :
     |
     OPENING_BRACKET expr CLOSING_BRACKET
     |
-    register
-    |
     BIN_NUMERIC | DEC_NUMERIC | HEX_NUMERIC
     |
     IDENTIFIER
@@ -103,49 +111,6 @@ expr :
     STRING_LITERAL
     |
     DOT
-    ;
-
-register :
-    REG_ZERO_ABI |
-
-    REG_AT_ABI |
-
-    REG_V0_ABI |
-    REG_V1_ABI |
-
-    REG_A0_ABI |
-    REG_A1_ABI |
-    REG_A2_ABI |
-    REG_A3_ABI |
-
-    REG_T0_ABI |
-    REG_T1_ABI |
-    REG_T2_ABI |
-    REG_T3_ABI |
-    REG_T4_ABI |
-    REG_T5_ABI |
-    REG_T6_ABI |
-    REG_T7_ABI |
-
-    REG_S0_ABI |
-    REG_S1_ABI |
-    REG_S2_ABI |
-    REG_S3_ABI |
-    REG_S4_ABI |
-    REG_S5_ABI |
-    REG_S6_ABI |
-    REG_S7_ABI |
-
-    REG_T8_ABI |
-    REG_T9_ABI |
-
-    REG_K0_ABI |
-    REG_K1_ABI |
-
-    REG_GP_ABI |
-    REG_SP_ABI |
-    REG_FP_ABI |
-    REG_RA_ABI
     ;
 
 assembler_instruction :
@@ -163,28 +128,28 @@ assembler_instruction :
     |
     section_definition_assembler_instruction
     |
-    globl_assembler_instruction
-    |
-    global_assembler_instruction
-    |
+//    globl_assembler_instruction
+//    |
+//    global_assembler_instruction
+//    |
     text_assembler_instruction
     |
-    type_assembler_instruction
-    |
+//    type_assembler_instruction
+//    |
     data_assembler_instruction
     |
     byte_assembler_instruction
     |
-    space_assembler_instruction
-    |
-    half_assembler_instruction
-    |
-    word_assembler_instruction
-    |
+//    space_assembler_instruction
+//    |
+//    half_assembler_instruction
+//    |
+//    word_assembler_instruction
+//    |
     weak_assembler_instruction
     |
-    dword_assembler_instruction
-    |
+//    dword_assembler_instruction
+//    |
     file_assembler_instruction
     |
     skip_assembler_instruction
@@ -232,21 +197,21 @@ section_definition_assembler_instruction :
     DOT_SECTION ( IDENTIFIER | DOT_RODATA |  DOT_TEXT )
     ;
 
-globl_assembler_instruction :
-    DOT_GLOBL csv_identifier_list
-    ;
+//globl_assembler_instruction :
+//    DOT_GLOBL csv_identifier_list
+//    ;
 
-global_assembler_instruction :
-    DOT_GLOBAL csv_identifier_list
-    ;
+//global_assembler_instruction :
+//    DOT_GLOBAL csv_identifier_list
+//    ;
 
 text_assembler_instruction :
     DOT_TEXT
     ;
 
-type_assembler_instruction :
-    DOT_TYPE csv_identifier_list
-    ;
+//type_assembler_instruction :
+//    DOT_TYPE csv_identifier_list
+//    ;
 
 data_assembler_instruction :
     DOT_DATA
@@ -256,25 +221,25 @@ byte_assembler_instruction :
     DOT_BYTE csv_numeric_list
     ;
 
-space_assembler_instruction :
-    DOT_SPACE csv_numeric_list
-    ;
+//space_assembler_instruction :
+//    DOT_SPACE csv_numeric_list
+//    ;
 
-half_assembler_instruction :
-    DOT_HALF csv_numeric_list
-    ;
+//half_assembler_instruction :
+//    DOT_HALF csv_numeric_list
+//    ;
 
 weak_assembler_instruction :
     DOT_WEAK IDENTIFIER
     ;
 
-word_assembler_instruction :
-    DOT_WORD csv_numeric_list
-    ;
+//word_assembler_instruction :
+//    DOT_WORD csv_numeric_list
+//    ;
 
-dword_assembler_instruction :
-    DOT_DWORD csv_numeric_list
-    ;
+//dword_assembler_instruction :
+//    DOT_DWORD csv_numeric_list
+//    ;
 
 file_assembler_instruction :
     DOT_FILE expr
@@ -312,11 +277,11 @@ ident_assembler_instruction :
     DOT_IDENT STRING_LITERAL
     ;
 
-csv_identifier_list :
-    IDENTIFIER COMMA csv_identifier_list
-    |
-    IDENTIFIER
-    ;
+// csv_identifier_list :
+//    IDENTIFIER COMMA csv_identifier_list
+//    |
+//    IDENTIFIER
+//    ;
 
 csv_numeric_list :
     ( BIN_NUMERIC | DEC_NUMERIC | HEX_NUMERIC ) COMMA csv_numeric_list

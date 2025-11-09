@@ -71,6 +71,7 @@ DOT_OPTION : DOT O P T I O N ;
 DOT_SIZE : DOT S I Z E ;
 DOT_IDENT : DOT I D E N T ;
 
+I_ADC : A D C ;
 I_AND : A N D ;
 //I_ADD : A D D ;
 //I_ADDI : A D D I ;
@@ -89,12 +90,18 @@ I_AND : A N D ;
 //I_BNEZ : B N E Z ;
 
 //I_CALL : C A L L ;
+I_CLC : C L C ;
+
 //I_ECALL : E C A L L ;
+
+I_INC : I N C ;
 
 //I_J : J ;
 //I_JR : J R ;
 //I_JAL : J A L ;
 //I_JALR : J A L R ;
+
+I_JMP : J M P ;
 
 //I_LA : L A ;
 //I_LD : L D ;
@@ -117,6 +124,7 @@ I_LDA : L D A ;
 //I_RET : R E T ;
 
 I_STA : S T A ;
+I_SEC : S E C ; 
 //I_SLT : S L T ;
 //I_SRAI : S R A I ;
 //I_SRLI : S R L I ;
@@ -132,94 +140,6 @@ I_STA : S T A ;
 
 //I_XORI : X O R I ;
 
-//
-// Registers
-//
-
-REG_ZERO_ABI : DOLLAR Z E R O ; // 0
-
-REG_AT_ABI : DOLLAR A T ; // 1
-
-REG_V0_ABI : DOLLAR V '0' ; // 2
-REG_V1_ABI : DOLLAR V '1' ; // 3
-
-REG_A0_ABI : DOLLAR A '0' ; // 4
-REG_A1_ABI : DOLLAR A '1' ; // 5
-REG_A2_ABI : DOLLAR A '2' ; // 6
-REG_A3_ABI : DOLLAR A '3' ; // 7
-
-REG_T0_ABI : DOLLAR T '0' ; // 8
-REG_T1_ABI : DOLLAR T '1' ;
-REG_T2_ABI : DOLLAR T '2' ;
-REG_T3_ABI : DOLLAR T '3' ;
-REG_T4_ABI : DOLLAR T '4' ;
-REG_T5_ABI : DOLLAR T '5' ;
-REG_T6_ABI : DOLLAR T '6' ;
-REG_T7_ABI : DOLLAR T '7' ; // 15
-
-REG_S0_ABI : DOLLAR S '0' ; // 16
-REG_S1_ABI : DOLLAR S '1' ;
-REG_S2_ABI : DOLLAR S '2' ;
-REG_S3_ABI : DOLLAR S '3' ;
-REG_S4_ABI : DOLLAR S '4' ;
-REG_S5_ABI : DOLLAR S '5' ;
-REG_S6_ABI : DOLLAR S '6' ;
-REG_S7_ABI : DOLLAR S '7' ; // 23
-
-REG_T8_ABI : DOLLAR T '8' ; // 24
-REG_T9_ABI : DOLLAR T '9' ; // 25
-
-REG_K0_ABI : DOLLAR K '0' ; // 26 // reserved for use by the interrupt/trap handler
-REG_K1_ABI : DOLLAR K '1' ; // 27 // reserved for use by the interrupt/trap handler
-
-REG_GP_ABI : DOLLAR G P ; // 28 // global pointer. Points to the middle of the 64K block of memory in the static data segment.
-REG_SP_ABI : DOLLAR S P ; // 29 // stack pointer. Points to last location on the stack.
-REG_FP_ABI : DOLLAR F P ; // 30 // saved value / frame pointer. Preserved across procedure calls
-REG_RA_ABI : DOLLAR R A ; // 31 // return address
-
-//
-// register names without ABI (does not exist for MIPS only for RISCV)
-//
-
-//REG_ZERO : DOLLAR X '0' ; // 0, Hard-wired zero
-//REG_RA   : DOLLAR X '1' ; // 1, Return address
-//REG_SP   : DOLLAR X '2' ; // 2, Stack pointer
-//REG_GP   : DOLLAR X '3' ; // 3, Global pointer
-//REG_TP   : DOLLAR X '4' ; // 4, Thread pointer
-//
-//REG_T0  : DOLLAR X '5' ; // 5, Temporary/alternate link register
-//REG_T1  : DOLLAR X '6' ; // 6, Temporary
-//REG_T2  : DOLLAR X '7' ; // 7, Temporary
-//
-//REG_S0  : DOLLAR X '8' ; // 8, Saved register/frame pointer
-//REG_S1  : DOLLAR X '9' ; // 9, Saved register
-//
-//REG_A0  : DOLLAR X '1' '0' ; // 10, Function arguments/return values
-//REG_A1  : DOLLAR X '1' '1' ; // 11, Function arguments/return values
-//
-//REG_A2  : DOLLAR X '1' '2' ; // 12, Function arguments
-//REG_A3  : DOLLAR X '1' '3' ; // 13, Function arguments
-//REG_A4  : DOLLAR X '1' '4' ; // 14, Function arguments
-//REG_A5  : DOLLAR X '1' '5' ; // 15, Function arguments
-//REG_A6  : DOLLAR X '1' '6' ; // 16, Function arguments
-//REG_A7  : DOLLAR X '1' '7' ; // 17, Function arguments
-//
-//REG_S2  : DOLLAR X '1' '8' ; // 18, Saved registers
-//REG_S3  : DOLLAR X '1' '9' ; // 19, Saved registers
-//REG_S4  : DOLLAR X '2' '0' ; // 20, Saved registers
-//REG_S5  : DOLLAR X '2' '1' ; // 21, Saved registers
-//REG_S6  : DOLLAR X '2' '2' ; // 22, Saved registers
-//REG_S7  : DOLLAR X '2' '3' ; // 23, Saved registers
-//REG_S8  : DOLLAR X '2' '4' ; // 24, Saved registers
-//REG_S9  : DOLLAR X '2' '5' ; // 25, Saved registers
-//REG_S10 : DOLLAR X '2' '6' ; // 26, Saved registers
-//REG_S11 : DOLLAR X '2' '7' ; // 27, Saved registers
-//
-//REG_T3 : DOLLAR X '2' '8' ; // 28, Temporary
-//REG_T4 : DOLLAR X '2' '9' ; // 29, Temporary
-//REG_T5 : DOLLAR X '3' '0' ; // 30, Temporary
-//REG_T6 : DOLLAR X '3' '1' ; // 31, Temporary
-
 ASTERISK : '*' ;
 PLUS : '+' ;
 MINUS : '-' ;
@@ -232,6 +152,7 @@ OPENING_BRACKET : '(' ;
 CLOSING_BRACKET : ')' ;
 HASH : '#' ;
 
+// https://en.wikibooks.org/wiki/6502_Assembly
 BIN_NUMERIC : '%' [0-1]+ ;
 DEC_NUMERIC : '-'? [0-9]+ ;
 HEX_NUMERIC : '$' [a-fA-F0-9]+ ;

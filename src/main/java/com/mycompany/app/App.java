@@ -130,6 +130,10 @@ public class App {
         // // String inputFile = "src/test/resources/mipsasm/instructions/add.asm";
         // args[0] = inputFile;
         // mainMIPS(args);
+
+        //
+        // 6502
+        //
     }
 
     public static void mainRISCV(String[] args) throws IOException {
