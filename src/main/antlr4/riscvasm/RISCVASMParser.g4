@@ -66,7 +66,14 @@ mnemonic :
     I_NOP | I_NOT |
     I_OR |
     I_RET |
-    I_SLT | I_SRA | I_SRAI | I_SRL | I_SRLI | I_SLL | I_SLLI | I_SLTU | I_SLTIU | I_SUB | I_SD | I_SW | I_SH | I_SB |
+    // shifts
+    I_SLL | I_SLLI | I_SRL | I_SRLI | I_SRA | I_SRAI |
+    // set flags
+    I_SLT | I_SLTI | I_SLTU | I_SLTIU | I_SEQZ | I_SNEZ | I_SLTZ | I_SGTZ |
+    // subtract
+    I_SUB | 
+    // stores
+    I_SD | I_SW | I_SH | I_SB |
     I_WFI |
     I_XOR | I_XORI |
 

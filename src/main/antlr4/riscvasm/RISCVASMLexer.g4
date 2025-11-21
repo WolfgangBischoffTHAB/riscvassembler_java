@@ -134,15 +134,23 @@ I_OR : O R ;
 
 I_RET : R E T ;
 
-I_SLT : S L T ;
-I_SRA : S R A ;
-I_SRAI : S R A I ;
-I_SRL : S R L ;
-I_SRLI : S R L I ;
+// shifts
 I_SLL : S L L ;
 I_SLLI : S L L I ;
+I_SRL : S R L ;
+I_SRLI : S R L I ;
+I_SRA : S R A ;
+I_SRAI : S R A I ;
+// set flags
+I_SLT : S L T ;
+I_SLTI : S L T I ;
 I_SLTU : S L T U ;
 I_SLTIU : S L T I U ;
+I_SEQZ : S E Q Z ;
+I_SNEZ : S N E Z ;
+I_SLTZ : S L T Z ;
+I_SGTZ : S G T Z ;
+// subtract
 I_SUB : S U B ;
 // I_SD : S D ; // see RV64 extension section
 I_SW : S W ;

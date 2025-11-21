@@ -50,6 +50,7 @@ import com.mycompany.pseudo.resolve.LiResolver;
 import com.mycompany.pseudo.resolve.MvResolver;
 import com.mycompany.pseudo.resolve.NopResolver;
 import com.mycompany.pseudo.resolve.RetResolver;
+import com.mycompany.pseudo.resolve.SeqzResolver;
 import com.mycompany.visitor.RISCASMExtractingOutputListener;
 
 import riscvasm.RISCVASMLexer;
@@ -204,7 +205,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         for (AsmLine<?> asmLine : asmLines) {
 
             // DEBUG
-            System.out.println(asmLine);
+            // System.out.println(asmLine);
 
             if (asmLine.asmInstruction == AsmInstruction.EQU) {
                 continue;
@@ -340,6 +341,9 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         CsrrResolver csrrResolver = new CsrrResolver();
         csrrResolver.modify(asmLines, sectionMap);
+
+        SeqzResolver seqzResolver = new SeqzResolver();
+        seqzResolver.modify(asmLines, sectionMap);
 
         // // DEBUG
         // for (AsmLine asmLine : asmLines) {

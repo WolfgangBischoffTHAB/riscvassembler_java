@@ -24,7 +24,8 @@ public class JrResolver  implements AsmInstructionListModifier<RISCVRegister> {
                 continue;
             }
 
-            System.out.println(asmLine);
+            // DEBUG - before
+            // System.out.println(asmLine);
 
             asmLine.mnemonic = Mnemonic.I_JALR;
 
@@ -35,6 +36,9 @@ public class JrResolver  implements AsmInstructionListModifier<RISCVRegister> {
 
             // 2. override register_0
             asmLine.register_0 = RISCVRegister.REG_ZERO;
+
+            // DEBUG - after
+            // System.out.println(asmLine);
         }
     }
 

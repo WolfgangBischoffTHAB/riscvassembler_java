@@ -64,12 +64,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     // private boolean singleStepping = true;
     private boolean singleStepping = false;
 
+    // print instructions inside the instruction executors
     // private boolean printInstructions = true;
     private boolean printInstructions = false;
 
-    private int mcycle = 0x00;
+    private boolean debugASMLineOutput = true;
+    // private boolean debugASMLineOutput = false;
 
-    private boolean debugASMLineOutput;
+    private int mcycle = 0x00;
 
     private Random random = new Random();
 
@@ -179,8 +181,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         }
 
         // DEBUG output ASM line
-        // debugASMLineOutput = true;
-        debugASMLineOutput = false;
+       
         if (debugASMLineOutput) {
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -204,7 +205,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
             // DEBUG
             logger.info(tempData);
-            logger.info("");
+            // logger.info("");
         }
 
         // logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" +
@@ -245,8 +246,6 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         int csrId;
         int csrValue;
-
-        
 
         switch (asmLine.mnemonic) {
 
@@ -302,6 +301,29 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 logger.trace("New: " + ByteArrayUtil.byteToHex(result));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result);
+
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
+            case I_ADD1: // custom test instruction
+                if (printInstructions) {
+                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " add1: " + asmLine);
+                }
+                
+                // Format: addi rd, rs1, rs2
+                // Description: Performs ADD on register rs1 and rs2 + an implicit immediate 1
+                // and places the result in rd.
+                // Implementation: rd = rs1 + rs2 + 1
+
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+                register_2_value = readRegisterFile(asmLine.register_2.getIndex());
+
+                // and operation
+                value = register_1_value + register_2_value + 1;
+
+                // write back
+                writeRegisterFile(asmLine.register_0.getIndex(), value);
 
                 // increment PC
                 pc += asmLine.encodedLength;

@@ -150,7 +150,8 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                     auipc.label = foundAsmLine.label;
                 }
 
-                System.out.println(auipc);
+                // DEBUG
+                // System.out.println(auipc);
 
                 //
                 // jalr
@@ -176,7 +177,8 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                     jalr.offsetLabel_2 = foundAsmLine.identifier_1;
                 }
 
-                System.out.println(jalr);
+                // DEBUG
+                // System.out.println(jalr);
 
                 continue;
             }

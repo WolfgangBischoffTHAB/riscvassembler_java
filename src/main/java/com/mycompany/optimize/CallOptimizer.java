@@ -73,7 +73,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
             String offsetLabel = firstAsmLine.offsetLabel_1;
 
             if (!labelTableMap.containsKey(offsetLabel)) {
-                throw new RuntimeException("The function \"" + offsetLabel + "\" is not defined!");
+                throw new RuntimeException("The function/Label \"" + offsetLabel + "\" is not defined!");
             }
 
             // determine movement direction towards label (use label table for that)
@@ -204,7 +204,8 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     asmLine.register_0 = RISCVRegister.REG_RA;
                     asmLine.numeric_1 = lowValue - secondAsmLine.offset + 4;
 
-                    System.out.println(asmLine);
+                    // DEBUG
+                    // System.out.println(asmLine);
 
                     callPseudoAsmLine.optimized = true;
                     callPseudoAsmLine.pseudoInstructionChildren.clear();

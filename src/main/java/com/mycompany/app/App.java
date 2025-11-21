@@ -1,7 +1,9 @@
 package com.mycompany.app;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -65,28 +67,39 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Raw Machine Code
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
     // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     // private static final boolean MACHINE_CODE_SOURCE_RAW = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // ASCII Machine Code
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ASCII = true;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Linux Kernel image
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
     // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = true;
 
     public static void main(String[] args) throws IOException {
@@ -227,12 +240,14 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/examples/scratchpad_2.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/standard_matrix_mult.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/load_submatrix_9x9.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester.s";
+            String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_2.s";
 
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
 
-            String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
+            // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
             // @formatter:on
 
@@ -318,9 +333,9 @@ public class App {
                     byte[] machineCode = section.byteArrayOutStream.toByteArray();
 
                     // DEBUG output the byte array to the console
-                    // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+                    ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
                     // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-                    // outputHexMachineCode(byteArray, byteOrder);
+                    BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
 
                     int curPos = (int) section.outputSection.currentPosition;
                     // memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
@@ -367,7 +382,8 @@ public class App {
             // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
             // elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
             // elf.setFile("C:/Users/lapto/dev/riscv/egos/src/P0_Hello_World/hello.elf");
-            elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/demo_cfu/main.elf");
+            // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/demo_cfu/main.elf");
+            elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/add1/main.elf");
 
             // elf.load();
 
@@ -721,6 +737,55 @@ public class App {
             startAddress = 0xFFE00000;
 
             byte[] machineCode = Files.readAllBytes(Paths.get(inputFile));
+
+            memory.copy(curPos, machineCode, 0, machineCode.length);
+
+            //
+            // emulate
+            //
+
+            CPU cpu = emulate(memory, startAddress, globalPointerValue, stackPointerValue);
+
+        }
+
+        if (MACHINE_CODE_SOURCE_ASCII) {
+
+            String inputFile = "src/test/resources/riscvraw/neorv32_bootloader_little_endian.ascii";
+
+            if (inputFile == null) {
+                throw new RuntimeException("No input file!");
+            }
+
+            // the neorv32 processor loads the bootloader into NEORV32_BOOTROM_BASE which
+            // is defined to be 0xFFE00000U in neorv32.h. The precompiled raw bootloader
+            // consists of code that is not relocatable but hardwired to those locations!
+            // int curPos = 0;
+            int curPos = 0xFFE00000;
+
+            startAddress = 0xFFE00000;
+
+            byte[] machineCode = new byte[1024 * 8];
+
+            int index = 0;
+
+            try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+
+                String line;
+                while ((line = br.readLine()) != null) {
+
+                    //int value = Integer.parseInt(line, 16);
+                    long value = Long.parseLong(line, 16);
+                    // logger.info(ByteArrayUtil.byteToHex(value) + " (" + value + ")");
+
+                    byte[] data = ByteArrayUtil.intToFourByte((int) value, ByteOrder.LITTLE_ENDIAN);
+                    machineCode[index++] = data[0];
+                    machineCode[index++] = data[1];
+                    machineCode[index++] = data[2];
+                    machineCode[index++] = data[3];
+                }
+            }
+
+            // byte[] machineCode = Files.readAllBytes(Paths.get(inputFile));
 
             memory.copy(curPos, machineCode, 0, machineCode.length);
 

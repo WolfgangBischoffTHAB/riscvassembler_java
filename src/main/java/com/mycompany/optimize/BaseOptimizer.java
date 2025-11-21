@@ -287,7 +287,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        System.out.println("found");
+                        // DEBUG
+                        // System.out.println("found");
                         asmLine.numeric_0 = offset;
                     }
 
@@ -307,7 +308,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        System.out.println("found");
+                        // DEBUG
+                        // System.out.println("found");
                         asmLine.numeric_0 = offset;
                     }
 
@@ -342,7 +344,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        System.out.println("found");
+                        // System.out.println("found");
                         asmLine.numeric_1 = offset;
                     }
 
@@ -362,7 +364,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        System.out.println("found");
+                        // System.out.println("found");
                         asmLine.numeric_1 = offset;
                     }
 
@@ -418,7 +420,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        System.out.println("found");
+                        // System.out.println("found");
                         asmLine.numeric_2 = offset;
                     }
 
@@ -466,6 +468,10 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
     public static void resolveModifiers(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> labelAddressMap) {
 
         int offset = 4;
+
+        // initialize PC with the start symbol
+        // TODO: what if the source code does not use the specific _start label?
+        // What if the source code uses main: for example?
         long pc = labelAddressMap.get("_start");
 
         // connect lines to each other for easier traversal

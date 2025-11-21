@@ -189,19 +189,14 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             return result;
         }
 
-        // // emulator extension PUTS
-        // if (data == 0x11111111) {
-        // asmLine.mnemonic = Mnemonic.I_PUTS;
-        // return asmLine;
-        // }
-
         // DEBUG
         if (logger.isTraceEnabled()) {
             logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
         }
 
         //
-        // Compressed
+        // Compressed - if the lowermost two bits are set, the instruction is a full, 
+        // uncompressed instruction (not compressed)
         //
 
         int opcode_c = instruction & 0b11;
@@ -819,6 +814,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int pred = (data >> 24) & 0b1111;
         int succ = (data >> 20) & 0b1111;
 
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(ByteArrayUtil.intToHex("%08x", data));
+        System.out.println(stringBuilder.toString());
+
         int vm = 0;
 
         switch (opcode) {
@@ -928,6 +927,19 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
+                    case 0b1000000:
+                        switch (funct3) {
+
+                            case 0b000:
+                                asmLine.mnemonic = Mnemonic.I_ADD1;
+                                break;
+
+                            default:
+                                throw new RuntimeException(
+                                        "Unknown funct3: " + funct3 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
+                        }
+                        break;
+                    
                     default:
                         throw new RuntimeException(
                                 "Unknown funct7: " + funct7 + " in mnemonic " + ByteArrayUtil.byteToHex(data));
@@ -1335,7 +1347,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                                 logger.info("vill: " + vill);
 
-                                StringBuilder stringBuilder = new StringBuilder();
+                                stringBuilder = new StringBuilder();
                                 stringBuilder.append("vsetvli ");
                                 stringBuilder.append(Register.toStringAbi(asmLine.register_0)).append(", ");
                                 stringBuilder.append(Register.toStringAbi(asmLine.register_1)).append(", ");

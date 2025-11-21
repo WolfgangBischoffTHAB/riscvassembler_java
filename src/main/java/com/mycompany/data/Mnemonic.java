@@ -22,6 +22,9 @@ public enum Mnemonic {
     I_ANDI(false),
     I_AUIPC(false),
 
+    // custom test
+    I_ADD1(false),
+
     I_BEQ(false),
     I_BEQZ(true),
     I_BGE(false),
@@ -48,7 +51,7 @@ public enum Mnemonic {
     I_FENCE(false),
 
     I_J(true),
-    I_JR(false),
+    I_JR(true), // JR - Jump Register - jalr x0, rs, 0 (see RISC-V Assembly Programmer's Manual)
     I_JALR(false),
     I_JAL(false), // rd <- pc + 4; pc <- pc + imm20
 
@@ -73,17 +76,40 @@ public enum Mnemonic {
 
     I_RET(true), // Return from subroutine Implementation: JALR zero, 0(ra)
 
-    I_SRA(false),
-    I_SRAI(false),
+    // shift instructions
+    I_SLL(false),
+    I_SLLI(false),
     I_SRL(false),
     I_SRLI(false),
-    I_SLLI(false),
-    I_SLTI(false),
-    I_SLTIU(false),
-    I_SUB(false),
-    I_SLL(false),
+    I_SRA(false),
+    I_SRAI(false),
+    
+    // set instructions - https://projectf.io/posts/riscv-cheat-sheet/
     I_SLT(false),
+    // SLTI (set less than immediate) places the value 1 
+    // in register rd if register rs1 is less than the sign-extended
+    // immediate when both are treated as signed numbers, else 0 is written to rd.
+    I_SLTI(false),     
     I_SLTU(false),
+    // Similar to SLTI but for unsigned (i.e., the immediate is first 
+    // sign-extended to XLEN bits then treated as an unsigned number). 
+    I_SLTIU(false), 
+    // implemented using: SLTIU rd, rs1, 1
+    // The only unsigned number that is less than 1 is zero, so this sets
+    // a 1 into rd only if rs1 is zero
+    I_SEQZ(true),
+    // implemented using SLTU rd, x0, rs2
+    // the zero in the zero register (x0) is less than every number (sets 1 into rd)
+    // other than zero itself (sets a 0 into rd in that case). This means 
+    // SLTU rd, x0, rs2 == SNEZ rd, rs2 sets a 1 if rs2 is not zero
+    I_SNEZ(true),
+    I_SLTZ(true), // SLT rd, rs, x0
+    I_SGTZ(true), // SLT rd, x0, rs1
+    
+    // subtract
+    I_SUB(false),
+    
+    // store instructions
     I_SW(false),
     I_SH(false),
     I_SB(false),
@@ -218,6 +244,8 @@ public enum Mnemonic {
 
         else if (mnemonic.equalsIgnoreCase("ADD")) {
             return I_ADD;
+        } else if (mnemonic.equalsIgnoreCase("ADD1")) {
+            return I_ADD1;
         } else if (mnemonic.equalsIgnoreCase("ADDI")) {
             return I_ADDI;
         } else if (mnemonic.equalsIgnoreCase("AND")) {
@@ -296,23 +324,42 @@ public enum Mnemonic {
             return I_ORI;
         } else if (mnemonic.equalsIgnoreCase("RET")) {
             return I_RET;
-        } else if (mnemonic.equalsIgnoreCase("SRA")) {
-            return I_SRA;
-        } else if (mnemonic.equalsIgnoreCase("SRAI")) {
-            return I_SRAI;
+        } 
+        
+        // shifts
+        else if (mnemonic.equalsIgnoreCase("SLL")) {
+            return I_SLL;
+        } else if (mnemonic.equalsIgnoreCase("SLLI")) {
+            return I_SLLI;
         } else if (mnemonic.equalsIgnoreCase("SRL")) {
             return I_SRL;
         } else if (mnemonic.equalsIgnoreCase("SRLI")) {
             return I_SRLI;
-        } else if (mnemonic.equalsIgnoreCase("SLL")) {
-            return I_SLL;
-        } else if (mnemonic.equalsIgnoreCase("SLLI")) {
-            return I_SLLI;
+        } else if (mnemonic.equalsIgnoreCase("SRA")) {
+            return I_SRA;
+        } else if (mnemonic.equalsIgnoreCase("SRAI")) {
+            return I_SRAI;
+        } 
+        // set flags
+        else if (mnemonic.equalsIgnoreCase("SLT")) {
+            return I_SLT;
         } else if (mnemonic.equalsIgnoreCase("SLTI")) {
             return I_SLTI;
         } else if (mnemonic.equalsIgnoreCase("SLTU")) {
             return I_SLTU;
-        } else if (mnemonic.equalsIgnoreCase("SUB")) {
+        } else if (mnemonic.equalsIgnoreCase("SLTIU")) {
+            return I_SLTIU;
+        } else if (mnemonic.equalsIgnoreCase("SEQZ")) {
+            return I_SEQZ;
+        } else if (mnemonic.equalsIgnoreCase("SNEZ")) {
+            return I_SNEZ;
+        } else if (mnemonic.equalsIgnoreCase("SLTZ")) {
+            return I_SLTZ;
+        } else if (mnemonic.equalsIgnoreCase("SGTZ")) {
+            return I_SGTZ;
+        }
+        // subtract
+        else if (mnemonic.equalsIgnoreCase("SUB")) {
             return I_SUB;
         } else if (mnemonic.equalsIgnoreCase("SW")) {
             return I_SW;
@@ -320,9 +367,9 @@ public enum Mnemonic {
             return I_SH;
         } else if (mnemonic.equalsIgnoreCase("SB")) {
             return I_SB;
-        } else if (mnemonic.equalsIgnoreCase("SLT")) {
-            return I_SLT;
-        } else if (mnemonic.equalsIgnoreCase("WFI")) {
+        } 
+        
+        else if (mnemonic.equalsIgnoreCase("WFI")) {
             return I_WFI;
         } else if (mnemonic.equalsIgnoreCase("XOR")) {
             return I_XOR;
@@ -446,6 +493,8 @@ public enum Mnemonic {
                 return "add";
             case I_ADDI:
                 return "addi";
+            case I_ADD1:
+                return "add1";
             
             case I_AND:
                 return "and";
@@ -556,6 +605,11 @@ public enum Mnemonic {
             case I_RET: // pseudo instruction
                 return "ret";
 
+            // shifts
+            case I_SLL:
+                return "sll";
+            case I_SLLI:                
+                return "slli";
             case I_SRA:
                 return "sra";
             case I_SRAI:
@@ -564,26 +618,33 @@ public enum Mnemonic {
                 return "srl";
             case I_SRLI:
                 return "srli";
-            case I_SLL:
-                return "sll";
-            case I_SLLI:
-                return "slli";
+            // set flags            
+            case I_SLT: // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
+                return "slt";
+            case I_SLTI:
+                return "slti";
+            case I_SLTU:
+                return "sltu";
+            case I_SLTIU:
+                return "sltiu";
+            case I_SEQZ: 
+                return "seqz";
+            case I_SNEZ: 
+                return "snez";
+            case I_SLTZ: 
+                return "sltz";
+            case I_SGTZ: 
+                return "sgtz";
+            // subtract
             case I_SUB:
                 return "sub";
+            // stores
             case I_SW:
                 return "sw";
             case I_SH:
                 return "sh";
             case I_SB:
                 return "sb";
-            case I_SLT: // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
-                return "slt";
-            case I_SLTU:
-                return "sltu";
-            case I_SLTI:
-                return "slti";
-            case I_SLTIU:
-                return "sltiu";
 
             case I_WFI:
                 return "wfi";
