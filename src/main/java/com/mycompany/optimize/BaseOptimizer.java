@@ -42,9 +42,12 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
             asmLine.offset = address;
 
+            System.out.println("[" + asmLine.offset + "] " + asmLine.toString());
+
             if (asmLine.mnemonic == null) {
 
                 if (asmLine.asmInstruction != null) {
+
                     switch (asmLine.asmInstruction) {
 
                         case ZERO:
@@ -96,15 +99,18 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     }
                 }
 
-                continue;
-            }
+                // continue;
 
-            address += 4;
+            } else {
+                // assume every instruction is 4 byte in size (TODO: COMPRESSED INSTRUCTIONS!!!)
+                address += 4;
+            }
         }
     }
 
     public void buildLabelTable(final List<AsmLine<T>> asmLines,
-            final Map<String, Long> labelAddressMap, final Map<String, Section> sectionMap) {
+            final Map<String, Long> labelAddressMap, Map<Long, AsmLine<T>> offsetAsmLineMap,
+            final Map<String, Section> sectionMap) {
 
         // reset the offsets in the sectionMap
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
@@ -122,6 +128,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 if (asmLine.label != null) {
                     labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    if (offsetAsmLineMap != null) {
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                    }
                 }
 
                 section.currentOffset += 4;
@@ -180,6 +189,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 if (asmLine.label != null) {
                     labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    if (offsetAsmLineMap != null) {
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                    }
                 }
 
                 section.currentOffset = offset;
@@ -193,6 +205,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         throw new RuntimeException("bug");
                     }
                     labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    if (offsetAsmLineMap != null) {
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                    }
                 }
 
             }
@@ -212,17 +227,17 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
      * Resolves labels to offsets.<br />
      * <br />
      *
-     * For each label, 
+     * For each label,
      * <ol>
      * 
      * <li>the absolute address of that label
-     * is retrieved in a first step.</li> 
+     * is retrieved in a first step.</li>
      * 
      * <li>In the second step, the relative offset of
      * the label from the current asm line in which the label is used (pc-relative)
      * is computed.</li>
      * 
-     * <li> In a third step, the pc-relative offset is stored inside
+     * <li>In a third step, the pc-relative offset is stored inside
      * the AsmLine's numeric_xyz member.</li>
      * 
      * </ol>
@@ -271,7 +286,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_0 = null;
 
-                    // } else if (asmLine.identifier_0.endsWith("b")) {
                 } else if (asmLine.identifier_0.toLowerCase().matches("[0-9]+b")) {
 
                     AsmLine<?> tempAsmLine = asmLine;
@@ -287,12 +301,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        // DEBUG
-                        // System.out.println("found");
                         asmLine.numeric_0 = offset;
                     }
 
-                    // } else if (asmLine.identifier_0.endsWith("f")) {
                 } else if (asmLine.identifier_0.toLowerCase().matches("[0-9]+f")) {
 
                     AsmLine<?> tempAsmLine = asmLine;
@@ -308,8 +319,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        // DEBUG
-                        // System.out.println("found");
                         asmLine.numeric_0 = offset;
                     }
 
@@ -328,7 +337,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
                     asmLine.identifier_1 = null;
 
-                    // } else if (asmLine.identifier_1.endsWith("b")) {
                 } else if (asmLine.identifier_1.toLowerCase().matches("[0-9]+b")) {
 
                     AsmLine<?> tempAsmLine = asmLine;
@@ -344,11 +352,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        // System.out.println("found");
                         asmLine.numeric_1 = offset;
                     }
 
-                    // } else if (asmLine.identifier_1.endsWith("f")) {
                 } else if (asmLine.identifier_1.toLowerCase().matches("[0-9]+f")) {
 
                     AsmLine<?> tempAsmLine = asmLine;
@@ -364,7 +370,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        // System.out.println("found");
                         asmLine.numeric_1 = offset;
                     }
 
@@ -377,19 +382,12 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
             if (asmLine.identifier_2 != null) {
 
-                // DEBUG regex test
-                // String test = "123f";
-                // if (test.matches("[0-9]+f")) {
-                // System.out.println("asdf");
-                // }
-
                 Long value = labelAddressMap.get(asmLine.identifier_2);
                 if (value != null) {
 
                     asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset + 0);
                     asmLine.identifier_2 = null;
 
-                    // } else if (asmLine.identifier_2.endsWith("b")) {
                 } else if (asmLine.identifier_2.toLowerCase().matches("[0-9]+b")) {
 
                     // iterate backwards and count +4 every time until label is found
@@ -400,11 +398,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     Match match = findLabelBackwards(asmLine, truncatedLabel);
 
                     if (match.asmLine != null) {
-                        // System.out.println("found");
                         asmLine.numeric_2 = match.offset;
                     }
 
-                    // } else if (asmLine.identifier_2.endsWith("f")) {
                 } else if (asmLine.identifier_2.toLowerCase().matches("[0-9]+f")) {
 
                     AsmLine<?> tempAsmLine = asmLine;
@@ -420,7 +416,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         }
                     }
                     if (tempAsmLine != null) {
-                        // System.out.println("found");
                         asmLine.numeric_2 = offset;
                     }
 
@@ -488,7 +483,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
         for (AsmLine<?> asmLine : asmLines) {
 
-            // logger.info(asmLine.toString());
+            logger.trace(asmLine.toString());
 
             if ((asmLine.pseudoInstructionAsmLine != null)
                     && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LA)
@@ -525,12 +520,21 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         newValue = (address >> 12) & 0xFFFFF;
                         break;
 
+                    case PCREL_LO:
+                        newValue = (address - pc >> 0) & 0xFFF;
+                        break;
+
+                    case PCREL_HI:
+                        newValue = (address - pc >> 12) & 0xFFFFF;
+                        break;
+
                     default:
                         throw new RuntimeException();
                 }
 
                 asmLine.offsetLabel_0 = null;
                 asmLine.modifier_0 = null;
+                asmLine.identifier_0 = null;
 
                 if ((asmLine.register_0 == null) || (asmLine.register_0 == RISCVRegister.REG_UNKNOWN)) {
                     asmLine.numeric_0 = newValue;
@@ -542,7 +546,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
             if (asmLine.modifier_1 != null) {
 
                 long newValue = 0L;
-                // String label = asmLine.offsetLabel_1;
                 String label = asmLine.identifier_1;
 
                 Long address = labelAddressMap.get(label);
@@ -576,6 +579,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 asmLine.offsetLabel_1 = null;
                 asmLine.modifier_1 = null;
+                asmLine.identifier_1 = null;
 
                 if ((asmLine.register_1 == null) || (asmLine.register_1 == RISCVRegister.REG_UNKNOWN)) {
                     asmLine.numeric_1 = newValue;
@@ -587,7 +591,6 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
             if (asmLine.modifier_2 != null) {
 
                 long newValue = 0L;
-                // String label = asmLine.offsetLabel_2;
                 String label = asmLine.identifier_2;
 
                 Long address = null;
@@ -635,6 +638,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 asmLine.offsetLabel_2 = null;
                 asmLine.modifier_2 = null;
+                asmLine.identifier_2 = null;
 
                 if ((asmLine.register_2 == null) || (asmLine.register_2 == RISCVRegister.REG_UNKNOWN)) {
                     asmLine.numeric_2 = newValue;

@@ -30,28 +30,45 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
         boolean done = false;
         while (!done) {
 
+            // update addresses to make sure that the addresses are still correct should the
+            // last cycle of optimization have removed instructions
+            updateAddresses(asmLines, sectionMap);
+
             // build label table
             Map<String, Long> labelTableMap = new HashMap<>();
-            buildLabelTable(asmLines, labelTableMap, sectionMap);
+            Map<Long, AsmLine<T>> offsetAsmLineMap = new HashMap<>();
+            buildLabelTable(asmLines, labelTableMap, offsetAsmLineMap, sectionMap);
 
-            // // DEBUG
-            // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
+            // // DEBUG output label table
+            // for (Map.Entry<String, Long> mapEntry : labelTableMap.entrySet()) {
             // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
             // }
 
-            updateAddresses(asmLines, sectionMap);
-            
             AsmLine<?> callPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
 
-            // find unoptimized call pseudo instruction amongst all asmLines
+            // find call (pseudo) instruction
             for (AsmLine<?> asmLine : asmLines) {
+
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_CALL)
                         && (asmLine.pseudoInstructionAsmLine.optimized == false)) {
+
+                    // found a call instruction
                     callPseudoAsmLine = asmLine.pseudoInstructionAsmLine;
                     found = true;
+
+                    // DEBUG
+                    System.out.println(callPseudoAsmLine);
+
+                    // DEBUG
+                    if (callPseudoAsmLine.identifier_0.equalsIgnoreCase("upCountingMatrix")) {
+                        System.out.println(callPseudoAsmLine);
+
+                        System.out.println("Address of target label: " + labelTableMap.get(callPseudoAsmLine.identifier_0));
+                    }
+
                     break;
                 }
                 index++;
@@ -65,7 +82,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
             }
 
             //
-            // call-pseudo instruction = aupic + jalr
+            // call-pseudo instruction is resolved to aupic + jalr
             //
 
             // start with first child instruction -- aupic instruction
@@ -180,7 +197,8 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             // if the absolute label address is exactly 12-bit throw exception!
 
-            // if the modifier returns 0, the instruction can be optimized
+            // if the HI modifier returns 0, the instruction can be optimized.
+            // A short jump is used
             if (highValue == 0) {
 
                 // JAL only works with half word aligned values.
@@ -200,9 +218,20 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
                 if (twoByteAligned) {
 
+                    // JAL is a PC relative jump
+                    // rd <- pc + 4; pc <- pc + imm20
+
                     asmLine.mnemonic = Mnemonic.I_JAL;
                     asmLine.register_0 = RISCVRegister.REG_RA;
-                    asmLine.numeric_1 = lowValue - secondAsmLine.offset + 4;
+
+                    // int offset = lowValue <= secondAsmLine.offset ? 4 : 0;
+                    int offset = 4;
+                    //asmLine.numeric_1 = lowValue - secondAsmLine.offset + offset; // +4 or +0
+
+                    //long off = labelTableMap.get(asmLine.identifier_0);
+                    long off = labelTableMap.get(secondAsmLine.offsetLabel_2);
+                    AsmLine referencedTarget = offsetAsmLineMap.get(off);
+                    asmLine.referencedTarget = referencedTarget;
 
                     // DEBUG
                     // System.out.println(asmLine);

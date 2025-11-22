@@ -1,52 +1,70 @@
 .LC3:
-        .string "Matrix"
+        /*.string "Matrix"*/
 .LC4:
-        .string "A"
+        /*.string "A"*/
 .LC5:
-        .string "%6d"
+        /*.string "%6d"*/
 .LC6:
-        .string "B"
+        /*.string "B"*/
 .LC7:
-        .string "C"
+        /*.string "C"*/
 .LC0:
-        .word   9
-        .word   0
-        .word   9
-        .word   4
-        .word   2
-        .word   6
-        .word   6
-        .word   7
-        .word   9
-        .word   3
-        .word   8
-        .word   1
-        .word   6
-        .word   9
-        .word   7
-        .word   1
+        /*
+        ; .word   9
+        ; .word   0
+        ; .word   9
+        ; .word   4
+        ; .word   2
+        ; .word   6
+        ; .word   6
+        ; .word   7
+        ; .word   9
+        ; .word   3
+        ; .word   8
+        ; .word   1
+        ; .word   6
+        ; .word   9
+        ; .word   7
+        ; .word   1
+        */
 .LC1:
-        .word   1
-        .word   2
-        .word   4
-        .word   2
-        .word   8
-        .word   6
-        .word   0
-        .word   0
-        .word   7
-        .word   6
-        .word   8
-        .word   5
-        .word   8
-        .word   4
-        .word   7
-        .word   5
+        /*
+        ; .word   1
+        ; .word   2
+        ; .word   4
+        ; .word   2
+        ; .word   8
+        ; .word   6
+        ; .word   0
+        ; .word   0
+        ; .word   7
+        ; .word   6
+        ; .word   8
+        ; .word   5
+        ; .word   8
+        ; .word   4
+        ; .word   7
+        ; .word   5
+        */
 .LC2:
-        .word   1
-        .word   2
-        .word   3
-        .word   4
+        /*
+        ; .word   1
+        ; .word   2
+        ; .word   3
+        ; .word   4
+        */
+puts:
+    jr ra
+
+memcpy:
+    jr ra
+
+printf:
+    jr ra
+
+putchar:
+    jr ra
+
 main:
 _start:
         addi    sp,sp,-240
@@ -135,7 +153,7 @@ _start:
         addi    a5,s0,-80
         li      a4,4
         li      a3,4
-        mv      a0,a5
+/*        mv      a0,a5
         call    segmentedMatrixMult
         lui     a5,%hi(.LC7)
         addi    a0,a5,%lo(.LC7)
@@ -797,6 +815,7 @@ zeroMatrix:
         lw      s0,40(sp)
         addi    sp,sp,48
         jr      ra
+*/
 upCountingMatrix:
         addi    sp,sp,-48
         sw      ra,44(sp)
@@ -845,15 +864,4 @@ upCountingMatrix:
         lw      s0,40(sp)
         addi    sp,sp,48
         jr      ra
-
-puts:
-    jr ra
-
-memcpy:
-    jr ra
-
-printf:
-    jr ra
-
-putchar:
-    jr ra
+*/

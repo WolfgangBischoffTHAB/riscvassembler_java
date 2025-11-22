@@ -11,6 +11,7 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.Modifier;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
@@ -20,19 +21,20 @@ import com.mycompany.data.Section;
  * 
  * This class checks for the optimal way to implement the LI pseudo instruction.
  */
-public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
+public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(LiOptimizer.class);
 
     @Override
-    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
 
         boolean done = false;
         while (!done) {
 
             // build label table
             Map<String, Long> map = new HashMap<>();
-            buildLabelTable(asmLines, map, sectionMap);
+            Map<Long, AsmLine<T>> offsetAsmLineMap = new HashMap<>();
+            buildLabelTable(asmLines, map, offsetAsmLineMap, sectionMap);
 
             // // DEBUG
             // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
@@ -42,10 +44,10 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
             updateAddresses(asmLines, sectionMap);
 
             // find unoptimized li pseudo instruction
-            AsmLine<RISCVRegister> liPseudoAsmLine = null;
+            AsmLine<T> liPseudoAsmLine = null;
             int index = 0;
             boolean found = false;
-            for (AsmLine<RISCVRegister> asmLine : asmLines) {
+            for (AsmLine<T> asmLine : asmLines) {
 
                 if ((asmLine.pseudoInstructionAsmLine != null)
                         && (asmLine.pseudoInstructionAsmLine.mnemonic == Mnemonic.I_LI)
@@ -63,8 +65,8 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
             }
 
             // start with first child instruction
-            AsmLine<RISCVRegister> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
-            AsmLine<RISCVRegister> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
+            AsmLine<T> firstAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(0);
+            AsmLine<T> secondAsmLine = liPseudoAsmLine.pseudoInstructionChildren.get(1);
 
             // // DEBUG
             // System.out.println(liPseudoAsmLine);
@@ -184,10 +186,10 @@ public class LiOptimizer extends BaseOptimizer<RISCVRegister> {
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
 
-                AsmLine<RISCVRegister> asmLine = new AsmLine<>();
+                AsmLine<T> asmLine = new AsmLine<>();
                 asmLine.mnemonic = Mnemonic.I_ADDI;
-                asmLine.register_0 = secondAsmLine.register_0;
-                asmLine.register_1 = RISCVRegister.REG_ZERO;
+                asmLine.register_0 = (T) secondAsmLine.register_0;
+                asmLine.register_1 = (T) RISCVRegister.REG_ZERO;
                 asmLine.modifier_2 = Modifier.LO;
                 asmLine.offsetLabel_2 = secondAsmLine.offsetLabel_2;
                 asmLine.section = liPseudoAsmLine.section;

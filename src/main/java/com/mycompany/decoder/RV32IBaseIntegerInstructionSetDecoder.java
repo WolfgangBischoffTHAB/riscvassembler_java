@@ -814,9 +814,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int pred = (data >> 24) & 0b1111;
         int succ = (data >> 20) & 0b1111;
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(ByteArrayUtil.intToHex("%08x", data));
-        System.out.println(stringBuilder.toString());
+        // DEBUG ???
+        // StringBuilder stringBuilder = new StringBuilder();
+        // stringBuilder.append(ByteArrayUtil.intToHex("%08x", data));
+        // System.out.println(stringBuilder.toString());
 
         int vm = 0;
 
@@ -1347,7 +1348,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                                 logger.info("vill: " + vill);
 
-                                stringBuilder = new StringBuilder();
+                                StringBuilder stringBuilder = new StringBuilder();
                                 stringBuilder.append("vsetvli ");
                                 stringBuilder.append(Register.toStringAbi(asmLine.register_0)).append(", ");
                                 stringBuilder.append(Register.toStringAbi(asmLine.register_1)).append(", ");

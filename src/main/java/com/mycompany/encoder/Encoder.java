@@ -1,6 +1,5 @@
 package com.mycompany.encoder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
@@ -21,13 +20,5 @@ public interface Encoder {
     long encode(AsmLine<?> asmLine, Map<String, Long> labelAddressMap, Map<Long, AsmLine<?>> addressSourceAsmLineMap,
             long currentAddress)
             throws IOException;
-
-    // /**
-    //  * Returns the internal buffer that stores the machine code that has been
-    //  * assembled from all instructions fed to the encoder
-    //  *
-    //  * @return
-    //  */
-    // ByteArrayOutputStream getByteArrayOutStream();
 
 }

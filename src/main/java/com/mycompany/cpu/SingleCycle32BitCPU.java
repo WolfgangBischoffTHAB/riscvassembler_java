@@ -68,8 +68,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     // private boolean printInstructions = true;
     private boolean printInstructions = false;
 
-    private boolean debugASMLineOutput = true;
-    // private boolean debugASMLineOutput = false;
+    // private boolean debugASMLineOutput = true;
+    private boolean debugASMLineOutput = false;
 
     private int mcycle = 0x00;
 
@@ -180,8 +180,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             traceBufferedWriter = new BufferedWriter(new FileWriter("log/cpu_trace.log"));
         }
 
-        // DEBUG output ASM line
-       
+        // DEBUG output ASM line       
         if (debugASMLineOutput) {
 
             StringBuilder stringBuilder = new StringBuilder();

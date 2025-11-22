@@ -60,6 +60,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
     private static final Logger logger = LoggerFactory.getLogger(RiscVAssembler.class);
 
+    private static final boolean OUTPUT_MACHINE_CODE = false;
+
     private CharStream asmCharStream;
 
     private RISCVASMLexer lexer;
@@ -152,10 +154,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         // List<AsmLine<?>> asmLines = getAsmLines();
 
-        // DEBUG
-        for (AsmLine<?> asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG - output the entire program as parsed from the input file
+        // for (AsmLine<?> asmLine : asmLines) {
+        // System.out.println(asmLine);
+        // }
 
         //
         // Combine
@@ -281,7 +283,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         }
 
         //
-        // Resolve - Replace pseudo instructions by individual instructions
+        // Resolve - Replace pseudo instructions by individual, real instructions
         //
 
         LiResolver liResolver = new LiResolver();
@@ -292,16 +294,6 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines, sectionMap);
-
-        // // DEBUG
-        // System.out.println("\n\n\n");
-        // for (AsmLine asmLine : asmLines) {
-        // System.out.println(asmLine);
-        // }
-
-        //
-        // Replace pseudo instruction by real instructions
-        //
 
         NopResolver nopResolver = new NopResolver();
         nopResolver.modify(asmLines, sectionMap);
@@ -345,8 +337,13 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         SeqzResolver seqzResolver = new SeqzResolver();
         seqzResolver.modify(asmLines, sectionMap);
 
-        // // DEBUG
-        // for (AsmLine asmLine : asmLines) {
+        // // DEBUG - output intermediate assembly after removing pseudo instructions
+        // but before removing modifiers and before calling the optimizers
+        // System.out.println("\n\n\n");
+        // System.out.println("DEBUG - output intermediate assembly after removing
+        // pseudo instructions but before removing modifiers and before calling the
+        // optimizers");
+        // for (AsmLine<?> asmLine : asmLines) {
         // System.out.println(asmLine);
         // }
 
@@ -390,9 +387,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         LiOptimizer liOptimizer = new LiOptimizer();
         liOptimizer.modify(asmLines, sectionMap);
 
-        // // DEBUG
+        // // DEBUG - output after the LI optimizer
         // System.out.println("\n\n\n");
-        // for (AsmLine asmLine : asmLines) {
+        // System.out.println("DEBUG - output after the LI optimizer");
+        // for (AsmLine<?> asmLine : asmLines) {
         // System.out.println(asmLine);
         // }
 
@@ -401,10 +399,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             callOptimizer.modify(asmLines, sectionMap);
         }
 
-        // // DEBUG
-        // for (AsmLine asmLine : asmLines) {
-        // System.out.println(asmLine);
-        // }
+        // DEBUG - output after the LI and CALL optimizer
+        System.out.println("\n\n\n");
+        System.out.println("DEBUG - output after the LI and CALL optimizer");
+        for (AsmLine<?> asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         //
         // Check for unoptimized instructions
@@ -430,15 +430,16 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
         callOptimizer.updateAddresses(asmLines, sectionMap);
 
-        // // DEBUG
-        // System.out.println("\n\n\n");
-        // for (AsmLine asmLine : asmLines) {
-        // System.out.println(asmLine);
-        // }
+        // DEBUG - output code after addresses have been updated
+        System.out.println("\n\n\n");
+        System.out.println("DEBUG - output code after addresses have been updated");
+        for (AsmLine<?> asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         labelAddressMap = new HashMap<>();
-
-        callOptimizer.buildLabelTable(asmLines, labelAddressMap, sectionMap);
+        // Map<Long, AsmLine> offsetAsmLineMap = new HashMap<>();
+        callOptimizer.buildLabelTable(asmLines, labelAddressMap, null, sectionMap);
 
         // DEBUG
         // BaseOptimizer.outputLabelAddressMap(labelAddressMap);
@@ -473,7 +474,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 getLogger().info(e.getMessage(), e);
 
                 return;
-                
+
             }
         }
 
@@ -483,17 +484,25 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         BaseOptimizer.resolveModifiers(asmLines, labelAddressMap);
 
+        // // DEBUG - after resolving modifiers
+        // System.out.println("\n\n\n");
+        // System.out.println("DEBUG - after resolving modifiers");
+        // for (AsmLine<?> asmLine : asmLines) {
+        // System.out.println(asmLine);
+        // }
+
         //
         // resolve all labels
         //
 
-        // // DEBUG
+        callOptimizer.resolveLabels(asmLines, labelAddressMap);
+
+        // // DEBUG - after resolving labels
         // System.out.println("\n\n\n");
+        // System.out.println("DEBUG - after resolving labels");
         // for (AsmLine asmLine : asmLines) {
         // System.out.println(asmLine);
         // }
-
-        callOptimizer.resolveLabels(asmLines, labelAddressMap);
 
         // DEBUG output label address map
         getLogger().info("\n\n\n");
@@ -514,48 +523,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             bufferedWriter.flush();
         }
 
-        //
-        // output raw assembly (modifiers resolved, pseudo instructions resolved to real
-        // instructions)
-        //
-
-        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
-                new FileWriter("build//resolved_assembly.s"))) {
-
-            // DEBUG
-            getLogger().info("\n\n\n");
-            getLogger().info("***************************");
-            for (AsmLine<?> asmLine : asmLines) {
-
-                try {
-                    getLogger().info(asmLine.toString());
-                    // System.out.print(" SourceLine: " + asmLine.sourceLine);
-                    getLogger().info("");
-                } catch (Throwable e) {
-                    getLogger().error(e.getMessage(), e);
-                    getLogger().info("error!");
-                }
-
-                String asmLineAsString = asmLine.toString();
-                bufferedWriter.write(asmLineAsString);
-
-                // output offset
-                if (asmLine.mnemonic != null) {
-
-                    int delta = 50 - asmLineAsString.length();
-                    if (delta < 0) {
-                        delta = 0;
-                    }
-                    String filler = spaces(delta);
-                    bufferedWriter.write(
-                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.offset) + " (" + asmLine.offset + ")");
-                }
-                bufferedWriter.write("\n");
-            }
-
-            bufferedWriter.flush();
-        }
-        getLogger().info("***************************");
+        // outputAssemblyToFile();
 
         //
         // Encode
@@ -579,9 +547,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 errorAsmLine = asmLine;
 
                 // DEBUG
-                System.out.println(asmLine);
-
-                // currentAddress = asmLine.section.address;
+                // System.out.println(asmLine);
 
                 long spaceUsed = encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap,
                         asmLine.section.address);
@@ -602,25 +568,31 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             // currentAddress);
         }
 
+        outputAssemblyToFile();
+
         //
-        // DEBUG: output for easy comparison with GNU riscv 32 bit elf toolchain or
-        // online assemblers
+        // DEBUG: output machine code for easy comparison with GNU riscv 32 bit elf
+        // toolchain or online assemblers
         //
 
-        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+        if (OUTPUT_MACHINE_CODE) {
 
-            Section section = entry.getValue();
+            for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
 
-            getLogger().info("-- Section: " + section.name + " ----------------------");
+                Section section = entry.getValue();
 
-            byte[] byteArray = section.byteArrayOutStream.toByteArray();
+                getLogger().info("-- Section: " + section.name + " ----------------------");
 
-            // DEBUG output the byte array to the console
-            ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-            // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-            outputHexMachineCode(byteArray, byteOrder);
+                byte[] byteArray = section.byteArrayOutStream.toByteArray();
 
-            getLogger().info("");
+                // DEBUG output the byte array to the console
+                ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+                // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+                outputHexMachineCode(byteArray, byteOrder);
+
+                getLogger().info("");
+
+            }
 
         }
 
@@ -633,6 +605,62 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         // return byteArray;
         // throw new RuntimeException();
+    }
+
+    private void outputAssemblyToFile() throws IOException {
+        //
+        // To file output raw assembly (modifiers resolved, pseudo instructions resolved
+        // to real
+        // instructions)
+        //
+
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
+                new FileWriter("build//resolved_assembly.s"))) {
+
+            // DEBUG
+            if (getLogger().isTraceEnabled()) {
+                getLogger().trace("\n\n\n");
+                getLogger().trace("***************************");
+            }
+            for (AsmLine<?> asmLine : asmLines) {
+
+                if (getLogger().isTraceEnabled()) {
+                    try {
+                        // DEBUG
+                        // System.out.print(" SourceLine: " + asmLine.sourceLine);
+                        getLogger().trace(asmLine.toString());
+                        getLogger().trace("");
+                    } catch (Throwable e) {
+                        getLogger().error(e.getMessage(), e);
+                        getLogger().info("error!");
+                    }
+                }
+
+                String asmLineAsString = asmLine.toString();
+                bufferedWriter.write(asmLineAsString);
+
+                // output machine code
+                bufferedWriter.write(" [" + ByteArrayUtil.byteToHex(asmLine.machineCode, null, "%1$02X") + "]");
+
+                // output offset
+                if (asmLine.mnemonic != null) {
+
+                    int delta = 50 - asmLineAsString.length();
+                    if (delta < 0) {
+                        delta = 0;
+                    }
+                    String filler = spaces(delta);
+                    bufferedWriter.write(
+                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.offset) + " (" + asmLine.offset + ")");
+                }
+                bufferedWriter.write("\n");
+            }
+            if (getLogger().isTraceEnabled()) {
+                getLogger().trace("***************************");
+            }
+
+            bufferedWriter.flush();
+        }
     }
 
     @Override

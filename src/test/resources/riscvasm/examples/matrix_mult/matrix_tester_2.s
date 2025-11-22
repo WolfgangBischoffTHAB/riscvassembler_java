@@ -13,6 +13,11 @@ _start:
         addi    a4,a5,%lo(.LC0)
         addi    a5,s0,-80
         mv      a3,a4
-        
-  puts:
+        nop
+        nop
+        nop
+        j       end
+
+puts:
   	jr ra
+end:

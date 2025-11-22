@@ -233,14 +233,14 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
 
     @Override
     public void enterParams(RISCVASMParser.ParamsContext ctx) {
-        System.out.println(ctx.getText());
+        // System.out.println(ctx.getText());
     }
 
     @Override
     public void exitParams(RISCVASMParser.ParamsContext ctx) {
         paramIndex = 0;
-        System.out.println(asmLine);
-        System.out.println(asmLine);
+        // System.out.println(asmLine);
+        // System.out.println(asmLine);
     }
 
     /**
@@ -308,7 +308,8 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
             while (!exprStack.isEmpty()) {
             
                 ASTNode exprASTNode = exprStack.pop();
-                System.out.println(exprASTNode);
+
+                // System.out.println(exprASTNode);
 
                 if (exprASTNode.isOffset) {
                     addOffsetExpression(exprASTNode, paramIndex);

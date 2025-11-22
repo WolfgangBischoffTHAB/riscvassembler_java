@@ -12,11 +12,16 @@ public class AsmLine<T extends Register> {
 
     public int sourceLine = -1;
 
-    /** offset is the absolute offset of this assembler line amongst all instructions in the application */
+    /**
+     * offset is the absolute offset of this assembler line amongst all instructions
+     * in the application
+     */
     public long offset;
     public Section section;
 
     public String label;
+
+    public int machineCode;
 
     public MIPSMnemonic mipsMnemonic;
 
@@ -45,7 +50,7 @@ public class AsmLine<T extends Register> {
     public Long offset_2 = null;
     public Long offset_3 = null;
     public Long offset_4 = null;
-    public Long offset_5= null;
+    public Long offset_5 = null;
 
     public String offsetLabel_0 = null;
     public String offsetLabel_1 = null;
@@ -124,7 +129,7 @@ public class AsmLine<T extends Register> {
     // TAIL - {ta, tu}
     // ta - tail agnostic - ???
     // tu - tail undisturbed - ???
-    // 
+    //
     // MASK - {ma, mu}
     // ta - mask agnostic - ???
     // tu - mask undisturbed - ???
@@ -141,6 +146,8 @@ public class AsmLine<T extends Register> {
 
     public boolean branchTaken;
 
+    public AsmLine referencedTarget;
+
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -149,7 +156,7 @@ public class AsmLine<T extends Register> {
         // stringBuilder.append("[").append(offset).append("] ");
 
         // if (mnemonic == Mnemonic.I_VSETVLI) {
-        //     logger.info("test");
+        // logger.info("test");
         // }
 
         if (label != null) {
@@ -267,7 +274,7 @@ public class AsmLine<T extends Register> {
         }
 
         if (pseudoInstructionAsmLine != null) {
-            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.mnemonic);
+            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.toString());
         }
 
         return stringBuilder.toString();
@@ -442,7 +449,7 @@ public class AsmLine<T extends Register> {
             stringBuilder.append(String.format("0x%X", numeric_3.intValue()));
         }
         if (modifier_3 != null) {
-            
+
             stringBuilder.append(", ");
             stringBuilder.append(Modifier.toString(modifier_3));
 
@@ -464,7 +471,7 @@ public class AsmLine<T extends Register> {
             }
 
             stringBuilder.append(")");
-            
+
         } else if (identifier_3 != null) {
             stringBuilder.append(", ");
             stringBuilder.append(identifier_3);
@@ -601,7 +608,10 @@ public class AsmLine<T extends Register> {
 
         if (numeric_1 != null) {
             stringBuilder.append(", ");
-            stringBuilder.append(String.format("0x%X", numeric_1.intValue()));
+            stringBuilder.append(String.format("0x%X", numeric_1.intValue()))
+                    // also output the offset in decimal which is helpful for debugging offsets in
+                    // JAL instructions
+                    .append(" [").append(numeric_1.intValue()).append("]");
         }
         if (modifier_1 != null) {
 
@@ -715,7 +725,7 @@ public class AsmLine<T extends Register> {
             }
 
             stringBuilder.append(")");
-            
+
         } else if (identifier_0 != null) {
             stringBuilder.append(identifier_0);
         } else if (offset_0 != null) {
@@ -769,7 +779,7 @@ public class AsmLine<T extends Register> {
         if (mnemonic != null) {
 
             // if (mnemonic == Mnemonic.I_PUTS) {
-            //     return AsmLineType.EMULATOR_EXTENSION;
+            // return AsmLineType.EMULATOR_EXTENSION;
             // }
 
             if ((mnemonic != Mnemonic.I_UNKNOWN) && (!mnemonic.isPseudo())) {
