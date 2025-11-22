@@ -243,7 +243,8 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_2.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_3.s";
-            String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_4.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_4.s";
+            String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_5.s";
 
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";

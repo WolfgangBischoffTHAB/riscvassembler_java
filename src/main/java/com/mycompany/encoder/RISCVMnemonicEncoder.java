@@ -1281,11 +1281,20 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         //int imm = asmLine.numeric_1.intValue();
 
+        // DEBUG
         if (asmLine.referencedTarget == null) {
             System.out.println(asmLine);
         }
+
         long offset = asmLine.referencedTarget.offset - asmLine.offset;
+
+        // DEBUG
+        System.out.println(offset + " = " + asmLine.referencedTarget.offset + " - " + asmLine.offset);
+
         int imm = (int) offset;
+
+        // DEBUG
+        System.out.println(imm + " = " + asmLine.referencedTarget.offset + " - " + asmLine.offset);
 
         int result = encodeJType(imm, rd, opcode);
         asmLine.machineCode = result;
@@ -1736,10 +1745,17 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     private int encodeJType(int imm, byte rd, byte opcode) {
 
-        int imm_20 = (imm >> 19) & 0b1; // 1
-        int imm_10_1 = (imm >> 1) & 0b1111111111; // 10
-        int imm_11 = (imm >> 10) & 0b1; // 1
-        int imm_19_12 = (imm >> 11) & 0b11111111; // 8
+        if (imm == 1692) {
+            System.out.println("test");
+
+            // [0][00000000][0][1101001110][0]
+        }
+
+
+        int imm_20 = (imm >> 20) & 0b1; // 1
+        int imm_10_1 = (imm >> 1) & 0b11_1111_1111; // 10
+        int imm_11 = (imm >> 11) & 0b1; // 1
+        int imm_19_12 = (imm >> 12) & 0b11111111; // 8
 
         return ((opcode & 0b1111111) << 0) |
                 ((rd & 0b11111) << 7) |
