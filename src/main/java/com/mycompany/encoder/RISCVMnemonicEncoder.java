@@ -1286,15 +1286,15 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             System.out.println(asmLine);
         }
 
-        long offset = asmLine.referencedTarget.offset - asmLine.offset;
+        long offset = asmLine.referencedTarget.getOffset() - asmLine.getOffset();
 
         // DEBUG
-        System.out.println(offset + " = " + asmLine.referencedTarget.offset + " - " + asmLine.offset);
+        System.out.println(offset + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
 
         int imm = (int) offset;
 
         // DEBUG
-        System.out.println(imm + " = " + asmLine.referencedTarget.offset + " - " + asmLine.offset);
+        System.out.println(imm + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
 
         int result = encodeJType(imm, rd, opcode);
         asmLine.machineCode = result;

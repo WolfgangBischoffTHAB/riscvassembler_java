@@ -557,6 +557,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 asmLine.section.address += spaceUsed;
             }
 
+            // flush buffered information
+            AsmLine tempt = asmLines.get(0);
+            encoder.finalize(tempt.section.byteArrayOutStream);
+
         } catch (Exception e) {
 
             getLogger().info(e.getMessage(), e);
@@ -622,8 +626,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 getLogger().trace("\n\n\n");
                 getLogger().trace("***************************");
             }
+
             for (AsmLine<?> asmLine : asmLines) {
 
+                // DEBUG
                 if (getLogger().isTraceEnabled()) {
                     try {
                         // DEBUG
@@ -643,7 +649,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 bufferedWriter.write(" [" + ByteArrayUtil.byteToHex(asmLine.machineCode, null, "%1$02X") + "]");
 
                 // output offset
-                if (asmLine.mnemonic != null) {
+                //if (asmLine.mnemonic != null) {
 
                     int delta = 50 - asmLineAsString.length();
                     if (delta < 0) {
@@ -651,8 +657,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                     }
                     String filler = spaces(delta);
                     bufferedWriter.write(
-                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.offset) + " (" + asmLine.offset + ")");
-                }
+                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.getOffset()) + " (" + asmLine.getOffset() + ")");
+                //}
                 bufferedWriter.write("\n");
             }
             if (getLogger().isTraceEnabled()) {

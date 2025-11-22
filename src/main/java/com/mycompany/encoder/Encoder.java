@@ -1,5 +1,6 @@
 package com.mycompany.encoder;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
@@ -20,5 +21,7 @@ public interface Encoder {
     long encode(AsmLine<?> asmLine, Map<String, Long> labelAddressMap, Map<Long, AsmLine<?>> addressSourceAsmLineMap,
             long currentAddress)
             throws IOException;
+
+    void finalize(ByteArrayOutputStream byteArrayOutStream) throws IOException;
 
 }

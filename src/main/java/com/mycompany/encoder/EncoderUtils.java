@@ -45,24 +45,25 @@ public class EncoderUtils {
             String stringValue, boolean zeroTerminate) {
 
         int length = 0;
-        boolean decode = false;
+        boolean escape = false;
         for (char data : stringValue.toCharArray()) {
 
             if (data == '\\') {
-                decode = true;
+                escape = true;
                 continue;
             }
 
-            if (data == 'n' && decode) {
+            if (data == 'n' && escape) {
                 byteArrayOutStream.write(0x0A);
                 length++;
-                decode = false;
-                continue;
-            } else if (decode) {
-                byteArrayOutStream.write('\\');
-                length++;
-                byteArrayOutStream.write(data);
-                length++;
+                escape = false;
+                // continue;
+            } else if (escape) {
+                // byteArrayOutStream.write('\\');
+                // length++;
+                // byteArrayOutStream.write(data);
+                // length++;
+                throw new RuntimeException("");
             } else {
                 byteArrayOutStream.write(data);
                 length++;
@@ -71,7 +72,7 @@ public class EncoderUtils {
         if (zeroTerminate) {
             byteArrayOutStream.write(0);
             length++;
-        }
+        }        
 
         return length;
     }

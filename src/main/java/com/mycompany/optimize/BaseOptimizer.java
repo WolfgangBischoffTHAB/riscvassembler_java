@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.NumberParseUtil;
+import com.mycompany.common.StringUtils;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -40,9 +41,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
         for (AsmLine<?> asmLine : asmLines) {
 
-            asmLine.offset = address;
+            asmLine.setOffset(address);
 
-            System.out.println("[" + asmLine.offset + "] " + asmLine.toString());
+            System.out.println("[" + asmLine.getOffset() + "] " + asmLine.toString());
 
             if (asmLine.mnemonic == null) {
 
@@ -72,7 +73,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                             break;
 
                         case ASCII:
-                            address += asmLine.stringValue.length() + 0; // +0 for no zero termination
+                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero termination
                             break;
 
                         // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -83,7 +84,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         // whereas “.ascii” assembles a string literal with no null terminator
                         case ASCIZ:
                         case STRING:
-                            address += asmLine.stringValue.length() + 1; // +1 for zero termination
+                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero termination
                             break;
 
                         case FILE:
@@ -114,26 +115,26 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
         // reset the offsets in the sectionMap
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
-            entry.getValue().currentOffset = 0;
+            entry.getValue().setCurrentOffset(0);
         }
 
         for (AsmLine<T> asmLine : asmLines) {
 
             // convert section name to offset
             Section section = sectionMap.get(asmLine.section.name);
-            long offset = section.currentOffset;
-            asmLine.offset = offset;
+            long offset = section.getCurrentOffset();
+            asmLine.setOffset(offset);
 
             if (asmLine.mnemonic != null) {
 
                 if (asmLine.label != null) {
-                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.getOffset());
                     if (offsetAsmLineMap != null) {
-                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.getOffset(), asmLine);
                     }
                 }
 
-                section.currentOffset += 4;
+                section.setCurrentOffset(section.getCurrentOffset() + 4);
 
             } else if (asmLine.asmInstruction != null) {
 
@@ -161,7 +162,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         break;
 
                     case ASCII:
-                        offset += asmLine.stringValue.length() + 0; // +0 for no zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero termination
                         break;
 
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -172,7 +173,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     // whereas “.ascii” assembles a string literal with no null terminator
                     case ASCIZ:
                     case STRING:
-                        offset += asmLine.stringValue.length() + 1; // +1 for zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero termination
                         break;
 
                     case FILE:
@@ -188,13 +189,13 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 }
 
                 if (asmLine.label != null) {
-                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.getOffset());
                     if (offsetAsmLineMap != null) {
-                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.getOffset(), asmLine);
                     }
                 }
 
-                section.currentOffset = offset;
+                section.setCurrentOffset(offset);
 
                 continue;
 
@@ -204,9 +205,9 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     if (asmLine.section == null) {
                         throw new RuntimeException("bug");
                     }
-                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.getOffset());
                     if (offsetAsmLineMap != null) {
-                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.getOffset(), asmLine);
                     }
                 }
 
@@ -283,7 +284,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 Long value = labelAddressMap.get(asmLine.identifier_0);
                 if (value != null) {
 
-                    asmLine.numeric_0 = value - (asmLine.section.address + asmLine.offset);
+                    asmLine.numeric_0 = value - (asmLine.section.address + asmLine.getOffset());
                     asmLine.identifier_0 = null;
 
                 } else if (asmLine.identifier_0.toLowerCase().matches("[0-9]+b")) {
@@ -334,7 +335,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 Long value = labelAddressMap.get(asmLine.identifier_1);
                 if (value != null) {
 
-                    asmLine.numeric_1 = value - (asmLine.section.address + asmLine.offset);
+                    asmLine.numeric_1 = value - (asmLine.section.address + asmLine.getOffset());
                     asmLine.identifier_1 = null;
 
                 } else if (asmLine.identifier_1.toLowerCase().matches("[0-9]+b")) {
@@ -385,7 +386,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 Long value = labelAddressMap.get(asmLine.identifier_2);
                 if (value != null) {
 
-                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.offset + 0);
+                    asmLine.numeric_2 = value - (asmLine.section.address + asmLine.getOffset() + 0);
                     asmLine.identifier_2 = null;
 
                 } else if (asmLine.identifier_2.toLowerCase().matches("[0-9]+b")) {
@@ -507,7 +508,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    address = address - (asmLine.offset + offset);
+                    address = address - (asmLine.getOffset() + offset);
                 }
 
                 switch (asmLine.modifier_0) {
@@ -552,7 +553,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    address = address - (asmLine.offset + offset);
+                    address = address - (asmLine.getOffset() + offset);
                 }
 
                 switch (asmLine.modifier_1) {
@@ -601,7 +602,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                             asmLine.identifier_2.length() - 1);
                     Match match = findLabelBackwards(asmLine, truncatedLabel);
 
-                    address = match.asmLine.offset;
+                    address = match.asmLine.getOffset();
 
                 } else {
 
@@ -611,7 +612,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 // special case for JALR: labels are resolved pc relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    address = address - (asmLine.offset + offset);
+                    address = address - (asmLine.getOffset() + offset);
                 }
 
                 switch (asmLine.modifier_2) {

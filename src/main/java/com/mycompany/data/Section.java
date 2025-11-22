@@ -7,7 +7,13 @@ import java.util.List;
 public class Section {
 
     public long address;
-    public long currentOffset;
+    private long currentOffset;
+    public long getCurrentOffset() {
+        return currentOffset;
+    }
+    public void setCurrentOffset(long currentOffset) {
+        this.currentOffset = currentOffset;
+    }
 
     public String name;
     public String memspec;

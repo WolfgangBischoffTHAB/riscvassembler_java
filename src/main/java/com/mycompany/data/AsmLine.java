@@ -16,7 +16,14 @@ public class AsmLine<T extends Register> {
      * offset is the absolute offset of this assembler line amongst all instructions
      * in the application
      */
-    public long offset;
+    private long offset;
+    public long getOffset() {
+        return offset;
+    }
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
     public Section section;
 
     public String label;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.mycompany.common.NumberParseUtil;
+import com.mycompany.common.StringUtils;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -50,26 +51,26 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
 
         // reset the offsets in the sectionMap
         for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
-            entry.getValue().currentOffset = 0;
+            entry.getValue().setCurrentOffset(0);
         }
 
         for (AsmLine<RISCVRegister> asmLine : asmLines) {
 
             // convert section name to offset
             Section section = sectionMap.get(asmLine.section.name);
-            long offset = section.currentOffset;
-            asmLine.offset = offset;
+            long offset = section.getCurrentOffset();
+            asmLine.setOffset(offset);
 
             if (asmLine.mnemonic != null) {
 
                 if (asmLine.label != null) {
-                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.getOffset());
                     if (offsetAsmLineMap != null) {
-                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.getOffset(), asmLine);
                     }
                 }
 
-                section.currentOffset += 4;
+                section.setCurrentOffset(section.getCurrentOffset() + 4);
 
             } else if (asmLine.asmInstruction != null) {
 
@@ -97,7 +98,7 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
                         break;
 
                     case ASCII:
-                        offset += asmLine.stringValue.length() + 0; // +0 for no zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero termination
                         break;
 
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -108,7 +109,7 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
                     // whereas “.ascii” assembles a string literal with no null terminator
                     case ASCIZ:
                     case STRING:
-                        offset += asmLine.stringValue.length() + 1; // +1 for zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero termination
                         break;
 
                     case FILE:
@@ -124,13 +125,13 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
                 }
 
                 if (asmLine.label != null) {
-                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.getOffset());
                     if (offsetAsmLineMap != null) {
-                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.getOffset(), asmLine);
                     }
                 }
 
-                section.currentOffset = offset;
+                section.setCurrentOffset(offset);
 
                 continue;
 
@@ -140,9 +141,9 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
                     if (asmLine.section == null) {
                         throw new RuntimeException("bug");
                     }
-                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.offset);
+                    labelAddressMap.put(asmLine.label, asmLine.section.address + asmLine.getOffset());
                     if (offsetAsmLineMap != null) {
-                        offsetAsmLineMap.put(asmLine.section.address + asmLine.offset, asmLine);
+                        offsetAsmLineMap.put(asmLine.section.address + asmLine.getOffset(), asmLine);
                     }
                 }
 

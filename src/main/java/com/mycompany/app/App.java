@@ -186,6 +186,9 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_3.s";
             // String inputFile = "src/test/resources/riscvasm/pipeline_hazards/data_hazard_requires_stall.s";
 
+            // String inputFile = "src/test/resources/riscvasm/assembler_instruction/string.s";
+            String inputFile = "src/test/resources/riscvasm/assembler_instruction/string_2.s";
+
             // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/beq.s";
             // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/add.s";
             // String inputFile = "src/test/resources/riscvasm/instructions/rv32i/sw.s";
@@ -244,8 +247,8 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_2.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_3.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_4.s";
-            //String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_5.s";
-            String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_6.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_5.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_6.s";
 
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";

@@ -372,11 +372,11 @@ setSubMatrix:
 .LC7:
         /**/.string "["
 .LC8:
-        /*.string "------------------------"*/
+        /**/.string "-"
 .LC9:
-        /*.string "]"*/
+        /**/.string "]"
 .LC10:
-        /*.string "%d\n"*/
+        /**/.string "%d\n"
 segmentedMatrixMult:
         addi    sp,sp,-160
         sw      ra,156(sp)

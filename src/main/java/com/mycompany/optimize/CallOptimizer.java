@@ -95,7 +95,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if ((firstAsmLine.section.address + firstAsmLine.offset) > labelTableMap.get(offsetLabel)) {
+            if ((firstAsmLine.section.address + firstAsmLine.getOffset()) > labelTableMap.get(offsetLabel)) {
                 direction = -1;
             } else {
                 direction = +1;
@@ -206,7 +206,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                 // instruction which jumps to any value we like
 
                 boolean twoByteAligned = true;
-                long delta = (firstAsmLine.section.address + firstAsmLine.offset)
+                long delta = (firstAsmLine.section.address + firstAsmLine.getOffset())
                         - labelTableMap.get(firstAsmLine.offsetLabel_1);
                 twoByteAligned = (delta % 2) == 0;
 
@@ -225,7 +225,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     asmLine.register_0 = RISCVRegister.REG_RA;
 
                     // int offset = lowValue <= secondAsmLine.offset ? 4 : 0;
-                    int offset = 4;
+                    // int offset = 4;
                     //asmLine.numeric_1 = lowValue - secondAsmLine.offset + offset; // +4 or +0
 
                     //long off = labelTableMap.get(asmLine.identifier_0);

@@ -27,11 +27,13 @@ public class RISCVEncoder implements Encoder {
         switch (asmLine.getAsmLineType()) {
 
             case MNEMONIC:
+                asmInstructionEncoder.endStringMode(byteArrayOutStream);
                 return mnemonicEncoder.encodeMnemonic(byteArrayOutStream, asmLine, labelAddressMap,
                         addressSourceAsmLineMap,
                         currentAddress);
 
             case ASSEMBLER_INSTRUCTION:
+                asmInstructionEncoder.startStringMode();
                 return asmInstructionEncoder.encodeAssemblerInstruction(byteArrayOutStream, asmLine,
                         addressSourceAsmLineMap, currentAddress);
 
@@ -42,5 +44,10 @@ public class RISCVEncoder implements Encoder {
             default:
                 return 0;
         }
+    }
+
+    public void finalize(ByteArrayOutputStream byteArrayOutStream) throws IOException {
+        // flush potential pending string buffer
+        asmInstructionEncoder.endStringMode(byteArrayOutStream);
     }
 }
