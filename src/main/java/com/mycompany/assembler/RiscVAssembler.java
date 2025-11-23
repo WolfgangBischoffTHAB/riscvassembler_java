@@ -558,8 +558,13 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             }
 
             // flush buffered information
-            AsmLine tempt = asmLines.get(0);
-            encoder.finalize(tempt.section.byteArrayOutStream);
+            AsmLine tempAsmLine = asmLines.get(0);
+            encoder.finalize(tempAsmLine.section.byteArrayOutStream);
+
+            // append zeroes so that the machine code is a multiple of word size (word = 4 Byte)
+            for (int i = 0; i < tempAsmLine.section.byteArrayOutStream.size() % 4; i++) {
+                tempAsmLine.section.byteArrayOutStream.write(0x00);
+            }
 
         } catch (Exception e) {
 

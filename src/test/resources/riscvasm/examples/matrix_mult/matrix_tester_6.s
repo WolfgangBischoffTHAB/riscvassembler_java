@@ -372,7 +372,7 @@ setSubMatrix:
 .LC7:
         /**/.string "["
 .LC8:
-        /**/.string "-"
+        /**/.string "---------------------------"
 .LC9:
         /**/.string "]"
 .LC10:
