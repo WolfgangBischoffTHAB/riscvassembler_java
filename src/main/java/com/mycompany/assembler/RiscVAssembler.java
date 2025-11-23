@@ -60,7 +60,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
     private static final Logger logger = LoggerFactory.getLogger(RiscVAssembler.class);
 
-    private static final boolean OUTPUT_MACHINE_CODE = false;
+    private static final boolean OUTPUT_MACHINE_CODE = true;
 
     private CharStream asmCharStream;
 
@@ -387,12 +387,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         LiOptimizer liOptimizer = new LiOptimizer();
         liOptimizer.modify(asmLines, sectionMap);
 
-        // // DEBUG - output after the LI optimizer
-        // System.out.println("\n\n\n");
-        // System.out.println("DEBUG - output after the LI optimizer");
-        // for (AsmLine<?> asmLine : asmLines) {
-        // System.out.println(asmLine);
-        // }
+        // DEBUG - output after the LI optimizer
+        System.out.println("\n\n\n");
+        System.out.println("DEBUG - output after the LI optimizer");
+        for (AsmLine<?> asmLine : asmLines) {
+            System.out.println(asmLine);
+        }
 
         if (USE_CALL_OPTIMIZER) {
             CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
@@ -413,6 +413,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         for (AsmLine<?> asmLine : asmLines) {
             if (asmLine.pseudoInstructionAsmLine != null) {
                 if (!asmLine.pseudoInstructionAsmLine.optimized) {
+
+                    System.out.println(asmLine.toString());
                     throw new RuntimeException("Unoptimized instruction detected! " + asmLine.mnemonic);
                 }
             }
@@ -561,7 +563,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             AsmLine tempAsmLine = asmLines.get(0);
             encoder.finalize(tempAsmLine.section.byteArrayOutStream);
 
-            // append zeroes so that the machine code is a multiple of word size (word = 4 Byte)
+            // append zeroes so that the machine code is a multiple of word size (word = 4
+            // Byte)
             for (int i = 0; i < tempAsmLine.section.byteArrayOutStream.size() % 4; i++) {
                 tempAsmLine.section.byteArrayOutStream.write(0x00);
             }
@@ -601,6 +604,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
                 getLogger().info("");
 
+                outputMachineCodeToFile(section);
+
             }
 
         }
@@ -616,12 +621,46 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // throw new RuntimeException();
     }
 
+    /**
+     * Iterate over all sections. Write each section to a file having
+     * the name of the section
+     * 
+     * @param section
+     * @throws IOException
+     */
+    private void outputMachineCodeToFile(Section section) throws IOException {
+
+        String sectionName = section.name;
+
+        byte[] sectionByteArray = section.byteArrayOutStream.toByteArray();
+
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
+                new FileWriter("build//" + sectionName + ".s"))) {
+
+            byte tempBuffer[] = new byte[4];
+
+            for (int i = 0; i < sectionByteArray.length; i += 4) {
+
+                System.arraycopy(sectionByteArray, i, tempBuffer, 0, 4);
+
+                // System.out.println(ByteArrayUtil.bytesToHexLittleEndian(tempBuffer));
+
+                String sectionByteArrayAsString = ByteArrayUtil.bytesToHexLittleEndian(tempBuffer);
+                bufferedWriter.write(sectionByteArrayAsString);
+                bufferedWriter.write("\n");
+            }
+
+            bufferedWriter.flush();
+        }
+    }
+
+    /**
+     * To a file, output raw assembly (modifiers resolved, pseudo instructions
+     * resolved to real instructions)
+     * 
+     * @throws IOException
+     */
     private void outputAssemblyToFile() throws IOException {
-        //
-        // To file output raw assembly (modifiers resolved, pseudo instructions resolved
-        // to real
-        // instructions)
-        //
 
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
                 new FileWriter("build//resolved_assembly.s"))) {
@@ -654,16 +693,15 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 bufferedWriter.write(" [" + ByteArrayUtil.byteToHex(asmLine.machineCode, null, "%1$02X") + "]");
 
                 // output offset
-                //if (asmLine.mnemonic != null) {
+                int delta = 50 - asmLineAsString.length();
+                if (delta < 0) {
+                    delta = 0;
+                }
+                String filler = spaces(delta);
+                bufferedWriter.write(
+                        filler + "# " + ByteArrayUtil.byteToHex(asmLine.getOffset()) + " (" + asmLine.getOffset()
+                                + ")");
 
-                    int delta = 50 - asmLineAsString.length();
-                    if (delta < 0) {
-                        delta = 0;
-                    }
-                    String filler = spaces(delta);
-                    bufferedWriter.write(
-                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.getOffset()) + " (" + asmLine.getOffset() + ")");
-                //}
                 bufferedWriter.write("\n");
             }
             if (getLogger().isTraceEnabled()) {

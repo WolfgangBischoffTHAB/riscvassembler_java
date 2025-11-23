@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mycompany.memory.Memory;
-
 /**
  * EI_CLASS - identifies the file's class, or capacity.
  * 

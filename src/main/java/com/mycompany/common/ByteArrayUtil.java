@@ -34,6 +34,10 @@ public class ByteArrayUtil {
         return bytesToHex(bytes, bytes.length, HEX_ARRAY);
     }
 
+    public static String bytesToHexLittleEndian(final byte[] bytes) {
+        return bytesToHexLittleEndian(bytes, bytes.length, HEX_ARRAY_LOWERCASE);
+    }
+
     public static String bytesToHexLowerCase(final byte[] bytes) {
         return bytesToHex(bytes, bytes.length, HEX_ARRAY_LOWERCASE);
     }
@@ -47,10 +51,27 @@ public class ByteArrayUtil {
         final char[] hexChars = new char[bytes.length * 2];
 
         final int stopCondition = Math.min(bytes.length, length);
+
         for (int j = 0; j < stopCondition; j++) {
             final int v = bytes[j] & 0xFF;
             hexChars[j * 2] = hex_array[v >>> 4];
             hexChars[j * 2 + 1] = hex_array[v & 0x0F];
+        }
+
+        return new String(hexChars);
+    }
+
+    public static String bytesToHexLittleEndian(final byte[] bytes, final int length, char[] hex_array) {
+
+        final char[] hexChars = new char[bytes.length * 2];
+
+        final int stopCondition = Math.min(bytes.length, length);
+
+        for (int j = stopCondition; j >= 1; j--) {
+
+            final int v = bytes[length-j] & 0xFF;
+            hexChars[(j-1) * 2] = hex_array[v >>> 4];
+            hexChars[(j-1) * 2 + 1] = hex_array[v & 0x0F];
         }
 
         return new String(hexChars);

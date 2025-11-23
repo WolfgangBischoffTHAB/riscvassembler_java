@@ -15,9 +15,13 @@ import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
- * A pair of lui + addi instructions has been combined into a LI pseudo instructions
- * since there is potential for the assembler to optimize the pair of two instructions
- * into a single instruction.
+ * A pair of lui + addi instructions has been combined into a LI pseudo
+ * instructions by the LiCombiner in a prior step. The idea is that sometimes
+ * ADDI and LI are not needed at the same time but only one of them implements
+ * the LI statement correclty. Therefore, taking a step back to LI and then
+ * optimizing LI is a way to save on instructions. since there is potential for
+ * the assembler to optimize the pair of two instructions into a single
+ * instruction.
  * 
  * This class checks for the optimal way to implement the LI pseudo instruction.
  */
@@ -38,7 +42,7 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             // // DEBUG
             // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
-            //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+            // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
             // }
 
             updateAddresses(asmLines, sectionMap);
@@ -75,11 +79,14 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             // if no label is used, then return
             if (firstAsmLine.offsetLabel_1 == null) {
+
                 asmLines.remove(liPseudoAsmLine);
                 liPseudoAsmLine.optimized = true;
                 firstAsmLine.optimized = true;
                 secondAsmLine.optimized = true;
-                return;
+
+                //return;
+                continue;
             }
 
             // determine movement direction towards label (use label table for that)
@@ -98,7 +105,8 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
                     AsmLine<?> currentAsmLine = asmLines.get(i);
 
                     // for each instruction, check if it is a real instruction (not pseudo)
-                    if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
+                    if ((currentAsmLine.pseudoInstructionAsmLine != null)
+                            && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
                         currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -120,7 +128,8 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
                     }
 
                     // for each instruction, check if it is a real instruction (not pseudo)
-                    if ((currentAsmLine.pseudoInstructionAsmLine != null) && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
+                    if ((currentAsmLine.pseudoInstructionAsmLine != null)
+                            && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -138,9 +147,11 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
             // System.out.println("first: " + firstAsmLine);
             // System.out.println("Second: " + secondAsmLine);
             // System.out.println("Label: " + firstAsmLine.offsetLabel_1);
-            // System.out.println("absolute address of label: " + map.get(firstAsmLine.offsetLabel_1));
+            // System.out.println("absolute address of label: " +
+            // map.get(firstAsmLine.offsetLabel_1));
 
-            // if arriving at the target label is possible only crossing real instructions (which is the positive case)
+            // if arriving at the target label is possible only crossing real instructions
+            // (which is the positive case)
             // take the absolute value of the label and put it into the modifier.
 
             long address = map.get(firstAsmLine.offsetLabel_1);
@@ -206,7 +217,7 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             } else {
 
-                //throw new RuntimeException("Not implemented yet!");
+                // throw new RuntimeException("Not implemented yet!");
                 logger.info("Keeping original statements");
 
                 // Assumption: FirstLine: lui a1, %hi(num1)

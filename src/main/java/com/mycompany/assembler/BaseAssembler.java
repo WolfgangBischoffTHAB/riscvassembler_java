@@ -88,9 +88,6 @@ public abstract class BaseAssembler<T extends Register> {
 
     public static void outputHexMachineCode(final byte[] byteArray, final ByteOrder byteOrder) {
 
-        // DEBUG
-        // System.out.println(ByteArrayUtil.bytesToHex(byteArray));
-
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
 
         int data;

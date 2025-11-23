@@ -11,11 +11,12 @@ import com.mycompany.data.Section;
 
 /**
  * One possible optimization is to recombine a combination of lui and addi
- * (which were manually added by a developer) into a li pseudo instruction.
- * The assembler can then resolve li into a potentially optimized smaller
+ * (which were manually added by a developer) into a LI pseudo instruction.
+ * The assembler can then resolve LI into a potentially optimized smaller
  * amount of instructions.
  *
  * For example:
+ * 
  * <pre>
  * li -> addi if upper_part_used == 0 && lower_part_used == 0
  * li -> addi if (upper_part_used == 0 && lower_part_used != 0)
@@ -28,25 +29,28 @@ import com.mycompany.data.Section;
  * %hi(symbol) - The high 20 bits of absolute address for symbol.
  *
  * Code that can be optimized looks like this:
+ * 
  * <pre>
  * lui a0, %hi(.L.str)
  * addi a0, a0, %lo(.L.str)
  * </pre>
  *
- * This is basically the same as a li pseudo instruction
- * If the assembler could detect a li here, it can then potentially optimize
- * the li to a simple addi or lui
+ * This is basically the same as a LI pseudo instruction
+ * If the assembler could detect a LI here, it can then potentially optimize
+ * the LI to a simple addi or lui
  *
  * To detect this pattern
  * 1. the same register R is used for lui.reg_rd, addi.reg_rd and addi.reg_rs1
  * 2. the same symbol is used in %hi(symbol) and %lo(symbol)
  *
  * The optimized output is:
+ * 
  * <pre>
  * li a0, .L.str
  * </pre>
  *
  * A second example is this sequence:
+ * 
  * <pre>
  * lui x15, 2441
  * addi x15, x15, 1662
@@ -93,8 +97,12 @@ public class LiCombiner<T extends Register> implements AsmInstructionListModifie
                         pseudoInstructionAsmLine.mnemonic = Mnemonic.I_LI;
                         pseudoInstructionAsmLine.register_0 = data_2.register_0;
                         pseudoInstructionAsmLine.identifier_1 = data_1.offsetLabel_1;
+
+                        // attach parent and child
                         data_1.pseudoInstructionAsmLine = pseudoInstructionAsmLine;
                         pseudoInstructionAsmLine.pseudoInstructionChildren.add(data_1);
+
+                        // attach parent and child
                         data_2.pseudoInstructionAsmLine = pseudoInstructionAsmLine;
                         pseudoInstructionAsmLine.pseudoInstructionChildren.add(data_2);
 

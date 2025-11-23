@@ -7,7 +7,7 @@
 lexer grammar RISCVASMLexer;
 
 LINE_COMMENT
-  : ( '#' | ';' ) ~[\r\n]* -> channel(HIDDEN)
+  : ( '#' | ';' | '/''/' ) ~[\r\n]* -> channel(HIDDEN)
   ;
 
 BLOCK_COMMENT

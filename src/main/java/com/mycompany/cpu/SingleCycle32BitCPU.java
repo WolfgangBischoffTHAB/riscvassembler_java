@@ -180,7 +180,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             traceBufferedWriter = new BufferedWriter(new FileWriter("log/cpu_trace.log"));
         }
 
-        // DEBUG output ASM line       
+        // DEBUG output ASM line
         if (debugASMLineOutput) {
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -309,7 +309,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " add1: " + asmLine);
                 }
-                
+
                 // Format: addi rd, rs1, rs2
                 // Description: Performs ADD on register rs1 and rs2 + an implicit immediate 1
                 // and places the result in rd.
@@ -1260,11 +1260,20 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 }
 
                 // a7 describes the service that is called by the ecall
+                // a0 is a parameter register. a0 contains the address of the data
                 int regA7Value = readRegisterFile(RISCVRegister.REG_A7.getIndex());
                 switch (regA7Value) {
 
-                    // ???
-                    case 0x50: // 80dec
+                    // case 0: // Unkown ECALL
+                    // logger.warn("Unknown ECALL 0!");
+                    // break;
+
+                    case 64: // 64dec (0x40) (System.out.print)
+                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        System.out.print((char) register_1_value);
+                        break;
+
+                    case 80: // 80dec (0x50) (putchar())
                         logger.trace("putchar()");
                         // a0 contains the data to print
                         register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -1273,26 +1282,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         // register_1_value + ")");
                         break;
 
-                    case 0xD6: // (214dec)
-                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                        System.out.print((char) register_1_value);
-                        break;
+                    
 
-                    case 0x40: // (64dec)
-                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                        System.out.print((char) register_1_value);
-                        break;
-
-                    case 0:
-                        logger.warn("Unknown ECALL 0!");
-                        break;
-
-                    case 92: // 92dec (pfnStreamWriteBufFunc)
+                    case 92: // 92dec () (pfnStreamWriteBufFunc, printStringFromAddress)
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         printStringFromAddress((int) register_0_value_l);
                         break;
 
-                    case 0x5D: // 93dec (exit)
+                    case 93: // 93dec (0x5D) (exit)
                         System.out.println("exit()");
 
                         // the unit tests https://github.com/riscv-software-src/riscv-tests
@@ -1310,7 +1307,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         }
                         return false;
 
-                    case 0x5E: // 94dec (time)
+                    case 94: // 94dec (0x5E) (time)
                         // System.out.println("time()");
 
                         addressA0 = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -1336,7 +1333,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         memory.storeByte(addressA0 + 7, (byte) timeInMillisAsArray[0]);
                         break;
 
-                    case 0x5F: // 95dec (localtime)
+                    case 95: // 95dec (0x5F) (localtime)
                         // System.out.println("localtime()");
 
                         addressA0 = readRegisterFile(RISCVRegister.REG_A0.getIndex());
@@ -1419,14 +1416,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         // System.out.println("done");
                         break;
 
-                    case 0x60: // 96dec (test_func)
+                    case 96: // 96dec (0x60) (test_func)
                         System.out.println("test_func()");
                         // https://msyksphinz-self.github.io/riscv-isadoc/#_ecall
                         // writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 15);
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 14);
                         break;
 
-                    case 97: // 97dec (fseek)
+                    case 97: // 97dec () (fseek)
                         // System.out.println("fseek()");
                         fileHandle = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         int newSeekPosition = readRegisterFile(RISCVRegister.REG_A1.getIndex());
@@ -1443,7 +1440,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), fseekResult);
                         break;
 
-                    case 98: // 98dec (getc)
+                    case 98: // 98dec () (getc)
                         // System.out.println("getc()");
                         fileHandle = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         // System.out.println("getc() addressA0=" + fileHandle);
@@ -1451,7 +1448,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), resultChar);
                         break;
 
-                    case 99: // 99dec (fopen)
+                    case 99: // 99dec () (fopen)
                         logger.trace("fopen()");
 
                         // path to file as string is stored via the address in addressA0
@@ -1470,7 +1467,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), fileHandle);
                         break;
 
-                    case 100: // 100dec (ftell)
+                    case 100: // 100dec () (ftell)
                         logger.trace("ftell()");
 
                         // first parameter is the fileHandle
@@ -1481,13 +1478,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), filePos);
                         break;
 
-                    case 101: // 101dec (putchar)
+                    case 101: // 101dec () (putchar)
                         logger.trace("putchar()");
                         register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         System.out.print((char) register_1_value);
                         break;
 
-                    case 102: // 102dec (fclose)
+                    case 102: // 102dec () (fclose)
                         logger.trace("fclose()");
 
                         // first parameter is the fileHandle
@@ -1498,7 +1495,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 0);
                         break;
 
-                    case 103: // 103dec (fgets)
+                    case 103: // 103dec () (fgets)
                         logger.trace("fgets()");
 
                         // first parameter is the byte buffer to fill
@@ -1537,11 +1534,15 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         break;
 
                     // rand()
-                    case 104:
+                    case 104: // 104dec () (writeRegisterFile)
                         int min = 0;
                         int max = 32767;
                         int randomValue = random.nextInt(max + 1 - min) + min;
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), randomValue);
+                        break;
+                    case 214: // 214dec (0xD6) (System.out.print)
+                        register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        System.out.print((char) register_1_value);
                         break;
 
                     default:
@@ -1992,9 +1993,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 numeric_2_value = asmLine.numeric_2;
 
                 logger.info("key[" + numeric_2_value.intValue() + "] = " + ByteArrayUtil.intToHex(register_1_value));
-                
+
                 // store the key from the key array into the return register
-                writeRegisterFile(asmLine.register_0.getIndex(), (int)xtea_key[numeric_2_value.intValue()]);
+                writeRegisterFile(asmLine.register_0.getIndex(), (int) xtea_key[numeric_2_value.intValue()]);
 
                 pc += asmLine.encodedLength;
                 break;
@@ -2010,7 +2011,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 numeric_2_value = asmLine.numeric_2;
 
                 logger.info("key[" + numeric_2_value.intValue() + "] = " + ByteArrayUtil.intToHex(register_1_value));
-                
+
                 // store the key into the key array
                 xtea_key[numeric_2_value.intValue()] = register_1_value;
 
@@ -2028,20 +2029,21 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 v0 = register_1_value;
                 v1 = register_2_value;
 
-                // v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
+                // v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
                 // IN JAVA: YOU NEED TO USE THE tripple RIGHT SHIFT OPERATOR!!!
-                v0 += (int) (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (xtea_sum + xtea_key[(int)(xtea_sum & 3)]);
+                v0 += (int) (((v1 << 4) ^ (v1 >>> 5)) + v1) ^ (xtea_sum + xtea_key[(int) (xtea_sum & 3)]);
 
                 logger.info("v0: " + ByteArrayUtil.byteToHex(v0));
-                
+
                 // sum += xtea_delta;
-                //xtea_sum += xtea_delta;
+                // xtea_sum += xtea_delta;
                 xtea_sum += 0x9e3779b9;
 
                 logger.info("sum: " + ByteArrayUtil.byteToHex(xtea_sum));
 
                 // v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum>>11) & 3]);
-                // v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (xtea_sum + xtea_key[(xtea_sum>>11) & 3]);
+                // v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (xtea_sum + xtea_key[(xtea_sum>>11) &
+                // 3]);
 
                 writeRegisterFile(asmLine.register_1.getIndex(), (int) v0);
 
@@ -2059,15 +2061,16 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 v0 = register_1_value;
                 v1 = register_2_value;
 
-                // v0  += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
-                //v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (xtea_sum + xtea_key[xtea_sum & 3]);
-                
-                // sum += xtea_delta;
-                //xtea_sum += xtea_delta;
+                // v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
+                // v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (xtea_sum + xtea_key[xtea_sum & 3]);
 
-                // v1  += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum>>11) & 3]);
-                int keyIndexV1 =  (int) ( (((int) xtea_sum) >> 11) & 3L);
-                // v1 += (int) (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (xtea_sum + xtea_key[ keyIndexV1 ]);
+                // sum += xtea_delta;
+                // xtea_sum += xtea_delta;
+
+                // v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum>>11) & 3]);
+                int keyIndexV1 = (int) ((((int) xtea_sum) >> 11) & 3L);
+                // v1 += (int) (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (xtea_sum + xtea_key[ keyIndexV1
+                // ]);
 
                 int a = (v0 << 4);
                 logger.info("a: " + ByteArrayUtil.byteToHex(a));
@@ -2143,7 +2146,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
             default:
                 logger.warn("writeCSR has to be implemented! Index: " + ByteArrayUtil.intToHex(index) + " Value: "
-                + ByteArrayUtil.intToHex(value));
+                        + ByteArrayUtil.intToHex(value));
                 break;
         }
     }

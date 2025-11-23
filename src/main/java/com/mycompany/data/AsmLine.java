@@ -17,9 +17,11 @@ public class AsmLine<T extends Register> {
      * in the application
      */
     private long offset;
+
     public long getOffset() {
         return offset;
     }
+
     public void setOffset(long offset) {
         this.offset = offset;
     }
@@ -281,7 +283,8 @@ public class AsmLine<T extends Register> {
         }
 
         if (pseudoInstructionAsmLine != null) {
-            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.toString());
+            stringBuilder.append(" # --pseudo--> ").append(pseudoInstructionAsmLine.toString()).append(" (optimized: ")
+                    .append(pseudoInstructionAsmLine.optimized).append(")");
         }
 
         return stringBuilder.toString();

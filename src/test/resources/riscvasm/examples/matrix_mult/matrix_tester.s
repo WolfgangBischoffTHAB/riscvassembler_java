@@ -1,78 +1,76 @@
-.LC3:
-        /*.string "Matrix"*/
-.LC4:
-        /*.string "A"*/
-.LC5:
-        /*.string "%6d"*/
-.LC6:
-        /*.string "B"*/
-.LC7:
-        /*.string "C"*/
-.LC0:
-        /*
-        ; .word   9
-        ; .word   0
-        ; .word   9
-        ; .word   4
-        ; .word   2
-        ; .word   6
-        ; .word   6
-        ; .word   7
-        ; .word   9
-        ; .word   3
-        ; .word   8
-        ; .word   1
-        ; .word   6
-        ; .word   9
-        ; .word   7
-        ; .word   1
-        */
-.LC1:
-        /*
-        ; .word   1
-        ; .word   2
-        ; .word   4
-        ; .word   2
-        ; .word   8
-        ; .word   6
-        ; .word   0
-        ; .word   0
-        ; .word   7
-        ; .word   6
-        ; .word   8
-        ; .word   5
-        ; .word   8
-        ; .word   4
-        ; .word   7
-        ; .word   5
-        */
 .LC2:
-        /*
-        ; .word   1
-        ; .word   2
-        ; .word   3
-        ; .word   4
-        */
-puts:
-    jr ra
-
-memcpy:
-    jr ra
+        .string "Matrix"
+.LC3:
+        .string "A"
+.LC4:
+        .string "%6d"
+.LC5:
+        .string "B"
+.LC6:
+        .string "C"
+.LC0:
+        .word   9
+        .word   0
+        .word   9
+        .word   4
+        .word   2
+        .word   6
+        .word   6
+        .word   7
+        .word   9
+        .word   3
+        .word   8
+        .word   1
+        .word   6
+        .word   9
+        .word   7
+        .word   1
+.LC1:
+        .word   1
+        .word   2
+        .word   4
+        .word   2
+        .word   8
+        .word   6
+        .word   0
+        .word   0
+        .word   7
+        .word   6
+        .word   8
+        .word   5
+        .word   8
+        .word   4
+        .word   7
+        .word   5
 
 printf:
-    jr ra
+        li      a7, 92          ; select function/service
+        ecall                   ; perform ecall
+        jr      ra
+
+puts:
+        li      a7, 92          ; select function/service
+        ecall                   ; perform ecall
+        jr      ra
 
 putchar:
-    jr ra
+        li      a7, 101         ; select function/service
+        ecall                   ; perform ecall
+        jr      ra
 
-main:
+memcpy:
+        li      a7, 11           ; select function/service
+        ecall                   ; perform ecall
+        jr      ra
+
 _start:
-        addi    sp,sp,-240
-        sw      ra,236(sp)
-        sw      s0,232(sp)
-        addi    s0,sp,240
-        lui     a5,%hi(.LC3)
-        addi    a0,a5,%lo(.LC3)
+main:
+        addi    sp,sp,-208
+        sw      ra,204(sp)
+        sw      s0,200(sp)
+        addi    s0,sp,208
+        lui     a5,%hi(.LC2)
+        addi    a0,a5,%lo(.LC2)
         call    puts
         lui     a5,%hi(.LC0)
         addi    a4,a5,%lo(.LC0)
@@ -108,43 +106,21 @@ _start:
         sw      zero,-156(s0)
         sw      zero,-152(s0)
         sw      zero,-148(s0)
-        sw      zero,-224(s0)
-        sw      zero,-220(s0)
-        sw      zero,-216(s0)
-        sw      zero,-212(s0)
-        lui     a5,%hi(.LC2)
-        addi    a5,a5,%lo(.LC2)
-        lw      a2,0(a5)
-        lw      a3,4(a5)
-        lw      a4,8(a5)
-        sw      a2,-240(s0)
-        sw      a3,-236(s0)
-        sw      a4,-232(s0)
-        lw      a5,12(a5)
-        sw      a5,-228(s0)
-        addi    a5,s0,-80
-        li      a1,4
-        mv      a0,a5
-        call    upCountingMatrix
-        addi    a5,s0,-144
-        li      a1,4
-        mv      a0,a5
-        call    upCountingMatrix
-        lui     a5,%hi(.LC4)
-        addi    a0,a5,%lo(.LC4)
+        lui     a5,%hi(.LC3)
+        addi    a0,a5,%lo(.LC3)
         call    puts
         addi    a4,s0,-80
-        lui     a5,%hi(.LC5)
-        addi    a2,a5,%lo(.LC5)
+        lui     a5,%hi(.LC4)
+        addi    a2,a5,%lo(.LC4)
         li      a1,4
         mv      a0,a4
         call    prettyPrintFormatMatrix
-        lui     a5,%hi(.LC6)
-        addi    a0,a5,%lo(.LC6)
+        lui     a5,%hi(.LC5)
+        addi    a0,a5,%lo(.LC5)
         call    puts
         addi    a4,s0,-144
-        lui     a5,%hi(.LC5)
-        addi    a2,a5,%lo(.LC5)
+        lui     a5,%hi(.LC4)
+        addi    a2,a5,%lo(.LC4)
         li      a1,4
         mv      a0,a4
         call    prettyPrintFormatMatrix
@@ -153,22 +129,22 @@ _start:
         addi    a5,s0,-80
         li      a4,4
         li      a3,4
-/*        mv      a0,a5
-        call    segmentedMatrixMult
-        lui     a5,%hi(.LC7)
-        addi    a0,a5,%lo(.LC7)
+        mv      a0,a5
+        call    standardMatrixMult
+        lui     a5,%hi(.LC6)
+        addi    a0,a5,%lo(.LC6)
         call    puts
         addi    a4,s0,-208
-        lui     a5,%hi(.LC5)
-        addi    a2,a5,%lo(.LC5)
+        lui     a5,%hi(.LC4)
+        addi    a2,a5,%lo(.LC4)
         li      a1,4
         mv      a0,a4
         call    prettyPrintFormatMatrix
         li      a5,0
         mv      a0,a5
-        lw      ra,236(sp)
-        lw      s0,232(sp)
-        addi    sp,sp,240
+        lw      ra,204(sp)
+        lw      s0,200(sp)
+        addi    sp,sp,208
         jr      ra
 matrixAddInto:
         addi    sp,sp,-48
@@ -365,13 +341,13 @@ setSubMatrix:
         lw      s0,56(sp)
         addi    sp,sp,64
         jr      ra
-.LC8:
+.LC7:
         .string "["
-.LC9:
+.LC8:
         .string "------------------------"
-.LC10:
+.LC9:
         .string "]"
-.LC11:
+.LC10:
         .string "%d\n"
 segmentedMatrixMult:
         addi    sp,sp,-160
@@ -441,26 +417,26 @@ segmentedMatrixMult:
         li      a1,4
         lw      a0,-132(s0)
         call    getSubMatrix
+        lui     a5,%hi(.LC7)
+        addi    a0,a5,%lo(.LC7)
+        call    puts
+        addi    a4,s0,-88
+        lui     a5,%hi(.LC4)
+        addi    a2,a5,%lo(.LC4)
+        li      a1,2
+        mv      a0,a4
+        call    prettyPrintFormatMatrix
         lui     a5,%hi(.LC8)
         addi    a0,a5,%lo(.LC8)
         call    puts
-        addi    a4,s0,-88
-        lui     a5,%hi(.LC5)
-        addi    a2,a5,%lo(.LC5)
+        addi    a4,s0,-72
+        lui     a5,%hi(.LC4)
+        addi    a2,a5,%lo(.LC4)
         li      a1,2
         mv      a0,a4
         call    prettyPrintFormatMatrix
         lui     a5,%hi(.LC9)
         addi    a0,a5,%lo(.LC9)
-        call    puts
-        addi    a4,s0,-72
-        lui     a5,%hi(.LC5)
-        addi    a2,a5,%lo(.LC5)
-        li      a1,2
-        mv      a0,a4
-        call    prettyPrintFormatMatrix
-        lui     a5,%hi(.LC10)
-        addi    a0,a5,%lo(.LC10)
         call    puts
         lw      a5,-20(s0)
         addi    a5,a5,1
@@ -535,8 +511,8 @@ segmentedMatrixMult:
         lw      a5,-40(s0)
         blt     a4,a5,.L24
         lw      a1,-20(s0)
-        lui     a5,%hi(.LC11)
-        addi    a0,a5,%lo(.LC11)
+        lui     a5,%hi(.LC10)
+        addi    a0,a5,%lo(.LC10)
         call    printf
         nop
         lw      ra,156(sp)
@@ -627,15 +603,14 @@ standardMatrixMult:
         lw      s0,56(sp)
         addi    sp,sp,64
         jr      ra
-.LC12:
-        .string "%d "
-printMatrix:
+prettyPrintFormatMatrix:
         addi    sp,sp,-48
         sw      ra,44(sp)
         sw      s0,40(sp)
         addi    s0,sp,48
         sw      a0,-36(s0)
         sw      a1,-40(s0)
+        sw      a2,-44(s0)
         sw      zero,-20(s0)
         j       .L33
 .L36:
@@ -652,8 +627,7 @@ printMatrix:
         add     a5,a4,a5
         lw      a5,0(a5)
         mv      a1,a5
-        lui     a5,%hi(.LC12)
-        addi    a0,a5,%lo(.LC12)
+        lw      a0,-44(s0)
         call    printf
         lw      a5,-24(s0)
         addi    a5,a5,1
@@ -677,145 +651,6 @@ printMatrix:
         lw      s0,40(sp)
         addi    sp,sp,48
         jr      ra
-prettyPrintFormatMatrix:
-        addi    sp,sp,-48
-        sw      ra,44(sp)
-        sw      s0,40(sp)
-        addi    s0,sp,48
-        sw      a0,-36(s0)
-        sw      a1,-40(s0)
-        sw      a2,-44(s0)
-        sw      zero,-20(s0)
-        j       .L38
-.L41:
-        sw      zero,-24(s0)
-        j       .L39
-.L40:
-        lw      a4,-40(s0)
-        lw      a5,-20(s0)
-        mul     a4,a4,a5
-        lw      a5,-24(s0)
-        add     a5,a4,a5
-        slli    a5,a5,2
-        lw      a4,-36(s0)
-        add     a5,a4,a5
-        lw      a5,0(a5)
-        mv      a1,a5
-        lw      a0,-44(s0)
-        call    printf
-        lw      a5,-24(s0)
-        addi    a5,a5,1
-        sw      a5,-24(s0)
-.L39:
-        lw      a4,-24(s0)
-        lw      a5,-40(s0)
-        blt     a4,a5,.L40
-        li      a0,10
-        call    putchar
-        lw      a5,-20(s0)
-        addi    a5,a5,1
-        sw      a5,-20(s0)
-.L38:
-        lw      a4,-20(s0)
-        lw      a5,-40(s0)
-        blt     a4,a5,.L41
-        nop
-        nop
-        lw      ra,44(sp)
-        lw      s0,40(sp)
-        addi    sp,sp,48
-        jr      ra
-identityMatrix:
-        addi    sp,sp,-48
-        sw      ra,44(sp)
-        sw      s0,40(sp)
-        addi    s0,sp,48
-        sw      a0,-36(s0)
-        sw      a1,-40(s0)
-        sw      zero,-20(s0)
-        j       .L43
-.L46:
-        sw      zero,-24(s0)
-        j       .L44
-.L45:
-        lw      a4,-20(s0)
-        lw      a5,-24(s0)
-        sub     a5,a4,a5
-        seqz    a5,a5
-        andi    a3,a5,0xff
-        lw      a4,-40(s0)
-        lw      a5,-20(s0)
-        mul     a4,a4,a5
-        lw      a5,-24(s0)
-        add     a5,a4,a5
-        slli    a5,a5,2
-        lw      a4,-36(s0)
-        add     a5,a4,a5
-        mv      a4,a3
-        sw      a4,0(a5)
-        lw      a5,-24(s0)
-        addi    a5,a5,1
-        sw      a5,-24(s0)
-.L44:
-        lw      a4,-24(s0)
-        lw      a5,-40(s0)
-        blt     a4,a5,.L45
-        lw      a5,-20(s0)
-        addi    a5,a5,1
-        sw      a5,-20(s0)
-.L43:
-        lw      a4,-20(s0)
-        lw      a5,-40(s0)
-        blt     a4,a5,.L46
-        nop
-        nop
-        lw      ra,44(sp)
-        lw      s0,40(sp)
-        addi    sp,sp,48
-        jr      ra
-zeroMatrix:
-        addi    sp,sp,-48
-        sw      ra,44(sp)
-        sw      s0,40(sp)
-        addi    s0,sp,48
-        sw      a0,-36(s0)
-        sw      a1,-40(s0)
-        sw      zero,-20(s0)
-        j       .L48
-.L51:
-        sw      zero,-24(s0)
-        j       .L49
-.L50:
-        lw      a4,-40(s0)
-        lw      a5,-20(s0)
-        mul     a4,a4,a5
-        lw      a5,-24(s0)
-        add     a5,a4,a5
-        slli    a5,a5,2
-        lw      a4,-36(s0)
-        add     a5,a4,a5
-        sw      zero,0(a5)
-        lw      a5,-24(s0)
-        addi    a5,a5,1
-        sw      a5,-24(s0)
-.L49:
-        lw      a4,-24(s0)
-        lw      a5,-40(s0)
-        blt     a4,a5,.L50
-        lw      a5,-20(s0)
-        addi    a5,a5,1
-        sw      a5,-20(s0)
-.L48:
-        lw      a4,-20(s0)
-        lw      a5,-40(s0)
-        blt     a4,a5,.L51
-        nop
-        nop
-        lw      ra,44(sp)
-        lw      s0,40(sp)
-        addi    sp,sp,48
-        jr      ra
-*/
 upCountingMatrix:
         addi    sp,sp,-48
         sw      ra,44(sp)
@@ -826,11 +661,11 @@ upCountingMatrix:
         li      a5,1
         sw      a5,-20(s0)
         sw      zero,-24(s0)
-        j       .L53
-.L56:
+        j       .L38
+.L41:
         sw      zero,-28(s0)
-        j       .L54
-.L55:
+        j       .L39
+.L40:
         lw      a4,-40(s0)
         lw      a5,-24(s0)
         mul     a4,a4,a5
@@ -847,21 +682,20 @@ upCountingMatrix:
         lw      a5,-28(s0)
         addi    a5,a5,1
         sw      a5,-28(s0)
-.L54:
+.L39:
         lw      a4,-28(s0)
         lw      a5,-40(s0)
-        blt     a4,a5,.L55
+        blt     a4,a5,.L40
         lw      a5,-24(s0)
         addi    a5,a5,1
         sw      a5,-24(s0)
-.L53:
+.L38:
         lw      a4,-24(s0)
         lw      a5,-40(s0)
-        blt     a4,a5,.L56
+        blt     a4,a5,.L41
         nop
         nop
         lw      ra,44(sp)
         lw      s0,40(sp)
         addi    sp,sp,48
         jr      ra
-*/

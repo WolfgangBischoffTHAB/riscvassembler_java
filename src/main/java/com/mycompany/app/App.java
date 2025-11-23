@@ -67,6 +67,8 @@ public class App {
 
     private static final boolean WAIT_FOR_INPUT = false;
 
+    private static final boolean OUTPUT_HEX_MACHINE_CODE = false;
+
     // plain .s assembler source code
     private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
     private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
@@ -248,11 +250,14 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_3.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_4.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_5.s";
-            String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_6.s";
-
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_6.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/helloworld.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/li_optimization.s";
+            
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
+            String inputFile = "src/test/resources/riscvasm/rvv_testing/simple_vadd.s";
 
             // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
@@ -342,10 +347,14 @@ public class App {
                     // DEBUG
                     //System.out.println(ByteArrayUtil.bytesToHex(machineCode));
 
-                    // DEBUG output the byte array to the console
-                    ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-                    // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-                    BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+                    if (OUTPUT_HEX_MACHINE_CODE) {
+                        logger.info("outputHexMachineCode() ...");
+                        // DEBUG output the byte array to the console
+                        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+                        // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+                        BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+                        logger.info("outputHexMachineCode() done.");
+                    }
 
                     int curPos = (int) section.outputSection.currentPosition;
                     // memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
@@ -390,10 +399,11 @@ public class App {
             // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
             // elf.setFile("src/test/resources/riscvelf/factorial.out");
             // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            // elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
+            elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
             // elf.setFile("C:/Users/lapto/dev/riscv/egos/src/P0_Hello_World/hello.elf");
             // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/demo_cfu/main.elf");
-            elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/add1/main.elf");
+            // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/add1/main.elf");
+            // elf.setFile("src/test/resources/riscvelf/rvv_vector_add/main.elf");
 
             // elf.load();
 
@@ -954,6 +964,7 @@ public class App {
         // }
 
         if (WAIT_FOR_INPUT) {
+
             logger.info("Enter any text to start emulation!");
             System.out.println("Enter any text to start emulation!");
 
