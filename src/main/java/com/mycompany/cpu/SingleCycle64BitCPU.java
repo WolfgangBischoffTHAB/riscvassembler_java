@@ -197,7 +197,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             System.out.println("");
         }
 
-        // logger.info(ByteArrayUtil.byteToHex(pc) + ": " + asmLine.toString());
+        logger.info(ByteArrayUtil.byteToHex(pc) + ": " + asmLine.toString() + "         [" + ByteArrayUtil.byteToHexLowerCase(asmLine.machineCode) + "]");
 
         // https://projectf.io/posts/riscv-cheat-sheet/
         // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html

@@ -5,6 +5,13 @@
 //
 // riscv64-unknown-elf-gcc -O3 main.c -o main.elf -march=rv64gcv_zba -lm
 // riscv64-unknown-elf-objdump -S -d main.elf > main.lst
+//
+// Important:
+// With lesser optimization, the compiler will not emit RVV instructions!
+// For example using optimization zero: -O0 will not emit RVV instructions!
+// riscv64-unknown-elf-gcc -O0 main.c -o main.elf -march=rv64gcv_zba -lm
+
+#include <stdio.h>
 
 #define ELEMENTS 40
 
@@ -18,11 +25,16 @@ void foo(int *x, int *y, int *z, int n)
 
 int main() {
 
-    int x[ELEMENTS] = { 0, 0, 0, 0 };
-    int y[ELEMENTS] = { 1, 2, 3, 4 };
-    int z[ELEMENTS] = { 1, 2, 3, 4 };
+    int x[40] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    int y[40] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int z[40] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-    foo(x, y, z, ELEMENTS);
+    foo(x, y, z, 40);
+
+    // force the compiler to keep the vector addition by using printf()
+    for (int i=0; i < 40; i++) {
+        printf("%d\n", x[i]);
+    }
 
     return 0;
 }

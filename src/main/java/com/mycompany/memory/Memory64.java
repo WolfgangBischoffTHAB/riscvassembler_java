@@ -250,14 +250,14 @@ public class Memory64 implements Memory<Long> {
 
     public void print(Long startAddress, long endAddress, ByteOrder byteOrder, long highlightAddress) {
 
-        logger.info(ByteArrayUtil.byteToHex(startAddress));
-        logger.info(ByteArrayUtil.byteToHex(endAddress));
+        // logger.info(ByteArrayUtil.byteToHex(startAddress));
+        // logger.info(ByteArrayUtil.byteToHex(endAddress));
 
         long s = startAddress & 0x00000000ffffffffL;
         long e = endAddress & 0x00000000ffffffffL;
         
-        logger.info(ByteArrayUtil.byteToHex(s));
-        logger.info(ByteArrayUtil.byteToHex(e));
+        // logger.info(ByteArrayUtil.byteToHex(s));
+        // logger.info(ByteArrayUtil.byteToHex(e));
 
         if (e <= s) {
             throw new RuntimeException("Invalid interval!");
@@ -278,6 +278,8 @@ public class Memory64 implements Memory<Long> {
             }
             addr += 4;
         }
+
+        // DEBUG print the block
         if (memoryBlock != null) {
             memoryBlock.decoder = decoder;
             memoryBlock.print(addr, endAddress, byteOrder, highlightAddress);
@@ -288,7 +290,5 @@ public class Memory64 implements Memory<Long> {
     public void setDecoder(Decoder decoder) {
         this.decoder = decoder;
     }
-
-    
-    
+ 
 }

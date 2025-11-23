@@ -519,7 +519,9 @@ public class Elf64 extends BaseElf {
         for (Elf64Sym elf64_Sym : elf64SymList) {
 
             // DEBUG
-            logger.info(elf64_Sym.toString());
+            if (logger.isTraceEnabled()) {
+                logger.trace(elf64_Sym.toString());
+            }
 
             if (elf64_Sym.st_name != 0) {
 

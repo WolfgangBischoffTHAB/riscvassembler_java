@@ -120,6 +120,10 @@ public class ByteArrayUtil {
         return "0x" + String.format("%1$02X", data);
     }
 
+    public static String byteToHexLowerCase(final int data) {
+        return "0x" + String.format("%1$02x", data);
+    }
+
     /**
      * * Formats for leading zeroes: "%1$016X" "%1$08X"
      * 
