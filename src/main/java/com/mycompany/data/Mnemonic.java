@@ -179,6 +179,7 @@ public enum Mnemonic {
     //
 
     I_VSETVLI(false),
+    I_VSETIVLI(false),
     I_VSETVL(false),
     I_VLE8_V(false),
     I_VLE16_V(false),
@@ -186,11 +187,17 @@ public enum Mnemonic {
     I_VLE64_V(false),
     I_VMSNE_VI(false),
     I_VADD_VV(false),
+    I_VADD_VX(false),
+    I_VADD_VI(false),
     I_VSE8_V(false),
     I_VSE16_V(false),
     I_VSE32_V(false),
     I_VSE64_V(false),
-    I_VMV_V_I(false),
+    I_VMV_V_I(false), // https://rvv-isadoc.readthedocs.io/en/latest/arith_permutation.html#vmerge-vmv
+    I_VSLL_VV(false),
+    I_VSLL_VX(false),
+    I_VSLL_VI(false),
+    I_VID(false),
 
     // //
     // // Special instructions to add extended functionality to the emulator
@@ -461,12 +468,24 @@ public enum Mnemonic {
             return I_VMSNE_VI;
         } else if (mnemonic.equalsIgnoreCase("VADD.VV")) {
             return I_VADD_VV;
+        } else if (mnemonic.equalsIgnoreCase("VADD.VX")) {
+            return I_VADD_VX;
+        } else if (mnemonic.equalsIgnoreCase("VADD.VI")) {
+            return I_VADD_VI;
         } else if (mnemonic.equalsIgnoreCase("VSE32.V")) {
             return I_VSE32_V;
         } else if (mnemonic.equalsIgnoreCase("VSE64.V")) {
             return I_VSE64_V;
         } else if (mnemonic.equalsIgnoreCase("VMV.V.I")) {
             return I_VMV_V_I;
+        } else if (mnemonic.equalsIgnoreCase("I_VSLL_VV")) {
+            return I_VSLL_VV;
+        } else if (mnemonic.equalsIgnoreCase("I_VSLL_VX")) {
+            return I_VSLL_VX;
+        } else if (mnemonic.equalsIgnoreCase("I_VSLL_VI")) {
+            return I_VSLL_VI;
+        } else if (mnemonic.equalsIgnoreCase("I_VID")) {
+            return I_VID;
         }
 
         throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");
@@ -733,6 +752,8 @@ public enum Mnemonic {
 
             case I_VSETVLI:
                 return "vsetvli";
+            case I_VSETIVLI:
+                return "vsetivli";
             case I_VLE32_V:
                 return "vle32.v";
             case I_VLE64_V:
@@ -741,12 +762,24 @@ public enum Mnemonic {
                 return "vmsne.vi";
             case I_VADD_VV:
                 return "vadd.vv";
+            case I_VADD_VX:
+                return "vadd.vx";
+            case I_VADD_VI:
+                return "vadd.vi";
             case I_VSE32_V:
                 return "vse32.v";
             case I_VSE64_V:
                 return "vse64.v";
             case I_VMV_V_I:
                 return "vmv.v.i";
+            case I_VSLL_VV:
+                return "vsll.vv";
+            case I_VSLL_VX:
+                return "vsll.vx";
+            case I_VSLL_VI:
+                return "vsll.vi";
+            case I_VID:
+                return "vid";
 
             default:
                 throw new RuntimeException("Unknown instruction: \"" + mnemonic + "\"");

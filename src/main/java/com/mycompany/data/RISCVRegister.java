@@ -197,7 +197,8 @@ public enum RISCVRegister implements Register {
     REG_V1(0x01),
     // REG_V1_T(0x03),
     REG_V2(0x02),
-    // REG_V2_T(0x05),
+    //REG_V2_T(0x05),
+    REG_V5(0x05),
 
     REG_UNKNOWN(255);
 
@@ -364,6 +365,8 @@ public enum RISCVRegister implements Register {
             // /** 5 */
             // case 0x05:
             //     return REG_V2_T;
+            case 0x05:
+                return REG_V5;
 
             default:
                 throw new RuntimeException("Unknown V-Extension register: \"" + data + "\"");
@@ -657,6 +660,8 @@ public enum RISCVRegister implements Register {
                 return "v2";
             // case REG_V2_T:
             //     return "v2.t";
+            case REG_V5:
+                return "v5";
 
             default:
                 throw new RuntimeException("Unknown register: \"" + register.ordinal() + "\"");
@@ -788,6 +793,8 @@ public enum RISCVRegister implements Register {
                 return "v2";
             // case REG_V2_T:
             //     return "v2.t";
+            case REG_V5:
+                return "v5";
 
             default:
                 throw new RuntimeException("Unknown register: \"" + register + "\"");

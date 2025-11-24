@@ -1805,47 +1805,37 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvli
             case I_VSETVLI:
                 logger.info("I_VSETVLI: " + asmLine);
-                // int upperOpCode = (instruction >> 25) & 0b111111;
-                // switch (upperOpCode) {
-                // case 0b011001: // one of vmsne{.vv, .vx, .vi}
-                // logger.warn("I_VMSNE not implemented! ASMLine: " + asmLine.toString());
-                // break;
-
-                // default: // I_VSETVLI
-                // logger.warn("I_VSETVLI not implemented!");
-                // break;
-                // }
 
                 // application vector length
                 avl = readRegisterFile(asmLine.register_1.getIndex());
 
                 switch (asmLine.rvvLmul) {
                     case "mf8":
-                        System.out.println("mf8");
+                        // System.out.println("mf8");
                         lMultiplier = 1/8;
                         break;
                     case "mf4":
-                        System.out.println("mf4");
+                        // System.out.println("mf4");
                         lMultiplier = 1/4;
                         break;
                     case "mf2":
-                        System.out.println("mf2");
+                        // System.out.println("mf2");
                         lMultiplier = 1/2;
                         break;
                     case "m1":
-                        System.out.println("m1");
+                        // System.out.println("m1");
                         lMultiplier = 1;
                         break;
                     case "m2":
-                        System.out.println("m2");
+                        // System.out.println("m2");
                         lMultiplier = 2;
                         break;
                     case "m4":
-                        System.out.println("m4");
+                        // System.out.println("m4");
                         lMultiplier = 4;
                         break;
                     case "m8":
-                        System.out.println("m8");
+                        // System.out.println("m8");
                         lMultiplier = 8;
                         break;
                 }
@@ -1853,22 +1843,95 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 switch (asmLine.rvvSew) {
 
                     case "e8":
-                        System.out.println("e8");
+                        // System.out.println("e8");
                         sew = 8;
                         break;
 
                     case "e16":
-                        System.out.println("e16");
+                        // System.out.println("e16");
                         sew = 16;
                         break;
 
                     case "e32":
-                        System.out.println("e32");
+                        // System.out.println("e32");
                         sew = 32;
                         break;
 
                     case "e64":
-                        System.out.println("e64");
+                        // System.out.println("e64");
+                        sew = 64;
+                        break;
+
+                    default:
+                        throw new RuntimeException("unknown SEW");
+
+                }
+
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
+            case I_VSETIVLI:
+
+                // vsetivli rd, uimm, vtypei
+                // vsetivli	zero,4, e32,m1,ta,ma
+
+                //throw new RuntimeException("Not implemented yet I_VSETIVLI");
+                logger.info("I_VSETIVLI: " + asmLine);
+
+                // application vector length
+                avl = asmLine.numeric_1;
+
+                switch (asmLine.rvvLmul) {
+                    case "mf8":
+                        // System.out.println("mf8");
+                        lMultiplier = 1/8;
+                        break;
+                    case "mf4":
+                        // System.out.println("mf4");
+                        lMultiplier = 1/4;
+                        break;
+                    case "mf2":
+                        // System.out.println("mf2");
+                        lMultiplier = 1/2;
+                        break;
+                    case "m1":
+                        // System.out.println("m1");
+                        lMultiplier = 1;
+                        break;
+                    case "m2":
+                        // System.out.println("m2");
+                        lMultiplier = 2;
+                        break;
+                    case "m4":
+                        // System.out.println("m4");
+                        lMultiplier = 4;
+                        break;
+                    case "m8":
+                        // System.out.println("m8");
+                        lMultiplier = 8;
+                        break;
+                }
+
+                switch (asmLine.rvvSew) {
+
+                    case "e8":
+                        // System.out.println("e8");
+                        sew = 8;
+                        break;
+
+                    case "e16":
+                        // System.out.println("e16");
+                        sew = 16;
+                        break;
+
+                    case "e32":
+                        // System.out.println("e32");
+                        sew = 32;
+                        break;
+
+                    case "e64":
+                        // System.out.println("e64");
                         sew = 64;
                         break;
 
@@ -2029,9 +2092,44 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 pc += asmLine.encodedLength;
                 break;
 
+            case I_VADD_VX:
+                logger.warn("I_VADD_VX not implemented! " + asmLine);
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
+            case I_VADD_VI:
+                logger.warn("I_VADD_VI not implemented! " + asmLine);
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
             case I_VMV_V_I:
                 logger.warn("I_VMV_V_I not implemented! " + asmLine);
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
 
+            case I_VID:
+                logger.warn("I_VID not implemented! " + asmLine);
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+            
+            case I_VSLL_VV:
+                logger.warn("I_VSLL_VV not implemented! " + asmLine);
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
+            case I_VSLL_VX:
+                logger.warn("I_VSLL_VX not implemented! " + asmLine);
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
+
+            case I_VSLL_VI:
+                logger.warn("I_VSLL_VI not implemented! " + asmLine);
                 // increment PC
                 pc += asmLine.encodedLength;
                 break;

@@ -1,0 +1,138 @@
+Problems:
+
+"Configuration-Setting Instructions" and "Vector Integer Instructions" do have the same [6:0]
+
+
+1. [6:0]
+if 0000111 or 0100111 
+	then immediately process Vector Load and Store Instructions
+	return
+
+2. [6:0] == 1010111 && [14:12] == 111
+if [6:0] == 1010111 && [14:12] == 111 
+	then process Configuration-Setting Instructions
+	return
+
+3. [6:0] == 1010111 && [14:12] != 111
+	if [31-26] = 
+	000000 -> vadd + vfadd + vredsum
+	000001 -> vredand + vfredusum
+	000010 -> vsub + vfsub + vredor
+	000011 -> vrsub + vredxor + vfredosum
+	000100 -> vminu + vfmin + vredminu
+	000101 -> vmi + vredmin + vfredmin
+	000110 -> vmaxu + vfmax + vredmaxu
+	000111 -> vmax + vredmaxu + vfredmax
+	001000 -> vaaddu + vfsgnj
+	001001 -> vand + vaadd + vfsgnjn
+		[14-12] == 000 -> vand.vv vd, vs2, vs1, vm
+				== 100 -> vand.vx vd, vs2, rs1, vm
+				== 011 -> vand.vi vd, vs2, imm, vm
+		[14-12] == 010 -> vaadd.vv vd, vs2, vs1, vm
+				== 110 -> vaadd.vx vd, vs2, rs1, vm
+		[14-12] == 001 -> vfsgnjn.vv vd, vs2, vs1, vm
+				== 101 -> vfsgnjn.vf vd, vs2, rs1, vm
+	001010 -> vor + vasubu + vfsgnjx
+		001 -> vfsgnjx	
+	001011 -> vxor + vasub
+	001100 -> vrgather
+	001110 -> vslideup + vslide1up + vfslide1up + vrgatherei16
+	001111 -> vslidedown + vslide1down + vfslide1down
+	010000 -> vadc + vpopc + vfirst + vmv.x.s + vfmv.f.s + vfmv.s.f
+	010001 -> vmadc
+	010010 -> vsbc + vzext/vsext + vfcvt + vfwcvt + vfncvt + vmv.s.x
+		000 -> vsbc.vvm vd, vs2, vs1, v0 # Vector-vector
+		100 -> vsbc.vxm vd, vs2, rs1, v0 # Vector-scalar
+		010 -> vzext/vsext + vmv.s.x
+		001 -> vfcvt + vfwcvt + vfncvt !!!!!!!!!!!!!!!!!!!!!!!!!!!! HOW does this work????	
+	010011 -> vmsbc + vfsqrt + vfrsqrt7
+		001 -> 
+			[19-15] == 00000 -> vfsqrt 
+			[19-15] == 00100 -> vfrsqrt7
+			[19-15] == 00101 -> vfrec7
+			[19-15] == 10000 -> vfclass
+	010100 -> vmsbf + vmsof + vmsif + viota + vid
+		010 -> 
+			[19-15] == 00001 -> vmsbf
+			[19-15] == 00010 -> vmsof
+			[19-15] == 00011 -> vmsif
+			[19-15] == 10000 -> viota
+			[19-15] == 10001 -> vid
+	010111 -> vmerge/vmv + vcompress + vfmerge/vfmv
+	011000 -> vmseq + vmfeq + vmandnot
+		001 -> vmfeq.vv vd, vs2, vs1, vm
+		010 -> vmandnot
+		101 -> vmfeq.vf vd, vs2, rs1, vm
+	011001 -> vmsne + vmfle + vmand
+	011010 -> vmsltu + vmor
+	011011 -> vmslt + vmflt + vmxor
+	011100 -> vmsleu + vmfne + vmornot
+	011101 -> vmsle + vmfgt + vmnand
+	011110 -> vmsgtu + vmnor
+	011111 -> vmsgt + vmfge + vmxnor
+	100000 -> vdivu + vsaddu + vfdiv
+	100001 -> vdiv + vsadd + vfrdiv
+	100010 -> vremu + vssubu
+	100011 -> vrem + vssub
+	100100 -> vmulhu + vfmul
+	100101 -> vsll + vmul
+	100110 -> vmulhsu
+	100111 -> vmulh + vsmul + vfrsub
+	101000 -> vsrl + vfmadd
+	101001 -> vsra + vmadd + vfnmadd
+	101010 -> vssrl + vfmsub
+	101011 -> vnmsub + vssra + vfnmsub
+	101100 -> vnsrl + vfmacc
+	101101 -> vnsra + vmacc + vfnmacc
+	101110 -> vnclipu + vfmsac
+	101111 -> vnmsac + vnclip + vfnmsac
+	110000 -> vwaddu + vfwadd + vwredsumu
+	110001 -> vwadd + vwredsum + vfwredusum
+	110010 -> vwsubu + vfwsub
+	110011 -> vwsub + vfwredosum
+	110100 -> vwaddu.w + vfwadd.w
+	110101 -> vwadd.w
+	110110 -> vwsubu.w + vfwsub.w
+	110111 -> vwsub.w
+	111000 -> vwmulu + vfwmul
+	111010 -> vwmulsu
+	111011 -> vwmul
+	111100 -> vwmaccu + vfwmacc
+	111101 -> vwmacc + vfwnmacc
+	111110 -> vwmaccus + vfwmsac
+	111111 -> vwmaccsu + vfwnmsac
+
+
+
+
+Configuration-Setting Instructions - ([14:12] == 1010111) && ([14:12] == 111)
+https://rvv-isadoc.readthedocs.io/en/latest/configure.html
+
+Vector Load and Store Instructions - 0000111 and 0100111
+https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
+
+Vector Integer Instructions - 1010111
+https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html
+
+Vector Fixed-Point Instructions - 1010111
+https://rvv-isadoc.readthedocs.io/en/latest/arith_fixed_point.html
+
+Vector Floating-Point Instructions - 1010111
+https://rvv-isadoc.readthedocs.io/en/latest/arith_floating_point.html
+
+Vector Reduction Instructions - 1010111
+https://rvv-isadoc.readthedocs.io/en/latest/arith_reduction.html
+
+Vector Mask Instructions - 1010111
+https://rvv-isadoc.readthedocs.io/en/latest/arith_mask.html
+
+Vector Permutation Instructions - 1010111
+https://rvv-isadoc.readthedocs.io/en/latest/arith_permutation.html
+
+
+	/** 0b1010111 */
+    private static final int V_EXTENSION_OPERATION  = 0b1010111;
+    /** 0b0000111 */
+    private static final int V_EXTENSION_LOAD       = 0b0000111;
+    /** 0b0100111 */
+    private static final int V_EXTENSION_STORE      = 0b0100111;

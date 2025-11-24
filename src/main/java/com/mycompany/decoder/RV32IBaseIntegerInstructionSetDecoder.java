@@ -4,6 +4,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
+
 import org.antlr.v4.parse.v3TreeGrammarException;
 import org.antlr.v4.parse.ANTLRParser.blockEntry_return;
 import org.slf4j.Logger;
@@ -234,7 +236,16 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 // a non compressed instruction, now the decoder needs to pull in two bytes to
                 // complete the instruction
 
-                int instructionPart = memory.readShort((int) (address + 4), byteOrder);
+                int instructionPart = 0;
+
+                if (App.XLEN == 32) {
+                    // for 32 bit cast to int
+                    instructionPart = memory.readShort((int) (address + 4), byteOrder);
+                }
+                if (App.XLEN == 64) {
+                    // for 64 bit
+                    instructionPart = memory.readShort((address + 4), byteOrder);
+                }
 
                 // System.out.println(ByteArrayUtil.byteToHex(instructionPart));
                 // System.out.println(ByteArrayUtil.byteToHex(secondInstruction));
@@ -341,16 +352,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int imm_17_12 = (imm_17 << 17) | (imm_16_12_c << 12);
 
         int imm_11_10 = (data >> 10) & 0b11;
-
-        // int imm_5_0 = 
-
-        // if ((data == 0x8f75) || (data == 0x8fd1)) {
-        //     logger.info("test");
-        // }
-
-        // if (data == 0xa0b5) {
-        //     logger.info("test");
-        // }
 
         switch (opcode) {
 
@@ -798,6 +799,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         int imm_31_12 = (data >> 12) & 0b11111111111111111111;
         int imm_31_20 = (data >> 20) & 0b111111111111;
+        int imm_30_25 = (data >> 25) & 0b111111;
+        int imm_31_26 = (data >> 26) & 0b111111;
 
         int shtyp = (data >> 25) & 0b1111111;
         int shamt = (data >> 20) & ((xlen == 32) ? 0b11111 : 0b111111);
@@ -825,6 +828,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         int upperOpCode = 0;
 
         int vm = 0;
+        int vs2 = 0;
+
+        int imm32 = (data >> 31) & 0b1;
 
         switch (opcode) {
 
@@ -1225,74 +1231,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
             case V_EXTENSION_OPERATION:
 
-                switch (funct3) {
+                if (funct3 == 0b111) {
 
-                    case 0b000:
-                        asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
-                        asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
-                        asmLine.register_2 = RISCVRegister.fromIntRVV(rs1);
-
-                        // masking enabled / disabled
-                        vm = (data >> 25) & 0b1;
-                        if (vm == 1) {
-                            asmLine.rvvMasking = true;
-                        }
-
-                        asmLine.mnemonic = Mnemonic.I_VADD_VV;
-                        break;
-
-                    case 0b010:
-                        upperOpCode = (data >> 26) & 0b111111;
-                        switch (upperOpCode) {
-                            case 0b010100:
-                                // https://rvv-isadoc.readthedocs.io/en/latest/arith_mask.html#vid
-                                // Vector element index instruction. Writes each element’s index to the destination vector register group, from 0 to vl-1.
-                                System.out.println("vid!");
-                                throw new RuntimeException("No implemented yet!");
-                                // break;
-                            default:
-                                throw new RuntimeException("No implemented yet!");
-                        }
-                        break;
-
-                    case 0b011:
-
-                        upperOpCode = (data >> 26) & 0b111111;
-                        switch (upperOpCode) {
-
-                            // one of vmadd{.vv, .vx, .vi}
-                            // Vector single-width integer add.
-                            // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
-                            case 0b000000:
-                                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
-                                asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
-
-                                imm_19_15 = (data >> 15) & 0b11111;
-                                asmLine.numeric_1 = imm_19_15;
-
-                                asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
-
-                                asmLine.mnemonic = Mnemonic.I_VMV_V_I;
-                                break;
-
-                            case 0b011001:
-                                asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
-                                asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
-
-                                imm_19_15 = (data >> 15) & 0b11111;
-                                asmLine.numeric_2 = imm_19_15;
-
-                                asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
-
-                                asmLine.mnemonic = Mnemonic.I_VMSNE_VI;
-                                break;
-
-                            default:
-                                throw new RuntimeException("No implemented yet!");
-                            
-                        }
-
-                    case 0b111: // VSETVLI
+                    if (imm32 == 0) { // VSETVLI
                         asmLine.register_0 = RISCVRegister.fromInt(rd);
                         asmLine.register_1 = RISCVRegister.fromInt(rs1);
 
@@ -1308,28 +1249,15 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         int vill = (data >> 31) & 0b1;
 
                         // mask agnostic
-                        // byte vma = (byte) (asmLine.rvvMask.equalsIgnoreCase("ma") ? 1 : 0);
                         String maskAgnostic = (vma == 1) ? "ma" : "mu";
-                        logger.info("maskAgnostic: " + maskAgnostic);
+                        // logger.info("maskAgnostic: " + maskAgnostic);
                         asmLine.rvvMask = maskAgnostic;
 
                         // tail agnostic
-                        // byte vta = (byte) (asmLine.rvvTail.equalsIgnoreCase("ta") ? 1 : 0);
                         String tailAgnostic = (vta == 1) ? "ta" : "tu";
-                        logger.info("tailAgnostic: " + tailAgnostic);
+                        // logger.info("tailAgnostic: " + tailAgnostic);
                         asmLine.rvvTail = tailAgnostic;
 
-                        // selected element width (SEW)
-                        // byte sew = 4;
-                        // if (asmLine.rvvSew.equalsIgnoreCase("e8")) {
-                        // sew = 0;
-                        // } else if (asmLine.rvvSew.equalsIgnoreCase("e16")) {
-                        // sew = 1;
-                        // } else if (asmLine.rvvSew.equalsIgnoreCase("e32")) {
-                        // sew = 2;
-                        // } else if (asmLine.rvvSew.equalsIgnoreCase("e64")) {
-                        // sew = 3;
-                        // }
                         String selectedElementWidth = "";
                         switch (sew) {
                             case 0:
@@ -1345,30 +1273,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 selectedElementWidth = "e64";
                                 break;
                         }
-                        logger.info("selectedElementWidth: " + selectedElementWidth);
+                        // logger.info("selectedElementWidth: " + selectedElementWidth);
                         asmLine.rvvSew = selectedElementWidth;
 
-                        // register grouping or fractions of register (LMUL)
-                        // byte lmul = 0; // default value
-                        // if (asmLine.rvvLmul != null) {
-                        // if (asmLine.rvvLmul.equalsIgnoreCase("mf8")) { // multiplier fractional
-                        // lmul = 5;
-                        // } else if (asmLine.rvvLmul.equalsIgnoreCase("mf4")) { // multiplier
-                        // fractional
-                        // lmul = 6;
-                        // } else if (asmLine.rvvLmul.equalsIgnoreCase("mf2")) { // multiplier
-                        // fractional
-                        // lmul = 7;
-                        // } else if (asmLine.rvvLmul.equalsIgnoreCase("m1")) { // grouped
-                        // lmul = 0;
-                        // } else if (asmLine.rvvLmul.equalsIgnoreCase("m2")) { // grouped
-                        // lmul = 1;
-                        // } else if (asmLine.rvvLmul.equalsIgnoreCase("m4")) { // grouped
-                        // lmul = 2;
-                        // } else if (asmLine.rvvLmul.equalsIgnoreCase("m8")) { // grouped
-                        // lmul = 3;
-                        // }
-                        // }
                         String lmulMultiplier = "";
                         switch (lmul) {
                             case 5:
@@ -1393,28 +1300,321 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 lmulMultiplier = "m8";
                                 break;
                         }
-                        logger.info("lmulMultiplier: " + lmulMultiplier);
+
+                        // logger.info("lmulMultiplier: " + lmulMultiplier);
+
                         asmLine.rvvLmul = lmulMultiplier;
 
-                        logger.info("vill: " + vill);
+                        // logger.info("vill: " + vill);
 
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("vsetvli ");
-                        stringBuilder.append(Register.toStringAbi(asmLine.register_0)).append(", ");
-                        stringBuilder.append(Register.toStringAbi(asmLine.register_1)).append(", ");
-                        stringBuilder.append(selectedElementWidth).append(", ");
-                        stringBuilder.append(lmulMultiplier).append(", ");
-                        stringBuilder.append(maskAgnostic).append(", ");
-                        stringBuilder.append(tailAgnostic);
-                        logger.info(stringBuilder.toString());
+                        if (logger.isTraceEnabled()) {
+
+                            StringBuilder stringBuilder = new StringBuilder();
+                            stringBuilder.append("vsetvli ");
+                            stringBuilder.append(Register.toStringAbi(asmLine.register_0)).append(", ");
+                            stringBuilder.append(Register.toStringAbi(asmLine.register_1)).append(", ");
+                            stringBuilder.append(selectedElementWidth).append(", ");
+                            stringBuilder.append(lmulMultiplier).append(", ");
+                            stringBuilder.append(maskAgnostic).append(", ");
+                            stringBuilder.append(tailAgnostic);
+                            logger.trace(stringBuilder.toString());
+                        }
 
                         asmLine.mnemonic = Mnemonic.I_VSETVLI;
+                    
+                    } else if (imm32 == 1) { 
+
+                        if (imm_30_25 == 0b000000) {
+                            // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetvl
+                            throw new RuntimeException("Not implemented yet: vsetvl");
+                        } else {
+                            // https://rvv-isadoc.readthedocs.io/en/latest/configure.html#vsetivli
+                            //throw new RuntimeException("Not implemented yet: vsetivli");
+
+                            asmLine.register_0 = RISCVRegister.fromInt(rd);
+                            //asmLine.register_1 = RISCVRegister.fromInt(rs1);
+                            asmLine.numeric_1 = (long) rs1;
+
+                            int zimm = (data >> 20) & 0b11_1111_1111;
+
+                            int lmul = (zimm >> 0) & 0b111;
+                            int sew = (zimm >> 3) & 0b111;
+                            int vta = (zimm >> 6) & 0b1;
+                            int vma = (zimm >> 7) & 0b1;
+                            int vill = (data >> 31) & 0b1;
+
+                            // mask agnostic
+                            String maskAgnostic = (vma == 1) ? "ma" : "mu";
+                            // logger.info("maskAgnostic: " + maskAgnostic);
+                            asmLine.rvvMask = maskAgnostic;
+
+                            // tail agnostic
+                            String tailAgnostic = (vta == 1) ? "ta" : "tu";
+                            // logger.info("tailAgnostic: " + tailAgnostic);
+                            asmLine.rvvTail = tailAgnostic;
+
+                            String selectedElementWidth = "";
+                            switch (sew) {
+                                case 0:
+                                    selectedElementWidth = "e8";
+                                    break;
+                                case 1:
+                                    selectedElementWidth = "e16";
+                                    break;
+                                case 2:
+                                    selectedElementWidth = "e32";
+                                    break;
+                                case 3:
+                                    selectedElementWidth = "e64";
+                                    break;
+                            }
+                            // logger.info("selectedElementWidth: " + selectedElementWidth);
+                            asmLine.rvvSew = selectedElementWidth;
+
+                            String lmulMultiplier = "";
+                            switch (lmul) {
+                                case 5:
+                                    lmulMultiplier = "mf8";
+                                    break;
+                                case 6:
+                                    lmulMultiplier = "mf4";
+                                    break;
+                                case 7:
+                                    lmulMultiplier = "mf2";
+                                    break;
+                                case 0:
+                                    lmulMultiplier = "m1";
+                                    break;
+                                case 1:
+                                    lmulMultiplier = "m2";
+                                    break;
+                                case 2:
+                                    lmulMultiplier = "m4";
+                                    break;
+                                case 3:
+                                    lmulMultiplier = "m8";
+                                    break;
+                            }
+
+                            asmLine.rvvLmul = lmulMultiplier;
+
+                            // logger.info("vill: " + vill);
+
+                            if (logger.isTraceEnabled()) {
+
+                                StringBuilder stringBuilder = new StringBuilder();
+                                stringBuilder.append("vsetivli ");
+                                stringBuilder.append(Register.toStringAbi(asmLine.register_0)).append(", ");
+                                stringBuilder.append(Register.toStringAbi(asmLine.register_1)).append(", ");
+                                stringBuilder.append(selectedElementWidth).append(", ");
+                                stringBuilder.append(lmulMultiplier).append(", ");
+                                stringBuilder.append(maskAgnostic).append(", ");
+                                stringBuilder.append(tailAgnostic);
+                                logger.trace(stringBuilder.toString());
+                            }
+
+                            asmLine.mnemonic = Mnemonic.I_VSETIVLI;
+                        }
+
+                    }
+
+                } else {
+
+                    switch (imm_31_26) { // funct3 is [14-12]
+
+                        case 0b000000:
+
+                            switch (funct3) {
+                                
+                                // case 0b000000: // VADD
+                                //     asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                //     asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                //     imm_19_15 = (data >> 15) & 0b11111;
+                                //     asmLine.numeric_1 = imm_19_15;
+
+                                //     asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
+
+                                //     asmLine.mnemonic = Mnemonic.I_VADD_VV;
+                                //     break;
+
+                                // one of vmadd{.vv, .vx, .vi}
+                                // Vector single-width integer add.
+                                // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
+                                case 0b000: // VADD.VV
+                                    asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                    asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+                                    asmLine.register_2 = RISCVRegister.fromIntRVV(rs1);
+
+                                    // masking enabled / disabled
+                                    vm = (data >> 25) & 0b1;
+                                    if (vm == 1) {
+                                        asmLine.rvvMasking = true;
+                                    }
+
+                                    System.out.println("rd = " + rd);
+
+                                    asmLine.mnemonic = Mnemonic.I_VADD_VV;
+                                    break;
+
+                                case 0b011:
+                                    // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
+                                    // vadd.vi vd, vs2, imm, vm
+                                    // vadd.vi	v5,v1,8
+
+                                    asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                    asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                    imm_19_15 = (data >> 15) & 0b11111;
+                                    asmLine.numeric_2 = imm_19_15;
+
+                                    // masking enabled / disabled
+                                    vm = (data >> 25) & 0b1;
+                                    if (vm == 1) {
+                                        asmLine.rvvMasking = true;
+                                    }
+
+                                    asmLine.mnemonic = Mnemonic.I_VADD_VI;
+                                    break;
+
+                                default:
+                                    throw new RuntimeException("Not implemented yet: func3 = " + Integer.toBinaryString(funct3));
+
+                            }
                         break;
 
-                    default:
-                        throw new RuntimeException("No implemented yet! RVV instruction, funct3: " + funct3);
+                        case 0b010100:
+
+                            switch (funct3) {
+
+                                case 0b010: // VID
+                                    // https://rvv-isadoc.readthedocs.io/en/latest/arith_mask.html#vid
+                                    // Vector element index instruction. Writes each element’s index to the destination vector register group, from 0 to vl-1.
+                                    // System.out.println("vid!");
+
+                                    imm_19_15 = (data >> 15) & 0b11111;
+                                    if (imm_19_15 != 0b10001) {
+                                        throw new RuntimeException("Encoding is incorrect! Hardcoded 0b10001 expected!");
+                                    }
+
+                                    // masking enabled / disabled
+                                    vm = (data >> 25) & 0b1;
+                                    asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
+                                    vs2 = rs2;
+
+                                    // System.out.println(imm_19_15);
+
+                                    asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                    asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                    asmLine.mnemonic = Mnemonic.I_VID;
+
+                                    logger.info("vid: " + asmLine.toString());
+
+                                    // throw new RuntimeException("No implemented yet!");
+                                break;
+
+                                default:
+                                    throw new RuntimeException("");
+                                }
+                            break;
+
+                        // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
+                        case 0b011001: 
+                        
+                            switch (funct3) {
+
+                                case 0b010:// VMSNE.VI
+                                    asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                    asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                    imm_19_15 = (data >> 15) & 0b11111;
+                                    asmLine.numeric_2 = imm_19_15;
+
+                                    asmLine.rvvMasking = (((data >> 25) & 0b1) == 1);
+
+                                    asmLine.mnemonic = Mnemonic.I_VMSNE_VI;
+                                    break;
+
+                                default:
+                                    throw new RuntimeException("");
+                            }
+                            break;
+
+                        case 0b100101: // vsll + vmul
+                            // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vsll
+
+                            switch (funct3) {
+
+                                case 0b000: // vsll.vv vd, vs2, vs1, vm
+                                    throw new RuntimeException("000");
+
+                                case 0b100: // vsll.vx vd, vs2, rs1, vm
+                                    throw new RuntimeException("100");
+
+                                case 0b011: // vsll.vi vd, vs2, imm, vm
+                                    // vsll.vi	v1,v1,1
+                                    // throw new RuntimeException("011");
+
+                                    asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                    asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                    // imm[4:0]
+                                    imm_19_15 = (data >> 15) & 0b11111;
+                                    asmLine.numeric_2 = imm_19_15;
+
+                                    // masking enabled / disabled
+                                    vm = (data >> 25) & 0b1;
+                                    if (vm == 1) {
+                                        asmLine.rvvMasking = true;
+                                    }
+
+                                    asmLine.mnemonic = Mnemonic.I_VSLL_VI;
+                                    break;
+
+                                default:
+                                    throw new RuntimeException("");
+
+                            }
+                            break;
+
+                        // case 0b010:
+                        //     upperOpCode = (data >> 26) & 0b111111;
+                        //     switch (upperOpCode) {
+                                
+                        //         default:
+                        //             throw new RuntimeException("No implemented yet!");
+                        //     }
+                        //     break;
+
+                        
+                        // case 0b011:
+
+                        //     upperOpCode = (data >> 26) & 0b111111;
+                        //     switch (upperOpCode) {
+
+                                
+                                
+                        //         case 0b100101: // VSSLI
+
+
+
+                        //             break;
+
+                                
+
+                        //         default:
+                        //             throw new RuntimeException("No implemented yet! upperOpCode = " + Integer.toBinaryString(upperOpCode));
+                                
+                        //     }
+
+                        
+
+                        // default:
+                        //     throw new RuntimeException("No implemented yet! RVV instruction, funct3: " + funct3);
+                    }
                 }
-                break;
+            break;
 
                 // int upperOpCode = (data >> 26) & 0b111111;
                 // switch (upperOpCode) {
