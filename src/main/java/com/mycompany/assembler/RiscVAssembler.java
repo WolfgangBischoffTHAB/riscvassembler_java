@@ -632,6 +632,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         String sectionName = section.name;
 
+        while ((section.byteArrayOutStream.size() % 4) != 0) {
+            section.byteArrayOutStream.write(0x00);
+        }
+
         byte[] sectionByteArray = section.byteArrayOutStream.toByteArray();
 
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(

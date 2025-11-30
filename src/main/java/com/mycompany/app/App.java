@@ -69,19 +69,19 @@ public class App {
 
     private static final boolean OUTPUT_HEX_MACHINE_CODE = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
-    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean MACHINE_CODE_SOURCE_RAW = false;
     private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Raw Machine Code
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -151,6 +151,7 @@ public class App {
         //
     }
 
+    @SuppressWarnings("unchecked")
     public static void mainRISCV(String[] args) throws IOException {
 
         //
@@ -257,7 +258,9 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-            String inputFile = "src/test/resources/riscvasm/rvv_testing/simple_vadd.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing/simple_vadd.s";
+
+            String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad.s";
 
             // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
@@ -356,9 +359,14 @@ public class App {
                         logger.info("outputHexMachineCode() done.");
                     }
 
-                    int curPos = (int) section.outputSection.currentPosition;
+                    //int curPos = (int) section.outputSection.currentPosition;
+                    long curPos = section.outputSection.currentPosition;
+
+                    // 64 bit
                     // memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
-                    memory.copy(curPos, machineCode, 0, machineCode.length);
+
+                    memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
+
                     section.outputSection.currentPosition += machineCode.length;
                 }
 
@@ -857,6 +865,7 @@ public class App {
             // BaseAssembler.outputHexMachineCode(singleCycleCPU.memory, byteOrder);
 
             long addr = 0x10040L;
+            @SuppressWarnings("unchecked")
             long value = singleCycleCPU.memory.readLong(addr, ByteOrder.LITTLE_ENDIAN);
             logger.info(ByteArrayUtil.byteToHex(value, null, "%1$016X"));
 

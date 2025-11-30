@@ -119,12 +119,17 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             logger.trace("PC: " + ByteArrayUtil.byteToHex(pc));
         }
 
-        // final int instruction = memory.readWord(pc, byteOrder);
+        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+        final int instruction = memory.readWord(pc, byteOrder);
 
         // if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
         //     logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");
         //     // throw new RuntimeException("Done");
         //     return false;
+        // }
+        
+        // if (pc == 0x10154) {
+        //     System.out.println("test");
         // }
 
         // logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " Instruction: " + ByteArrayUtil.byteToHex(instruction));
@@ -145,7 +150,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 logger.trace(asmLine.toString());
                 throw new RuntimeException(
-                        "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(asmLine.instruction));
+                        "Decoding instruction without mnemonic! " + ByteArrayUtil.byteToHex(asmLine.instruction) + " PC: " + ByteArrayUtil.byteToHex(pc));
             }
 
             result &= executeAsmLine(asmLine);
@@ -341,26 +346,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // rd = pc+4; pc += imm
                 // logger.trace("jal");
 
-                // registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 writeRegisterFile(asmLine.register_0.getIndex(), pc + 4);
-
-                // System.out.println("instruction: " + ByteArrayUtil.byteToHex(instruction));
-
-                // int imm_10_1 = (asmLine.instruction >> (9 + 12)) & 0b1111111111;
-                // int imm_11 = (asmLine.instruction >> (8 + 12)) & 0b1;
-                // int imm_19_12 = (asmLine.instruction >> (0 + 12)) & 0b11111111;
-                // int imm_20 = (asmLine.instruction >> (19 + 12)) & 0b1;
-
-                // int jumpDistance = (imm_20 << 20) + (imm_19_12 << 12) + (imm_11 << 11) + (imm_10_1 << 1);
-                // jumpDistance = (int) NumberParseUtil.sign_extend_20_bit_to_int32_t(jumpDistance);
-
                 long jumpDistance = asmLine.numeric_1;
 
+                // ???
                 asmLine.branchTaken = true;
 
                 // increment PC
                 pc += jumpDistance;
-                // System.out.println("newPC: " + ByteArrayUtil.byteToHex(pc));
                 break;
 
             case I_JALR:
@@ -371,11 +364,16 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 //
                 // rd = pc + 4
                 // pc = rs1 + imm
-                logger.trace("jalr: " + asmLine);
+
+                if (logger.isTraceEnabled()) {
+                    logger.trace("jalr: " + asmLine);
+                }
 
                 // DEBUG
-                logger.trace("register_1 content: "
+                if (logger.isTraceEnabled()) {
+                    logger.trace("register_1 content: "
                         + ByteArrayUtil.byteToHex(readRegisterFile(asmLine.register_1.getIndex())));
+                }
 
                 // pc = rs1 + imm
                 immValSignExtended = (int) NumberParseUtil
@@ -391,6 +389,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 logger.trace("New PC: " + ByteArrayUtil.byteToHex(pcReplacement));
 
                 asmLine.branchTaken = true;
+
+                if (pc == pcReplacement) {
+                    throw new RuntimeException("RET instruction or Endless Loop Detected at PC = 0x" + ByteArrayUtil.longToHex(pc));
+                }
 
                 // increment PC
                 pc = pcReplacement;
@@ -1796,6 +1798,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 // increment PC
                 pc += asmLine.encodedLength;
+                break;
+
+            //
+            // F-Extension (Floating Point Extension)
+            //
+
+            case I_FSW:
+                logger.info("I_FSW: " + asmLine);
                 break;
 
             //

@@ -28,28 +28,28 @@ Disassembly of section .text:
    10154:	f922                	sd	s0,176(sp)
    10156:	f526                	sd	s1,168(sp)
    10158:	fd06                	sd	ra,184(sp)
-   1015a:	0207e107          	vle32.v	v2,(a5)
+   1015a:	0207e107          	vle32.v	v2,(a5)         #   32-bit unit-stride load
    1015e:	089c                	addi	a5,sp,80
-   10160:	0207e0a7          	vse32.v	v1,(a5)
+   10160:	0207e0a7          	vse32.v	v1,(a5)         # Store vector of 32b elements
    10164:	02123257          	vadd.vi	v4,v1,4
    10168:	081c                	addi	a5,sp,16
-   1016a:	0207e2a7          	vse32.v	v5,(a5)
+   1016a:	0207e2a7          	vse32.v	v5,(a5)         # Store vector of 32b elements
    1016e:	109c                	addi	a5,sp,96
-   10170:	0207e2a7          	vse32.v	v5,(a5)
+   10170:	0207e2a7          	vse32.v	v5,(a5)         # Store vector of 32b elements
    10174:	021631d7          	vadd.vi	v3,v1,12
    10178:	181c                	addi	a5,sp,48
-   1017a:	0207e227          	vse32.v	v4,(a5)
-   1017e:	011c                	addi	a5,sp,128
-   10180:	0207e227          	vse32.v	v4,(a5)
+   1017a:	0207e227          	vse32.v	v4,(a5)         # Store vector of 32b elements
+   1017e:	011c                	addi	a5,sp,128   
+   10180:	0207e227          	vse32.v	v4,(a5)         # Store vector of 32b elements
    10184:	009c                	addi	a5,sp,64
-   10186:	0207e1a7          	vse32.v	v3,(a5)
+   10186:	0207e1a7          	vse32.v	v3,(a5)         # Store vector of 32b elements
    1018a:	091c                	addi	a5,sp,144
-   1018c:	0207e1a7          	vse32.v	v3,(a5)
+   1018c:	0207e1a7          	vse32.v	v3,(a5)         # Store vector of 32b elements
    10190:	1018                	addi	a4,sp,32
    10192:	189c                	addi	a5,sp,112
-   10194:	020160a7          	vse32.v	v1,(sp)
-   10198:	02076127          	vse32.v	v2,(a4)
-   1019c:	0207e127          	vse32.v	v2,(a5)
+   10194:	020160a7          	vse32.v	v1,(sp)         # Store vector of 32b elements
+   10198:	02076127          	vse32.v	v2,(a4)         # Store vector of 32b elements
+   1019c:	0207e127          	vse32.v	v2,(a5)         # Store vector of 32b elements
    101a0:	64e5                	lui	s1,0x19
    101a2:	840a                	mv	s0,sp
    101a4:	23048493          	addi	s1,s1,560 # 19230 <__clzdi2+0x36>

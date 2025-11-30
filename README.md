@@ -2,6 +2,33 @@
 
 riscvassembler written in Java
 
+## TODO
+
+### Assembler does not produce correct code for:
+
+```
+        .data
+
+.LABEL_0:
+        .string "test: %d\n"
+
+        .text
+
+main:
+_start:
+        lui     a5, %hi(.LABEL_0)
+        addi    a0, a5, %lo(.LABEL_0)
+        call    puts
+        ret
+puts:
+        li      a7, 92   # ecall for puts
+        ecall
+        jr      ra
+```
+
+Compare the assembler output for the code above against the output of https://riscvasm.lucasteske.dev/#
+The outputs do not match.
+
 ## Debugging in Visual Studio Code
 
 The RISC-V Venus Simulator: https://marketplace.visualstudio.com/items?itemName=hm.riscv-venus

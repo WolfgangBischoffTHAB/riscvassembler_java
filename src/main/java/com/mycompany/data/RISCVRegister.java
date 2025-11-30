@@ -189,6 +189,49 @@ public enum RISCVRegister implements Register {
     REG_X31(31),
 
     //
+    // F-Extension (Floating Point)
+    //
+
+    // FP temporaries, Caller-Saved
+    REG_F0(0x00),
+    REG_F1(0x01),
+    REG_F2(0x02),
+    REG_F3(0x03),
+    REG_F4(0x04),
+    REG_F5(0x05),
+    REG_F6(0x06),
+    REG_F7(0x07),
+    // FP saved registers, Callee-Saved
+    REG_F8(0x08),
+    REG_F9(0x09),
+    // FP arguments/return values, Caller-Saved
+    REG_F10(0x0A),
+    REG_F11(0x0B),
+    // FP arguments, Caller-Saved
+    REG_F12(0x0C),
+    REG_F13(0x0D),
+    REG_F14(0x0E),
+    REG_F15(0x0F),
+    REG_F16(0x10),
+    REG_F17(0x11),
+    // FP saved registers, Callee-Saved
+    REG_F18(0x12),
+    REG_F19(0x13),
+    REG_F20(0x14),
+    REG_F21(0x15),
+    REG_F22(0x16),
+    REG_F23(0x17),
+    REG_F24(0x18),
+    REG_F25(0x19),
+    REG_F26(0x1A),
+    REG_F27(0x1B),
+    // FP temporaries, Caller-Saved
+    REG_F28(0x1C),
+    REG_F29(0x1D),
+    REG_F30(0x1E),
+    REG_F31(0x1F),
+
+    //
     // V-Extension (RVV vector extension)
     //
 
@@ -198,6 +241,8 @@ public enum RISCVRegister implements Register {
     // REG_V1_T(0x03),
     REG_V2(0x02),
     //REG_V2_T(0x05),
+    REG_V3(0x03),
+    REG_V4(0x04),
     REG_V5(0x05),
 
     REG_UNKNOWN(255);
@@ -362,6 +407,10 @@ public enum RISCVRegister implements Register {
             /** 2 */
             case 0x02:
                 return REG_V2;
+            case 0x03:
+                return REG_V3;
+            case 0x04:
+                return REG_V4;
             // /** 5 */
             // case 0x05:
             //     return REG_V2_T;
@@ -370,6 +419,17 @@ public enum RISCVRegister implements Register {
 
             default:
                 throw new RuntimeException("Unknown V-Extension register: \"" + data + "\"");
+        }
+    }
+
+    public static Register fromIntFloatExtension(final int data) {
+        switch (data) {
+            case 0x08:
+                return REG_F8;
+            case 0x09:
+                return REG_F9;
+            default:
+                throw new RuntimeException("Unknown F-Extension register: \"" + data + "\"");
         }
     }
 
@@ -533,6 +593,15 @@ public enum RISCVRegister implements Register {
         // else if (register.equalsIgnoreCase("v2.t")) {
         //     return REG_V2_T;
         // }
+        else if (register.equalsIgnoreCase("v3")) {
+            return REG_V3;
+        } 
+        else if (register.equalsIgnoreCase("v4")) {
+            return REG_V4;
+        } 
+        else if (register.equalsIgnoreCase("v5")) {
+            return REG_V5;
+        } 
 
         throw new RuntimeException("Unknown register: \"" + register + "\"");
     }
@@ -645,6 +714,75 @@ public enum RISCVRegister implements Register {
                 return "x31";
 
             //
+            // F-Extension (Floating Point Extension)
+            //
+
+            case REG_F0:
+                return "f0";
+            case REG_F1:
+                return "f1";
+            case REG_F2:
+                return "f2";
+            case REG_F3:
+                return "f3";
+            case REG_F4:
+                return "f4";
+            case REG_F5:
+                return "f5";
+            case REG_F6:
+                return "f6";
+            case REG_F7:
+                return "f7";
+            case REG_F8:
+                return "f8";
+            case REG_F9:
+                return "f9";
+            case REG_F10:
+                return "f10";
+            case REG_F11:
+                return "f11";
+            case REG_F12:
+                return "f12";
+            case REG_F13:
+                return "f13";
+            case REG_F14:
+                return "f14";
+            case REG_F15:
+                return "f15";
+            case REG_F16:
+                return "f16";
+            case REG_F17:
+                return "f17";
+            case REG_F18:
+                return "f18";
+            case REG_F19:
+                return "f19";
+            case REG_F20:
+                return "f20";
+            case REG_F21:
+                return "f21";
+            case REG_F22:
+                return "f22";
+            case REG_F23:
+                return "f23";
+            case REG_F24:
+                return "f24";
+            case REG_F25:
+                return "f25";
+            case REG_F26:
+                return "f26";
+            case REG_F27:
+                return "f27";
+            case REG_F28:
+                return "f28";
+            case REG_F29:
+                return "f29";
+            case REG_F30:
+                return "f30";
+            case REG_F31:
+                return "f31";
+
+            //
             // V-Extension (RVV Vector Extension)
             //
 
@@ -660,6 +798,10 @@ public enum RISCVRegister implements Register {
                 return "v2";
             // case REG_V2_T:
             //     return "v2.t";
+            case REG_V3:
+                return "v3";
+            case REG_V4:
+                return "v4";
             case REG_V5:
                 return "v5";
 
@@ -677,110 +819,207 @@ public enum RISCVRegister implements Register {
             case REG_X0:
             case REG_ZERO:
                 return "zero";
-
             /** x1 */
             case REG_X1:
             case REG_RA:
                 return "ra";
-
             /** x2 */
             case REG_X2:
             case REG_SP:
                 return "sp";
-
             /** x3 */
             case REG_X3:
             case REG_GP:
                 return "gp";
+            /** x4 */
             case REG_X4:
             case REG_TP:
                 return "tp";
+            /** x5 */
             case REG_X5:
             case REG_T0:
                 return "t0";
+            /** x6 */
             case REG_X6:
             case REG_T1:
                 return "t1";
+            /** x7 */
             case REG_X7:
             case REG_T2:
                 return "t2";
+            
             case REG_S0:
                 return "s0";
+            /** x8 */
             case REG_X8:
             case REG_FP:
                 return "fp";
+            /** x9 */
             case REG_X9:
             case REG_S1:
                 return "s1";
+            /** x10 */
             case REG_X10:
             case REG_A0:
                 return "a0";
+            /** x11 */
             case REG_X11:
             case REG_A1:
                 return "a1";
+            /** x12 */
             case REG_X12:
             case REG_A2:
                 return "a2";
+            /** x13 */
             case REG_X13:
             case REG_A3:
                 return "a3";
+            /** x14 */ 
             case REG_X14:
             case REG_A4:
                 return "a4";
+            /** x15 */
             case REG_X15:
             case REG_A5:
                 return "a5";
+            /** x16 */
             case REG_X16:
             case REG_A6:
                 return "a6";
+            /** x17 */
             case REG_X17:
             case REG_A7:
                 return "a7";
+            /** x18 */
             case REG_X18:
             case REG_S2:
                 return "s2";
+            /** x19 */
             case REG_X19:
             case REG_S3:
                 return "s3";
+            /** x20 */
             case REG_X20:
             case REG_S4:
                 return "s4";
+            /** x21 */
             case REG_X21:
             case REG_S5:
                 return "s5";
+            /** x22 */
             case REG_X22:
             case REG_S6:
                 return "s6";
+            /** x23 */
             case REG_X23:
             case REG_S7:
                 return "s7";
+            /** x24 */
             case REG_X24:
             case REG_S8:
                 return "s8";
+            /** x25 */
             case REG_X25:
             case REG_S9:
                 return "s9";
+            /** x26 */
             case REG_X26:
             case REG_S10:
                 return "s10";
+            /** x27 */
             case REG_X27:
             case REG_S11:
                 return "s11";
+            /** x28 */
             case REG_X28:
             case REG_T3:
                 return "t3";
+            /** x29 */
             case REG_X29:
             case REG_T4:
                 return "t4";
+            /** x30 */
             case REG_X30:
             case REG_T5:
                 return "t5";
+            /** x31 */
             case REG_X31:
             case REG_T6:
                 return "t6";
+
+            //
+            // F-Extension
+            //
+            
+            case REG_F0:
+                return "ft0";
+            case REG_F1:
+                return "ft1";
+            case REG_F2:
+                return "ft2";
+            case REG_F3:
+                return "ft3";
+            case REG_F4:
+                return "ft4";
+            case REG_F5:
+                return "ft5";
+            case REG_F6:
+                return "ft6";
+            case REG_F7:
+                return "ft7";
+            case REG_F8:
+                return "fs0";
+            case REG_F9:
+                return "fs1";
+            case REG_F10:
+                return "fa0";
+            case REG_F11:
+                return "fa1";
+            case REG_F12:
+                return "fa2";
+            case REG_F13:
+                return "fa3";
+            case REG_F14:
+                return "fa4";
+            case REG_F15:
+                return "fa5";
+            case REG_F16:
+                return "fa6";
+            case REG_F17:
+                return "fa7";
+            case REG_F18:
+                return "fs2";
+            case REG_F19:
+                return "fs3";
+            case REG_F20:
+                return "fs4";
+            case REG_F21:
+                return "fs5";
+            case REG_F22:
+                return "fs6";
+            case REG_F23:
+                return "fs7";
+            case REG_F24:
+                return "fs8";
+            case REG_F25:
+                return "fs9";
+            case REG_F26:
+                return "fs10";
+            case REG_F27:
+                return "fs11";
+            case REG_F28:
+                return "ft8";
+            case REG_F29:
+                return "ft9";
+            case REG_F30:
+                return "ft9";
+            case REG_F31:
+                return "ft10";
+
             //
             // V-Extension (RVV vector extension)
             //
+
             case REG_V0:
                 return "v0";
             // case REG_V0_T:
@@ -793,6 +1032,10 @@ public enum RISCVRegister implements Register {
                 return "v2";
             // case REG_V2_T:
             //     return "v2.t";
+            case REG_V3:
+                return "v3";
+            case REG_V4:
+                return "v4";
             case REG_V5:
                 return "v5";
 

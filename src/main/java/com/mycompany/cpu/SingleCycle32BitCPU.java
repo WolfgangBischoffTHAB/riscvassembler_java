@@ -1282,8 +1282,6 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         // register_1_value + ")");
                         break;
 
-                    
-
                     case 92: // 92dec () (pfnStreamWriteBufFunc, printStringFromAddress)
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         printStringFromAddress((int) register_0_value_l);

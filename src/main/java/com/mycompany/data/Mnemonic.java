@@ -175,6 +175,12 @@ public enum Mnemonic {
     I_REMU(false),
 
     //
+    // F-Extension (Floating Point)
+    //
+
+    I_FSW(false), // https://msyksphinz-self.github.io/riscv-isadoc/html/rvfd.html#fsw
+
+    //
     // V-Extension (Vector Extension, RVV)
     //
 
@@ -745,6 +751,13 @@ public enum Mnemonic {
                 return "rem";
             case I_REMU:
                 return "remu";
+
+            //
+            // F Extension (Floating Point)
+            //
+
+            case I_FSW:
+                return "fsw";
 
             //
             // V Extension (RVV Vektor extension)

@@ -11,10 +11,12 @@ import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
- * First, the CallResolver has added two non-pseudo asm lines as children
- * into the pseudo assembler asmLine. Now the job of the CallOptimizer is
- * it to apply both of the child assembler lines or apply any optimizations
- * if possible.
+ * First, the CallResolver has replaced the CALL pseudo instruction by AUIPC and
+ * JALR. It has placed the two AUIPC and JALR into the child list of the CALL
+ * pseudo instruction's ASMLine.
+ * 
+ * Now the job of the CallOptimizer is it to apply both of the child assembler
+ * lines or apply any optimizations if possible.
  * 
  * If possible turns far calls (auipc+jalr) to near calls (jal)
  *
@@ -66,7 +68,8 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     if (callPseudoAsmLine.identifier_0.equalsIgnoreCase("upCountingMatrix")) {
                         System.out.println(callPseudoAsmLine);
 
-                        System.out.println("Address of target label: " + labelTableMap.get(callPseudoAsmLine.identifier_0));
+                        System.out.println(
+                                "Address of target label: " + labelTableMap.get(callPseudoAsmLine.identifier_0));
                     }
 
                     break;
@@ -226,9 +229,9 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
                     // int offset = lowValue <= secondAsmLine.offset ? 4 : 0;
                     // int offset = 4;
-                    //asmLine.numeric_1 = lowValue - secondAsmLine.offset + offset; // +4 or +0
+                    // asmLine.numeric_1 = lowValue - secondAsmLine.offset + offset; // +4 or +0
 
-                    //long off = labelTableMap.get(asmLine.identifier_0);
+                    // long off = labelTableMap.get(asmLine.identifier_0);
                     long off = labelTableMap.get(secondAsmLine.offsetLabel_2);
                     AsmLine referencedTarget = offsetAsmLineMap.get(off);
                     asmLine.referencedTarget = referencedTarget;

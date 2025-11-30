@@ -274,6 +274,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private void processCompressedInstruction(AsmLine<Register> asmLine, int data) {
 
+        asmLine.machineCode = data;
+
         // boolean debugOutput = true;
         boolean debugOutput = false;
         if (debugOutput) {
@@ -353,6 +355,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
         int imm_11_10 = (data >> 10) & 0b11;
 
+        int uimm_7_6 = 0;
+
         switch (opcode) {
 
             case QUADRANT_0:
@@ -360,7 +364,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 switch (funct3) {
 
                     case 0b000:
-                        // c.addi4spn
+                        // c.addi4spn - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-addi4spn
                         // Expansion: addi rd', x2, nzuimm
                         asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
                         asmLine.register_1 = RISCVRegister.REG_SP;
@@ -371,7 +375,12 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
+                    case 0b001:
+                        // c.fld - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-fld
+                        throw new RuntimeException("Not implemented! c.fld");
+
                     case 0b010:
+                        // c.lw - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-lw
                         asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
                         asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
                         asmLine.offset_1 = imm_6_2_combined;
@@ -381,13 +390,90 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
+                    case 0b011:
+                        // For RV32: c.flw https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-flw
+                        // For RV64: c.ld https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-ld
+
+                        // these two instructions are encoded exactly the same!
+                        // For RV32 C.FLW is decoded!
+                        // For RV64 C.LD is decoded! 
+                        // see https://docs.riscv.org/reference/isa/unpriv/c-st-ext.html 
+                        // Figure 1 - Instruction Listing for RVC, Quadrant 0
+
+                        //throw new RuntimeException("Not implemented! c.flw or c.ld");
+
+                        if (App.XLEN == 32) {
+                            throw new RuntimeException("Not implemented! c.flw for RV32");
+                        }
+                        if (App.XLEN == 64) {
+                            // for 64 bit
+                            uimm_7_6 = (data >> 5) & 0b11;
+                            int uimm_5_3 = (data >> 10) & 0b111;
+                            long uimm = (uimm_7_6 << 6) + (uimm_5_3 << 3);
+
+                            int rs1 = (data >> 7) & 0b111;
+                            int rs2 = (data >> 2) & 0b111;
+
+                            asmLine.register_0 = RISCVRegister.fromInt(rs1);
+                            asmLine.register_1 = RISCVRegister.fromInt(rs2);
+                            asmLine.offset_1 = uimm;
+
+                            asmLine.mnemonic = Mnemonic.I_LD;
+                        }
+
+                        break;
+
+                    case 0b101:
+                        // c.fsd - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-fsd
+                        throw new RuntimeException("Not implemented! c.fsd");
+
                     case 0b110:
+                        // c-sw - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-sw
                         asmLine.register_0 = RISCVRegister.fromIntCompressedInstruction((int) imm_4_2);
                         asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
                         asmLine.offset_1 = imm_6_2_combined;
                         asmLine.mnemonic = Mnemonic.I_SW;
                         if (debugOutput) {
                             logger.info(asmLine.toString());
+                        }
+                        break;
+
+                    case 0b111:
+                        // RV32 - c.fsw - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-fsw
+                        // RV32 - c.sd - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-sd
+
+                        if (App.XLEN == 32) {
+                            // for 32 bit
+                            throw new RuntimeException("Not implemented! c.flw for RV32");
+                        }
+                        if (App.XLEN == 64) {
+                            // for 64 bit
+                            // c.sd - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-sd
+                            // https://docs.riscv.org/reference/isa/unpriv/c-st-ext.html
+                            //throw new RuntimeException("Not implemented! c.sd");
+
+                            // C.SD is an RV64C-only instruction that stores a 64-bit value in register rs2′ 
+                            // to memory. It computes an effective address by adding the zero-extended offset
+                            // (uimm), scaled by 8 (therefore only uimm[7:6] uimm[5:3] and uimm[1:0] == 0 because
+                            // shifting left by two is a multiplication by 8), to the base address in register rs1′. 
+                            // It expands to sd rs2′, offset(rs1′).
+
+                            // M[x[8+rs1'] + uimm][63:0] = x[8+rs2']
+
+                            // Expansion: sd rs2′, offset(rs1′)
+
+                            uimm_7_6 = (data >> 5) & 0b11;
+                            int uimm_5_3 = (data >> 10) & 0b111;
+                            long uimm = (uimm_7_6 << 6) + (uimm_5_3 << 3);
+
+                            int rs1 = (data >> 7) & 0b111;
+                            int rs2 = (data >> 2) & 0b111;
+
+                            asmLine.register_0 = RISCVRegister.fromInt(rs1);
+                            asmLine.register_1 = RISCVRegister.fromInt(rs2);
+                            asmLine.offset_1 = uimm;
+
+                            asmLine.mnemonic = Mnemonic.I_SD;
                         }
                         break;
 
@@ -452,6 +538,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                     switch (funct3) {
 
                         case 0b000:
+                            // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-addi
+
                             if (imm_11_7 == 0) {
 
                                 asmLine.mnemonic = Mnemonic.I_NOP;
@@ -476,6 +564,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                             break;
 
                         case 0b001:
+                            // c-jal - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-jal
+                            // c-addiw - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-addiw
                             // imm[11|4|9:8|10|6|7|3:1|5]
                             // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-jal
                             asmLine.register_0 = RISCVRegister.REG_X1;
@@ -488,7 +578,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                             break;
 
                         case 0b010:
-                            // c.li
+                            // c.li - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-li
                             // li pseudo instruction - https://msyksphinz-self.github.io/riscv-isadoc/#_c_li
                             asmLine.register_0 = RISCVRegister.fromInt((int) imm_11_7);
                             asmLine.numeric_1 = NumberParseUtil.sign_extend_6_bit_to_int32_t(immediate_5_0_combined);
@@ -508,7 +598,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                             break;
 
                         case 0b011:
+
                             if (imm_11_7 == 0b00010) {
+
+                                // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-addi16sp
 
                                 // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-addi16sp
                                 // c.addi16sp
@@ -564,6 +657,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         //     break;
 
                         case 0b100:
+
                             if (imm_11_10 == 0b00) {
 
                                 // c.srli -- https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-srli
@@ -595,7 +689,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                 asmLine.mnemonic = Mnemonic.I_ANDI;
 
                             }
-                            
                             break;
 
                         case 0b101:
@@ -669,7 +762,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         if (debugOutput) {
                             logger.info(asmLine.toString());
                         }
-
                         break;
 
                     case 0b010:
@@ -765,9 +857,37 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         }
                         break;
 
+                    case 0b111:
+                        // c.fswsp - https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html#c-fswsp
+
+                        // c.fswsp
+                        // Store single-precision value to stack
+                        // Stores a single-precision floating-point value in floating-point register 
+                        // fs2 to memory. It computes an effective address by adding the zero-extended 
+                        // offset, scaled by 4, to the stack pointer, x2. 
+                        //
+                        // It expands to fsw fs2, offset(x2).
+                        
+                        //throw new RuntimeException();
+
+                        int fs0 = (data >> 2) & 0b11111;
+                        asmLine.register_0 = RISCVRegister.fromIntFloatExtension(fs0);
+
+                        int imm_5_2 = (data >> 9) & 0b1111;
+                        imm_7_6 = (data >> 7) & 0b11;
+                        long imm = (imm_7_6 << 6) + (imm_5_2 << 2);
+                        asmLine.offset_1 = imm;                        
+
+                        asmLine.register_1 = RISCVRegister.REG_SP;
+
+                        asmLine.mnemonic = Mnemonic.I_FSW;
+
+                        // System.out.println(asmLine.toString());
+                        break;
+
                     default:
                         throw new UnsupportedOperationException(
-                                "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
+                                "Unknown instruction: " + ByteArrayUtil.byteToHex(data) + " funct3: " + Integer.toBinaryString(funct3));
 
                 }
                 break;
