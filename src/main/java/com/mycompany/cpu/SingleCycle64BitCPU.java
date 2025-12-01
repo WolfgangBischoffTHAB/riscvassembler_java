@@ -202,7 +202,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             System.out.println("");
         }
 
-        logger.info(ByteArrayUtil.byteToHex(pc) + ": " + asmLine.toString() + "         [" + ByteArrayUtil.byteToHexLowerCase(asmLine.machineCode) + "]");
+        boolean debugASMLineOutput2 = false;
+        // boolean debugASMLineOutput2 = true;
+        if (debugASMLineOutput2) {
+            logger.info(ByteArrayUtil.byteToHex(pc) + ": " + asmLine.toString() + "         [" + ByteArrayUtil.byteToHexLowerCase(asmLine.machineCode) + "]");
+        }
 
         // https://projectf.io/posts/riscv-cheat-sheet/
         // https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
@@ -762,11 +766,11 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 
                 // write value into memory (MEMORY STAGE)
 
-                // 32bit
-                memory.storeByte((int)(addr + 0), let[0]);
-                memory.storeByte((int)(addr + 1), let[1]);
-                memory.storeByte((int)(addr + 2), let[2]);
-                memory.storeByte((int)(addr + 3), let[3]);
+                // 64bit
+                memory.storeByte((long)(addr + 0), let[0]);
+                memory.storeByte((long)(addr + 1), let[1]);
+                memory.storeByte((long)(addr + 2), let[2]);
+                memory.storeByte((long)(addr + 3), let[3]);
 
                 // // 64 bit
                 // memory.storeByte((long)(addr + 0), let[0]);
@@ -1071,8 +1075,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 pc += asmLine.encodedLength;
                 break;
 
-            case I_ECALL: {
-
+            case I_ECALL:
                 // a7 describes the service that is called by the ecall
                 int regA7Value = (int) readRegisterFile(RISCVRegister.REG_A7.getIndex());
                 switch (regA7Value) {
@@ -1382,7 +1385,6 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         throw new RuntimeException("ECALL " + ByteArrayUtil.byteToHex(regA7Value) + " (" + regA7Value
                                 + ") NOT IMPLEMENTED!");
                 }
-            }
                 pc += asmLine.encodedLength;
                 break;
 

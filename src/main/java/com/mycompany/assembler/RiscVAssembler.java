@@ -538,7 +538,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         Encoder encoder = getEncoder();
 
-        // long currentAddress = 0;
+        int lineNumber = 0;
 
         AsmLine<?> errorAsmLine = null;
         try {
@@ -557,6 +557,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 // advance the current index for the section after using space within that
                 // section
                 asmLine.section.address += spaceUsed;
+
+                lineNumber++;
             }
 
             // flush buffered information
@@ -569,10 +571,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 tempAsmLine.section.byteArrayOutStream.write(0x00);
             }
 
+            
+
         } catch (Exception e) {
 
             getLogger().info(e.getMessage(), e);
-            getLogger().info("Failure while encoding: " + errorAsmLine);
+            getLogger().info("Failure while encoding line #" + lineNumber + ": " + errorAsmLine);
 
             throw new RuntimeException("Error during encoding!");
 
