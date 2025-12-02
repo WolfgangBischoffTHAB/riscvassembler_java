@@ -118,6 +118,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                     BitSet ambigAlts, ATNConfigSet configs) {
                 // throw new UnsupportedOperationException("Unimplemented method
                 // 'reportAmbiguity'");
+                System.out.println("");
             }
 
             @Override
@@ -126,6 +127,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 // System.out.println("startIndex: " + startIndex + " stopIndex: " + stopIndex);
                 // throw new UnsupportedOperationException("Unimplemented method
                 // 'reportAttemptingFullContext'");
+                System.out.println("");
             }
 
             @Override

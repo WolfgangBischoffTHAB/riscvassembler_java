@@ -50,9 +50,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     private BufferedWriter traceBufferedWriter;
 
-    //
     // Vector Extension (RVV)
-    //
 
     public byte[] v0 = new byte[4 * 64];
     public byte[] v1 = new byte[4 * 64];
@@ -1104,6 +1102,9 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     case 92: // 92dec (pfnStreamWriteBufFunc)
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         printStringFromAddress(register_0_value_l);
+
+                        register_1_value_l = readRegisterFile(RISCVRegister.REG_A1.getIndex());
+                        System.out.println("a1: " + register_1_value_l);
                         break;
 
                     case 0x5D: // 93dec (exit)

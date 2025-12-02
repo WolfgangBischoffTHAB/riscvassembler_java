@@ -239,8 +239,6 @@ public class RISCASMExtractingOutputListener extends RISCVASMParserBaseListener 
     @Override
     public void exitParams(RISCVASMParser.ParamsContext ctx) {
         paramIndex = 0;
-        // System.out.println(asmLine);
-        // System.out.println(asmLine);
     }
 
     /**

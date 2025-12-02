@@ -260,7 +260,8 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/simple_vadd.s";
 
-            String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad.s";
+            // String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad.s";
+            String inputFile = "C:/Users/lapto/dev/java/cpp_compiler/generated_riscv_assembly.s";
 
             // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
