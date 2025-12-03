@@ -62,6 +62,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
     private static final boolean OUTPUT_MACHINE_CODE = true;
 
+    private static final boolean RESOLVE_NOP_TO_NONSENSE_ADDI = true;
+
     private CharStream asmCharStream;
 
     private RISCVASMLexer lexer;
@@ -297,8 +299,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         CallResolver callResolver = new CallResolver();
         callResolver.modify(asmLines, sectionMap);
 
-        NopResolver nopResolver = new NopResolver();
-        nopResolver.modify(asmLines, sectionMap);
+        if (RESOLVE_NOP_TO_NONSENSE_ADDI) {
+            NopResolver nopResolver = new NopResolver();
+            nopResolver.modify(asmLines, sectionMap);
+        }
 
         MvResolver mvResolver = new MvResolver();
         mvResolver.modify(asmLines, sectionMap);

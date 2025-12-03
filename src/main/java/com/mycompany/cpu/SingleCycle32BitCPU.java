@@ -1415,7 +1415,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         break;
 
                     case 96: // 96dec (0x60) (test_func)
-                        System.out.println("test_func()");
+                        // System.out.println("test_func()");
                         // https://msyksphinz-self.github.io/riscv-isadoc/#_ecall
                         // writeRegisterFile(RISCVRegister.REG_A0.getIndex(), 15);
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), 14);

@@ -1333,11 +1333,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 break;
 
             case J_TYPE:
-
-                if (data == 0x9e7fc0ef) {
-                    System.out.println("");
-                }
-
                 int imm_19_12 = (data >> 12) & 0b11111111;
                 imm_11 = (data >> 20) & 0b1;
                 int imm_10_1 = (data >> 21) & 0b11_1111_1111;
@@ -1572,7 +1567,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                         asmLine.rvvMasking = true;
                                     }
 
-                                    System.out.println("rd = " + rd);
+                                    // System.out.println("rd = " + rd);
 
                                     asmLine.mnemonic = Mnemonic.I_VADD_VV;
                                     break;

@@ -185,7 +185,7 @@ public class LiResolver implements AsmInstructionListModifier<RISCVRegister> {
                     // by filling the upper part of the register with FFFFF. The LUI
                     // can be optimized away
 
-                    if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) >= 2048)) {
+                    //if ((twelve_bit_sign_extended > 0) || (Math.abs(twelve_bit_sign_extended) >= 2048)) {
 
                         AsmLine lui = new AsmLine();
                         asmLines.add(index, lui);
@@ -205,11 +205,11 @@ public class LiResolver implements AsmInstructionListModifier<RISCVRegister> {
                             lui.label = liPseudoAsmLine.label;
                         }
 
-                    } else {
+                    // } else {
 
-                        tempRegister = RISCVRegister.REG_ZERO;
+                    //     tempRegister = RISCVRegister.REG_ZERO;
 
-                    }
+                    // }
 
                     //
                     // addi

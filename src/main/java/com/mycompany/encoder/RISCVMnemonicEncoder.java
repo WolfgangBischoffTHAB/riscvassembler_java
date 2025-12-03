@@ -1746,13 +1746,6 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
     private int encodeJType(int imm, byte rd, byte opcode) {
 
-        if (imm == 1692) {
-            System.out.println("test");
-
-            // [0][00000000][0][1101001110][0]
-        }
-
-
         int imm_20 = (imm >> 20) & 0b1; // 1
         int imm_10_1 = (imm >> 1) & 0b11_1111_1111; // 10
         int imm_11 = (imm >> 11) & 0b1; // 1

@@ -136,7 +136,7 @@ public class ByteArrayUtil {
         if (StringUtil.isNullOrEmpty(prefix)) {
             return String.format(format, data);
         }
-        return "0x" + String.format(format, data);
+        return prefix + String.format(format, data);
     }
 
     /**
@@ -151,7 +151,7 @@ public class ByteArrayUtil {
         if (StringUtil.isNullOrEmpty(prefix)) {
             return String.format(format, data);
         }
-        return "0x" + String.format(format, data);
+        return prefix + String.format(format, data);
     }
 
     public static String byteToHex(final long data) {

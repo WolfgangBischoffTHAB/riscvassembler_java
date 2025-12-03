@@ -7,11 +7,10 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.data.Register;
 import com.mycompany.data.Section;
 
 /**
- * A nop pseudo instruction is implemented using a nonsense addi instruction
+ * A NOP (no operation) pseudo instruction is implemented using a nonsense addi instruction
  */
 public class NopResolver implements AsmInstructionListModifier<RISCVRegister> {
 
