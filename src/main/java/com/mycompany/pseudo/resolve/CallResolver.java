@@ -135,6 +135,11 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                     auipc.offsetLabel_1 = foundAsmLine.identifier_1;
                 }
 
+                // DEBUG
+                if (auipc.offsetLabel_1 == null) {
+                    throw new RuntimeException();
+                }
+
                 if (foundAsmLine.label != null) {
                     auipc.label = foundAsmLine.label;
                 }
@@ -164,6 +169,11 @@ public class CallResolver implements AsmInstructionListModifier<RISCVRegister> {
                 }
                 if (foundAsmLine.identifier_1 != null) {
                     jalr.offsetLabel_2 = foundAsmLine.identifier_1;
+                }
+
+                // DEBUG
+                if (jalr.offsetLabel_2 == null) {
+                    throw new RuntimeException();
                 }
 
                 // DEBUG

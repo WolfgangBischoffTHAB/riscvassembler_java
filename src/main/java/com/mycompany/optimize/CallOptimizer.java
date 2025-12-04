@@ -62,15 +62,14 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     found = true;
 
                     // DEBUG
-                    System.out.println(callPseudoAsmLine);
+                    // System.out.println(callPseudoAsmLine);
 
-                    // DEBUG
-                    if (callPseudoAsmLine.identifier_0.equalsIgnoreCase("upCountingMatrix")) {
-                        System.out.println(callPseudoAsmLine);
-
-                        System.out.println(
-                                "Address of target label: " + labelTableMap.get(callPseudoAsmLine.identifier_0));
-                    }
+                    // // DEBUG
+                    // if (callPseudoAsmLine.identifier_0.equalsIgnoreCase("upCountingMatrix")) {
+                    //     System.out.println(callPseudoAsmLine);
+                    //     System.out.println(
+                    //             "Address of target label: " + labelTableMap.get(callPseudoAsmLine.identifier_0));
+                    // }
 
                     break;
                 }
@@ -93,7 +92,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
             String offsetLabel = firstAsmLine.offsetLabel_1;
 
             if (!labelTableMap.containsKey(offsetLabel)) {
-                throw new RuntimeException("The function/Label \"" + offsetLabel + "\" is not defined!");
+                throw new RuntimeException("Line " + index + " -  The function / label \"" + offsetLabel + "\" is not defined!");
             }
 
             // determine movement direction towards label (use label table for that)
@@ -104,6 +103,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                 direction = +1;
             }
 
+            // move upwards
             if (direction == -1) {
 
                 // move upwards
@@ -123,6 +123,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                 }
             }
 
+            // move downwards
             if (direction == +1) {
 
                 // move downwards
@@ -130,6 +131,7 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
                     AsmLine<?> currentAsmLine = asmLines.get(i);
 
+                    // skip check against yourself
                     if (currentAsmLine.pseudoInstructionAsmLine == firstAsmLine.pseudoInstructionAsmLine) {
                         continue;
                     }
@@ -137,6 +139,9 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null)
                             && (!currentAsmLine.pseudoInstructionAsmLine.optimized)) {
+
+                        // a non optimized instruction has been found in between,
+                        // this means, the current instruction cannot be optimized!
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
@@ -264,12 +269,12 @@ public class CallOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             } else {
 
-                firstAsmLine.modifier_1 = null;
-                firstAsmLine.offsetLabel_1 = null;
+                // firstAsmLine.modifier_1 = null;
+                // firstAsmLine.offsetLabel_1 = null;
                 firstAsmLine.numeric_1 = highValue;
 
-                secondAsmLine.modifier_2 = null;
-                secondAsmLine.offsetLabel_2 = null;
+                // secondAsmLine.modifier_2 = null;
+                // secondAsmLine.offsetLabel_2 = null;
                 secondAsmLine.numeric_2 = highValue;
 
             }

@@ -8,4 +8,6 @@ public interface CPU {
 
     long[] getRegisterFile();
 
+    void printRegisterFile();
+
 }

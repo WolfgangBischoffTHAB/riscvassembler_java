@@ -48,6 +48,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     private boolean debugASMLineOutput;
 
+    // print instructions inside the instruction executors
+    private boolean printInstructions = true;
+    // private boolean printInstructions = false;
+
     private Random random = new Random();
 
     public long[] registerFile = new long[32];
@@ -94,6 +98,14 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
         // set the value
         registerFile[register_index] = value;
+    }
+
+    @Override
+    public void printRegisterFile() {
+        long[] registerFile = getRegisterFile();
+        for (int i = 0; i < 32; i++) {
+            System.out.println("x" + (i) + ": " + registerFile[i]);
+        }
     }
 
     /**
@@ -194,10 +206,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             logger.info(tempData);
         }
 
-        // DEBUG do not forget the trailing L because PC is now an long register!
-        if (pc == 0x800006b8L) {
-            logger.info("test");
-        }
+        // // DEBUG do not forget the trailing L because PC is now an long register!
+        // if (pc == 0x800006b8L) {
+        //     logger.info("test");
+        // }
 
         // singleStepping = true;
         singleStepping = false;
@@ -219,7 +231,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         int addr;
         int value;
         long value_l;
-        int register_0_value;
+        long register_0_value;
         int register_1_value;
         int register_2_value;
         byte[] let;
@@ -244,6 +256,19 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         byte[] rvvReg;
 
         switch (asmLine.mnemonic) {
+
+            case I_PRINT_REG:
+                if (printInstructions) {
+                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " add: " + asmLine);
+                }
+                String registerName = RISCVRegister.toStringAbi((RISCVRegister) asmLine.register_0);
+                register_0_value = readRegisterFile(asmLine.register_0.getIndex());
+                logger.info("Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " ("
+                        + register_0_value + ")");
+
+                // increment PC
+                pc += asmLine.encodedLength;
+                break;
 
             case I_ADD:
                 logger.trace("add: " + asmLine);
@@ -279,9 +304,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 if ((asmLine.register_0 == RISCVRegister.REG_ZERO) && (asmLine.register_1 == RISCVRegister.REG_ZERO)
                         && (immediate_value == 0)) {
+
                     // this is a nop instruction
 
-                    printStackFrame();
+                    printRegisterFile();
+
+                    // DEBUG print stack frame
+                    // printStackFrame();
                     System.out.println("");
                 }
 
@@ -1134,12 +1163,19 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         
                         printStringFromAddress(register_0_value_l);
 
-                        register_1_value_l = readRegisterFile(RISCVRegister.REG_A1.getIndex());
-                        logger.trace("a1: " + register_1_value_l);
+                        // register_1_value_l = readRegisterFile(RISCVRegister.REG_A1.getIndex());
+                        // logger.trace("a1: " + register_1_value_l);
+
+                        register_1_value_l = readRegisterFile(RISCVRegister.REG_T5.getIndex());
+                        logger.info("t5: " + register_1_value_l);
                         break;
 
                     case 0x5D: // 93dec (exit)
                         System.out.println("ECALL 93 - exit()");
+
+                        // DEBUG print stack frame
+                        printStackFrame();
+                        System.out.println("");
 
                         // the unit tests https://github.com/riscv-software-src/riscv-tests
                         // write a value into a0 that describes success or failure.
@@ -1154,9 +1190,6 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                             globalPointerValue >>= 1;
                             throw new RuntimeException("Unit Test " + globalPointerValue + " Failed!");
                         }
-
-                        // printStackFrame();
-
                         return false; // Abortolomeus (engl. Abortholomew)
 
                     case 0x5E: // 94dec (time)
@@ -2313,7 +2346,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         memory.setDecoder(rawPrintingDecoder);
 
         System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        memory.print(startAddress - 0, startAddress + 128, ByteOrder.LITTLE_ENDIAN, pc);
+        memory.print(startAddress - 0, startAddress + 368, ByteOrder.LITTLE_ENDIAN, pc);
         System.out.println("/\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\");
     }
 

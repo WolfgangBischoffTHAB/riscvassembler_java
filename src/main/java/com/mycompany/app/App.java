@@ -850,10 +850,8 @@ public class App {
         //
 
         // DEBUG output all registers
-        long[] registerFile = cpu.getRegisterFile();
-        for (int i = 0; i < 32; i++) {
-            System.out.println("x" + (i) + ": " + registerFile[i]);
-        }
+        cpu.printRegisterFile();
+        
 
         if (cpu instanceof SingleCycle64BitCPU) {
 

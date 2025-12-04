@@ -39,11 +39,19 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
         int address = 0;
 
+        // int i = 0;
+        // int count = asmLines.size();
+
         for (AsmLine<?> asmLine : asmLines) {
+
+            // System.out.println(i + " / " + count);
+
+            // i++;
 
             asmLine.setOffset(address);
 
-            System.out.println("[" + asmLine.getOffset() + "] " + asmLine.toString());
+            // DEBUG
+            // System.out.println("[" + asmLine.getOffset() + "] " + asmLine.toString());
 
             if (asmLine.mnemonic == null) {
 
