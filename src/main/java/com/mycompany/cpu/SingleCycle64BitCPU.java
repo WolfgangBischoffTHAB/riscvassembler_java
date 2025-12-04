@@ -798,7 +798,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // memory.storeByte((long)(addr + 3), let[3]);
 
                 // DEBUG
-                if (logger.isInfoEnabled()) {
+                if (logger.isTraceEnabled()) {
 
                     stringBuilder = new StringBuilder();
                     stringBuilder.append("sw");
@@ -807,7 +807,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     stringBuilder.append(", mem: " + (addr + 2) + " = " + let[2]);
                     stringBuilder.append(", mem: " + (addr + 3) + " = " + let[3]);
 
-                    logger.info(stringBuilder.toString());
+                    logger.trace(stringBuilder.toString());
                 }
 
                 // increment PC
@@ -1129,12 +1129,13 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         break;
 
                     case 92: // 92dec (pfnStreamWriteBufFunc)
-                        System.out.println("ECALL 92 - puts()");
+                        logger.trace("ECALL 92 - puts()");
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        
                         printStringFromAddress(register_0_value_l);
 
                         register_1_value_l = readRegisterFile(RISCVRegister.REG_A1.getIndex());
-                        System.out.println("a1: " + register_1_value_l);
+                        logger.trace("a1: " + register_1_value_l);
                         break;
 
                     case 0x5D: // 93dec (exit)
