@@ -121,7 +121,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     /**
      * https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
-     * 
+     *
      * @throws IOException
      */
     public boolean step() throws IOException {
@@ -2251,7 +2251,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     /**
      * prints a zero terminated string starting at the address
-     * 
+     *
      * @param startAddress read a zero terminated string starting at this address
      */
     private void printStringFromAddress(int startAddress) {
@@ -2264,7 +2264,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     /**
      * prints a zero terminated string starting at the address
-     * 
+     *
      * @param startAddress read a zero terminated string starting at this address
      */
     private String toStringFromAddress(int startAddress) {
@@ -2284,6 +2284,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         return reader.readLine();
     }
 
+    public void shutdown() throws IOException {
+        if (traceBufferedWriter != null) {
+            traceBufferedWriter.flush();
+            traceBufferedWriter.close();
+        }
+    }
+
     @Override
     public long[] getRegisterFile() {
         long[] result = new long[32];
@@ -2293,10 +2300,11 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         return result;
     }
 
-    public void shutdown() throws IOException {
-        if (traceBufferedWriter != null) {
-            traceBufferedWriter.flush();
-            traceBufferedWriter.close();
+    @Override
+    public void printRegisterFile() {
+        long[] registerFile = getRegisterFile();
+        for (int i = 0; i < 32; i++) {
+            System.out.println("x" + (i) + ": " + registerFile[i]);
         }
     }
 

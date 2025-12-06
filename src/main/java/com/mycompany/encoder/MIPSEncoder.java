@@ -36,6 +36,12 @@ public class MIPSEncoder implements Encoder {
         }
     }
 
+    @Override
+    public void finalize(ByteArrayOutputStream byteArrayOutStream) throws IOException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'finalize'");
+    }
+
     // @Override
     // public ByteArrayOutputStream getByteArrayOutStream() {
     //     return byteArrayOutStream;

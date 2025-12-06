@@ -177,8 +177,19 @@ public class PipelinedCPU extends AbstractCPU {
 
     @Override
     public long[] getRegisterFile() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRegisterFile'");
+        long[] result = new long[32];
+        for (int i = 0; i < 31; i++) {
+            result[i] = (long) registerFile[i];
+        }
+        return result;
+    }
+
+    @Override
+    public void printRegisterFile() {
+        long[] registerFile = getRegisterFile();
+        for (int i = 0; i < 32; i++) {
+            System.out.println("x" + (i) + ": " + registerFile[i]);
+        }
     }
 
 }
