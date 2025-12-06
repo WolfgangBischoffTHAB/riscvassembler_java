@@ -330,19 +330,19 @@ public enum RISCVRegister implements Register {
     /**
      * Unprivilegded spec, compressed, page 163, table 38
      * RVC Register Number
-     * 
+     *
      * Integer Register Number
      * 000 001 010 011 100 101 110 111
      * _x8 _x9 x10 x11 x12 x13 x14 x15
-     * 
+     *
      * Integer Register ABI Name
      * 000 001 010 011 100 101 110 111
      * _s0 _s1 _a0 _a1 _a2 _a3 _a4 _a5
-     * 
+     *
      * Floating-Point Register Number
      * 000 001 010 011 100 101 110 111
      * _f8 _f9 f10 f11 f12 f13 f14 f15
-     * 
+     *
      * Floating-Point Register ABI Name
      * 000 001 010 011 100 101 110 111
      * fs0 fs1 fa0 fa1 fa2 fa3 fa4 fa5
@@ -451,12 +451,12 @@ public enum RISCVRegister implements Register {
             return REG_T1;
         } else if (register.equalsIgnoreCase("T2")) { // 7
             return REG_T2;
-        } else if (register.equalsIgnoreCase("S0")) { // 8, also FP
-            return REG_S0; // also FP
+        } else if (register.equalsIgnoreCase("S0")) { // 8
+            return REG_S0; // also known as FP
         }
-        // else if (register.equalsIgnoreCase("FP")) { // 8
-        // return REG_FP; // also S0
-        // }
+        else if (register.equalsIgnoreCase("FP")) { // 8
+            return REG_FP; // also known as S0
+        }
         else if (register.equalsIgnoreCase("S1")) { // 9
             return REG_S1;
         } else if (register.equalsIgnoreCase("A0")) { // 10
@@ -577,31 +577,31 @@ public enum RISCVRegister implements Register {
 
         else if (register.equalsIgnoreCase("v0")) {
             return REG_V0;
-        } 
+        }
         // else if (register.equalsIgnoreCase("v0.t")) {
         //     return REG_V0_T;
-        // } 
+        // }
         else if (register.equalsIgnoreCase("v1")) {
             return REG_V1;
-        } 
+        }
         // else if (register.equalsIgnoreCase("v1.t")) {
         //     return REG_V1_T;
-        // } 
+        // }
         else if (register.equalsIgnoreCase("v2")) {
             return REG_V2;
-        } 
+        }
         // else if (register.equalsIgnoreCase("v2.t")) {
         //     return REG_V2_T;
         // }
         else if (register.equalsIgnoreCase("v3")) {
             return REG_V3;
-        } 
+        }
         else if (register.equalsIgnoreCase("v4")) {
             return REG_V4;
-        } 
+        }
         else if (register.equalsIgnoreCase("v5")) {
             return REG_V5;
-        } 
+        }
 
         throw new RuntimeException("Unknown register: \"" + register + "\"");
     }
@@ -638,8 +638,7 @@ public enum RISCVRegister implements Register {
             case REG_T2:
             case REG_X7:
                 return "x7";
-            // case REG_FP:
-            // return "x8";
+            case REG_FP:
             case REG_S0:
             case REG_X8:
                 return "x8";
@@ -847,7 +846,7 @@ public enum RISCVRegister implements Register {
             case REG_X7:
             case REG_T2:
                 return "t2";
-            
+
             case REG_S0:
                 return "s0";
             /** x8 */
@@ -874,7 +873,7 @@ public enum RISCVRegister implements Register {
             case REG_X13:
             case REG_A3:
                 return "a3";
-            /** x14 */ 
+            /** x14 */
             case REG_X14:
             case REG_A4:
                 return "a4";
@@ -950,7 +949,7 @@ public enum RISCVRegister implements Register {
             //
             // F-Extension
             //
-            
+
             case REG_F0:
                 return "ft0";
             case REG_F1:
