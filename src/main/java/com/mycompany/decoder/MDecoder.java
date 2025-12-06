@@ -15,7 +15,7 @@ import com.mycompany.memory.Memory;
 
 /**
  * Decodes https://github.com/riscv/riscv-opcodes/blob/master/extensions/rv_m
- * 
+ *
  * Decodes the multiplication extension.
  */
 public class MDecoder implements Decoder {
@@ -24,6 +24,7 @@ public class MDecoder implements Decoder {
 
     private static final int M_TYPE = 0b0110011;
 
+    @SuppressWarnings("rawtypes")
     public Memory memory;
 
     @Override
@@ -31,11 +32,12 @@ public class MDecoder implements Decoder {
 
         logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
 
-        // // for 32 bit cast to int
-        // final int instruction = memory.readWord((int) address, Decoder.byteOrder);
+        // for 32 bit cast to int
+        @SuppressWarnings("unchecked")
+        final int instruction = memory.readWord((int) address, Decoder.byteOrder);
 
-        // for 64 bit
-        final int instruction = memory.readWord(address, Decoder.byteOrder);
+        // // for 64 bit
+        // final int instruction = memory.readWord(address, Decoder.byteOrder);
 
         if ((instruction == 0x00000000) || (instruction == 0xFFFFFFFF)) {
             logger.trace("instruction is 0x00 or 0xFF. Aborting CPU run!");

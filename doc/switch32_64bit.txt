@@ -1,0 +1,59 @@
+
+
+## App.java - change XLEN constant
+
+## App.java - emulate()
+
+Either enable:
+
+```
+if (XLEN != 32) {
+    throw new RuntimeException("change CPU to correct XLEN!");
+}
+SingleCycle32BitCPU cpu = new SingleCycle32BitCPU();
+```
+
+or
+
+```
+if (XLEN != 64) {
+    throw new RuntimeException("change CPU to correct XLEN!");
+}
+SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
+```
+
+
+
+
+## App mainRISCV()
+
+Either enable:
+
+```
+// 32 bit
+int curPos = (int) section.outputSection.currentPosition;
+memory.copy(curPos, machineCode, 0, machineCode.length);
+```
+
+```
+// 64 bit
+// long curPos = section.outputSection.currentPosition;
+// memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
+```
+
+
+## MDecoder.java
+
+Either enable
+
+```
+// for 32 bit cast to int
+final int instruction = memory.readWord((int) address, Decoder.byteOrder);
+```
+
+or
+
+```
+// for 64 bit
+final int instruction = memory.readWord(address, Decoder.byteOrder);
+```

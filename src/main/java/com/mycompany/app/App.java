@@ -55,8 +55,8 @@ public class App {
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
-    // public static final int XLEN = 32;
-    public static final int XLEN = 64;
+    public static final int XLEN = 32;
+    // public static final int XLEN = 64;
 
     // private static final String MAIN_ENTRY_POINT_LABEL = "main";
     private static final String MAIN_ENTRY_POINT_LABEL = "_start";
@@ -254,7 +254,7 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/matrix_tester_6.s";
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/helloworld.s";
             // String inputFile = "src/test/resources/riscvasm/examples/li_optimization.s";
-            
+
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
@@ -362,13 +362,13 @@ public class App {
                         logger.info("outputHexMachineCode() done.");
                     }
 
-                    //int curPos = (int) section.outputSection.currentPosition;
-                    long curPos = section.outputSection.currentPosition;
+                    // 32 bit
+                    int curPos = (int) section.outputSection.currentPosition;
+                    memory.copy(curPos, machineCode, 0, machineCode.length);
 
                     // 64 bit
+                    // long curPos = section.outputSection.currentPosition;
                     // memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
-
-                    memory.copy(curPos, machineCode, 0L, (long) machineCode.length);
 
                     section.outputSection.currentPosition += machineCode.length;
                 }
@@ -678,7 +678,7 @@ public class App {
              * }
              * }
              * startAddress = mainEntryPointSymbol.st_value;
-             * 
+             *
              * //
              * // set the global pointer register
              * //
@@ -851,7 +851,7 @@ public class App {
 
         // DEBUG output all registers
         cpu.printRegisterFile();
-        
+
 
         if (cpu instanceof SingleCycle64BitCPU) {
 
@@ -898,16 +898,16 @@ public class App {
     private static CPU emulate(final Memory memory, final long main_entry_point_address, int globalPointerValue,
             int stackPointerValue) throws IOException {
 
-        // if (XLEN != 32) {
-        //     throw new RuntimeException("change CPU to correct XLEN!");
-        // }
-        // SingleCycle32BitCPU cpu = new SingleCycle32BitCPU();
-
-        if (XLEN != 64) {
+        if (XLEN != 32) {
             throw new RuntimeException("change CPU to correct XLEN!");
         }
-        SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
-        
+        SingleCycle32BitCPU cpu = new SingleCycle32BitCPU();
+
+        // if (XLEN != 64) {
+        //     throw new RuntimeException("change CPU to correct XLEN!");
+        // }
+        // SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
+
         // PipelinedCPU cpu = new PipelinedCPU();
 
         // DEBUG main entry point address
