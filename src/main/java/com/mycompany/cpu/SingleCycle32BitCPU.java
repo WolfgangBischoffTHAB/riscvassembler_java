@@ -21,6 +21,7 @@ import com.mycompany.data.AsmLine;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.decoder.RV32IBaseIntegerInstructionSetDecoder;
+import com.mycompany.decoder.RawPrintingDecoder;
 import com.mycompany.filehandling.FileHandling;
 import com.mycompany.memory.Memory;
 
@@ -52,9 +53,12 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     public int pc;
 
+    @SuppressWarnings("rawtypes")
     public Memory memory;
 
     public DelegatingDecoder decoder = new DelegatingDecoder();
+
+    public RawPrintingDecoder rawPrintingDecoder = new RawPrintingDecoder();
 
     public FileHandling fileHandling = new FileHandling();
 
@@ -68,8 +72,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     // private boolean printInstructions = true;
     private boolean printInstructions = false;
 
-    // private boolean debugASMLineOutput = true;
-    private boolean debugASMLineOutput = false;
+    private boolean debugASMLineOutput = true;
+    // private boolean debugASMLineOutput = false;
 
     private int mcycle = 0x00;
 
@@ -167,6 +171,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean executeAsmLine(AsmLine<?> asmLine) throws IOException {
 
         if (singleStepping) {
@@ -203,7 +208,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             }
 
             // DEBUG
-            logger.info(tempData);
+            // logger.info(tempData);
             // logger.info("");
         }
 
@@ -225,7 +230,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int register_1_value;
         int register_2_value;
 
+        @SuppressWarnings("unused")
         Long numeric_0_value;
+        @SuppressWarnings("unused")
         Long numeric_1_value;
         Long numeric_2_value;
 
@@ -333,8 +340,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " and: " + asmLine);
                 }
                 // Performs bitwise AND on registers rs1 and rs2 and place the result in rd
-                writeRegisterFile(asmLine.register_0.getIndex(), readRegisterFile(asmLine.register_1.getIndex())
-                        & readRegisterFile(asmLine.register_2.getIndex()));
+                writeRegisterFile(asmLine.register_0.getIndex(),
+                        readRegisterFile(asmLine.register_1.getIndex())
+                                & readRegisterFile(asmLine.register_2.getIndex()));
 
                 // increment PC
                 pc += asmLine.encodedLength;
@@ -356,7 +364,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
 
                 // DEBUG - read byte from memory
-                int readByte = memory.readByte(register_1_value);
+                // int readByte = memory.readByte(register_1_value);
                 // System.out.println("" + (char) readByte);
 
                 value = ((int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue()));
@@ -661,6 +669,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 // compute memory address to load from (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
+
 
                 // read from memory (MEMORY STAGE)
                 value = (int) NumberParseUtil.sign_extend_8_bit_to_int32_t(memory.getByte(addr));
@@ -1289,6 +1298,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                     case 93: // 93dec (0x5D) (exit)
                         System.out.println("exit()");
+
+                        // DEBUG print stack frame
+                        printStackFrame();
+                        System.out.println("");
 
                         // the unit tests https://github.com/riscv-software-src/riscv-tests
                         // write a value into a0 that describes success or failure.
@@ -2228,6 +2241,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         return csrValue;
     }
 
+    @SuppressWarnings("unchecked")
     private void printMemoryAroundPC(int displayDistance) {
 
         logger.info("---------------------------------------------------------------------");
@@ -2249,11 +2263,25 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         // RV32IBaseIntegerInstructionSetDecoder.byteOrder, pc);
     }
 
+    @SuppressWarnings("unchecked")
+    private void printStackFrame() {
+
+        int startAddress = readRegisterFile(RISCVRegister.REG_SP.getIndex());
+
+        rawPrintingDecoder.memory = memory;
+        memory.setDecoder(rawPrintingDecoder);
+
+        System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        memory.print(startAddress - 0, startAddress + 368, ByteOrder.LITTLE_ENDIAN, pc);
+        System.out.println("/\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\");
+    }
+
     /**
      * prints a zero terminated string starting at the address
      *
      * @param startAddress read a zero terminated string starting at this address
      */
+    @SuppressWarnings("unchecked")
     private void printStringFromAddress(int startAddress) {
         int c = 0xFF;
         do {
@@ -2267,6 +2295,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
      *
      * @param startAddress read a zero terminated string starting at this address
      */
+    @SuppressWarnings("unchecked")
     private String toStringFromAddress(int startAddress) {
         StringBuilder stringBuilder = new StringBuilder();
         int c = 'a';

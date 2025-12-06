@@ -60,7 +60,7 @@ public abstract class BaseAssembler<T extends Register> {
         int data;
         int container = 0;
         int container_index = 0;
-        
+
         while ((data = (int) byteArrayInputStream.read()) != -1) {
 
             container <<= 8;

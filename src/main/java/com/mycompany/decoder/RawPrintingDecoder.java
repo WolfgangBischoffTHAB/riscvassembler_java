@@ -16,7 +16,7 @@ public class RawPrintingDecoder implements Decoder {
         // MemoryBlock memoryBlock = memory.getMemoryBlockForAddress(address);
 
         try {
-            int data = memory.readWord(address, Decoder.byteOrder);
+            int data = memory.readWord((int) address, Decoder.byteOrder);
             System.out.println(ByteArrayUtil.byteToHex(address) + ": " + ByteArrayUtil.byteToHex(data) + " (" + data + ")");
         } catch (Exception e) {
             e.printStackTrace();

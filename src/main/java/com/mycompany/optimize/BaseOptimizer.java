@@ -29,7 +29,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
      * AsmLine objects. Usefull after pseudo instructions have been resolved
      * to one or more real instructions and as a result, the addresses of all
      * following lines have changed.
-     * 
+     *
      * The assembler instruction is executed in AsmInstructionEncoder.java
      *
      * @param asmLines
@@ -81,7 +81,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                             break;
 
                         case ASCII:
-                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero termination
+                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero
+                                                                                                      // termination
                             break;
 
                         // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -92,7 +93,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         // whereas “.ascii” assembles a string literal with no null terminator
                         case ASCIZ:
                         case STRING:
-                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero termination
+                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero
+                                                                                                      // termination
                             break;
 
                         case FILE:
@@ -170,7 +172,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         break;
 
                     case ASCII:
-                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero
+                                                                                                 // termination
                         break;
 
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -181,7 +184,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     // whereas “.ascii” assembles a string literal with no null terminator
                     case ASCIZ:
                     case STRING:
-                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero
+                                                                                                 // termination
                         break;
 
                     case FILE:
@@ -238,17 +242,17 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
      *
      * For each label,
      * <ol>
-     * 
+     *
      * <li>the absolute address of that label
      * is retrieved in a first step.</li>
-     * 
+     *
      * <li>In the second step, the relative offset of
      * the label from the current asm line in which the label is used (pc-relative)
      * is computed.</li>
-     * 
+     *
      * <li>In a third step, the pc-relative offset is stored inside
      * the AsmLine's numeric_xyz member.</li>
-     * 
+     *
      * </ol>
      *
      * @param asmLines
@@ -510,7 +514,13 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
             if (asmLine.modifier_0 != null) {
 
                 long newValue = 0L;
-                String label = asmLine.offsetLabel_0;
+
+                String label = null;
+                if (asmLine.identifier_0 != null) {
+                    label = asmLine.identifier_0;
+                } else if (asmLine.offsetLabel_0 != null) {
+                    label = asmLine.offsetLabel_0;
+                }
 
                 Long address = labelAddressMap.get(label);
 
@@ -555,9 +565,19 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
             if (asmLine.modifier_1 != null) {
 
                 long newValue = 0L;
-                String label = asmLine.identifier_1;
+
+                String label = null;
+                if (asmLine.identifier_1 != null) {
+                    label = asmLine.identifier_1;
+                } else if (asmLine.offsetLabel_1 != null) {
+                    label = asmLine.offsetLabel_1;
+                }
 
                 Long address = labelAddressMap.get(label);
+
+                if (address == null) {
+                    System.out.println("label " + label + " not resolved!");
+                }
 
                 // special case for JALR: labels are resolved relative
                 if (asmLine.mnemonic == Mnemonic.I_JALR) {
@@ -600,14 +620,19 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
             if (asmLine.modifier_2 != null) {
 
                 long newValue = 0L;
-                String label = asmLine.identifier_2;
+
+                String label = null;
+                if (asmLine.identifier_2 != null) {
+                    label = asmLine.identifier_2;
+                } else if (asmLine.offsetLabel_2 != null) {
+                    label = asmLine.offsetLabel_2;
+                }
 
                 Long address = null;
 
-                if (asmLine.identifier_2.endsWith("b")) {
+                if (label.endsWith("b")) {
 
-                    String truncatedLabel = asmLine.identifier_2.substring(0,
-                            asmLine.identifier_2.length() - 1);
+                    String truncatedLabel = label.substring(0, label.length() - 1);
                     Match match = findLabelBackwards(asmLine, truncatedLabel);
 
                     address = match.asmLine.getOffset();

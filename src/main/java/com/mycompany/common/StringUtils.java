@@ -3,7 +3,7 @@ package com.mycompany.common;
 public class StringUtils {
 
     public static int stringLengthWithEscape(String stringValue) {
-        
+
         int length = 0;
         boolean escape = false;
         for (char data : stringValue.toCharArray()) {
@@ -14,6 +14,9 @@ public class StringUtils {
             }
 
             if (data == 'n' && escape) {
+                length++;
+                escape = false;
+            } else if (data == 't' && escape) {
                 length++;
                 escape = false;
             } else if (escape) {

@@ -405,12 +405,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             callOptimizer.modify(asmLines, sectionMap);
         }
 
-        // DEBUG - output after the LI and CALL optimizer
-        System.out.println("\n\n\n");
-        System.out.println("DEBUG - output after the LI and CALL optimizer");
-        for (AsmLine<?> asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG - output after the LI and CALL optimizer
+        // System.out.println("\n\n\n");
+        // System.out.println("DEBUG - output after the LI and CALL optimizer");
+        // for (AsmLine<?> asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         //
         // Check for unoptimized instructions
@@ -419,7 +419,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         for (AsmLine<?> asmLine : asmLines) {
             if (asmLine.pseudoInstructionAsmLine != null) {
                 if (!asmLine.pseudoInstructionAsmLine.optimized) {
-
+                    // DEBUG print the asmLine where the condition occured
                     System.out.println(asmLine.toString());
                     throw new RuntimeException("Unoptimized instruction detected! " + asmLine.mnemonic);
                 }
@@ -577,8 +577,6 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 tempAsmLine.section.byteArrayOutStream.write(0x00);
             }
 
-            
-
         } catch (Exception e) {
 
             getLogger().info(e.getMessage(), e);
@@ -634,7 +632,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
     /**
      * Iterate over all sections. Write each section to a file having
      * the name of the section
-     * 
+     *
      * @param section
      * @throws IOException
      */
@@ -671,7 +669,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
     /**
      * To a file, output raw assembly (modifiers resolved, pseudo instructions
      * resolved to real instructions)
-     * 
+     *
      * @throws IOException
      */
     private void outputAssemblyToFile() throws IOException {

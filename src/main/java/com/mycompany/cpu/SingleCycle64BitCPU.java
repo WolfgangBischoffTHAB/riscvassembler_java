@@ -19,7 +19,6 @@ import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.RISCVRegister;
-import com.mycompany.decoder.Decoder;
 import com.mycompany.decoder.DelegatingDecoder;
 import com.mycompany.decoder.RawPrintingDecoder;
 import com.mycompany.filehandling.FileHandling;
@@ -64,6 +63,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
     public byte[] v1 = new byte[4 * 64];
     public byte[] v2 = new byte[4 * 64];
 
+    @SuppressWarnings("unused")
     private int lMultiplier;
     private int sew;
 
@@ -1170,7 +1170,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                         // logger.info("t5: " + register_1_value_l);
                         break;
 
-                    case 0x5D: // 93dec (exit)
+                    case 93: // 93dec (0x5D) (exit)
                         // System.out.println("ECALL 93 - exit()");
 
                         // DEBUG print stack frame

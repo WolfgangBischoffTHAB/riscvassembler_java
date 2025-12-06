@@ -126,7 +126,7 @@ public class ByteArrayUtil {
 
     /**
      * * Formats for leading zeroes: "%1$016X" "%1$08X"
-     * 
+     *
      * @param data
      * @param prefix
      * @param format
@@ -141,7 +141,7 @@ public class ByteArrayUtil {
 
     /**
      * Formats for leading zeroes: "%1$016X" "%1$08X"
-     * 
+     *
      * @param data
      * @param prefix
      * @param format

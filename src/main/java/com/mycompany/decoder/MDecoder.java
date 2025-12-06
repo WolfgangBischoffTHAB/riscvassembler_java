@@ -30,7 +30,7 @@ public class MDecoder implements Decoder {
     @Override
     public List<AsmLine<?>> decode(long address) {
 
-        logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
+        logger.trace("PC: " + ByteArrayUtil.byteToHex((long) address));
 
         // for 32 bit cast to int
         @SuppressWarnings("unchecked")
