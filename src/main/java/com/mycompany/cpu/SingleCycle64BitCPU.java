@@ -110,7 +110,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     /**
      * https://msyksphinz-self.github.io/riscv-isadoc/html/rvi.html
-     * 
+     *
      * @throws IOException
      */
     public boolean step() throws IOException {
@@ -1160,18 +1160,18 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                     case 92: // 92dec (pfnStreamWriteBufFunc)
                         logger.trace("ECALL 92 - puts()");
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-                        
+
                         printStringFromAddress(register_0_value_l);
 
                         // register_1_value_l = readRegisterFile(RISCVRegister.REG_A1.getIndex());
                         // logger.trace("a1: " + register_1_value_l);
 
                         register_1_value_l = readRegisterFile(RISCVRegister.REG_T5.getIndex());
-                        logger.info("t5: " + register_1_value_l);
+                        // logger.info("t5: " + register_1_value_l);
                         break;
 
                     case 0x5D: // 93dec (exit)
-                        System.out.println("ECALL 93 - exit()");
+                        // System.out.println("ECALL 93 - exit()");
 
                         // DEBUG print stack frame
                         printStackFrame();
@@ -2352,7 +2352,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     /**
      * prints a zero terminated string starting at the address
-     * 
+     *
      * @param startAddress read a zero terminated string starting at this address
      */
     private void printStringFromAddress(long startAddress) {
@@ -2365,7 +2365,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     /**
      * prints a zero terminated string starting at the address
-     * 
+     *
      * @param startAddress read a zero terminated string starting at this address
      */
     private String toStringFromAddress(long startAddress) {
