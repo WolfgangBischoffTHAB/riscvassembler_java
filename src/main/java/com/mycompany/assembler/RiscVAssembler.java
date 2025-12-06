@@ -144,11 +144,11 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // parse
         //
 
-        System.out.println("Parsing ...");
+        getLogger().info("Parsing ...");
 
         ParserRuleContext asmRoot = getRoot();
 
-        System.out.println("Parsing done.");
+        getLogger().info("Parsing done.");
 
         // create a generic parse tree walker that can trigger callbacks
         final ParseTreeWalker asmWalker = new ParseTreeWalker();
@@ -156,11 +156,11 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // walk the tree created during the parse, trigger callbacks
         asmWalker.walk(asmListener, asmRoot);
 
-        // List<AsmLine<?>> asmLines = getAsmLines();
+        getLogger().info("ASMLine count: " + asmLines.size());
 
         // // DEBUG - output the entire program as parsed from the input file
         // for (AsmLine<?> asmLine : asmLines) {
-        // System.out.println(asmLine);
+        // getLogger().info(asmLine);
         // }
 
         //
@@ -390,6 +390,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // throw an exception for now
         //
 
+        @SuppressWarnings("rawtypes")
         LiOptimizer liOptimizer = new LiOptimizer();
         liOptimizer.modify(asmLines, sectionMap);
 
@@ -409,7 +410,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // System.out.println("\n\n\n");
         // System.out.println("DEBUG - output after the LI and CALL optimizer");
         // for (AsmLine<?> asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         //
@@ -588,6 +589,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             // currentAddress);
         }
 
+        getLogger().info("ASMLine count: " + asmLines.size());
+
         outputAssemblyToFile();
 
         //
@@ -674,8 +677,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
      */
     private void outputAssemblyToFile() throws IOException {
 
+        String filename = "build//resolved_assembly.s";
+
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
-                new FileWriter("build//resolved_assembly.s"))) {
+                new FileWriter(filename))) {
 
             // DEBUG
             if (getLogger().isTraceEnabled()) {

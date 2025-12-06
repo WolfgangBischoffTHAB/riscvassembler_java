@@ -136,21 +136,25 @@ public class DefaultMemory implements Memory<Integer> {
     @Override
     public int readWord(Integer addr, ByteOrder byteOrder) {
 
-        logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
+        if (logger.isTraceEnabled()) {
+            logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
+        }
 
         MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
-
         int offsetAddress = (int) (addr - memoryBlock.address);
-        logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
 
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " ("
-                + memoryBlock.memory[offsetAddress + 0] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " ("
-                + memoryBlock.memory[offsetAddress + 1] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 2]) + " ("
-                + memoryBlock.memory[offsetAddress + 2] + ")");
-        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 3]) + " ("
-                + memoryBlock.memory[offsetAddress + 3] + ")");
+        if (logger.isTraceEnabled()) {
+            logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
+
+            logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " ("
+                    + memoryBlock.memory[offsetAddress + 0] + ")");
+            logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " ("
+                    + memoryBlock.memory[offsetAddress + 1] + ")");
+            logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 2]) + " ("
+                    + memoryBlock.memory[offsetAddress + 2] + ")");
+            logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 3]) + " ("
+                    + memoryBlock.memory[offsetAddress + 3] + ")");
+        }
 
         final int data = ByteArrayUtil.fourByteToInt(
                 memoryBlock.memory[offsetAddress + 0],
@@ -158,7 +162,9 @@ public class DefaultMemory implements Memory<Integer> {
                 memoryBlock.memory[offsetAddress + 2],
                 memoryBlock.memory[offsetAddress + 3], byteOrder);
 
-        logger.trace(ByteArrayUtil.byteToHex(data));
+        if (logger.isTraceEnabled()) {
+            logger.trace(ByteArrayUtil.byteToHex(data));
+        }
 
         return data;
     }

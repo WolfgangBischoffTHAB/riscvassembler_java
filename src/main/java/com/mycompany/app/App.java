@@ -362,6 +362,8 @@ public class App {
                         logger.info("outputHexMachineCode() done.");
                     }
 
+                    logger.info("SectionName: \"" + section.name + "\" -- " + "machineCode.length: " + machineCode.length);
+
                     // 32 bit
                     int curPos = (int) section.outputSection.currentPosition;
                     memory.copy(curPos, machineCode, 0, machineCode.length);
