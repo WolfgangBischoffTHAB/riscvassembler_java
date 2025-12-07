@@ -286,6 +286,25 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             }
         }
 
+        // DEBUG - output intermediate assembly after removing pseudo instructions
+        // but before removing modifiers and before calling the optimizers
+        System.out.println("\n\n\n");
+        System.out.println("DEBUG - output intermediate assembly after removing pseudo instructions but before removing modifiers and before calling the optimizers");
+
+        // for (AsmLine<?> asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
+
+        String filename = "build//assembly_from_compiler.s";
+        printAssemblyToFile(filename, true);
+
+
+        //
+        // resolve modifiers
+        //
+
+        //BaseOptimizer.resolveModifiers(asmLines, labelAddressMap);
+
         //
         // Resolve - Replace pseudo instructions by individual, real instructions
         //
@@ -353,6 +372,9 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // System.out.println(asmLine);
         // }
 
+        filename = "build//assembly_pseudo_resolved.s";
+        printAssemblyToFile(filename, true);
+
         //
         // Check for leftover pseudo instructions
         //
@@ -394,12 +416,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         LiOptimizer liOptimizer = new LiOptimizer();
         liOptimizer.modify(asmLines, sectionMap);
 
-        // DEBUG - output after the LI optimizer
-        System.out.println("\n\n\n");
-        System.out.println("DEBUG - output after the LI optimizer");
-        for (AsmLine<?> asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG - output after the LI optimizer
+        // System.out.println("\n\n\n");
+        // System.out.println("DEBUG - output after the LI optimizer");
+        // for (AsmLine<?> asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         if (USE_CALL_OPTIMIZER) {
             CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
@@ -446,12 +468,15 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             System.out.println(asmLine);
         }
 
+        filename = "build//assembly_updated_addresses.s";
+        printAssemblyToFile(filename, false);
+
         labelAddressMap = new HashMap<>();
         // Map<Long, AsmLine> offsetAsmLineMap = new HashMap<>();
         callOptimizer.buildLabelTable(asmLines, labelAddressMap, null, sectionMap);
 
         // DEBUG
-        // BaseOptimizer.outputLabelAddressMap(labelAddressMap);
+        BaseOptimizer.outputLabelAddressMap(labelAddressMap);
 
         // // DEBUG
         // System.out.println("\n\n\n");
@@ -500,6 +525,9 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // System.out.println(asmLine);
         // }
 
+        filename = "build//assembly_modifiers_resolved.s";
+        printAssemblyToFile(filename, false);
+
         //
         // resolve all labels
         //
@@ -517,7 +545,6 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         getLogger().info("\n\n\n");
         getLogger().info("* LABEL-ADDRESS-MAP **************************");
         for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
-
             getLogger().info("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
                     + ByteArrayUtil.longToHex(entry.getValue()));
         }
@@ -630,6 +657,47 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         // return byteArray;
         // throw new RuntimeException();
+    }
+
+    private void printAssemblyToFile(String filename, boolean assignAddresses) throws IOException {
+        try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
+                new FileWriter(filename))) {
+
+            int offset = 0;
+
+            for (AsmLine<?> asmLine : asmLines) {
+
+                if (asmLine.mnemonic != null) {
+
+                    if (assignAddresses) {
+                        asmLine.setOffset(offset);
+                        offset += 4;
+                    }
+                }
+
+                String asmLineAsString = asmLine.toString();
+                    bufferedWriter.write(asmLineAsString);
+
+                // // output machine code
+                // bufferedWriter.write(" [" + ByteArrayUtil.byteToHex(asmLine.machineCode, null, "%1$02X") + "]");
+
+                if (asmLine.mnemonic != null) {
+                    // output offset
+                    int delta = 50 - asmLineAsString.length();
+                    if (delta < 0) {
+                        delta = 0;
+                    }
+                    String filler = spaces(delta);
+                    bufferedWriter.write(
+                            filler + "# " + ByteArrayUtil.byteToHex(asmLine.getOffset()) + " (" + asmLine.getOffset()
+                                    + ")");
+                }
+
+                bufferedWriter.write("\n");
+            }
+
+            bufferedWriter.flush();
+        }
     }
 
     /**

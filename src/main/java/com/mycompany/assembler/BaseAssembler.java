@@ -26,8 +26,8 @@ public abstract class BaseAssembler<T extends Register> {
     // private static final Logger logger = LoggerFactory.getLogger(BaseAssembler.class);
 
     /** Combine far calls (auipc+jalr) into near calls (jal) if possible */
-    public static final boolean USE_CALL_OPTIMIZER = true;
-    // public static final boolean USE_CALL_OPTIMIZER = false;
+    // public static final boolean USE_CALL_OPTIMIZER = true;
+    public static final boolean USE_CALL_OPTIMIZER = false;
 
     //public List<AsmLine<RISCVRegister>> asmLines = new ArrayList<>();
     public List<AsmLine<T>> asmLines = new ArrayList<>();

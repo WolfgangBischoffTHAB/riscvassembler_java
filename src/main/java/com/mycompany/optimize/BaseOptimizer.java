@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.common.StringUtils;
 import com.mycompany.data.AsmInstructionListModifier;
@@ -476,11 +477,17 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
     public static void resolveModifiers(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> labelAddressMap) {
 
         int offset = 4;
+        // int offset = 0;
+        // if (RiscVAssembler.USE_CALL_OPTIMIZER) {
+        //     offset = 4;
+        // } else {
+        //     offset = 0;
+        // }
 
         // initialize PC with the start symbol
         // TODO: what if the source code does not use the specific _start label?
         // What if the source code uses main: for example?
-        long pc = labelAddressMap.get("_start");
+        // long pc = labelAddressMap.get("_start");
 
         // connect lines to each other for easier traversal
         AsmLine<RISCVRegister> prev = null;
@@ -495,6 +502,13 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
         }
 
         for (AsmLine<?> asmLine : asmLines) {
+
+            if (asmLine.mnemonic == Mnemonic.I_AUIPC) {
+                System.out.println("test");
+            }
+            if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                System.out.println("test");
+            }
 
             logger.trace(asmLine.toString());
 
@@ -524,10 +538,14 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 Long address = labelAddressMap.get(label);
 
-                // special case for JALR: labels are resolved relative
-                if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    address = address - (asmLine.getOffset() + offset);
-                }
+                // if (asmLine.mnemonic == Mnemonic.I_AUIPC) {
+                //     address = address - (asmLine.getOffset() + offset);
+                // }
+
+                // // special case for JALR: labels are resolved relative
+                // if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                //     address = address - (asmLine.getOffset() + offset);
+                // }
 
                 switch (asmLine.modifier_0) {
 
@@ -540,15 +558,19 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         break;
 
                     case PCREL_LO:
-                        newValue = (address - pc >> 0) & 0xFFF;
+                        newValue = ((address - asmLine.getOffset()) >> 0) & 0xFFF;
                         break;
 
                     case PCREL_HI:
-                        newValue = (address - pc >> 12) & 0xFFFFF;
+                        newValue = ((address - asmLine.getOffset()) >> 12) & 0xFFFFF;
                         break;
 
                     default:
                         throw new RuntimeException();
+                }
+
+                if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                    newValue += 4;
                 }
 
                 asmLine.offsetLabel_0 = null;
@@ -579,10 +601,14 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     System.out.println("label " + label + " not resolved!");
                 }
 
-                // special case for JALR: labels are resolved relative
-                if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    address = address - (asmLine.getOffset() + offset);
-                }
+                // if (asmLine.mnemonic == Mnemonic.I_AUIPC) {
+                //     address = address - (asmLine.getOffset() + offset);
+                // }
+
+                // // special case for JALR: labels are resolved relative
+                // if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                //     address = address - (asmLine.getOffset() + offset);
+                // }
 
                 switch (asmLine.modifier_1) {
 
@@ -595,15 +621,20 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         break;
 
                     case PCREL_LO:
-                        newValue = (address - pc >> 0) & 0xFFF;
+                        newValue = ((address - asmLine.getOffset()) >> 0) & 0xFFF;
                         break;
 
                     case PCREL_HI:
-                        newValue = (address - pc >> 12) & 0xFFFFF;
+                        long tempOffset = (address - asmLine.getOffset());
+                        newValue = (tempOffset >> 12L) & 0xFFFFFL;
                         break;
 
                     default:
                         throw new RuntimeException();
+                }
+
+                if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                    newValue += 4;
                 }
 
                 asmLine.offsetLabel_1 = null;
@@ -643,10 +674,14 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
                 }
 
-                // special case for JALR: labels are resolved pc relative
-                if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                    address = address - (asmLine.getOffset() + offset);
-                }
+                // if (asmLine.mnemonic == Mnemonic.I_AUIPC) {
+                //     address = address - (asmLine.getOffset() + offset);
+                // }
+
+                // // special case for JALR: labels are resolved pc relative
+                // if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                //     address = address - (asmLine.getOffset() + offset);
+                // }
 
                 switch (asmLine.modifier_2) {
 
@@ -659,15 +694,19 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         break;
 
                     case PCREL_LO:
-                        newValue = (address - pc >> 0) & 0xFFF;
+                        newValue = ((address - asmLine.getOffset()) >> 0) & 0xFFF;
                         break;
 
                     case PCREL_HI:
-                        newValue = (address - pc >> 12) & 0xFFFFF;
+                        newValue = ((address - asmLine.getOffset()) >> 12) & 0xFFFFF;
                         break;
 
                     default:
                         throw new RuntimeException();
+                }
+
+                if (asmLine.mnemonic == Mnemonic.I_JALR) {
+                    newValue += 4;
                 }
 
                 asmLine.offsetLabel_2 = null;
@@ -681,10 +720,10 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                 }
             }
 
-            if (asmLine.mnemonic != null) {
-                // pc += asmLine.encodedLength;
-                pc += 4; // what about compressed instructions? They are only two bytes in size.
-            }
+            // if (asmLine.mnemonic != null) {
+            //     // pc += asmLine.encodedLength;
+            //     pc += 4; // what about compressed instructions? They are only two bytes in size.
+            // }
         }
 
     }

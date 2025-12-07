@@ -255,9 +255,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         switch (asmLine.mnemonic) {
 
-            //
             // Custom
-            //
 
             case I_PRINT_REG:
                 if (printInstructions) {
@@ -297,10 +295,24 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
                 int immediate_value = asmLine.numeric_2.intValue();
 
-                logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
-                logger.trace("1st Register Value: " + first_register_value);
-                logger.trace("2nd Immediate Value: " + immediate_value);
-                logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
+                if (logger.isTraceEnabled()) {
+                    logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
+                    logger.trace("1st Register Value: " + first_register_value);
+                    logger.trace("2nd Immediate Value: " + immediate_value);
+                    logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
+                }
+
+                if ((asmLine.register_0 == RISCVRegister.REG_ZERO) && (asmLine.register_1 == RISCVRegister.REG_ZERO)
+                        && (immediate_value == 0)) {
+
+                    // this is a nop instruction
+
+                    // printRegisterFile();
+
+                    // DEBUG print stack frame
+                    // printStackFrame();
+                    System.out.println("ADDI NOP");
+                }
 
                 int result = first_register_value + immediate_value;
 
@@ -402,10 +414,21 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // Add upper immediate to PC (and store the result into rd)
                 // auipc rd, imm
                 // rd <- PC + imm20 << 12; pc += 4;
+                //
+                // auipc rd, imm          # rd = pc + imm << 12
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " auipc: " + asmLine);
                 }
-                writeRegisterFile(asmLine.register_0.getIndex(), (int) (pc + (asmLine.numeric_1 << 12L)));
+
+                immValSignExtended = (int) NumberParseUtil
+                        .sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
+
+                int int_numeric_1 = Math.toIntExact(asmLine.numeric_1);
+                int stored_offset = (int_numeric_1 << 12L);
+
+                int pc_rel = (int) (pc + (int) Math.toIntExact(stored_offset));
+
+                writeRegisterFile(asmLine.register_0.getIndex(), pc_rel);
 
                 // increment PC
                 pc += asmLine.encodedLength;
@@ -416,6 +439,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " jal: " + asmLine);
                 }
+
+                System.out.println(asmLine.toString());
+                System.out.println("JAL PC+4: " + ByteArrayUtil.byteToHex(pc + 4));
 
                 // registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 writeRegisterFile(asmLine.register_0.getIndex(), pc + 4);
@@ -434,7 +460,11 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 long jumpDistance = asmLine.numeric_1;
 
-                logger.trace("jumpDistance: " + ByteArrayUtil.byteToHex(jumpDistance) + " (" + jumpDistance + ")");
+                if (logger.isTraceEnabled()) {
+                    logger.trace("jumpDistance: "
+                            + ByteArrayUtil.byteToHex(jumpDistance)
+                            + " (" + jumpDistance + ")");
+                }
 
                 asmLine.branchTaken = true;
 
@@ -464,17 +494,22 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 }
 
                 // pc = rs1 + imm
-                immValSignExtended = (int) NumberParseUtil
-                        .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
-                int pcReplacement = readRegisterFile(asmLine.register_1.getIndex()) + immValSignExtended;
+                // immValSignExtended = (int) NumberParseUtil
+                //         .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+                int numeric_2_value_int = asmLine.numeric_2.intValue();
+
+                register_1_value = readRegisterFile(asmLine.register_1.getIndex());
+                int pcReplacement = register_1_value + numeric_2_value_int;
+
+                System.out.println("JALR PC+4: " + ByteArrayUtil.byteToHex(pc + 4));
 
                 // rd = pc + 4;
                 // registerFile[asmLine.register_0.getIndex()] = pc + 4;
                 writeRegisterFile(asmLine.register_0.getIndex(), pc + 4);
 
                 // DEBUG
-                logger.trace("Current PC: " + ByteArrayUtil.byteToHex(pc));
-                logger.trace("New PC: " + ByteArrayUtil.byteToHex(pcReplacement));
+                logger.info("Current PC: " + ByteArrayUtil.byteToHex(pc));
+                logger.info("New PC: " + ByteArrayUtil.byteToHex(pcReplacement));
 
                 asmLine.branchTaken = true;
 
@@ -669,7 +704,6 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 // compute memory address to load from (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
-
 
                 // read from memory (MEMORY STAGE)
                 value = (int) NumberParseUtil.sign_extend_8_bit_to_int32_t(memory.getByte(addr));
@@ -1586,14 +1620,16 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 pc += asmLine.encodedLength;
                 break;
 
-            case I_NOP:
-                if (printInstructions) {
-                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " nop: " + asmLine);
-                }
-
-                // increment PC
-                pc += asmLine.encodedLength;
-                break;
+            // // the NOP pseudo instruction is replaced by addi zero, zero, 0
+            // // NOP will never make it into the processor since there is no
+            // // encoding for NOP!
+            // case I_NOP:
+            //     if (printInstructions) {
+            //         logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " nop: " + asmLine);
+            //     }
+            //     // increment PC
+            //     pc += asmLine.encodedLength;
+            //     break;
 
             case I_BRK:
                 if (printInstructions) {
