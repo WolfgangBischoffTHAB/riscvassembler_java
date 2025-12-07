@@ -53,6 +53,12 @@ import com.mycompany.preprocessing.IncludePreprocessor;
  */
 public class App {
 
+    private static final int MEMORY_SIZE_IN_BYTE = 1024 * 1024;
+
+    // public static final int STACK_POINTER_INITIAL_ADDRESS = 0x00090000;
+    // public static final int STACK_POINTER_INITIAL_ADDRESS = 0x00020000;
+    public static final int STACK_POINTER_INITIAL_ADDRESS = MEMORY_SIZE_IN_BYTE - 4;
+
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     public static final int XLEN = 32;
@@ -60,8 +66,6 @@ public class App {
 
     // private static final String MAIN_ENTRY_POINT_LABEL = "main";
     private static final String MAIN_ENTRY_POINT_LABEL = "_start";
-
-    private static final int MEMORY_SIZE_IN_BYTE = 1024 * 2;
 
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
 
@@ -176,7 +180,8 @@ public class App {
 
         long startAddress = 0;
         int globalPointerValue = 0;
-        int stackPointerValue = 0x00020000;
+        //int stackPointerValue = 0x00020000;
+        int stackPointerValue = STACK_POINTER_INITIAL_ADDRESS;
 
         if (MACHINE_CODE_SOURCE_ASSEMBLY_FILE) {
 
@@ -391,7 +396,7 @@ public class App {
             globalPointerValue = 0x00004000;
 
             // set stack pointer
-            stackPointerValue = 0x00020000;
+            // stackPointerValue = 0x00020000;
 
         }
 

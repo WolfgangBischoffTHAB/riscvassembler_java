@@ -503,12 +503,12 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
         for (AsmLine<?> asmLine : asmLines) {
 
-            if (asmLine.mnemonic == Mnemonic.I_AUIPC) {
-                System.out.println("test");
-            }
-            if (asmLine.mnemonic == Mnemonic.I_JALR) {
-                System.out.println("test");
-            }
+            // if (asmLine.mnemonic == Mnemonic.I_AUIPC) {
+            //     System.out.println("test");
+            // }
+            // if (asmLine.mnemonic == Mnemonic.I_JALR) {
+            //     System.out.println("test");
+            // }
 
             logger.trace(asmLine.toString());
 

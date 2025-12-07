@@ -15,6 +15,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.app.App;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
@@ -260,7 +261,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int addressA2;
         int fileHandle;
 
-        int immValSignExtended;
+        // int immValSignExtended;
 
         int csrId;
         int csrValue;
@@ -308,6 +309,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
                 int immediate_value = asmLine.numeric_2.intValue();
+
+                immediate_value = immediate_value & 0xFFF;
 
                 if (logger.isTraceEnabled()) {
                     logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
@@ -421,7 +424,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // LUI places the 32-bit U-immediate value into the destination register rd,
                 // filling
                 // in the lowest 12 bits with zeros.
-                writeRegisterFile(asmLine.register_0.getIndex(), (asmLine.numeric_1.intValue() << 12L));
+
+                register_0_value = (asmLine.numeric_1.intValue() << 12L);
+
+                writeRegisterFile(asmLine.register_0.getIndex(), register_0_value);
                 // writeRegisterFile(asmLine.register_0.getIndex(),
                 // asmLine.numeric_1.intValue());
 
@@ -440,8 +446,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " auipc: " + asmLine);
                 }
 
-                immValSignExtended = (int) NumberParseUtil
-                        .sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
+                // immValSignExtended = (int) NumberParseUtil
+                //         .sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
 
                 int int_numeric_1 = Math.toIntExact(asmLine.numeric_1);
                 int stored_offset = (int_numeric_1 << 12L);
@@ -1386,6 +1392,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         break;
 
                     case 92: // 92dec () (pfnStreamWriteBufFunc, printStringFromAddress)
+                        logger.info("printf() is called");
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         printStringFromAddress((int) register_0_value_l);
                         break;
@@ -1394,7 +1401,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         System.out.println("exit()");
 
                         // DEBUG print stack frame
-                        printStackFrame();
+                        printStackFrame(App.STACK_POINTER_INITIAL_ADDRESS - 0x196, App.STACK_POINTER_INITIAL_ADDRESS);
+                        //printStackFrame(0x20ecc, 0x20ecc + 0x196);
                         System.out.println("");
 
                         // the unit tests https://github.com/riscv-software-src/riscv-tests
@@ -2289,15 +2297,15 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     private void incrementPC(int increment) {
 
-        int oldPC = pc;
+        // int oldPC = pc;
 
         pc += increment;
 
-        if (pc == 0x1038) {
-            System.out.println("ERROR Condition!");
-            System.out.println("OLD PC: " + ByteArrayUtil.byteToHex(oldPC));
-            System.out.println("NEW PC: " + ByteArrayUtil.byteToHex(pc));
-        }
+        // if (pc == 0x1038) {
+        //     System.out.println("ERROR Condition!");
+        //     System.out.println("OLD PC: " + ByteArrayUtil.byteToHex(oldPC));
+        //     System.out.println("NEW PC: " + ByteArrayUtil.byteToHex(pc));
+        // }
     }
 
     private void writeCSRById(int index, int value) {
@@ -2416,15 +2424,16 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     }
 
     @SuppressWarnings("unchecked")
-    private void printStackFrame() {
+    private void printStackFrame(int startAddress, int endAddress) {
 
-        int startAddress = readRegisterFile(RISCVRegister.REG_SP.getIndex());
+        ///int startAddress = readRegisterFile(RISCVRegister.REG_SP.getIndex());
+        // int startAddress = 0x80000;
 
         rawPrintingDecoder.memory = memory;
         memory.setDecoder(rawPrintingDecoder);
 
         System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        memory.print(startAddress - 0, startAddress + 368, ByteOrder.LITTLE_ENDIAN, pc);
+        memory.print(startAddress, endAddress, ByteOrder.LITTLE_ENDIAN, pc);
         System.out.println("/\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\/\\\\");
     }
 

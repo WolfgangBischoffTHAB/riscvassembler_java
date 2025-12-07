@@ -3,8 +3,11 @@ package com.mycompany.data;
 public enum Modifier {
 
     HI,
+
     LO,
+
     PCREL_HI,
+
     PCREL_LO;
 
     public static Modifier fromString(final String modifier) {
