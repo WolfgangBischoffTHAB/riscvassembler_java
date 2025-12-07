@@ -9,6 +9,15 @@ import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 
+/**
+ * BLE is a pseudo instruction!
+ *
+ * <pre>
+ * ble     t1, t0, break_label_2
+ * </pre>
+ *
+ * is resolved by BGE and switching around the registers.
+ */
 public class BleResolver implements AsmInstructionListModifier<RISCVRegister> {
 
     @Override

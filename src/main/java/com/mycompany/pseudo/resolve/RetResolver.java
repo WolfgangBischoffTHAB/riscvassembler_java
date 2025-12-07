@@ -30,9 +30,10 @@ public class RetResolver implements AsmInstructionListModifier<RISCVRegister> {
             asmLine.register_1 = RISCVRegister.REG_RA;
             asmLine.register_2 = null;
 
-            asmLine.numeric_0 = 0L;
-            asmLine.numeric_1 = 0L;
+            asmLine.numeric_0 = null;
+            asmLine.numeric_1 = null;
             asmLine.numeric_2 = 0L;
+
         }
     }
 

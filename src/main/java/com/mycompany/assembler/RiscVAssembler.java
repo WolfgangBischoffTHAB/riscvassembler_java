@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 import com.mycompany.encoder.Encoder;
@@ -289,21 +290,21 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // DEBUG - output intermediate assembly after removing pseudo instructions
         // but before removing modifiers and before calling the optimizers
         System.out.println("\n\n\n");
-        System.out.println("DEBUG - output intermediate assembly after removing pseudo instructions but before removing modifiers and before calling the optimizers");
+        System.out.println(
+                "DEBUG - output intermediate assembly after removing pseudo instructions but before removing modifiers and before calling the optimizers");
 
         // for (AsmLine<?> asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         String filename = "build//assembly_from_compiler.s";
         printAssemblyToFile(filename, true);
 
-
         //
         // resolve modifiers
         //
 
-        //BaseOptimizer.resolveModifiers(asmLines, labelAddressMap);
+        // BaseOptimizer.resolveModifiers(asmLines, labelAddressMap);
 
         //
         // Resolve - Replace pseudo instructions by individual, real instructions
@@ -420,7 +421,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // System.out.println("\n\n\n");
         // System.out.println("DEBUG - output after the LI optimizer");
         // for (AsmLine<?> asmLine : asmLines) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         if (USE_CALL_OPTIMIZER) {
@@ -660,6 +661,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
     }
 
     private void printAssemblyToFile(String filename, boolean assignAddresses) throws IOException {
+
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
                 new FileWriter(filename))) {
 
@@ -667,8 +669,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
             for (AsmLine<?> asmLine : asmLines) {
 
-                if (asmLine.mnemonic != null) {
+                if (asmLine.mnemonic == Mnemonic.I_ADDI) {
+                    System.out.println(asmLine.toString());
+                }
 
+                if (asmLine.mnemonic != null) {
+                    // only change the address if the user requested it
                     if (assignAddresses) {
                         asmLine.setOffset(offset);
                         offset += 4;
@@ -676,10 +682,11 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 }
 
                 String asmLineAsString = asmLine.toString();
-                    bufferedWriter.write(asmLineAsString);
+                bufferedWriter.write(asmLineAsString);
 
                 // // output machine code
-                // bufferedWriter.write(" [" + ByteArrayUtil.byteToHex(asmLine.machineCode, null, "%1$02X") + "]");
+                // bufferedWriter.write(" [" + ByteArrayUtil.byteToHex(asmLine.machineCode,
+                // null, "%1$02X") + "]");
 
                 if (asmLine.mnemonic != null) {
                     // output offset
