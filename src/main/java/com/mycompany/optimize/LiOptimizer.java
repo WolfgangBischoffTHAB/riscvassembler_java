@@ -22,15 +22,19 @@ import com.mycompany.data.Section;
  * optimizing LI is a way to save on instructions. since there is potential for
  * the assembler to optimize the pair of two instructions into a single
  * instruction.
- * 
+ *
  * This class checks for the optimal way to implement the LI pseudo instruction.
  */
 public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(LiOptimizer.class);
 
+
+    @SuppressWarnings("unchecked")
     @Override
     public void modify(List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
+
+        int optimizationCounter = 0;
 
         boolean done = false;
         while (!done) {
@@ -42,7 +46,7 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             // // DEBUG
             // for (Map.Entry<String, Long> mapEntry : map.entrySet()) {
-            // System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
+            //     System.out.println(mapEntry.getKey() + " -> " + mapEntry.getValue());
             // }
 
             updateAddresses(asmLines, sectionMap);
@@ -77,21 +81,23 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
             // System.out.println(firstAsmLine);
             // System.out.println(secondAsmLine);
 
-            // if no label is used, then return
-            if (firstAsmLine.offsetLabel_1 == null) {
+            // look for offset label in all possible spots
+            String offsetLabel = retrieveLabel(firstAsmLine);
+
+            // if no label is used, then continue
+            if (offsetLabel == null) {
 
                 asmLines.remove(liPseudoAsmLine);
                 liPseudoAsmLine.optimized = true;
                 firstAsmLine.optimized = true;
                 secondAsmLine.optimized = true;
 
-                //return;
                 continue;
             }
 
             // determine movement direction towards label (use label table for that)
             int direction = 0;
-            if ((firstAsmLine.section.address + firstAsmLine.getOffset()) > map.get(firstAsmLine.offsetLabel_1)) {
+            if ((firstAsmLine.section.address + firstAsmLine.getOffset()) > map.get(offsetLabel)) {
                 direction = -1;
             } else {
                 direction = +1;
@@ -99,10 +105,11 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             if (direction == -1) {
 
-                // move upwards with the goal to find the
+                // move upwards with the goal to find the label
                 for (int i = index - 1; i > 0; i--) {
 
-                    AsmLine<?> currentAsmLine = asmLines.get(i);
+                    @SuppressWarnings("rawtypes")
+                    AsmLine currentAsmLine = asmLines.get(i);
 
                     // for each instruction, check if it is a real instruction (not pseudo)
                     if ((currentAsmLine.pseudoInstructionAsmLine != null)
@@ -110,7 +117,9 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
                         currentAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
-                    if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentAsmLine.label)) {
+                    String currentLineOffsetLabel = retrieveLabel(currentAsmLine);
+
+                    if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentLineOffsetLabel)) {
                         break;
                     }
                 }
@@ -118,10 +127,11 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             if (direction == +1) {
 
-                // move downwards
+                // move downwards with the goal to find the label
                 for (int i = index + 1; i < asmLines.size(); i++) {
 
-                    AsmLine<?> currentAsmLine = asmLines.get(i);
+                    @SuppressWarnings("rawtypes")
+                    AsmLine currentAsmLine = asmLines.get(i);
 
                     if (currentAsmLine.pseudoInstructionAsmLine == firstAsmLine.pseudoInstructionAsmLine) {
                         continue;
@@ -133,7 +143,9 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
                         firstAsmLine.pseudoInstructionAsmLine.optimized = false;
                     }
 
-                    if (firstAsmLine.offsetLabel_1.equalsIgnoreCase(currentAsmLine.label)) {
+                    String currentLineOffsetLabel = retrieveLabel(currentAsmLine);
+
+                    if (offsetLabel.equalsIgnoreCase(currentLineOffsetLabel)) {
                         break;
                     }
                 }
@@ -154,45 +166,20 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
             // (which is the positive case)
             // take the absolute value of the label and put it into the modifier.
 
-            long address = map.get(firstAsmLine.offsetLabel_1);
-            long highValue = 0;
-            long lowValue = 0;
+            long address = map.get(offsetLabel);
 
-            switch (firstAsmLine.modifier_1) {
+            System.out.println(offsetLabel + " = " + address);
 
-                case HI:
-                    highValue = address >> 12 & 0xFFFFF;
-                    break;
-
-                case LO:
-                    lowValue = address & 0xFFF;
-                    break;
-
-                default:
-                    throw new RuntimeException();
+            if (address < 0) {
+                throw new RuntimeException("A label can never resolved to a negative absolute address!");
             }
 
-            switch (secondAsmLine.modifier_2) {
+            // lowerLI(asmLines, liPseudoAsmLine, index, firstAsmLine, secondAsmLine,
+            // address);
 
-                case HI:
-                    highValue = address >> 12 & 0xFFFFF;
-                    break;
+            if (address < 2048) {
 
-                case LO:
-                    lowValue = address & 0xFFF;
-                    break;
-
-                default:
-                    throw new RuntimeException();
-            }
-
-            // System.out.println("highValue: " + highValue);
-            // System.out.println("lowValue: " + lowValue);
-
-            // if the absolute label address is exactly 12-bit throw exception!
-
-            // if the modifier returns 0, the instruction can be optimized
-            if (highValue == 0) {
+                optimizationCounter++;
 
                 asmLines.remove(firstAsmLine);
                 asmLines.remove(secondAsmLine);
@@ -201,8 +188,9 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
                 asmLine.mnemonic = Mnemonic.I_ADDI;
                 asmLine.register_0 = (T) secondAsmLine.register_0;
                 asmLine.register_1 = (T) RISCVRegister.REG_ZERO;
-                asmLine.modifier_2 = Modifier.LO;
-                asmLine.offsetLabel_2 = secondAsmLine.offsetLabel_2;
+                asmLine.numeric_2 = address; // - (optimizationCounter * 8);
+                asmLine.modifier_2 = null;
+                asmLine.offsetLabel_2 = null;
                 asmLine.section = liPseudoAsmLine.section;
 
                 // copy source line for displaying the line in the editor / debugger
@@ -217,28 +205,153 @@ public class LiOptimizer<T extends Register> extends BaseOptimizer<T> {
 
             } else {
 
-                // throw new RuntimeException("Not implemented yet!");
-                logger.info("Keeping original statements");
+                int next = nextPowerOf2((int) address);
+                System.out.println(next);
+
+                int diff = (int)address - next;
+                System.out.println(diff);
+
+                next = next >> 12;
 
                 // Assumption: FirstLine: lui a1, %hi(num1)
                 if (firstAsmLine.modifier_1 != null) {
                     firstAsmLine.modifier_1 = null;
-                    firstAsmLine.numeric_1 = highValue;
+                    firstAsmLine.numeric_1 = (long) next;
+                    firstAsmLine.identifier_1 = null;
                 }
                 firstAsmLine.optimized = true;
 
                 // Assumption: SecondLine: addi a1, a1, %lo(num1)
                 if (secondAsmLine.modifier_2 != null) {
                     secondAsmLine.modifier_2 = null;
-                    secondAsmLine.numeric_2 = lowValue;
+                    secondAsmLine.numeric_2 = (long) diff;
+                    secondAsmLine.identifier_2 = null;
                 }
                 secondAsmLine.optimized = true;
 
                 firstAsmLine.pseudoInstructionAsmLine.optimized = true;
 
             }
+        }
+    }
+
+    /**
+     * How it works: n-- handles inputs that are already powers of 2
+     * (e.g., 8 becomes 7, which then gets processed to 15, then +1 is 16).
+     *
+     * The OR-shifts (|=) propagate the highest set bit to all lower positions,
+     * creating 0...0111...1. Adding 1 flips all those 1s to 0s and sets the next bit,
+     * resulting in the next power of 2 (e.g., 01000 for 8).
+     *
+     * @param n
+     * @return
+     */
+    int nextPowerOf2(int n) {
+        if (n == 0)
+            return 1; // Or handle as error
+        n--; // Handle case where n is already a power of 2
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        n |= n >> 8;
+        n |= n >> 16; // For 32-bit integers
+        n++;
+        return n;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void lowerLI(List<AsmLine<T>> asmLines, AsmLine<T> liPseudoAsmLine, int index, AsmLine<T> firstAsmLine,
+            AsmLine<T> secondAsmLine, long address) {
+
+        long highValue = 0;
+        long lowValue = 0;
+
+        switch (firstAsmLine.modifier_1) {
+
+            case HI:
+                highValue = address >> 12 & 0xFFFFF;
+                break;
+
+            case LO:
+                lowValue = address & 0xFFF;
+                break;
+
+            default:
+                throw new RuntimeException();
+        }
+
+        switch (secondAsmLine.modifier_2) {
+
+            case HI:
+                highValue = address >> 12 & 0xFFFFF;
+                break;
+
+            case LO:
+                lowValue = address & 0xFFF;
+                break;
+
+            default:
+                throw new RuntimeException();
+        }
+
+        // System.out.println("highValue: " + highValue);
+        // System.out.println("lowValue: " + lowValue);
+
+        // if the absolute label address is exactly 12-bit throw exception!
+
+        // if the modifier returns 0, the instruction can be optimized
+        if (highValue == 0) {
+
+            asmLines.remove(firstAsmLine);
+            asmLines.remove(secondAsmLine);
+
+            AsmLine<T> asmLine = new AsmLine<>();
+            asmLine.mnemonic = Mnemonic.I_ADDI;
+            asmLine.register_0 = (T) secondAsmLine.register_0;
+            asmLine.register_1 = (T) RISCVRegister.REG_ZERO;
+            asmLine.modifier_2 = Modifier.LO;
+            asmLine.offsetLabel_2 = secondAsmLine.offsetLabel_2;
+            asmLine.section = liPseudoAsmLine.section;
+
+            // copy source line for displaying the line in the editor / debugger
+            asmLine.sourceLine = firstAsmLine.sourceLine;
+
+            firstAsmLine.pseudoInstructionAsmLine.optimized = true;
+            firstAsmLine.pseudoInstructionAsmLine.pseudoInstructionChildren.clear();
+            firstAsmLine.pseudoInstructionAsmLine.pseudoInstructionChildren.add(asmLine);
+            asmLine.pseudoInstructionAsmLine = firstAsmLine.pseudoInstructionAsmLine;
+
+            asmLines.add(index, asmLine);
+
+        } else {
+
+            // logger.info("Keeping original statements");
+
+            // Assumption: FirstLine: lui a1, %hi(num1)
+            if (firstAsmLine.modifier_1 != null) {
+                firstAsmLine.modifier_1 = null;
+                firstAsmLine.numeric_1 = highValue;
+            }
+            firstAsmLine.optimized = true;
+
+            // Assumption: SecondLine: addi a1, a1, %lo(num1)
+            if (secondAsmLine.modifier_2 != null) {
+                secondAsmLine.modifier_2 = null;
+                secondAsmLine.numeric_2 = lowValue;
+            }
+            secondAsmLine.optimized = true;
+
+            firstAsmLine.pseudoInstructionAsmLine.optimized = true;
 
         }
+    }
+
+    private String retrieveLabel(AsmLine<T> firstAsmLine) {
+        String offsetLabel = firstAsmLine.identifier_1;
+        if (offsetLabel == null) {
+            offsetLabel = firstAsmLine.offsetLabel_1;
+        }
+        return offsetLabel;
     }
 
 }

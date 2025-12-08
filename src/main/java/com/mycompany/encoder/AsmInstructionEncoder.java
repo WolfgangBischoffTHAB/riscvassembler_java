@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.common.NumberParseUtil;
-import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
 
 /**
@@ -26,7 +25,7 @@ public class AsmInstructionEncoder {
 
     /**
      * Places data described by an assembler instruction into memory.
-     * 
+     *
      * @param byteArrayOutStream
      * @param asmLine
      * @param addressSourceAsmLineMap
@@ -49,13 +48,6 @@ public class AsmInstructionEncoder {
             System.out.println(currentAddress + " -> " + asmLine);
             addressSourceAsmLineMap.put(currentAddress, asmLine);
         }
-
-        // // start string buffer mode if ASCIZ, ASCIIZ and STRING
-        // if ((asmLine.asmInstruction == AsmInstruction.ASCIZ) ||
-        //         (asmLine.asmInstruction == AsmInstruction.ASCIIZ) ||
-        //         (asmLine.asmInstruction == AsmInstruction.STRING)) {
-        //     startStringMode();
-        // }
 
         switch (asmLine.asmInstruction) {
 
@@ -124,15 +116,6 @@ public class AsmInstructionEncoder {
                 throw new RuntimeException("Unknown assembler instruction: " + asmLine);
         }
 
-        // // keep string buffer mode alive if ASCIZ, ASCIIZ and STRING
-        // if ((asmLine.asmInstruction != AsmInstruction.ASCIZ) &&
-        //         (asmLine.asmInstruction != AsmInstruction.ASCIIZ) &&
-        //         (asmLine.asmInstruction != AsmInstruction.STRING)) {
-        //     endStringMode(stringByteArrayOutputStream);
-        // }
-
-        // addressSourceAsmLineMap.put(currentAddress, asmLine);
-
         return 0;
     }
 
@@ -149,6 +132,7 @@ public class AsmInstructionEncoder {
     }
 
     private int encodeZeroAssemblerInstruction(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) {
+
         int length = asmLine.numeric_0.intValue();
         byte space[] = new byte[length];
         // Java prefills everything with the default value which is zero for byte.

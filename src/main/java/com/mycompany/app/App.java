@@ -859,7 +859,6 @@ public class App {
         // DEBUG output all registers
         cpu.printRegisterFile();
 
-
         if (cpu instanceof SingleCycle64BitCPU) {
 
             SingleCycle64BitCPU singleCycleCPU = (SingleCycle64BitCPU) cpu;

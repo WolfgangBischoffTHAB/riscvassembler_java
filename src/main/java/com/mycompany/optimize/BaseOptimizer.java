@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.assembler.RiscVAssembler;
+import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.common.StringUtils;
 import com.mycompany.data.AsmInstructionListModifier;
@@ -133,6 +134,10 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
             // convert section name to offset
             Section section = sectionMap.get(asmLine.section.name);
+
+            // // DEBUG
+            // System.out.println(section.getCurrentOffset() + " " + asmLine);
+
             long offset = section.getCurrentOffset();
             asmLine.setOffset(offset);
 
@@ -180,13 +185,14 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
                     // The GNU assembler (gas) recognizes three assembler directives for defining
                     // strings.
-                    // “.string” and “.asciz” both assemble string literals with null terminators
+                    // '.string' and '.asciz' both assemble string literals with null terminators
                     // (the same as C strings),
-                    // whereas “.ascii” assembles a string literal with no null terminator
+                    // whereas '.ascii' assembles a string literal with no null terminator
                     case ASCIZ:
                     case STRING:
-                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero
-                                                                                                 // termination
+                        // +1 for zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1);
+
                         break;
 
                     case FILE:
@@ -230,11 +236,11 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
 
     public static void outputLabelAddressMap(final Map<String, Long> labelAddressMap) {
         // DEBUG
-        logger.info("*************************************************");
+        logger.info("** LABEL TABLE **********************************");
         for (Map.Entry<String, Long> mapEntry : labelAddressMap.entrySet()) {
-            logger.info(mapEntry.getKey() + " -> " + mapEntry.getValue());
+            logger.info("Symbol: " + mapEntry.getKey() + " -> Offset: " + ByteArrayUtil.byteToHex(mapEntry.getValue()) + " (" + mapEntry.getValue() + ")");
         }
-        logger.info("-------------------------------------------------");
+        logger.info("-- LABEL TABLE ----------------------------------");
     }
 
     /**

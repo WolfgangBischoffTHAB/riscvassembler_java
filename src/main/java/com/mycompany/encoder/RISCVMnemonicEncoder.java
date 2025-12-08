@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mycompany.assembler.RiscVAssembler;
-import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
@@ -24,7 +23,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     @SuppressWarnings("unused")
     private static final boolean USE_64_BIT = true;
 
-    private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
+    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
+    private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
 
     private long currentAddress;
 
@@ -1282,20 +1282,20 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         //int imm = asmLine.numeric_1.intValue();
 
-        // DEBUG
-        if (asmLine.referencedTarget == null) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG
+        // if (asmLine.referencedTarget == null) {
+        //     System.out.println(asmLine);
+        // }
 
         long offset = asmLine.referencedTarget.getOffset() - asmLine.getOffset();
 
         // DEBUG
-        System.out.println(offset + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
+        // System.out.println(offset + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
 
         int imm = (int) offset;
 
         // DEBUG
-        System.out.println(imm + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
+        // System.out.println(imm + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
 
         int result = encodeJType(imm, rd, opcode);
         asmLine.machineCode = result;

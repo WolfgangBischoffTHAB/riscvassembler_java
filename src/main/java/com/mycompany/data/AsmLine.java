@@ -812,7 +812,6 @@ public class AsmLine<T extends Register> {
     public AsmLineType getAsmLineType() {
 
         if (mnemonic != null) {
-
             if ((mnemonic != Mnemonic.I_UNKNOWN) && (!mnemonic.isPseudo())) {
                 return AsmLineType.MNEMONIC;
             }
@@ -821,6 +820,8 @@ public class AsmLine<T extends Register> {
         if (asmInstruction != null) {
             return AsmLineType.ASSEMBLER_INSTRUCTION;
         }
+
+        // labels are not detected
 
         return AsmLineType.UNKNOWN;
     }

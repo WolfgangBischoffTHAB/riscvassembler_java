@@ -266,6 +266,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int csrId;
         int csrValue;
 
+        int signExtendedOffset;
+
         switch (asmLine.mnemonic) {
 
             // Custom
@@ -277,10 +279,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 String registerName = RISCVRegister.toStringAbi((RISCVRegister) asmLine.register_0);
                 register_0_value = readRegisterFile(asmLine.register_0.getIndex());
 
-                if (printInstructions) {
-                    logger.trace("Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " ("
-                        + register_0_value + ")");
-                }
+                // if (printInstructions) {
+                    // logger.info("[print_reg] Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " ("
+                    //     + register_0_value + ")");
+                // }
 
                 // increment PC
                 // pc += asmLine.encodedLength;
@@ -310,11 +312,11 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
                 }
 
-                // DEBUG
-                if (pc == 40) {
-                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
-                    System.out.println("test");
-                }
+                // // DEBUG
+                // if (pc == 40) {
+                //     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
+                //     System.out.println("test");
+                // }
 
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
 
@@ -345,9 +347,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 int result = first_register_value + immediate_value;
 
-                // DEBUG
-                logger.info("New: " + result + " = " + first_register_value + " + " + immediate_value);
-                logger.info("New: " + ByteArrayUtil.byteToHex(result) + " = " + ByteArrayUtil.byteToHex(first_register_value) + " + " + ByteArrayUtil.byteToHex(immediate_value));
+                // // DEBUG
+                // logger.info("New: " + result + " = " + first_register_value + " + " + immediate_value);
+                // logger.info("New: " + ByteArrayUtil.byteToHex(result) + " = " + ByteArrayUtil.byteToHex(first_register_value) + " + " + ByteArrayUtil.byteToHex(immediate_value));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result);
 
@@ -852,14 +854,16 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " lw: " + asmLine);
                 }
 
-                // DEBUG
-                logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " lw: " + asmLine);
+                // // DEBUG
+                // logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " lw: " + asmLine);
+
+                signExtendedOffset = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.offset_1);
 
                 // compute memory address to load from (EXECUTE STAGE)
-                addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
+                addr = (int) (signExtendedOffset + readRegisterFile(asmLine.register_1.getIndex()));
 
-                // DEBUG
-                logger.info("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
+                // // DEBUG
+                // logger.info("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
 
                 // NEORV32
                 if (USE_NEORV32_EXTENSION) {
@@ -1009,25 +1013,28 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " sw: " + asmLine);
                 }
 
-                // DEBUG
-                logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " sw: " + asmLine);
+                // // DEBUG
+                // logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " sw: " + asmLine);
 
                 // Store 32-bit, values from the low bits of register rs2 to memory.
                 // sw rs2, offset(rs1)
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
                 // compute memory address to store to (EXECUTE STAGE)
-                addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
 
-                // DEBUG
-                logger.info("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
+                signExtendedOffset = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.offset_1);
+
+                addr = (int) (signExtendedOffset + readRegisterFile(asmLine.register_1.getIndex()));
+
+                // // DEBUG
+                // logger.info("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
 
                 // retrieve the value to write into the address
                 value = readRegisterFile(asmLine.register_0.getIndex());
 
-                // DEBUG
-                if ((value == 80) && (addr == 0x1fff4)) {
-                    System.out.println("debug");
-                }
+                // // DEBUG
+                // if ((value == 80) && (addr == 0x1fff4)) {
+                //     System.out.println("debug");
+                // }
 
                 // NEORV32
                 if (USE_NEORV32_EXTENSION) {
@@ -1749,30 +1756,6 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // pc += asmLine.encodedLength;
                 incrementPC(asmLine.encodedLength);
                 break;
-
-            // case I_PUTS:
-            // logger.info("mnemonic: PUTS");
-
-            // // the start address of the zero terminated string is expected in A0
-            // int startAddress = readRegisterFile(RISCVRegister.REG_A0.getIndex());
-            // logger.info("startAddress: " + startAddress);
-
-            // stringBuilder = new StringBuilder();
-            // while (true) {
-            // int tempByte = memory.getByte(startAddress);
-            // if (tempByte == 0x00) {
-            // break;
-            // } else {
-            // stringBuilder.append((char) tempByte);
-            // }
-
-            // startAddress++;
-            // }
-
-            // logger.trace(stringBuilder.toString());
-
-            // pc += asmLine.encodedLength;
-            // break;
 
             case I_MRET:
                 if (printInstructions) {

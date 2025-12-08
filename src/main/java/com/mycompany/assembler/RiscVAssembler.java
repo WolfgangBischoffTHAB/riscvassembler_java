@@ -1,6 +1,7 @@
 package com.mycompany.assembler;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -61,8 +62,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
     private static final Logger logger = LoggerFactory.getLogger(RiscVAssembler.class);
 
-    private static final boolean OUTPUT_MACHINE_CODE = false;
-    // private static final boolean OUTPUT_MACHINE_CODE = true;
+    // private static final boolean OUTPUT_MACHINE_CODE = false;
+    private static final boolean OUTPUT_MACHINE_CODE = true;
 
     private static final boolean RESOLVE_NOP_TO_NONSENSE_ADDI = true;
 
@@ -294,12 +295,16 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // System.out.println(
         //         "DEBUG - output intermediate assembly after removing pseudo instructions but before removing modifiers and before calling the optimizers");
 
+        // DEBUG
         // for (AsmLine<?> asmLine : asmLines) {
         // System.out.println(asmLine);
         // }
 
+        // DEBUG write input assembly to file
         String filename = "build//assembly_from_compiler.s";
         printAssemblyToFile(filename, true);
+
+        CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
 
         //
         // resolve modifiers
@@ -364,6 +369,15 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         SeqzResolver seqzResolver = new SeqzResolver();
         seqzResolver.modify(asmLines, sectionMap);
 
+
+
+
+        labelAddressMap = new HashMap<>();
+        // callOptimizer.buildLabelTable(asmLines, labelAddressMap, null, sectionMap);
+
+
+
+
         // // DEBUG - output intermediate assembly after removing pseudo instructions
         // but before removing modifiers and before calling the optimizers
         // System.out.println("\n\n\n");
@@ -426,7 +440,6 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // }
 
         if (USE_CALL_OPTIMIZER) {
-            CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
             callOptimizer.modify(asmLines, sectionMap);
         }
 
@@ -460,7 +473,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // System.out.println("");
         // System.out.println("");
 
-        CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
+        // CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
         callOptimizer.updateAddresses(asmLines, sectionMap);
 
         // // DEBUG - output code after addresses have been updated
@@ -473,8 +486,7 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         filename = "build//assembly_updated_addresses.s";
         printAssemblyToFile(filename, false);
 
-        labelAddressMap = new HashMap<>();
-        // Map<Long, AsmLine> offsetAsmLineMap = new HashMap<>();
+        // labelAddressMap = new HashMap<>();
         callOptimizer.buildLabelTable(asmLines, labelAddressMap, null, sectionMap);
 
         // DEBUG
@@ -622,32 +634,26 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         outputAssemblyToFile();
 
-        //
-        // DEBUG: output machine code for easy comparison with GNU riscv 32 bit elf
-        // toolchain or online assemblers
-        //
-
         if (OUTPUT_MACHINE_CODE) {
 
-            for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+            // DEBUG print to console
+            // for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+            //     Section section = entry.getValue();
+            //     getLogger().info("-- Section: " + section.name + " ----------------------");
+            //     // DEBUG output the byte array to the console
+            //     ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+            //     byte[] byteArray = section.byteArrayOutStream.toByteArray();
+            //     outputHexMachineCode(byteArray, byteOrder);
+            //     getLogger().info("");
+            // }
 
-                Section section = entry.getValue();
+            //
+            // DEBUG: output machine code for easy comparison with GNU riscv 32 bit elf
+            // toolchain or online assemblers
+            //
 
-                getLogger().info("-- Section: " + section.name + " ----------------------");
-
-                byte[] byteArray = section.byteArrayOutStream.toByteArray();
-
-                // DEBUG output the byte array to the console
-                ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-                // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-                outputHexMachineCode(byteArray, byteOrder);
-
-                getLogger().info("");
-
-                outputMachineCodeToFile(section);
-
-            }
-
+            outputMachineCodeToTextFile(sectionMap);
+            outputMachineCodeToBinaryFile(sectionMap);
         }
 
         // byte[] byteArray = encoder.getByteArrayOutStream().toByteArray();
@@ -661,6 +667,31 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // throw new RuntimeException();
     }
 
+    private void outputMachineCodeToTextFile(Map<String, Section> sectionMap) throws IOException {
+
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+
+            Section section = entry.getValue();
+            outputMachineCodeToFile(section);
+        }
+    }
+
+    private void outputMachineCodeToBinaryFile(Map<String, Section> sectionMap) throws IOException {
+
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+
+            Section section = entry.getValue();
+
+            byte[] byteArray = section.byteArrayOutStream.toByteArray();
+
+            String filename = "build//" + section.name + ".bin";
+
+            try (FileOutputStream stream = new FileOutputStream(filename)) {
+                stream.write(byteArray);
+            }
+        }
+    }
+
     private void printAssemblyToFile(String filename, boolean assignAddresses) throws IOException {
 
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(
@@ -670,9 +701,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
             for (AsmLine<?> asmLine : asmLines) {
 
-                if (asmLine.mnemonic == Mnemonic.I_ADDI) {
-                    System.out.println(asmLine.toString());
-                }
+                // DEBUG
+                // if (asmLine.mnemonic == Mnemonic.I_ADDI) {
+                //     System.out.println(asmLine.toString());
+                // }
 
                 if (asmLine.mnemonic != null) {
                     // only change the address if the user requested it

@@ -10,20 +10,24 @@ import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
+import com.mycompany.data.Register;
 import com.mycompany.data.Section;
+import com.mycompany.optimize.BaseOptimizer;
 
 /**
  * converts pseudo instruction j to jal
  */
-public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
+public class JResolver<T extends Register> extends BaseOptimizer<T>
+//implements AsmInstructionListModifier<RISCVRegister>
+{
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void modify(List<AsmLine<RISCVRegister>> asmLines, final Map<String, Section> sectionMap) {
+    public void modify(List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
 
         // build label table
         Map<String, Long> labelTableMap = new HashMap<>();
-        Map<Long, AsmLine<RISCVRegister>> offsetAsmLineMap = new HashMap<>();
+        Map<Long, AsmLine<T>> offsetAsmLineMap = new HashMap<>();
         buildLabelTable(asmLines, labelTableMap, offsetAsmLineMap, sectionMap);
 
         for (AsmLine asmLine : asmLines) {
@@ -43,7 +47,7 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
             asmLine.identifier_0 = null;
         }
     }
-
+/*
     public void buildLabelTable(final List<AsmLine<RISCVRegister>> asmLines,
             final Map<String, Long> labelAddressMap, Map<Long, AsmLine<RISCVRegister>> offsetAsmLineMap,
             final Map<String, Section> sectionMap) {
@@ -149,4 +153,5 @@ public class JResolver implements AsmInstructionListModifier<RISCVRegister> {
             }
         }
     }
+         */
 }
