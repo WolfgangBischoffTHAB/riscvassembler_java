@@ -61,7 +61,8 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
     private static final Logger logger = LoggerFactory.getLogger(RiscVAssembler.class);
 
-    private static final boolean OUTPUT_MACHINE_CODE = true;
+    private static final boolean OUTPUT_MACHINE_CODE = false;
+    // private static final boolean OUTPUT_MACHINE_CODE = true;
 
     private static final boolean RESOLVE_NOP_TO_NONSENSE_ADDI = true;
 
@@ -287,11 +288,11 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
             }
         }
 
-        // DEBUG - output intermediate assembly after removing pseudo instructions
-        // but before removing modifiers and before calling the optimizers
-        System.out.println("\n\n\n");
-        System.out.println(
-                "DEBUG - output intermediate assembly after removing pseudo instructions but before removing modifiers and before calling the optimizers");
+        // // DEBUG - output intermediate assembly after removing pseudo instructions
+        // // but before removing modifiers and before calling the optimizers
+        // System.out.println("\n\n\n");
+        // System.out.println(
+        //         "DEBUG - output intermediate assembly after removing pseudo instructions but before removing modifiers and before calling the optimizers");
 
         // for (AsmLine<?> asmLine : asmLines) {
         // System.out.println(asmLine);
@@ -462,12 +463,12 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         CallOptimizer<RISCVRegister> callOptimizer = new CallOptimizer<>();
         callOptimizer.updateAddresses(asmLines, sectionMap);
 
-        // DEBUG - output code after addresses have been updated
-        System.out.println("\n\n\n");
-        System.out.println("DEBUG - output code after addresses have been updated");
-        for (AsmLine<?> asmLine : asmLines) {
-            System.out.println(asmLine);
-        }
+        // // DEBUG - output code after addresses have been updated
+        // System.out.println("\n\n\n");
+        // System.out.println("DEBUG - output code after addresses have been updated");
+        // for (AsmLine<?> asmLine : asmLines) {
+        //     System.out.println(asmLine);
+        // }
 
         filename = "build//assembly_updated_addresses.s";
         printAssemblyToFile(filename, false);

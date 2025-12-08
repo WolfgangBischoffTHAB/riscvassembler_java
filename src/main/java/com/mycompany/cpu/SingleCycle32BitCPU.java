@@ -276,8 +276,11 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 }
                 String registerName = RISCVRegister.toStringAbi((RISCVRegister) asmLine.register_0);
                 register_0_value = readRegisterFile(asmLine.register_0.getIndex());
-                logger.info("Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " ("
+
+                if (printInstructions) {
+                    logger.trace("Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " ("
                         + register_0_value + ")");
+                }
 
                 // increment PC
                 // pc += asmLine.encodedLength;
@@ -308,9 +311,12 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 }
 
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
-                int immediate_value = asmLine.numeric_2.intValue();
+                // int immediate_value = asmLine.numeric_2.intValue();
 
-                immediate_value = immediate_value & 0xFFF;
+                // immediate_value = immediate_value & 0xFFF;
+
+                int immediate_value = (int) NumberParseUtil
+                        .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
 
                 if (logger.isTraceEnabled()) {
                     logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
@@ -839,11 +845,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " lw: " + asmLine);
                 }
 
-                // logger.trace(asmLine.toString());
+                // DEBUG
+                logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " lw: " + asmLine);
 
                 // compute memory address to load from (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
-                logger.trace("addr: " + addr);
+
+                // DEBUG
+                logger.info("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
 
                 // NEORV32
                 if (USE_NEORV32_EXTENSION) {
@@ -992,14 +1001,26 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " sw: " + asmLine);
                 }
+
+                // DEBUG
+                logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " sw: " + asmLine);
+
                 // Store 32-bit, values from the low bits of register rs2 to memory.
                 // sw rs2, offset(rs1)
                 // M[x[rs1] + sext(offset)] = x[rs2][31:0]
                 // compute memory address to store to (EXECUTE STAGE)
                 addr = (int) (asmLine.offset_1 + readRegisterFile(asmLine.register_1.getIndex()));
 
+                // DEBUG
+                logger.info("addr: " + ByteArrayUtil.byteToHex(addr) + " " + addr);
+
                 // retrieve the value to write into the address
                 value = readRegisterFile(asmLine.register_0.getIndex());
+
+                // DEBUG
+                if ((value == 80) && (addr == 0x1fff4)) {
+                    System.out.println("debug");
+                }
 
                 // NEORV32
                 if (USE_NEORV32_EXTENSION) {
@@ -1392,7 +1413,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         break;
 
                     case 92: // 92dec () (pfnStreamWriteBufFunc, printStringFromAddress)
-                        logger.info("printf() is called");
+                        logger.trace("printf() is called");
                         register_0_value_l = readRegisterFile(RISCVRegister.REG_A0.getIndex());
                         printStringFromAddress((int) register_0_value_l);
                         break;
@@ -1401,8 +1422,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         System.out.println("exit()");
 
                         // DEBUG print stack frame
-                        printStackFrame(App.STACK_POINTER_INITIAL_ADDRESS - 0x196, App.STACK_POINTER_INITIAL_ADDRESS);
-                        //printStackFrame(0x20ecc, 0x20ecc + 0x196);
+                        printStackFrame(App.STACK_POINTER_INITIAL_ADDRESS - 0x190, App.STACK_POINTER_INITIAL_ADDRESS-4);
+                        // printStackFrame(0x20ecc, 0x20ecc + 0x196);
                         System.out.println("");
 
                         // the unit tests https://github.com/riscv-software-src/riscv-tests
@@ -1652,6 +1673,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         int max = 32767;
                         int randomValue = random.nextInt(max + 1 - min) + min;
                         writeRegisterFile(RISCVRegister.REG_A5.getIndex(), randomValue);
+                        break;
+                    case 105: // 105dec () (putint)
+                        int val = readRegisterFile(RISCVRegister.REG_A0.getIndex());
+                        System.out.println("" + val);
                         break;
                     case 214: // 214dec (0xD6) (System.out.print)
                         register_1_value = readRegisterFile(RISCVRegister.REG_A0.getIndex());
