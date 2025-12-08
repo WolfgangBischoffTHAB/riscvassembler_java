@@ -310,14 +310,18 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
                 }
 
-                int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
-                // int immediate_value = asmLine.numeric_2.intValue();
+                // DEBUG
+                if (pc == 40) {
+                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
+                    System.out.println("test");
+                }
 
-                // immediate_value = immediate_value & 0xFFF;
+                int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
 
                 int immediate_value = (int) NumberParseUtil
                         .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
 
+                // DEBUG
                 if (logger.isTraceEnabled()) {
                     logger.trace("1st Register Name: " + asmLine.register_1.toStringAbi());
                     logger.trace("1st Register Value: " + first_register_value);
@@ -325,6 +329,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.trace("dest Register Name: " + asmLine.register_0.toStringAbi());
                 }
 
+                // NOP instruction detector
                 if ((asmLine.register_0 == RISCVRegister.REG_ZERO)
                         && (asmLine.register_1 == RISCVRegister.REG_ZERO)
                         && (immediate_value == 0)) {
@@ -340,7 +345,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 int result = first_register_value + immediate_value;
 
-                logger.trace("New: " + ByteArrayUtil.byteToHex(result));
+                // DEBUG
+                logger.info("New: " + result + " = " + first_register_value + " + " + immediate_value);
+                logger.info("New: " + ByteArrayUtil.byteToHex(result) + " = " + ByteArrayUtil.byteToHex(first_register_value) + " + " + ByteArrayUtil.byteToHex(immediate_value));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result);
 
