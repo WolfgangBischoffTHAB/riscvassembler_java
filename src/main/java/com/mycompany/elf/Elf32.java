@@ -211,7 +211,7 @@ enum SH_TYPE {
  * Elf32_Word sh_addralign;
  * Elf32_Word sh_entsize;
  * } Elf32_Shdr;
- * 
+ *
  * typedef struct {
  * Elf64_Word sh_name;
  * Elf64_Word sh_type;
@@ -469,14 +469,14 @@ enum SEGMENT_TYPE {
 }
 
 /**
- * 
- * 
+ *
+ *
  * ypedef __u32 Elf32_Addr;
  * typedef __u16 Elf32_Half;
  * typedef __u32 Elf32_Off;
  * typedef __s32 Elf32_Sword;
  * typedef __u32 Elf32_Word;
- * 
+ *
  * typedef struct {
  * Elf32_Word p_type;
  * Elf32_Off p_offset;
@@ -487,7 +487,7 @@ enum SEGMENT_TYPE {
  * Elf32_Word p_flags;
  * Elf32_Word p_align;
  * } Elf32_Phdr;
- * 
+ *
  * typedef struct {
  * Elf64_Word p_type;
  * Elf64_Word p_flags;
@@ -534,7 +534,7 @@ class Elf32_Phdr {
 
 /**
  * https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
- * 
+ *
  * // 32-bit ELF base types.
  * typedef __u32 Elf32_Addr;
  * typedef __u16 Elf32_Half;
@@ -542,7 +542,7 @@ class Elf32_Phdr {
  * typedef __s32 Elf32_Sword;
  * typedef __u32 Elf32_Word;
  * typedef __u16 Elf32_Versym;
- * 
+ *
  * typedef struct
  * {
  * unsigned char e_ident[EI_NIDENT]; // Offset(0) - Magic number and other info
@@ -688,7 +688,7 @@ class Elf32_Ehdr {
 
 /**
  * Elf Header, 32 bit version
- * 
+ *
  * https://refspecs.linuxbase.org/elf/gabi4+/ch4.eheader.html
  */
 public class Elf32 extends BaseElf {
@@ -736,10 +736,8 @@ public class Elf32 extends BaseElf {
         // 2. Retrieve the "Number of entries in the section header table"
         int numberOfEntriesSectionHeaderTable = elf32_Ehdr.e_shnum;
 
-        //
         // Iterate over sections in order to find the address of the
         // main-function/symbol
-        //
 
         List<Elf32_Shdr> sectionHeaders = new ArrayList<>();
 

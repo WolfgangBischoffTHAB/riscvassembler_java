@@ -172,8 +172,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
             // for compressed instructions, the asmLines list may contain two instructions
             // if this is the first instruction in the asmLine-list and it is a taken
-            // branch,
-            // do not execute the second instruction!
+            // branch, do not execute the second instruction!
             if (asmLine.branchTaken) {
                 break;
             }
@@ -223,12 +222,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             // logger.info("");
         }
 
+        // DEBUG output ASM line
         if (logger.isTraceEnabled()) {
             logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" +
-                ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
-                + "] " + asmLine.toString());
+                    ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1$08X")
+                    + "] " + asmLine.toString());
         }
 
+        // if encoding is missing, fail
         if (asmLine.encodedLength <= 0) {
             throw new RuntimeException("Encoded length is zero! System is bugged!");
         }
@@ -276,12 +277,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 if (printInstructions) {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " add: " + asmLine);
                 }
+                @SuppressWarnings("unused")
                 String registerName = RISCVRegister.toStringAbi((RISCVRegister) asmLine.register_0);
                 register_0_value = readRegisterFile(asmLine.register_0.getIndex());
 
                 // if (printInstructions) {
-                    // logger.info("[print_reg] Register " + registerName + " = " + ByteArrayUtil.byteToHex(register_0_value) + " ("
-                    //     + register_0_value + ")");
+                // logger.info("[print_reg] Register " + registerName + " = " +
+                // ByteArrayUtil.byteToHex(register_0_value) + " ("
+                // + register_0_value + ")");
                 // }
 
                 // increment PC
@@ -314,8 +317,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 // // DEBUG
                 // if (pc == 40) {
-                //     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
-                //     System.out.println("test");
+                // logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " addi: " + asmLine);
+                // System.out.println("test");
                 // }
 
                 int first_register_value = readRegisterFile(asmLine.register_1.getIndex());
@@ -348,13 +351,16 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 int result = first_register_value + immediate_value;
 
                 // // DEBUG
-                // logger.info("New: " + result + " = " + first_register_value + " + " + immediate_value);
-                // logger.info("New: " + ByteArrayUtil.byteToHex(result) + " = " + ByteArrayUtil.byteToHex(first_register_value) + " + " + ByteArrayUtil.byteToHex(immediate_value));
+                // logger.info("New: " + result + " = " + first_register_value + " + " +
+                // immediate_value);
+                // logger.info("New: " + ByteArrayUtil.byteToHex(result) + " = " +
+                // ByteArrayUtil.byteToHex(first_register_value) + " + " +
+                // ByteArrayUtil.byteToHex(immediate_value));
 
                 writeRegisterFile(asmLine.register_0.getIndex(), result);
 
                 // increment PC
-                //pc += asmLine.encodedLength;
+                // pc += asmLine.encodedLength;
                 incrementPC(asmLine.encodedLength);
                 break;
 
@@ -462,7 +468,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 }
 
                 // immValSignExtended = (int) NumberParseUtil
-                //         .sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
+                // .sign_extend_20_bit_to_int32_t(asmLine.numeric_1.intValue());
 
                 int int_numeric_1 = Math.toIntExact(asmLine.numeric_1);
                 int stored_offset = (int_numeric_1 << 12L);
@@ -538,9 +544,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 }
 
                 // pc = rs1 + imm
-                // immValSignExtended = (int) NumberParseUtil
-                // .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
-                int numeric_2_value_int = asmLine.numeric_2.intValue();
+
+                // works for zork.elf and fails for the matrix multiplication examples
+                int immValSignExtended = (int) NumberParseUtil.sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+                int numeric_2_value_int = immValSignExtended;
+
+                // // works for the matrix multiplication examples and fails for zork.elf
+                // int numeric_2_value_int = asmLine.numeric_2.intValue();
 
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
                 int pcReplacement = register_1_value + numeric_2_value_int;
@@ -1033,7 +1043,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 // // DEBUG
                 // if ((value == 80) && (addr == 0x1fff4)) {
-                //     System.out.println("debug");
+                // System.out.println("debug");
                 // }
 
                 // NEORV32
@@ -1436,7 +1446,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                         System.out.println("exit()");
 
                         // DEBUG print stack frame
-                        printStackFrame(App.STACK_POINTER_INITIAL_ADDRESS - 0x190, App.STACK_POINTER_INITIAL_ADDRESS-4);
+                        printStackFrame(App.STACK_POINTER_INITIAL_ADDRESS - 0x190,
+                                App.STACK_POINTER_INITIAL_ADDRESS - 4);
                         // printStackFrame(0x20ecc, 0x20ecc + 0x196);
                         System.out.println("");
 
@@ -2317,9 +2328,9 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         pc += increment;
 
         // if (pc == 0x1038) {
-        //     System.out.println("ERROR Condition!");
-        //     System.out.println("OLD PC: " + ByteArrayUtil.byteToHex(oldPC));
-        //     System.out.println("NEW PC: " + ByteArrayUtil.byteToHex(pc));
+        // System.out.println("ERROR Condition!");
+        // System.out.println("OLD PC: " + ByteArrayUtil.byteToHex(oldPC));
+        // System.out.println("NEW PC: " + ByteArrayUtil.byteToHex(pc));
         // }
     }
 
@@ -2441,7 +2452,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     @SuppressWarnings("unchecked")
     private void printStackFrame(int startAddress, int endAddress) {
 
-        ///int startAddress = readRegisterFile(RISCVRegister.REG_SP.getIndex());
+        /// int startAddress = readRegisterFile(RISCVRegister.REG_SP.getIndex());
         // int startAddress = 0x80000;
 
         rawPrintingDecoder.memory = memory;

@@ -57,7 +57,8 @@ public class App {
 
     // public static final int STACK_POINTER_INITIAL_ADDRESS = 0x00090000;
     public static final int STACK_POINTER_INITIAL_ADDRESS = 0x00020000;
-    // public static final int STACK_POINTER_INITIAL_ADDRESS = MEMORY_SIZE_IN_BYTE - 4;
+    // public static final int STACK_POINTER_INITIAL_ADDRESS = MEMORY_SIZE_IN_BYTE -
+    // 4;
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
@@ -73,19 +74,19 @@ public class App {
 
     private static final boolean OUTPUT_HEX_MACHINE_CODE = false;
 
-    // plain .s assembler source code
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_RAW = false;
-    private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
-    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // // .elf file
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // // plain .s assembler source code
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
     // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
     // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // .elf file
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
+    private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Raw Machine Code
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -180,7 +181,6 @@ public class App {
 
         long startAddress = 0;
         int globalPointerValue = 0;
-        //int stackPointerValue = 0x00020000;
         int stackPointerValue = STACK_POINTER_INITIAL_ADDRESS;
 
         if (MACHINE_CODE_SOURCE_ASSEMBLY_FILE) {
@@ -367,7 +367,8 @@ public class App {
                         logger.info("outputHexMachineCode() done.");
                     }
 
-                    logger.info("SectionName: \"" + section.name + "\" -- " + "machineCode.length: " + machineCode.length);
+                    logger.info(
+                            "SectionName: \"" + section.name + "\" -- " + "machineCode.length: " + machineCode.length);
 
                     // 32 bit
                     int curPos = (int) section.outputSection.currentPosition;
@@ -407,17 +408,17 @@ public class App {
             // elf to machine code
             //
 
-            // //
-            // // RV32
-            // //
+            //
+            // RV32
+            //
 
-            // Elf32 elf = new Elf32();
-            // elf.memory = memory;
+            Elf32 elf = new Elf32();
+            elf.memory = memory;
 
             // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
             // elf.setFile("src/test/resources/riscvelf/factorial.out");
             // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            // elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
+            elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
             // elf.setFile("C:/Users/lapto/dev/riscv/egos/src/P0_Hello_World/hello.elf");
             // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/demo_cfu/main.elf");
             // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/add1/main.elf");
@@ -513,14 +514,14 @@ public class App {
             // OK
             // elf.setFile("C:/Users/lapto/dev/riscv/riscv-tests/isa/rv32ui-p-xori");
 
-            //
-            // RV64
-            //
+            // //
+            // // RV64
+            // //
 
-            Elf64 elf = new Elf64();
-            elf.memory = (Memory64) memory;
+            // Elf64 elf = new Elf64();
+            // elf.memory = (Memory64) memory;
 
-            elf.setFile("src/test/resources/riscvelf/rvv_vector_add/main.elf");
+            // elf.setFile("src/test/resources/riscvelf/rvv_vector_add/main.elf");
 
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-add"); // OK
             // elf.setFile("src/test/resources/riscvelf/rv64_tests/rv64ui-p-addi"); // OK
@@ -668,6 +669,7 @@ public class App {
             // ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
             // ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
             // BaseAssembler.outputHexMachineCode(machineCode, byteOrder);
+
             /*
              * //
              * // startAddress (32 bit)
@@ -692,52 +694,15 @@ public class App {
              * globalPointerValue = elf.globalPointerValue;
              */
 
-            // if (XLEN == 32) {
-
-            // //
-            // // startAddress 32 bit
-            // //
-            // // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
-            // // the spice simulator uses the _start symbol
-            // Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
-            // Elf32Sym mainEntryPointSymbol = null;
-            // if (optionalSymbol.isPresent()) {
-            // mainEntryPointSymbol = optionalSymbol.get();
-            // } else {
-            // optionalSymbol = elf.getSymbolFromSymbolTable("_start");
-            // if (optionalSymbol.isPresent()) {
-            // mainEntryPointSymbol = optionalSymbol.get();
-            // }
-            // }
-            // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
-            // }
-
-            if (XLEN == 64) {
-
-                // //
-                // // 32 bit elf file for 64 bit CPU
-                // //
-
-                // Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
-                // Elf32Sym mainEntryPointSymbol = null;
-                // if (optionalSymbol.isPresent()) {
-                // mainEntryPointSymbol = optionalSymbol.get();
-                // } else {
-                // optionalSymbol = elf.getSymbolFromSymbolTable("_start");
-                // if (optionalSymbol.isPresent()) {
-                // mainEntryPointSymbol = optionalSymbol.get();
-                // }
-                // }
-                // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+            if (XLEN == 32) {
 
                 //
-                // 64 bit elf file for 64 bit CPU
+                // startAddress 32 bit
                 //
-
                 // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
                 // the spice simulator uses the _start symbol
-                Optional<Elf64Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
-                Elf64Sym mainEntryPointSymbol = null;
+                Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+                Elf32Sym mainEntryPointSymbol = null;
                 if (optionalSymbol.isPresent()) {
                     mainEntryPointSymbol = optionalSymbol.get();
                 } else {
@@ -747,12 +712,60 @@ public class App {
                     }
                 }
                 startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+
             }
+
+            /*
+             * if (XLEN == 64) {
+             *
+             * // //
+             * // // 32 bit elf file for 64 bit CPU
+             * // //
+             *
+             * // Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+             * // Elf32Sym mainEntryPointSymbol = null;
+             * // if (optionalSymbol.isPresent()) {
+             * // mainEntryPointSymbol = optionalSymbol.get();
+             * // } else {
+             * // optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+             * // if (optionalSymbol.isPresent()) {
+             * // mainEntryPointSymbol = optionalSymbol.get();
+             * // }
+             * // }
+             * // startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+             *
+             * //
+             * // 64 bit elf file for 64 bit CPU
+             * //
+             *
+             * // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
+             * // the spice simulator uses the _start symbol
+             * Optional<Elf64Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
+             * Elf64Sym mainEntryPointSymbol = null;
+             * if (optionalSymbol.isPresent()) {
+             * mainEntryPointSymbol = optionalSymbol.get();
+             * } else {
+             * optionalSymbol = elf.getSymbolFromSymbolTable("_start");
+             * if (optionalSymbol.isPresent()) {
+             * mainEntryPointSymbol = optionalSymbol.get();
+             * }
+             * }
+             * startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+             * }
+             */
 
             //
             // set the global pointer register
             //
+
             globalPointerValue = (int) elf.globalPointerValue;
+
+            // stack
+            // stackPointerValue = 0x00020000;
+
+            // set global pointer
+            // globalPointerValue = 0x00004000;
+
 
         }
 
@@ -910,24 +923,26 @@ public class App {
         SingleCycle32BitCPU cpu = new SingleCycle32BitCPU();
 
         // if (XLEN != 64) {
-        //     throw new RuntimeException("change CPU to correct XLEN!");
+        // throw new RuntimeException("change CPU to correct XLEN!");
         // }
         // SingleCycle64BitCPU cpu = new SingleCycle64BitCPU();
 
         // PipelinedCPU cpu = new PipelinedCPU();
 
         // DEBUG main entry point address
-        logger.trace("Main Entry Point: " + ByteArrayUtil.byteToHex((int) main_entry_point_address, null, "%1$08X"));
-        // logger.trace("" + main_entry_point_address);
+        logger.info("Main Entry Point: " + ByteArrayUtil.byteToHex((int) main_entry_point_address, null, "%1$08X") + " (" + main_entry_point_address + ")");
 
         if (XLEN == 32) {
             // for 32 bit
             cpu.pc = (int) (main_entry_point_address & 0x00000000FFFFFFFFL);
         } else if (XLEN == 64) {
-            //throw new RuntimeException("Update this for 64 bit!");
+            // throw new RuntimeException("Update this for 64 bit!");
             // for 64 bit
             cpu.pc = (int) (main_entry_point_address & 0x00000000FFFFFFFFL);
         }
+
+        // DEBUG output global pointer
+        logger.info("Global Pointer: " + ByteArrayUtil.byteToHex((int) globalPointerValue, null, "%1$08X") + " (" + globalPointerValue + ")");
 
         // logger.info("" + cpu.pc);
         // cpu.pc = Integer.toUnsignedInt(main_entry_point_address);
@@ -949,6 +964,8 @@ public class App {
         //
         // stack should grow down, so set it to the highest memory address possible
         // cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = machineCode.length - 4;
+        // DEBUG output global pointer
+        logger.info("Stack Pointer: " + ByteArrayUtil.byteToHex((int) stackPointerValue, null, "%1$08X") + " (" + stackPointerValue + ")");
         cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = stackPointerValue;
 
         //

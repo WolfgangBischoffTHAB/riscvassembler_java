@@ -129,7 +129,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
     @SuppressWarnings("unused")
     public List<AsmLine<?>> decode(final long address) {
 
-        logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
+        if (logger.isTraceEnabled()) {
+            logger.trace("PC: " + ByteArrayUtil.byteToHex(address));
+        }
 
         int instruction = 0;
 
