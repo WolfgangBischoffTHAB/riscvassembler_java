@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
-import com.mycompany.data.Section;
 
 /**
  * Encode instructions directed at the assembler: .BYTE, .WORD, ...
@@ -22,9 +21,11 @@ public class AsmInstructionEncoder {
 
     private RISCVEncoderMode encoderMode = RISCVEncoderMode.UNKNOWN;
 
-    private ByteArrayOutputStream stringByteArrayOutputStream = new ByteArrayOutputStream();
+    // private ByteArrayOutputStream stringByteArrayOutputStream = new ByteArrayOutputStream();
 
-    public Map<String, Section> sectionMap;
+    // public Map<String, Section> sectionMap;
+
+    public RISCVEncoder riscvEncoder;
 
     /**
      * Places data described by an assembler instruction into memory.
@@ -32,46 +33,51 @@ public class AsmInstructionEncoder {
      * @param byteArrayOutStream
      * @param asmLine
      * @param addressSourceAsmLineMap
-     * @param currentAddress
      * @return amount of bytes used to encode the data described by the assembler
      *         instruction
      * @throws IOException
      */
     public int encodeAssemblerInstruction(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine,
-            final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
+            final Map<Long, AsmLine<?>> addressSourceAsmLineMap)
             throws IOException {
 
         // logger.info(currentAddress + " -> " + asmLine);
         // addressSourceAsmLineMap.put(currentAddress, asmLine);
 
+        long currentAddress = riscvEncoder.currentSection.getCurrentAddress();
+
         if (asmLine.pseudoInstructionAsmLine != null) {
+
             logger.info(ByteArrayUtil.byteToHex(currentAddress) + " -> " + asmLine.pseudoInstructionAsmLine);
             addressSourceAsmLineMap.put(currentAddress, asmLine.pseudoInstructionAsmLine);
+
         } else {
+
             logger.info(ByteArrayUtil.byteToHex(currentAddress) + " -> " + asmLine);
             addressSourceAsmLineMap.put(currentAddress, asmLine);
+
         }
 
         switch (asmLine.asmInstruction) {
 
             case ZERO:
                 // reserve space and prefill the space with 0x00
-                return encodeZeroAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeZeroAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case SPACE:
-                return encodeSpaceAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeSpaceAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case BYTE:
-                return encodeByteAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeByteAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case WORD:
-                return encodeWordAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeWordAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case QUAD:
-                return encodeQuadAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeQuadAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case ASCII:
-                return encodeAsciiAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeAsciiAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case ASCIZ:
             case ASCIIZ:
@@ -100,21 +106,28 @@ public class AsmInstructionEncoder {
                 // in a tighly packed fashion and after the last instruction, the string block
                 // is padded with zeroes for alignment.
 
-                return encodeStringAssemblerInstruction(stringByteArrayOutputStream, asmLine);
+                return encodeStringAssemblerInstruction(riscvEncoder.currentSection.byteArrayOutStream, asmLine);
 
             case SECTION:
                 logger.error("section");
                 break;
 
             case TEXT:
-                if (!sectionMap.containsKey(".text")) {
+                if (!riscvEncoder.sectionMap.containsKey(".text")) {
                     throw new RuntimeException("Section missing: .text");
                 }
+                riscvEncoder.currentSection = riscvEncoder.sectionMap.get(".text");
+                break;
+
+            case DATA:
+                if (!riscvEncoder.sectionMap.containsKey(".data")) {
+                    throw new RuntimeException("Section missing: .data");
+                }
+                riscvEncoder.currentSection = riscvEncoder.sectionMap.get(".data");
                 break;
 
             case FILE:
             case GLOBAL:
-            case DATA:
             case EQU:
                 logger.error("Assembler instruction is not implemented yet! " + asmLine);
                 // nop
@@ -213,27 +226,27 @@ public class AsmInstructionEncoder {
         return length;
     }
 
-    public void startStringMode() {
-        encoderMode = RISCVEncoderMode.STRING;
-    }
+    // public void startStringMode() {
+    //     encoderMode = RISCVEncoderMode.STRING;
+    // }
 
-    public void endStringMode(final ByteArrayOutputStream byteArrayOutStream) throws IOException {
+    // public void endStringMode(final ByteArrayOutputStream byteArrayOutStream) throws IOException {
 
-        if (encoderMode == RISCVEncoderMode.STRING) {
+    //     if (encoderMode == RISCVEncoderMode.STRING) {
 
-            // // pad with zeroes for proper alignment
-            // int length = stringByteArrayOutputStream.size();
-            // for (int i = 0; i < (length % 4); i++) {
-            //     stringByteArrayOutputStream.write(0);
-            // }
+    //         // // pad with zeroes for proper alignment
+    //         // int length = stringByteArrayOutputStream.size();
+    //         // for (int i = 0; i < (length % 4); i++) {
+    //         //     stringByteArrayOutputStream.write(0);
+    //         // }
 
-            // flush the buffered strings
-            byteArrayOutStream.write(stringByteArrayOutputStream.toByteArray());
+    //         // flush the buffered strings
+    //         byteArrayOutStream.write(stringByteArrayOutputStream.toByteArray());
 
-            // start a new buffer
-            stringByteArrayOutputStream = new ByteArrayOutputStream();
-        }
-        encoderMode = RISCVEncoderMode.NORMAL;
-    }
+    //         // start a new buffer
+    //         stringByteArrayOutputStream = new ByteArrayOutputStream();
+    //     }
+    //     encoderMode = RISCVEncoderMode.NORMAL;
+    // }
 
 }

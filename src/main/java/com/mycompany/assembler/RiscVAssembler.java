@@ -8,6 +8,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.antlr.v4.parse.v3TreeGrammarException;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -30,7 +31,9 @@ import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
 import com.mycompany.encoder.AsmInstructionEncoder;
 import com.mycompany.encoder.Encoder;
+import com.mycompany.encoder.MnemonicEncoder;
 import com.mycompany.encoder.RISCVEncoder;
+import com.mycompany.encoder.RISCVMnemonicEncoder;
 import com.mycompany.optimize.BaseOptimizer;
 import com.mycompany.optimize.CallOptimizer;
 import com.mycompany.optimize.LiOptimizer;
@@ -82,7 +85,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
      */
     public RiscVAssembler(Map<String, Section> sectionMap, Section dummySection) {
 
-        currentSection = sectionMap.get(".text");
+        encoder.sectionMap = sectionMap;
+
+        // start in the .text section
+        encoder.currentSection = sectionMap.get(".text");
 
         // set up the visitor
         // the extractor assembles AsmLineS by visiting the antlr4 AST
@@ -90,23 +96,23 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         asmListener.dummySection = dummySection;
         asmListener.asmLines = asmLines;
         asmListener.sectionMap = sectionMap;
-        asmListener.currentSection = currentSection;
+        asmListener.currentSection = encoder.currentSection;
 
         this.asmListener = asmListener;
 
+        RISCVMnemonicEncoder riscvMnemonicEncoder = new RISCVMnemonicEncoder();
+        riscvMnemonicEncoder.riscvEncoder = encoder;
+        encoder.mnemonicEncoder = riscvMnemonicEncoder;
+
         AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
-        asmInstructionEncoder.sectionMap = sectionMap;
+        asmInstructionEncoder.riscvEncoder = encoder;
         encoder.asmInstructionEncoder = asmInstructionEncoder;
     }
 
     public void assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {
 
-        //
         // set default section
-        //
-
-        currentSection = sectionMap.get(".text");
-        // setCurrentSection(currentSection);
+        encoder.currentSection = sectionMap.get(".text");
 
         // create a buffer of tokens pulled from the lexer
         final CommonTokenStream asmTokens = new CommonTokenStream(getLexer(asmInputFile));
@@ -373,6 +379,14 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
 
 
+        // reset the offsets in the sectionMap
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+            entry.getValue().setCurrentOffset(0);
+        }
+
+
+
+
         labelAddressMap = new HashMap<>();
         // callOptimizer.buildLabelTable(asmLines, labelAddressMap, null, sectionMap);
 
@@ -557,13 +571,13 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         // }
 
         // DEBUG output label address map
-        getLogger().info("\n\n\n");
-        getLogger().info("* LABEL-ADDRESS-MAP **************************");
+        getLogger().trace("\n\n\n");
+        getLogger().trace("* LABEL-ADDRESS-MAP **************************");
         for (Map.Entry<String, Long> entry : labelAddressMap.entrySet()) {
-            getLogger().info("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
+            getLogger().trace("Key: " + entry.getKey() + " Value: " + entry.getValue() + " "
                     + ByteArrayUtil.longToHex(entry.getValue()));
         }
-        getLogger().info("***************************");
+        getLogger().trace("***************************");
 
         // write label map to map_file.txt
         try (java.io.BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("build//map_file.txt"))) {
@@ -589,6 +603,11 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
 
         int lineNumber = 0;
 
+        // reset the offsets in the sectionMap
+        for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+            entry.getValue().setCurrentOffset(0);
+        }
+
         AsmLine<?> errorAsmLine = null;
         try {
 
@@ -600,12 +619,11 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
                 // DEBUG
                 // System.out.println(asmLine);
 
-                long spaceUsed = encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap,
-                        asmLine.section.address);
+                long spaceUsed = encoder.encode(asmLine, labelAddressMap, addressSourceAsmLineMap);
 
                 // advance the current index for the section after using space within that
                 // section
-                asmLine.section.address += spaceUsed;
+                asmLine.section.setCurrentOffset(asmLine.section.getCurrentOffset() + spaceUsed);
 
                 lineNumber++;
             }

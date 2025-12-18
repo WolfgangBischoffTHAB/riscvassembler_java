@@ -23,26 +23,32 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     @SuppressWarnings("unused")
     private static final boolean USE_64_BIT = true;
 
-    private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
-    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
+    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
+    private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
 
     private long currentAddress;
 
+    public RISCVEncoder riscvEncoder;
+
     public int encodeMnemonic(final ByteArrayOutputStream byteArrayOutStream,
             final AsmLine<?> asmLine, final Map<String, Long> labelAddressMap,
-            final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
+            final Map<Long, AsmLine<?>> addressSourceAsmLineMap)
             throws IOException {
 
         if (asmLine.pseudoInstructionAsmLine != null) {
+
             if (getLogger().isTraceEnabled()) {
                 getLogger().trace(currentAddress + " -> " + asmLine.pseudoInstructionAsmLine);
             }
             addressSourceAsmLineMap.put(currentAddress, asmLine.pseudoInstructionAsmLine);
+
         } else {
+
             if (getLogger().isTraceEnabled()) {
                 getLogger().trace(currentAddress + " -> " + asmLine);
             }
             addressSourceAsmLineMap.put(currentAddress, asmLine);
+
         }
 
         this.currentAddress = currentAddress;
@@ -1092,8 +1098,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
             long data_1 = 0L;
 
-            // boolean use_formula = false; // works for memory.s
-            boolean use_formula = true; // works for hello_world.s
+            boolean use_formula = false; // works for memory.s
+            // boolean use_formula = true; // works for hello_world.s
             if (use_formula) {
 
                 // Computation for addi:

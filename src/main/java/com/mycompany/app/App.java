@@ -265,13 +265,14 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/rvv_testing_64bit/simple_vadd.s";
             // String inputFile = "src/test/resources/riscvasm/rvv_testing_64bit/vaadd_vv-0.S";
 
-            String inputFile = "src/test/resources/riscvasm/rvv_testing_32bit/vadd_8.S";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing_32bit/vadd_8.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing_32bit/vadd_8_without_comment.s";
 
             // String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad.s";
             // String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad_2.s";
 
             // For the compiler
-            // String inputFile = "C:/Users/lapto/dev/java/cpp_compiler/generated_riscv_assembly.s";
+            String inputFile = "C:/Users/lapto/dev/java/cpp_compiler/generated_riscv_assembly.s";
 
             // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
@@ -331,6 +332,11 @@ public class App {
             //
             // assemble to machine code
             //
+
+            // reset the offsets in the sectionMap
+            for (Map.Entry<String, Section> entry : sectionMap.entrySet()) {
+                entry.getValue().setCurrentOffset(0);
+            }
 
             // byte[] machineCode = assembler.assemble(sectionMap, asmInputFile);
 

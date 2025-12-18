@@ -1,45 +1,16 @@
-# Copyright TU Wien
-# Licensed under the Solderpad Hardware License v2.1, see LICENSE.txt for details
-# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
-
     .text
     .global main
 main:
     la              a0, vdata_start
-
-    # Assumption: VLEN=128 == 128bit register. Means 16 8bit values fit into the register.
-
-    # li              t0, 8
-    # vsetvli         t0, t0, e8,m2,tu,mu
-    # vsetvli         t0, t0, e8,m1,tu,mu
-    # vsetvli         t0, t0, e8,mf2,tu,mu
-    # vsetvli         t0, t0, e8,mf4,tu,mu
-    # vsetvli         t0, t0, e8,mf8,tu,mu
-
-    # li              t0, 16
-    # vsetvli         t0, t0, e8,m2,tu,mu
-    # vsetvli         t0, t0, e8,m1,tu,mu
-    # vsetvli         t0, t0, e8,mf2,tu,mu
-    # vsetvli         t0, t0, e8,mf4,tu,mu
-    # vsetvli         t0, t0, e8,mf8,tu,mu
-
     li              t0, 32
-    # vsetvli         t0, t0, e8,m2,tu,mu
-    # vsetvli         t0, t0, e8,m1,tu,mu
     vsetvli         t0, t0, e8,mf2,tu,mu
-
     li              t0, 1
-
     vle8.v          v0, (a0)
     vadd.vx         v0, v0, t0
     vse8.v          v0, (a0)
-
     la              a0, vdata_start
     la              a1, vdata_end
     ret
-#    j               spill_cache
-
-
     .data
     .align 10
     .global vdata_start
@@ -78,7 +49,6 @@ vdata_start:
     .word           0x40504a3f
     .word           0x4448535a
 vdata_end:
-
     .align 10
     .global vref_start
     .global vref_end

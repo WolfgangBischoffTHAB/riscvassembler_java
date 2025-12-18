@@ -3,6 +3,10 @@ package com.mycompany.pseudo.resolve;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.mycompany.cpu.SingleCycle64BitCPU;
 import com.mycompany.data.AsmInstructionListModifier;
 import com.mycompany.data.AsmLine;
 import com.mycompany.data.Mnemonic;
@@ -14,24 +18,24 @@ import com.mycompany.data.Section;
  * Converts (resolve) the pseudo instruction la (load address) to real or
  * non-pseudo instructions that can be executed on a RISC-V CPU.<br />
  * <br />
- * 
+ *
  * la produces pc-relative addresses (as opposed to absolute addressing) because
  * it is resolved to an auipc call. auipc is pc-relative by specification.<br />
  * <br />
- * 
+ *
  * The pseudo instruction la (load address) is defined in the RISC-V Assembler
  * Programmer's Manual on page 41.<br />
  * <br />
- * 
+ *
  * Chapter 29. A listing of standard RISC-V pseudoinstructions<br />
  * <br />
- * 
+ *
  * The resolution of la to non-pseudo instructions is affected by the .option
  * nopic or .option pic. This resolver currently works as if option .nopic is
  * used.
  * <br />
  * <br />
- * 
+ *
  * This means the resolution will be:
  * ```
  * la rd, symbol
@@ -48,6 +52,8 @@ import com.mycompany.data.Section;
  * high 20 bits coming from the U-type immediate.
  */
 public class LaResolver<T extends Register> implements AsmInstructionListModifier<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(LaResolver.class);
 
     @Override
     public void modify(List<AsmLine<T>> asmLines, final Map<String, Section> sectionMap) {
@@ -107,6 +113,8 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
                     auipc.label = foundAsmLine.label;
                 }
 
+                logger.info(auipc.toString());
+
                 //
                 // addi
                 //
@@ -125,6 +133,8 @@ public class LaResolver<T extends Register> implements AsmInstructionListModifie
 
                 addi.offsetLabel_2 = foundAsmLine.identifier_1;
                 addi.modifier_2 = Modifier.LO;
+
+                logger.info(addi.toString());
 
                 // // DEBUG
                 // System.out.println("\n\n\n");

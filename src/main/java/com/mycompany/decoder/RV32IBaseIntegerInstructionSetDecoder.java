@@ -45,8 +45,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
 
-    private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
-    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
+    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
+    private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
 
     public Memory memory;
 

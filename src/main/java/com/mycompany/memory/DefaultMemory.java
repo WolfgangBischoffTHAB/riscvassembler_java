@@ -109,6 +109,32 @@ public class DefaultMemory implements Memory<Integer> {
     }
 
     @Override
+    public byte readByte(Integer addr, ByteOrder byteOrder) {
+
+        logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
+
+        MemoryBlock memoryBlock = retrieveMemoryBlockByAddress(addr);
+
+        int offsetAddress = (int) (addr - memoryBlock.address);
+
+        // DEBUG
+        logger.trace("offsetAddress: " + ByteArrayUtil.byteToHex(offsetAddress) + "(" + offsetAddress + ")");
+
+        // DEBUG
+        logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 0]) + " ("
+                + memoryBlock.memory[offsetAddress + 0] + ")");
+        // logger.trace(ByteArrayUtil.byteToHex(memoryBlock.memory[offsetAddress + 1]) + " ("
+        //         + memoryBlock.memory[offsetAddress + 1] + ")");
+
+        final byte data = memoryBlock.memory[offsetAddress + 0];
+
+        // DEBUG
+        logger.trace(ByteArrayUtil.byteToHex(data));
+
+        return data;
+    }
+
+    @Override
     public int readShort(Integer addr, ByteOrder byteOrder) {
 
         logger.trace(ByteArrayUtil.byteToHex(addr) + "(" + addr + ")");
@@ -194,12 +220,19 @@ public class DefaultMemory implements Memory<Integer> {
     //
 
     @Override
+    public void readByte(byte[] rvvReg, int rdOffset, long addr, ByteOrder byteOrder) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'readLong'");
+    }
+
+    @Override
     public void readLong(byte[] rvvReg, int rdOffset, long addr, ByteOrder byteOrder) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'readLong'");
     }
 
     private MemoryBlock retrieveMemoryBlockByAddress(Integer addr) {
+
         // memory align address to MB
         long addressAligned = addr & 0xFFFFFFFFFFF00000L;
 

@@ -481,7 +481,7 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
      */
     public static void resolveModifiers(List<AsmLine<RISCVRegister>> asmLines, Map<String, Long> labelAddressMap) {
 
-        int offset = 4;
+        // int offset = 4;
         // int offset = 0;
         // if (RiscVAssembler.USE_CALL_OPTIMIZER) {
         //     offset = 4;

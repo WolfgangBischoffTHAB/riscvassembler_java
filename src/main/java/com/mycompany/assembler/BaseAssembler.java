@@ -34,7 +34,7 @@ public abstract class BaseAssembler<T extends Register> {
 
     public ParseTreeListener asmListener;
 
-    public Section currentSection;
+    // public Section currentSection;
 
     public abstract TokenSource getLexer(String asmInputFile) throws IOException;
 

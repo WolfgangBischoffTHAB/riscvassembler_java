@@ -225,6 +225,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
             return false;
         }
 
+        if (pc == 0xFFFFF158) {
+            System.out.println("tets");
+        }
+
         // DECODE - use decoder to turn 32 bits into an instruction ASM Line including
         // parameters and opcode
         decoder.memory = memory;
@@ -233,7 +237,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
             logger.warn("\n");
             logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-            logger.warn("Cannot decode from PC: " + ByteArrayUtil.byteToHex(pc));
+            logger.warn("Cannot decode from PC= " + ByteArrayUtil.byteToHex(pc));
             logger.warn("Aborting CPU!");
             logger.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
@@ -273,59 +277,10 @@ public class SingleCycle32BitCPU extends AbstractCPU {
     @SuppressWarnings("unchecked")
     private boolean executeAsmLine(AsmLine<?> asmLine) throws IOException {
 
-        // // DEBUG
-        // if (pc == 0x10420) {
-        // System.out.println("<puts>");
-        // }
-
-        // if (pc == 0x103a8) {
-        // System.out.println("<_puts_r>");
-        // }
-
-        // if (pc == 0x10428) {
-        // System.out.println("<strlen>");
-        // }
-
-        // // <__sfvwrite_r>
-        // if (pc == 0x10670) {
-        // System.out.println("<__sfvwrite_r>");
-        // }
-
-        // if (pc == 0x10604) {
-        // System.out.println("<__sinit>");
-        // }
-
-        // if (pc == 0x1227c) {
-        // System.out.println("<_write>");
-        // }
-
-        // // not hit
-        // if (pc == 0x1043e) {
-        // System.out.println("<std>");
-        // }
-
-        // if (pc == 0x103da) {
-        // System.out.println("aa");
-        // }
-
-        // if (pc == 0x103ba) {
-        // System.out.println("aa");
-        // }
-
-        // // <memchr>
-        // if (pc == 0x11062) {
-        // System.out.println("aa");
-        // }
-
-        // // <__swsetup_r>
-        // if (pc == 0x115fc) {
-        // System.out.println("aa");
-        // }
-
-        // // <__sinit>
-        // if (pc == 0x10604) {
-        // System.out.println("aa");
-        // }
+        // DEBUG
+        if (pc == 0xFFFFF158) {
+            System.out.println("error");
+        }
 
         if (singleStepping) {
             printMemoryAroundPC(5);
@@ -366,8 +321,12 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         }
 
         // DEBUG output ASM line
-        if (logger.isTraceEnabled()) {
-            logger.trace(ByteArrayUtil.byteToHex(pc) + ": [" +
+        if (logger.isInfoEnabled()) {
+            logger.info(asmLine.toString());
+            if (asmLine.pseudoInstructionAsmLine != null) {
+                logger.info(asmLine.pseudoInstructionAsmLine.toString());
+            }
+            logger.info(ByteArrayUtil.byteToHex(pc) + ": [" +
                     ByteArrayUtil.byteToHex(asmLine.instruction, null, "%1X")
                     + "] " + asmLine.toString());
         }
@@ -686,13 +645,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 // pc = rs1 + imm
 
-                // works for zork.elf and fails for the matrix multiplication examples
-                int immValSignExtended = (int) NumberParseUtil
-                        .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
-                int numeric_2_value_int = immValSignExtended;
+                // // works for zork.elf and fails for the matrix multiplication examples
+                // int immValSignExtended = (int) NumberParseUtil
+                //         .sign_extend_12_bit_to_int32_t(asmLine.numeric_2.intValue());
+                // int numeric_2_value_int = immValSignExtended;
 
-                // // works for the matrix multiplication examples and fails for zork.elf
-                // int numeric_2_value_int = asmLine.numeric_2.intValue();
+                // works for the matrix multiplication examples and fails for zork.elf
+                int numeric_2_value_int = asmLine.numeric_2.intValue();
 
                 register_1_value = readRegisterFile(asmLine.register_1.getIndex());
                 int pcReplacement = register_1_value + numeric_2_value_int;
@@ -2278,14 +2237,18 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // vl = vector length that the execution engine has commitet to
                 for (int i = 0; i < vl; i++) {
 
+                    byte memoryValue = memory.readByte((int) register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+
                     // DEBUG - read memory and print read value
-                    long memoryValue = memory.readLong((int) register_1_value_l, ByteOrder.LITTLE_ENDIAN);
-                    logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
+                    // logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
 
                     // read from memory into target vector register
-                    memory.readLong(rvvReg, (i * sew) / 8, register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+                    //memory.readLong(rvvReg, (i * sew) / 8, register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+                    //memory.readByte(rvvReg, (i * sew) / 8, register_1_value_l, ByteOrder.LITTLE_ENDIAN);
 
                     // System.arraycopy(let, immValSignExtended, stringBuilder, result, csrId);
+
+                    rvvReg[i] = memoryValue;
 
                     register_1_value_l += (sew / 8);
                 }
@@ -2318,9 +2281,12 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                     // System.arraycopy(let, immValSignExtended, stringBuilder, result, csrId);
 
-                    long val = ByteArrayUtil.eightByteToLong(rvvReg, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
+                    //long val = ByteArrayUtil.eightByteToLong(rvvReg, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
 
-                    memory.storeLong(register_0_value_l, val);
+                    byte data = rvvReg[i];
+
+                    //memory.storeLong((int) register_0_value_l, val);
+                    memory.storeByte((int) register_0_value_l, data);
 
                     register_0_value_l += (sew / 8);
                 }
@@ -2363,12 +2329,16 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
                 for (int i = 0; i < vl; i++) {
 
-                    long a = ByteArrayUtil.eightByteToLong(rvvRegisterRS0, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
-                    // long b = ByteArrayUtil.eightByteToLong(rvvRegisterRS1, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
+                    //long a = ByteArrayUtil.eightByteToLong(rvvRegisterRS0, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
+                    //long b = ByteArrayUtil.eightByteToLong(rvvRegisterRS1, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
 
-                    long c = a + register_0_value_l;
+                    byte val = (byte) register_0_value_l;
 
-                    ByteArrayUtil.longToEightByte(rvvRegisterRD, (i * sew) / 8, c, ByteOrder.LITTLE_ENDIAN);
+                    byte a = rvvRegisterRS0[i];
+                    int c = a + val;
+                    rvvRegisterRD[i] = (byte) c;
+
+                    // ByteArrayUtil.longToEightByte(rvvRegisterRD, (i * sew) / 8, c, ByteOrder.LITTLE_ENDIAN);
                 }
 
                 // increment PC
