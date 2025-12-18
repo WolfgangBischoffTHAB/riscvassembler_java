@@ -8,11 +8,11 @@ import com.mycompany.data.AsmLine;
 
 public class RISCVEncoder implements Encoder {
 
-    private AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
-
     private EmulatorExtensionEncoder emulatorExtensionEncoder = new EmulatorExtensionEncoder();
 
     private MnemonicEncoder mnemonicEncoder = new RISCVMnemonicEncoder();
+
+    public AsmInstructionEncoder asmInstructionEncoder;
 
     /**
      * returns the length in bytes use to encode this entity

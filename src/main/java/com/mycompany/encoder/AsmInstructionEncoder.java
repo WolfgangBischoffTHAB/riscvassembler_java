@@ -1,6 +1,5 @@
 package com.mycompany.encoder;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -9,8 +8,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.data.AsmLine;
+import com.mycompany.data.Section;
 
 /**
  * Encode instructions directed at the assembler: .BYTE, .WORD, ...
@@ -22,6 +23,8 @@ public class AsmInstructionEncoder {
     private RISCVEncoderMode encoderMode = RISCVEncoderMode.UNKNOWN;
 
     private ByteArrayOutputStream stringByteArrayOutputStream = new ByteArrayOutputStream();
+
+    public Map<String, Section> sectionMap;
 
     /**
      * Places data described by an assembler instruction into memory.
@@ -38,14 +41,14 @@ public class AsmInstructionEncoder {
             final Map<Long, AsmLine<?>> addressSourceAsmLineMap, final long currentAddress)
             throws IOException {
 
-        // System.out.println(currentAddress + " -> " + asmLine);
+        // logger.info(currentAddress + " -> " + asmLine);
         // addressSourceAsmLineMap.put(currentAddress, asmLine);
 
         if (asmLine.pseudoInstructionAsmLine != null) {
-            System.out.println(currentAddress + " -> " + asmLine.pseudoInstructionAsmLine);
+            logger.info(ByteArrayUtil.byteToHex(currentAddress) + " -> " + asmLine.pseudoInstructionAsmLine);
             addressSourceAsmLineMap.put(currentAddress, asmLine.pseudoInstructionAsmLine);
         } else {
-            System.out.println(currentAddress + " -> " + asmLine);
+            logger.info(ByteArrayUtil.byteToHex(currentAddress) + " -> " + asmLine);
             addressSourceAsmLineMap.put(currentAddress, asmLine);
         }
 
@@ -103,8 +106,13 @@ public class AsmInstructionEncoder {
                 logger.error("section");
                 break;
 
-            case FILE:
             case TEXT:
+                if (!sectionMap.containsKey(".text")) {
+                    throw new RuntimeException("Section missing: .text");
+                }
+                break;
+
+            case FILE:
             case GLOBAL:
             case DATA:
             case EQU:
@@ -171,7 +179,7 @@ public class AsmInstructionEncoder {
     }
 
     /**
-     * This function inserts the bytes right into the code section.
+     * This function inserts the bytes right into the current section.
      *
      * @param byteArrayOutStream output stream
      * @param asmLine            the line to encode
@@ -183,6 +191,7 @@ public class AsmInstructionEncoder {
 
         int length = 0;
         for (String dataAsString : asmLine.csvList) {
+
             long data = NumberParseUtil.parseLong(dataAsString);
             EncoderUtils.convertToUint32_t(byteArrayOutStream, (int) data, ByteOrder.LITTLE_ENDIAN);
             length += 4;

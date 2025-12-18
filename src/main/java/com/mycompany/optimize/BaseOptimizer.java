@@ -6,7 +6,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mycompany.assembler.RiscVAssembler;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.common.NumberParseUtil;
 import com.mycompany.common.StringUtils;
@@ -83,8 +82,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                             break;
 
                         case ASCII:
-                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero
-                                                                                                      // termination
+                            // +0 for no zero termination
+                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0);
                             break;
 
                         // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf
@@ -95,8 +94,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         // whereas “.ascii” assembles a string literal with no null terminator
                         case ASCIZ:
                         case STRING:
-                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1); // +1 for zero
-                                                                                                      // termination
+                            // +1 for zero termination
+                            address += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 1);
                             break;
 
                         case FILE:
@@ -178,8 +177,8 @@ public abstract class BaseOptimizer<T extends Register> implements AsmInstructio
                         break;
 
                     case ASCII:
-                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0); // +0 for no zero
-                                                                                                 // termination
+                        // +0 for no zero termination
+                        offset += (StringUtils.stringLengthWithEscape(asmLine.stringValue) + 0);
                         break;
 
                     // https://course.ece.cmu.edu/~ee349/f-2012/lab2/gas-tips.pdf

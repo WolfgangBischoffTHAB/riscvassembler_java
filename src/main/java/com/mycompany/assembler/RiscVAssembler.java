@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import com.mycompany.common.ByteArrayUtil;
 import com.mycompany.data.AsmInstruction;
 import com.mycompany.data.AsmLine;
-import com.mycompany.data.Mnemonic;
 import com.mycompany.data.RISCVRegister;
 import com.mycompany.data.Section;
+import com.mycompany.encoder.AsmInstructionEncoder;
 import com.mycompany.encoder.Encoder;
 import com.mycompany.encoder.RISCVEncoder;
 import com.mycompany.optimize.BaseOptimizer;
@@ -94,6 +93,10 @@ public class RiscVAssembler extends BaseAssembler<RISCVRegister> {
         asmListener.currentSection = currentSection;
 
         this.asmListener = asmListener;
+
+        AsmInstructionEncoder asmInstructionEncoder = new AsmInstructionEncoder();
+        asmInstructionEncoder.sectionMap = sectionMap;
+        encoder.asmInstructionEncoder = asmInstructionEncoder;
     }
 
     public void assemble(Map<String, Section> sectionMap, String asmInputFile) throws IOException {

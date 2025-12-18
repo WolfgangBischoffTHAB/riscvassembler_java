@@ -23,8 +23,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     @SuppressWarnings("unused")
     private static final boolean USE_64_BIT = true;
 
-    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
-    private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
+    private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
+    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
 
     private long currentAddress;
 
@@ -153,13 +153,13 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeSLTIU(byteArrayOutStream, asmLine);
             // the next four instructions are pseudo instructions and are never encoded
             // case I_SEQZ:
-            //     return encodeSEQZ(byteArrayOutStream, asmLine);
+            // return encodeSEQZ(byteArrayOutStream, asmLine);
             // case I_SNEZ:
-            //     return encodeSNEZ(byteArrayOutStream, asmLine);
+            // return encodeSNEZ(byteArrayOutStream, asmLine);
             // case I_SLTZ:
-            //     return encodeSLTZ(byteArrayOutStream, asmLine);
+            // return encodeSLTZ(byteArrayOutStream, asmLine);
             // case I_SGTZ:
-            //     return encodeSGTZ(byteArrayOutStream, asmLine);
+            // return encodeSGTZ(byteArrayOutStream, asmLine);
 
             case I_SW:
                 return encodeSW(byteArrayOutStream, asmLine);
@@ -244,7 +244,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             //
             // V Extension - https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
             //
-            // To figure out how the instructions are encoded, you can use https://github.com/cryptape/rvv-encoder
+            // To figure out how the instructions are encoded, you can use
+            // https://github.com/cryptape/rvv-encoder
             // And you shoud also use the RISC V Extension specification.
             //
 
@@ -355,39 +356,51 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
     private int encodeVADD(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
 
         byte funct3 = 0b111;
+        // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
+        switch (asmLine.mnemonic) {
+
+            case I_VADD_VV:
+                funct3 = 0b000;
+                break;
+
+            case I_VADD_VX:
+                funct3 = 0b100;
+                break;
+
+            case I_VADD_VI:
+                funct3 = 0b011;
+                break;
+
+            default:
+                throw new RuntimeException("Not implemented yet!");
+        }
+
         byte opcode = 0b1010111;
         byte upperOpCode = 0b111111;
 
         byte vd = (byte) asmLine.register_0.getIndex();
+        byte vs1 = (byte) asmLine.register_2.getIndex();
         byte vs2 = (byte) asmLine.register_1.getIndex();
 
         int result = 0;
 
-        // switch (asmLine.mnemonic) {
-
-        // case I_VADD_VV:
         upperOpCode = 0b000000;
-        funct3 = 0b000;
-        byte vs1 = (byte) asmLine.register_2.getIndex();
+
         byte vm = (byte) ((asmLine.register_3 != null) ? 1 : 0);
 
         result = encodeVectorArithmeticInstruction(funct3, opcode, upperOpCode, vd, vs2, vs1, vm);
         asmLine.machineCode = result;
 
-        // break;
-
-        // default:
-        // throw new RuntimeException("Not implemented yet!");
-        // }
-
+        // DEBUG
         outputEncodedInstruction(asmLine, result);
+
         EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
 
         return 4;
     }
 
-    private int encodeVectorArithmeticInstruction(byte funct3, byte opcode, byte upperOpCode, byte vd, byte vs2,
-            byte vs1, byte vm) {
+    private int encodeVectorArithmeticInstruction(byte funct3,
+        byte opcode, byte upperOpCode, byte vd, byte vs2, byte vs1, byte vm) {
         int result;
         result = ((opcode & 0b1111111) << 0) | // 0
                 ((vd & 0b11111) << 7) | // 7
@@ -431,7 +444,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
             vm = 1;
         }
 
-        // result = encodeRVVVectorInstruction(funct3, opcode, upperOpCode, vd, vs2, imm, vm);
+        // result = encodeRVVVectorInstruction(funct3, opcode, upperOpCode, vd, vs2,
+        // imm, vm);
         asmLine.machineCode = result;
 
         outputEncodedInstruction(asmLine, result);
@@ -1419,22 +1433,24 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
 
         byte rd = (byte) asmLine.register_0.getIndex();
 
-        //int imm = asmLine.numeric_1.intValue();
+        // int imm = asmLine.numeric_1.intValue();
 
         // // DEBUG
         // if (asmLine.referencedTarget == null) {
-        //     System.out.println(asmLine);
+        // System.out.println(asmLine);
         // }
 
         long offset = asmLine.referencedTarget.getOffset() - asmLine.getOffset();
 
         // DEBUG
-        // System.out.println(offset + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
+        // System.out.println(offset + " = " + asmLine.referencedTarget.getOffset() + "
+        // - " + asmLine.getOffset());
 
         int imm = (int) offset;
 
         // DEBUG
-        // System.out.println(imm + " = " + asmLine.referencedTarget.getOffset() + " - " + asmLine.getOffset());
+        // System.out.println(imm + " = " + asmLine.referencedTarget.getOffset() + " - "
+        // + asmLine.getOffset());
 
         int result = encodeJType(imm, rd, opcode);
         asmLine.machineCode = result;
@@ -1449,7 +1465,7 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         if (!OUTPUT_ENCODED_INSTRUCTION) {
             return;
         }
-        System.out.println(currentAddress + "|" + asmLine + " -> " + String.format("%08X", result));
+        logger.info(currentAddress + "|" + asmLine + " -> " + String.format("%08X", result));
     }
 
     private int encodeJALR(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
@@ -1770,7 +1786,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSLTI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+    private int encodeSLTI(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
 
         byte funct3 = 0b010;
         byte opcode = 0b0010011;
@@ -1788,7 +1805,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSLTU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+    private int encodeSLTU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
 
         byte funct7 = 0b0000000;
         byte funct3 = 0b011;
@@ -1807,7 +1825,8 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
-    private int encodeSLTIU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine) throws IOException {
+    private int encodeSLTIU(final ByteArrayOutputStream byteArrayOutStream, final AsmLine<?> asmLine)
+            throws IOException {
 
         byte funct3 = 0b011;
         byte opcode = 0b0010011;

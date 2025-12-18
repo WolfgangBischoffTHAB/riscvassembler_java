@@ -95,13 +95,61 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
     // Vector Extension
 
+    // @formatter:off
+
+    // 32 registers, 128 bit each
+    public byte[][] vRegisterFile = {
+
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+
+
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+
+
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+
+
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+
+    };
+
     private static final long VLEN = 128;
 
-    //private static final double ALU_NODE_COUNT = 4;
-    //private static final double ALU_NODE_COUNT = 16;
+    // private static final double ALU_NODE_COUNT = 4;
+    // private static final double ALU_NODE_COUNT = 16;
     private static final double ALU_NODE_COUNT = 32;
 
-    @SuppressWarnings("unused")
+    /**
+     * user specified grouping
+     */
     private float lMultiplier;
 
     /**
@@ -227,58 +275,57 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         // // DEBUG
         // if (pc == 0x10420) {
-        //     System.out.println("<puts>");
+        // System.out.println("<puts>");
         // }
 
         // if (pc == 0x103a8) {
-        //     System.out.println("<_puts_r>");
+        // System.out.println("<_puts_r>");
         // }
 
         // if (pc == 0x10428) {
-        //     System.out.println("<strlen>");
+        // System.out.println("<strlen>");
         // }
 
         // // <__sfvwrite_r>
         // if (pc == 0x10670) {
-        //     System.out.println("<__sfvwrite_r>");
+        // System.out.println("<__sfvwrite_r>");
         // }
 
         // if (pc == 0x10604) {
-        //     System.out.println("<__sinit>");
+        // System.out.println("<__sinit>");
         // }
 
         // if (pc == 0x1227c) {
-        //     System.out.println("<_write>");
+        // System.out.println("<_write>");
         // }
 
         // // not hit
         // if (pc == 0x1043e) {
-        //     System.out.println("<std>");
+        // System.out.println("<std>");
         // }
 
         // if (pc == 0x103da) {
-        //     System.out.println("aa");
+        // System.out.println("aa");
         // }
 
         // if (pc == 0x103ba) {
-        //     System.out.println("aa");
+        // System.out.println("aa");
         // }
 
         // // <memchr>
         // if (pc == 0x11062) {
-        //     System.out.println("aa");
+        // System.out.println("aa");
         // }
 
         // // <__swsetup_r>
         // if (pc == 0x115fc) {
-        //     System.out.println("aa");
+        // System.out.println("aa");
         // }
 
         // // <__sinit>
         // if (pc == 0x10604) {
-        //     System.out.println("aa");
+        // System.out.println("aa");
         // }
-
 
         if (singleStepping) {
             printMemoryAroundPC(5);
@@ -364,6 +411,8 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         int csrValue;
 
         int signExtendedOffset;
+
+        byte[] rvvReg;
 
         switch (asmLine.mnemonic) {
 
@@ -1069,11 +1118,13 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // retrieve the value to write into the address
                 value = readRegisterFile(asmLine.register_0.getIndex());
 
-                // logger.info("SB Value: " + ByteArrayUtil.byteToHex(value) + " " + value + " '" + (char) value + "'");
+                // logger.info("SB Value: " + ByteArrayUtil.byteToHex(value) + " " + value + "
+                // '" + (char) value + "'");
 
                 // libc (newlib) writes data here
                 if (addr == 0x1FFE0) {
-                    logger.info("SB Value: " + ByteArrayUtil.byteToHex(value) + " " + value + " '" + (char) value + "'");
+                    logger.info(
+                            "SB Value: " + ByteArrayUtil.byteToHex(value) + " " + value + " '" + (char) value + "'");
                 }
 
                 // Earth and Grass OS (egos 2000) writes data here
@@ -2175,7 +2226,7 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                     logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VSETVLI: " + asmLine);
                 }
 
-                logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VSETVLI: " + asmLine);
+                //logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VSETVLI: " + asmLine);
 
                 // vsetivli rd, uimm, vtypei
                 // vsetivli zero,4, e32,m1,ta,ma
@@ -2183,12 +2234,17 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // application vector length is specified in a register
                 avl = readRegisterFile(asmLine.register_1.getIndex());
 
-                updateVectorEngineConfiguration(asmLine, avl);
+                vl = updateVectorEngineConfiguration(asmLine, avl);
+                writeRegisterFile(asmLine.register_0.getIndex(), (int) vl);
 
                 incrementPC(asmLine.encodedLength);
                 break;
 
             case I_VSETIVLI:
+
+                if (printInstructions) {
+                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VSETIVLI: " + asmLine);
+                }
 
                 // vsetivli rd, uimm, vtypei
                 // vsetivli zero,4, e32,m1,ta,ma
@@ -2198,10 +2254,44 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 // application vector length is specified as an immediate
                 avl = asmLine.numeric_1;
 
-                updateVectorEngineConfiguration(asmLine, avl);
+                vl = updateVectorEngineConfiguration(asmLine, avl);
+                writeRegisterFile(asmLine.register_0.getIndex(), (int) vl);
 
                 // increment PC
                 pc += asmLine.encodedLength;
+                break;
+
+            case I_VLE8_V:
+
+                if (printInstructions) {
+                    logger.info("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VLE8_V: " + asmLine);
+                }
+
+                // destination register
+                int registerIndex = asmLine.register_0.getIndex();
+                rvvReg = vRegisterFile[registerIndex];
+
+                // register that stores the source address
+                register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
+
+                // AVL = application vector length
+                // vl = vector length that the execution engine has commitet to
+                for (int i = 0; i < vl; i++) {
+
+                    // DEBUG - read memory and print read value
+                    long memoryValue = memory.readLong((int) register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+                    logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
+
+                    // read from memory into target vector register
+                    memory.readLong(rvvReg, (i * sew) / 8, register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+
+                    // System.arraycopy(let, immValSignExtended, stringBuilder, result, csrId);
+
+                    register_1_value_l += (sew / 8);
+                }
+
+                // increment PC
+                incrementPC(asmLine.encodedLength);
                 break;
 
             case I_VLE32_V:
@@ -2209,24 +2299,87 @@ public class SingleCycle32BitCPU extends AbstractCPU {
                 incrementPC(asmLine.encodedLength);
                 break;
 
+            case I_VSE8_V:
+                // destination address
+                register_0_value_l = readRegisterFile(asmLine.register_1.getIndex());
+
+                // destination register
+                int registerIdx = asmLine.register_0.getIndex();
+                rvvReg = vRegisterFile[registerIdx];
+
+                // vl = vector length that the execution engine has commitet to
+                for (int i = 0; i < vl; i++) {
+
+                    // long memoryValue =
+                    // logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
+
+                    // memory.readLong(rvvReg, (i*sew) / 8, register_0_value_l,
+                    // ByteOrder.LITTLE_ENDIAN);
+
+                    // System.arraycopy(let, immValSignExtended, stringBuilder, result, csrId);
+
+                    long val = ByteArrayUtil.eightByteToLong(rvvReg, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
+
+                    memory.storeLong(register_0_value_l, val);
+
+                    register_0_value_l += (sew / 8);
+                }
+
+                // increment PC
+                incrementPC(asmLine.encodedLength);
+                break;
+
             case I_VSE32_V:
                 logger.warn("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VSE32_V not implemented! " + asmLine);
+
+                // increment PC
+                incrementPC(asmLine.encodedLength);
+                break;
+
+            case I_VADD_VV:
+                logger.warn("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VADD_VV not implemented! " + asmLine);
+
+                // increment PC
                 incrementPC(asmLine.encodedLength);
                 break;
 
             // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
             case I_VMSNE_VI:
                 logger.warn("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VMSNE_VI not implemented! " + asmLine);
+
+                // increment PC
                 incrementPC(asmLine.encodedLength);
                 break;
 
-            case I_VADD_VV:
-                logger.warn("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VADD_VV not implemented! " + asmLine);
+            case I_VADD_VX:
+                logger.warn("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VADD_VX " + asmLine);
+
+                byte[] rvvRegisterRD = vRegisterFile[asmLine.register_0.getIndex()];
+                byte[] rvvRegisterRS0 = vRegisterFile[asmLine.register_1.getIndex()];
+                // byte[] rvvRegisterRS1 = vRegisterFile[asmLine.register_1.getIndex()];
+
+                // scalar from rv32 register file
+                register_0_value_l = readRegisterFile(asmLine.register_2.getIndex());
+
+                for (int i = 0; i < vl; i++) {
+
+                    long a = ByteArrayUtil.eightByteToLong(rvvRegisterRS0, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
+                    // long b = ByteArrayUtil.eightByteToLong(rvvRegisterRS1, (i * sew) / 8, ByteOrder.LITTLE_ENDIAN);
+
+                    long c = a + register_0_value_l;
+
+                    ByteArrayUtil.longToEightByte(rvvRegisterRD, (i * sew) / 8, c, ByteOrder.LITTLE_ENDIAN);
+                }
+
+                // increment PC
                 incrementPC(asmLine.encodedLength);
                 break;
 
             case I_VMV_V_I:
+
                 logger.warn("PC: " + ByteArrayUtil.byteToHex(pc) + " I_VMV_V_I not implemented! " + asmLine);
+
+                // increment PC
                 incrementPC(asmLine.encodedLength);
                 break;
 
@@ -2391,7 +2544,24 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         return true;
     }
 
-    private void updateVectorEngineConfiguration(AsmLine<?> asmLine, final long avl) {
+    /**
+     * <ol>
+     * <li>Determine how many elements will go into a vector register according to
+     * LMUL grouping desired by the user</li>
+     * <li>Given a limited register budget (= 32 vregisters / 1 src1 + 1 src2 + 1
+     * dest), determine how many elements can be stored in the regiters.</li>
+     * <li>The number of elements stored is the number of potential computations
+     * that may be done in parallel should enough ALU-nodes be available.</li>
+     * <li>Limit the potential computations in register budget by the amount of
+     * available ALU-nodes.</li>
+     * <li>Return that number as vl (= can be used batch size for this iteration of
+     * strip-mining for example)
+     * </ol>
+     *
+     * @param asmLine
+     * @param avl
+     */
+    private int updateVectorEngineConfiguration(AsmLine<?> asmLine, final long avl) {
 
         // LMUL, group size - see
         // https://github.com/riscvarchive/riscv-v-spec/blob/master/v-spec.adoc#41-mapping-for-lmul--1
@@ -2471,11 +2641,14 @@ public class SingleCycle32BitCPU extends AbstractCPU {
 
         // assert
         if (vectorElementsPerRegister < 1.0) {
-            throw new RuntimeException("SEW " + sew + " + does not fit into group size (in bit) " + groupSizeInBit + " with synthesized VLEN = " + VLEN);
+            throw new RuntimeException("SEW " + sew + " + does not fit into group size (in bit) " + groupSizeInBit
+                    + " with synthesized VLEN = " + VLEN);
         }
 
-        // need to stay below 10 registers as the worst case is destination_register = rs1 + rs2
-        // which means 10 register operand 1, 10 register operand 2, 10 register destination
+        // need to stay below 10 registers as the worst case is destination_register =
+        // rs1 + rs2
+        // which means 10 register operand 1, 10 register operand 2, 10 register
+        // destination
         int registerBudget = 10;
         System.out.println("registerBudget: " + registerBudget);
 
@@ -2493,65 +2666,21 @@ public class SingleCycle32BitCPU extends AbstractCPU {
         vl = Math.min(vl, avl);
         System.out.println("vl = " + vl);
 
-
-
-
-        // double registerCountForGroup = 0.0d;
-        // if (groupSizeInBit >= VLEN) {
-        //     registerCountForGroup = groupSizeInBit / VLEN;
-        // } else {
-        //     registerCountForGroup = VLEN / groupSizeInBit;
-        // }
-        // System.out.println("registerCountForGroup: " + registerCountForGroup);
-
-        // double elementsPerGroupElement = groupElementSizeInBit / sew;
-
-        // double registersPerGroup = VLEN / groupElementSizeInBit;
-        // // double registersPerGroup = groupElementSizeInBit / VLEN;
-
-        // if (elementsPerGroupElement < 1.0) {
-        //     throw new RuntimeException("SEW " + sew + " + does not fit into group size (in bit) " + groupElementSizeInBit + " with synthesized VLEN = " + VLEN);
-        // }
-
-        // double elementsPerGroup = elementsPerGroupElement * registersPerGroup;
-
-        // // compute how many vector registers need to be combined to serve the user
-        // // request
-        // double registerCount = elementsPerGroup / elementsPerGroupElement;
-
-        // // need to stay below 10 registers as the worst case is destination_register = rs1 + rs2
-        // // which means 10 register operand 1, 10 register operand 2, 10 register destination
-        // int register_budget = 10;
-        // // first use 10 registers out of the 32 available
-        // registerCount = register_budget;
-        // // if the user needs less registers based on AVL, use less
-        // // registerCount = Math.min(registersPerGroup, register_budget);
-        // // how many ALU-nodes are available?
-        // //registerCount = Math.min(ALU_NODE_COUNT * elementsPerGroup, registerCount);
-
-        // if (registerCount > 10) {
-        //     throw new RuntimeException("Not enough registers!");
-        // }
-
-        // vl = Math.min(ALU_NODE_COUNT, elementsPerGroup);
-
         // System.out.println("VLEN = " + VLEN);
         // System.out.println("AVL = " + avl);
         // System.out.println("LMUL = " + lMultiplier);
         // System.out.println("SEW = " + sew);
-        // System.out.println("Potential # of elements per register without grouping = " + (VLEN / sew));
-        // System.out.println("Potential # of elements per register with grouping = " + elementsPerGroupElement);
-        // System.out.println("Potential # of elements per group = " + elementsPerGroup);
+        // System.out.println("Potential # of elements per register without grouping = "
+        // + (VLEN / sew));
+        // System.out.println("Potential # of elements per register with grouping = " +
+        // elementsPerGroupElement);
+        // System.out.println("Potential # of elements per group = " +
+        // elementsPerGroup);
         // System.out.println("Registers Grouped = " + registerCount);
         // System.out.println("Avail. ALU nodes = " + ALU_NODE_COUNT);
         // System.out.println("vl = " + vl);
 
-
-
-        // TODO return the vl into first register
-        // asf
-
-        System.out.println("done");
+        return (int) vl;
     }
 
     private void replacePC(int pcReplacement) {

@@ -45,6 +45,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     private static final Logger logger = LoggerFactory.getLogger(Decoder.class);
 
+    private static final boolean OUTPUT_ENCODED_INSTRUCTION = true;
+    // private static final boolean OUTPUT_ENCODED_INSTRUCTION = false;
+
     public Memory memory;
 
     //
@@ -956,6 +959,9 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     public void processUncompressedInstruction(AsmLine<Register> asmLine, int data) {
 
+        // DEBUG
+        outputEncodedInstruction(asmLine, data);
+
         asmLine.machineCode = data;
 
         int opcode = data & 0b1111111;
@@ -1398,6 +1404,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 if (funct3 == 0b111) {
 
                     if (imm32 == 0) { // VSETVLI
+
                         asmLine.register_0 = RISCVRegister.fromInt(rd);
                         asmLine.register_1 = RISCVRegister.fromInt(rs1);
 
@@ -1619,6 +1626,30 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                                     // System.out.println("rd = " + rd);
 
                                     asmLine.mnemonic = Mnemonic.I_VADD_VV;
+                                    break;
+
+                                case 0b100:
+                                    // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vadd
+                                    // vadd.vx vd, vs2, rs1, vm
+                                    // vadd.vx v5,v1,t0
+
+                                    // two vector registers
+                                    asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
+                                    asmLine.register_1 = RISCVRegister.fromIntRVV(rs2);
+
+                                    // normal register
+                                    asmLine.register_2 = RISCVRegister.fromInt(rs1);
+
+                                    // imm_19_15 = (data >> 15) & 0b11111;
+                                    // asmLine.numeric_2 = imm_19_15;
+
+                                    // masking enabled / disabled
+                                    vm = (data >> 25) & 0b1;
+                                    if (vm == 1) {
+                                        asmLine.rvvMasking = true;
+                                    }
+
+                                    asmLine.mnemonic = Mnemonic.I_VADD_VX;
                                     break;
 
                                 case 0b011:
@@ -1870,19 +1901,18 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 // https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html#vse-eew
                 switch (funct3) {
                     case 0b000:
-                        logger.error("TODO: Not implemented yet!");
                         asmLine.mnemonic = Mnemonic.I_VSE8_V;
                         break;
                     case 0b101:
-                        logger.error("TODO: Not implemented yet!");
+                        logger.error("TODO: Not implemented yet! I_VSE16_V");
                         asmLine.mnemonic = Mnemonic.I_VSE16_V;
                         break;
                     case 0b110:
-                        logger.error("TODO: Not implemented yet!");
+                        logger.error("TODO: Not implemented yet! I_VSE32_V");
                         asmLine.mnemonic = Mnemonic.I_VSE32_V;
                         break;
                     case 0b111:
-                        logger.error("TODO: Not implemented yet!");
+                        logger.error("TODO: Not implemented yet! I_VSE64_V");
                         asmLine.mnemonic = Mnemonic.I_VSE64_V;
                         break;
                     default:
@@ -1961,6 +1991,13 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         + ". Unknown Instruction Type! opcode = " + opcode);
 
         }
+    }
+
+    private void outputEncodedInstruction(final AsmLine<?> asmLine, int result) {
+        if (!OUTPUT_ENCODED_INSTRUCTION) {
+            return;
+        }
+        logger.info(asmLine.getOffset() + "|" + asmLine + " -> " + String.format("%08X", result));
     }
 
     @SuppressWarnings("unused")
