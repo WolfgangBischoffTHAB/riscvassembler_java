@@ -18,14 +18,6 @@ public class AsmLine<T extends Register> {
      */
     private long offset;
 
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
     public Section section;
 
     public String label;
@@ -824,6 +816,14 @@ public class AsmLine<T extends Register> {
         // labels are not detected
 
         return AsmLineType.UNKNOWN;
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+        this.offset = offset;
     }
 
 }

@@ -148,7 +148,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             logger.info("instruction is 0x00 or 0xFF. Aborting CPU run!");
 
             // abort CPU
-            // return new ArrayList<>();
             return null;
         }
 
@@ -194,10 +193,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             logger.trace("Decoding HEX: " + ByteArrayUtil.intToHex("%08x", instruction));
         }
 
-        //
         // Compressed - if the lowermost two bits are set, the instruction is a full,
         // uncompressed instruction (not compressed)
-        //
 
         int opcode_c = instruction & 0b11;
 
@@ -228,7 +225,6 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
             result.add(asmLine);
 
             int secondInstruction = (instruction >> 16) & 0b1111111111111111;
-
             if ((secondInstruction & 0b11) == 0b11) {
 
                 // a non compressed instruction, now the decoder needs to pull in two bytes to
@@ -386,6 +382,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         asmLine.register_1 = RISCVRegister.fromIntCompressedInstruction((int) imm_9_7);
                         asmLine.offset_1 = imm_6_2_combined;
                         asmLine.mnemonic = Mnemonic.I_LW;
+                        logger.info(ByteArrayUtil.byteToHex(asmLine.machineCode));
+                        logger.info(asmLine.toString());
                         if (debugOutput) {
                             logger.info(asmLine.toString());
                         }
@@ -642,12 +640,39 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                                 // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20addi16sp#c-lui
 
+                                logger.info(ByteArrayUtil.byteToHex(asmLine.machineCode));
+
                                 asmLine.register_0 = RISCVRegister.fromInt((int) imm_11_7);
-                                asmLine.numeric_1 = NumberParseUtil.sign_extend_17_bit_to_int32_t(imm_17_12);
+
+                                // specification is a little bit confusing!
+                                // It says:
+                                //
+                                // ```
+                                // Description
+                                // Implementation: x[rd] = sext(imm[17:12] << 12)
+                                // Expansion: lui rd,nzuimm[17:12]
+                                // ```
+                                //
+                                // It seems as if the expansion option is the right way to decode this
+                                // instruction
+
+                                // this is according to the "Implementation":
+                                // https://msyksphinz-self.github.io/riscv-isadoc/#_c_lui
+                                //
+                                // asmLine.numeric_1 = NumberParseUtil.sign_extend_17_bit_to_int32_t(imm_17_12);
+
+                                // this is according to "Expansion":
+                                // It seems as if the expansion option is the right way to decode this
+                                // instruction
+                                int shitfuckImplementation = (imm_17 << 6) | (imm_16_12_c << 0);
+                                asmLine.numeric_1 = (long) shitfuckImplementation;
+
                                 asmLine.mnemonic = Mnemonic.I_LUI;
                                 if (debugOutput) {
                                     logger.info("<< Resolved: " + asmLine.toString());
                                 }
+
+                                logger.info(asmLine.toString());
 
                                 // throw new UnsupportedOperationException(
                                 // "Unknown instruction: " + ByteArrayUtil.byteToHex(data));
@@ -675,7 +700,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                                 // c.srli --
                                 // https://msyksphinz-self.github.io/riscv-isadoc/html/rvc.html?highlight=c%20sw#c-srli
-                                logger.info("c.srli");
+                                // logger.info("c.srli");
 
                                 // int a = imm_9_7;
                                 int b = (imm_12 << 5) | (imm_6_2 << 0);
@@ -803,7 +828,7 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
                             // jalr x0, rs1, 0
                             asmLine.mnemonic = Mnemonic.I_JALR;
-                            asmLine.register_0 = RISCVRegister.REG_ZERO;
+                            asmLine.register_0 = RISCVRegister.REG_X1;
                             asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
                             asmLine.numeric_2 = 0x00L;
                             if (debugOutput) {
@@ -836,7 +861,14 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         } else if ((imm_12 == 1) && (imm_11_7 == 0) && (imm_6_2 == 0)) {
                             asmLine.mnemonic = Mnemonic.I_EBREAK;
                         } else if ((imm_12 == 1) && (imm_11_7 != 0) && (imm_6_2 == 0)) {
+
+                            // logger.info("Pulling: " + ByteArrayUtil.byteToHex(data));
+
                             asmLine.mnemonic = Mnemonic.I_JALR;
+                            asmLine.register_0 = RISCVRegister.REG_X1;
+                            asmLine.register_1 = RISCVRegister.fromInt(imm_11_7);
+                            asmLine.numeric_2 = 0x00L;
+
                         } else if ((imm_12 == 1) && (imm_11_7 != 0) && (imm_6_2 != 0)) {
 
                             // https://msyksphinz-self.github.io/riscv-isadoc/#_c_add
@@ -869,6 +901,10 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                         asmLine.register_1 = RISCVRegister.REG_SP;
                         asmLine.offset_1 = tem;
                         asmLine.mnemonic = Mnemonic.I_SW;
+
+                        logger.info(ByteArrayUtil.byteToHex(asmLine.machineCode));
+                        logger.info(asmLine.toString());
+
                         if (debugOutput) {
                             logger.info("<< Resolved: " + asmLine.toString());
                         }
@@ -918,18 +954,13 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
 
     }
 
-    private void processUncompressedInstruction(AsmLine<Register> asmLine, int data) {
+    public void processUncompressedInstruction(AsmLine<Register> asmLine, int data) {
 
         asmLine.machineCode = data;
-
-        //
-        // Uncompressed
-        //
 
         int opcode = data & 0b1111111;
         int funct3 = (data >> 12) & 0b111;
         int funct7 = (data >> 25) & 0b1111111;
-        //int imm_11_0 = (data >> 20) & 0b11111111111111111111;
         int imm_11_0 = (data >> 20) & 0b1111_1111_1111;
         int imm_11 = 0;
         int imm = 0;
@@ -965,10 +996,8 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
         // System.out.println(stringBuilder.toString());
 
         long imm_19_15 = 0;
-        // int upperOpCode = 0;
 
         int vm = 0;
-        // int vs2 = 0;
 
         int imm32 = (data >> 31) & 0b1;
 
@@ -1792,17 +1821,19 @@ public class RV32IBaseIntegerInstructionSetDecoder implements Decoder {
                 asmLine.register_0 = RISCVRegister.fromIntRVV(rd);
                 asmLine.register_1 = RISCVRegister.fromInt(rs1);
 
+                asmLine.instruction = data;
+                asmLine.encodedLength = 4;
+
                 // masking enabled / disabled
                 vm = (data >> 25) & 0b1;
                 if (vm == 1) {
                     // asmLine.register_2 = RISCVRegister.fromInt(rs1);
+                    asmLine.rvvMasking = true;
                 }
 
                 // https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html#vle-eew
                 switch (funct3) {
                     case 0b000:
-                        // TODO
-                        logger.error("TODO: Not implemented yet!");
                         asmLine.mnemonic = Mnemonic.I_VLE8_V;
                         break;
                     case 0b101:

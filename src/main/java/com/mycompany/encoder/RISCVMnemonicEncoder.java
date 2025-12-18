@@ -252,18 +252,33 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 return encodeVSETVLI(byteArrayOutStream, asmLine);
             case I_VSETVL:
                 return encodeVSETVL(byteArrayOutStream, asmLine);
+
+            case I_VLE8_V:
+                return encodeVLE8_V(byteArrayOutStream, asmLine);
+            case I_VLE16_V:
+                return encodeVLE16_V(byteArrayOutStream, asmLine);
             case I_VLE32_V:
                 return encodeVLE32_V(byteArrayOutStream, asmLine);
             case I_VLE64_V:
                 return encodeVLE64_V(byteArrayOutStream, asmLine);
+
+            case I_VSE8_V:
+                return encodeVSE8_V(byteArrayOutStream, asmLine);
+            case I_VSE16_V:
+                return encodeVSE16_V(byteArrayOutStream, asmLine);
             case I_VSE32_V:
                 return encodeVSE32_V(byteArrayOutStream, asmLine);
             case I_VSE64_V:
                 return encodeVSE64_V(byteArrayOutStream, asmLine);
+
             case I_VMSNE_VI: // https://rvv-isadoc.readthedocs.io/en/latest/arith_integer.html#vmsne
                 return encodeVMSNE(byteArrayOutStream, asmLine);
+
             case I_VADD_VV:
                 return encodeVADD(byteArrayOutStream, asmLine);
+            case I_VADD_VX:
+                return encodeVADD(byteArrayOutStream, asmLine);
+
             case I_VMV_V_I:
                 return encodeVMV_V_I(byteArrayOutStream, asmLine);
 
@@ -425,6 +440,74 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
         return 4;
     }
 
+    private int encodeVLE8_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3_width = 0b000; // for 8 bit
+        byte opcode = 0b0000111;
+
+        // How to encode the offset? Is there an offset allowed?
+        long offset = asmLine.offset_1;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        byte rs2 = 0;
+        boolean has_rs2 = false;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+            has_rs2 = true;
+            rs2 = (byte) asmLine.register_2.getIndex();
+        }
+
+        int result = ((opcode & 0b1111111) << 0) |
+                ((vd & 0b11111) << 7) |
+                ((funct3_width & 0b111) << (7 + 5)) |
+                ((rs1 & 0b11111) << (7 + 5 + 3)) |
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));
+        asmLine.machineCode = result;
+
+        outputEncodedInstruction(asmLine, result);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeVLE16_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte funct3_width = 0b101; // for 16 bit
+        byte opcode = 0b0000111;
+
+        // How to encode the offset? Is there an offset allowed?
+        long offset = asmLine.offset_1;
+
+        byte vd = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        byte rs2 = 0;
+        boolean has_rs2 = false;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+            has_rs2 = true;
+            rs2 = (byte) asmLine.register_2.getIndex();
+        }
+
+        int result = ((opcode & 0b1111111) << 0) |
+                ((vd & 0b11111) << 7) |
+                ((funct3_width & 0b111) << (7 + 5)) |
+                ((rs1 & 0b11111) << (7 + 5 + 3)) |
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));
+        asmLine.machineCode = result;
+
+        outputEncodedInstruction(asmLine, result);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
     /**
      * https://rvv-isadoc.readthedocs.io/en/latest/load_and_store.html
      *
@@ -518,6 +601,62 @@ public class RISCVMnemonicEncoder implements MnemonicEncoder {
                 ((funct3_width & 0b111) << (7 + 5)) |
                 ((rs1 & 0b11111) << (7 + 5 + 3)) |
                 ((vm & 0b1) << (7 + 5 + 3 + 5 + 5));
+        asmLine.machineCode = result;
+
+        outputEncodedInstruction(asmLine, result);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeVSE8_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte width = 0b000; // for 8 bit
+        byte opcode = 0b0100111;
+
+        byte vs3 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+        }
+
+        int result = ((opcode & 0b1111111) << 0) | // 0
+                ((vs3 & 0b11111) << 7) | // 7
+                ((width & 0b111) << (7 + 5)) | // 12
+                ((rs1 & 0b11111) << (7 + 5 + 3)) | // 15
+                ((0b00000) << (7 + 5 + 3 + 5)) | // 20
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5)); // 25
+        asmLine.machineCode = result;
+
+        outputEncodedInstruction(asmLine, result);
+        EncoderUtils.convertToUint32_t(byteArrayOutStream, result);
+
+        return 4;
+    }
+
+    private int encodeVSE16_V(ByteArrayOutputStream byteArrayOutStream, AsmLine<?> asmLine) throws IOException {
+
+        byte width = 0b101; // for 16 bit
+        byte opcode = 0b0100111;
+
+        byte vs3 = (byte) asmLine.register_0.getIndex();
+        byte rs1 = (byte) asmLine.register_1.getIndex();
+
+        // masking (enabled or disabled)
+        byte vm = 0;
+        if (asmLine.register_2 != null) {
+            vm = 1;
+        }
+
+        int result = ((opcode & 0b1111111) << 0) | // 0
+                ((vs3 & 0b11111) << 7) | // 7
+                ((width & 0b111) << (7 + 5)) | // 12
+                ((rs1 & 0b11111) << (7 + 5 + 3)) | // 15
+                ((0b00000) << (7 + 5 + 3 + 5)) | // 20
+                ((vm & 0b1) << (7 + 5 + 3 + 5 + 5)); // 25
         asmLine.machineCode = result;
 
         outputEncodedInstruction(asmLine, result);

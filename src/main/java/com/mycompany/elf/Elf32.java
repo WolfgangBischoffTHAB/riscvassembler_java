@@ -342,29 +342,17 @@ enum EI_TYPE {
 enum SEGMENT_TYPE {
 
     PT_NULL(0),
-
     PT_LOAD(1),
-
     PT_DYNAMIC(2),
-
     PT_INTERP(3),
-
     PT_NOTE(4),
-
     PT_SHLIB(5),
-
     PT_PHDR(6),
-
     PT_TLS(7),
-
     PT_LOOS(0x60000000),
-
     PT_HIOS(0x6fffffff),
-
     PT_LOPROC(0x70000000),
-
     PT_HIPROC(0x7fffffff),
-
     // x86-64 program header types.
     // These all contain stack unwind tables.
     PT_GNU_EH_FRAME(0x6474e550),
@@ -382,8 +370,6 @@ enum SEGMENT_TYPE {
     PT_MIPS_RTPROC(0x70000001), // Runtime procedure table.
     PT_MIPS_OPTIONS(0x70000002), // Options segment.
     PT_MIPS_ABIFLAGS(0x70000003); // Abiflags segment.
-
-    ;
 
     @SuppressWarnings("unused")
     private int type_;
@@ -697,6 +683,7 @@ public class Elf32 extends BaseElf {
 
     private static final boolean NOT_LOAD_NON_EXECUTABLE_PROGRAM_HEADERS = false;
 
+    @SuppressWarnings("rawtypes")
     public Memory memory;
 
     public Elf32_Phdr programHeader;
@@ -717,14 +704,13 @@ public class Elf32 extends BaseElf {
 
         // logger.trace("magicNumbers: " + ByteArrayUtil.intToHex(magicNumbers1));
 
+        // early out if file format does not check out
         if (elf32_Ehdr.magicNumbers1 != ELF_MAGIC_NUMBER) {
             throw new RuntimeException("Not an elf file! " + filename);
         }
-
         if (elf32_Ehdr.e_class != EI_CLASS.ELFCLASS32) {
             throw new RuntimeException("Not an 32bit elf file! " + filename);
         }
-
         if (elf32_Ehdr.e_type != EI_TYPE.ET_EXEC) {
             throw new RuntimeException("Not an executable elf file! " + filename);
         }
@@ -736,7 +722,7 @@ public class Elf32 extends BaseElf {
         // 2. Retrieve the "Number of entries in the section header table"
         int numberOfEntriesSectionHeaderTable = elf32_Ehdr.e_shnum;
 
-        // Iterate over sections in order to find the address of the
+        // iterate over sections in order to find the address of the
         // main-function/symbol
 
         List<Elf32_Shdr> sectionHeaders = new ArrayList<>();
@@ -747,9 +733,7 @@ public class Elf32 extends BaseElf {
 
             Elf32_Shdr sectionHeader = new Elf32_Shdr();
             sectionHeaders.add(sectionHeader);
-
             sectionHeader.load(buffer, sectionHeaderOffset);
-
             sectionHeader.type = SH_TYPE.fromInt(sectionHeader.sh_type);
 
             // // DEBUG
@@ -760,33 +744,21 @@ public class Elf32 extends BaseElf {
             // logger.trace("Offset: " + ByteArrayUtil.byteToHex(sectionHeader.sh_offset));
 
             // https://wiki.osdev.org/ELF_Tutorial
-            // The String Table
-            // The string table conceptually is quite simple: it's just a number of
-            // consecutive
-            // zero-terminated strings. String literals used in the program are stored in
-            // one of
-            // the tables. There are a number of different string tables that may be present
-            // in
-            // an ELF object such as .strtab (the default string table), .shstrtab (the
-            // section
-            // string table) and .dynstr (string table for dynamic linking). Any time the
-            // loading
-            // process needs access to a string, it uses an offset into one of the string
-            // tables.
-            // The offset may point to the beginning of a zero-terminated string or
-            // somewhere in
-            // the middle or even to the zero terminator itself, depending on usage and
-            // scenario.
-            // The size of the string table itself is specified by sh_size in the
-            // corresponding
+            // The String Table - The string table conceptually is quite simple: it's just a
+            // number of consecutive zero-terminated strings. String literals used in the
+            // program are stored in one of the tables. There are a number of different
+            // string tables that may be present in an ELF object such as .strtab (the
+            // default string table), .shstrtab (the section string table) and .dynstr
+            // (string table for dynamic linking). Any time the loading process needs access
+            // to a string, it uses an offset into one of the string tables. The offset may
+            // point to the beginning of a zero-terminated string or somewhere in the middle
+            // or even to the zero terminator itself, depending on usage and scenario. The
+            // size of the string table itself is specified by sh_size in the corresponding
             // section header entry. The simplest program loader may copy all string tables
-            // into
-            // memory, but a more complete solution would omit any that are not necessary
-            // during
-            // runtime such, notably those not flagged with SHF_ALLOC in their respective
-            // section
-            // header (such as .shstrtab, since section names aren't used in program
-            // runtime).
+            // into memory, but a more complete solution would omit any that are not
+            // necessary during runtime such, notably those not flagged with SHF_ALLOC in
+            // their respective section header (such as .shstrtab, since section names
+            // aren't used in program runtime).
 
             // load the string table.
             // The String table is a large string that is index by symbols in the symbol
@@ -798,9 +770,8 @@ public class Elf32 extends BaseElf {
             // constructed up to the next zero-terminator.
             //
             // It is incorrect to split the symbol table into individual strings and put
-            // then
-            // into a hashmap! This is not how the indexing works! The indexes are pointing
-            // at substrings as described above!
+            // then into a hashmap! This is not how the indexing works! The indexes are
+            // pointing at substrings as described above!
             if (sectionHeader.type == SH_TYPE.SHT_STRTAB) {
 
                 // the entries of the section are stored at sh_offset
@@ -932,10 +903,9 @@ public class Elf32 extends BaseElf {
         // https://stackoverflow.com/questions/77019070/what-is-the-gp-register-set-to-if-there-is-no-data-section-in-an-elf-executable
         //
         // The GP register is usually set to the middle of a 4K window that begins at
-        // .sdata,
-        // so the linker can relax accesses to global symbols within that window. See
-        // this sifive
-        // post and Liviu Ionescu's write up
+        // .sdata, so the linker can relax accesses to global symbols within that
+        // window. See this sifive post and Liviu Ionescu's write up
+        //
         // https://www.sifive.com/blog/all-aboard-part-3-linker-relaxation-in-riscv-toolchain
         // https://gnu-mcu-eclipse.github.io/arch/riscv/programmer/#the-gp-global-pointer-register
         //
@@ -985,6 +955,7 @@ public class Elf32 extends BaseElf {
             }
         }
 
+        // program headers (aka Programs) - programs can contain sections
         int programHeaderOffset = elf32_Ehdr.e_phoff;
         for (int programHeaderI = 0; programHeaderI < elf32_Ehdr.e_phnum; programHeaderI++) {
 
@@ -995,6 +966,11 @@ public class Elf32 extends BaseElf {
 
             programHeader = new Elf32_Phdr();
             programHeader.load(buffer, programHeaderOffset);
+
+            System.out.println("-- Loading Segment into Memory: ---------------");
+            System.out.println("p_paddr: " + ByteArrayUtil.byteToHex(programHeader.p_paddr));
+            System.out.println("machine_code_offset: " + ByteArrayUtil.byteToHex(programHeader.p_offset));
+            System.out.println("p_memsz (size_in_bytes): " + ByteArrayUtil.byteToHex(programHeader.p_memsz));
 
             // the program header is checked it if has the PL_LOAD type and if it has
             // the executable flag
@@ -1046,7 +1022,7 @@ public class Elf32 extends BaseElf {
             // System.arraycopy(buffer, machine_code_offset, machine_code, 0,
             // programHeader.p_memsz);
 
-            System.out.println("-----------------");
+            System.out.println("-- Loading Segment into Memory: ---------------");
             System.out.println("p_paddr: " + ByteArrayUtil.byteToHex(programHeader.p_paddr));
             System.out.println("machine_code_offset: " + ByteArrayUtil.byteToHex(machine_code_offset));
             System.out.println("p_memsz (size_in_bytes): " + ByteArrayUtil.byteToHex(programHeader.p_memsz));
@@ -1069,20 +1045,16 @@ public class Elf32 extends BaseElf {
             // memory.copy(addr, buffer, off, size);
 
             // DEBUG
-
             // fence.i
             // MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80002000);
             // tempMemoryBlock.print(0x80000000, 0x80000290, ByteOrder.LITTLE_ENDIAN);
             // tempMemoryBlock.print(0x80002000, 0x8000201e, ByteOrder.LITTLE_ENDIAN);
-
             // // ori
             // MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80000000);
             // tempMemoryBlock.print(0x80000000, 0x800003ba, ByteOrder.LITTLE_ENDIAN);
-
             // lb
             // MemoryBlock tempMemoryBlock = memory.getMemoryBlockForAddress(0x80000000);
             // tempMemoryBlock.print(0x80002000, 0x80002010, ByteOrder.LITTLE_ENDIAN);
-
             // tempMemoryBlock.print(0x80000000, 0x80000008);
 
             // DEBUG

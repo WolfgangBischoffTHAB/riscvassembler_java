@@ -83,32 +83,32 @@ public enum Mnemonic {
     I_SRLI(false),
     I_SRA(false),
     I_SRAI(false),
-    
+
     // set instructions - https://projectf.io/posts/riscv-cheat-sheet/
     I_SLT(false),
-    // SLTI (set less than immediate) places the value 1 
+    // SLTI (set less than immediate) places the value 1
     // in register rd if register rs1 is less than the sign-extended
     // immediate when both are treated as signed numbers, else 0 is written to rd.
-    I_SLTI(false),     
+    I_SLTI(false),
     I_SLTU(false),
-    // Similar to SLTI but for unsigned (i.e., the immediate is first 
-    // sign-extended to XLEN bits then treated as an unsigned number). 
-    I_SLTIU(false), 
+    // Similar to SLTI but for unsigned (i.e., the immediate is first
+    // sign-extended to XLEN bits then treated as an unsigned number).
+    I_SLTIU(false),
     // implemented using: SLTIU rd, rs1, 1
     // The only unsigned number that is less than 1 is zero, so this sets
     // a 1 into rd only if rs1 is zero
     I_SEQZ(true),
     // implemented using SLTU rd, x0, rs2
     // the zero in the zero register (x0) is less than every number (sets 1 into rd)
-    // other than zero itself (sets a 0 into rd in that case). This means 
+    // other than zero itself (sets a 0 into rd in that case). This means
     // SLTU rd, x0, rs2 == SNEZ rd, rs2 sets a 1 if rs2 is not zero
     I_SNEZ(true),
     I_SLTZ(true), // SLT rd, rs, x0
     I_SGTZ(true), // SLT rd, x0, rs1
-    
+
     // subtract
     I_SUB(false),
-    
+
     // store instructions
     I_SW(false),
     I_SH(false),
@@ -137,7 +137,7 @@ public enum Mnemonic {
     I_FENCEI(false),
 
     //
-    // RV32C, C Expression 
+    // RV32C, C Expression
     //
 
     I_C_ADDI16SP(false), // add to stack pointer (non destructive)
@@ -249,7 +249,7 @@ public enum Mnemonic {
             return I_BRK; // custom instruction
         } else if (mnemonic.equalsIgnoreCase("PRINT_REG")) {
             return I_PRINT_REG; // custom instruction
-        } 
+        }
 
         //
         // RV32I
@@ -337,8 +337,8 @@ public enum Mnemonic {
             return I_ORI;
         } else if (mnemonic.equalsIgnoreCase("RET")) {
             return I_RET;
-        } 
-        
+        }
+
         // shifts
         else if (mnemonic.equalsIgnoreCase("SLL")) {
             return I_SLL;
@@ -352,7 +352,7 @@ public enum Mnemonic {
             return I_SRA;
         } else if (mnemonic.equalsIgnoreCase("SRAI")) {
             return I_SRAI;
-        } 
+        }
         // set flags
         else if (mnemonic.equalsIgnoreCase("SLT")) {
             return I_SLT;
@@ -380,8 +380,8 @@ public enum Mnemonic {
             return I_SH;
         } else if (mnemonic.equalsIgnoreCase("SB")) {
             return I_SB;
-        } 
-        
+        }
+
         else if (mnemonic.equalsIgnoreCase("WFI")) {
             return I_WFI;
         } else if (mnemonic.equalsIgnoreCase("XOR")) {
@@ -461,11 +461,15 @@ public enum Mnemonic {
         }
 
         //
-        // V Extension (RVV Vektor extension)
+        // V Extension (RVV Vector extension)
         //
 
         else if (mnemonic.equalsIgnoreCase("VSETVLI")) {
             return I_VSETVLI;
+        } else if (mnemonic.equalsIgnoreCase("VLE8.V")) {
+            return I_VLE8_V;
+        } else if (mnemonic.equalsIgnoreCase("VLE16.V")) {
+            return I_VLE16_V;
         } else if (mnemonic.equalsIgnoreCase("VLE32.V")) {
             return I_VLE32_V;
         } else if (mnemonic.equalsIgnoreCase("VLE64.V")) {
@@ -478,6 +482,10 @@ public enum Mnemonic {
             return I_VADD_VX;
         } else if (mnemonic.equalsIgnoreCase("VADD.VI")) {
             return I_VADD_VI;
+        } else if (mnemonic.equalsIgnoreCase("VSE8.V")) {
+            return I_VSE8_V;
+        } else if (mnemonic.equalsIgnoreCase("VSE16.V")) {
+            return I_VSE16_V;
         } else if (mnemonic.equalsIgnoreCase("VSE32.V")) {
             return I_VSE32_V;
         } else if (mnemonic.equalsIgnoreCase("VSE64.V")) {
@@ -520,7 +528,7 @@ public enum Mnemonic {
                 return "addi";
             case I_ADD1:
                 return "add1";
-            
+
             case I_AND:
                 return "and";
             case I_ANDI:
@@ -633,7 +641,7 @@ public enum Mnemonic {
             // shifts
             case I_SLL:
                 return "sll";
-            case I_SLLI:                
+            case I_SLLI:
                 return "slli";
             case I_SRA:
                 return "sra";
@@ -643,7 +651,7 @@ public enum Mnemonic {
                 return "srl";
             case I_SRLI:
                 return "srli";
-            // set flags            
+            // set flags
             case I_SLT: // https://www.reddit.com/r/RISCV/comments/1bi03h4/whats_the_purpose_of_sltslti/?rdt=37367
                 return "slt";
             case I_SLTI:
@@ -652,13 +660,13 @@ public enum Mnemonic {
                 return "sltu";
             case I_SLTIU:
                 return "sltiu";
-            case I_SEQZ: 
+            case I_SEQZ:
                 return "seqz";
-            case I_SNEZ: 
+            case I_SNEZ:
                 return "snez";
-            case I_SLTZ: 
+            case I_SLTZ:
                 return "sltz";
-            case I_SGTZ: 
+            case I_SGTZ:
                 return "sgtz";
             // subtract
             case I_SUB:
@@ -767,6 +775,10 @@ public enum Mnemonic {
                 return "vsetvli";
             case I_VSETIVLI:
                 return "vsetivli";
+            case I_VLE8_V:
+                return "vle8.v";
+            case I_VLE16_V:
+                return "vle16.v";
             case I_VLE32_V:
                 return "vle32.v";
             case I_VLE64_V:
@@ -779,6 +791,10 @@ public enum Mnemonic {
                 return "vadd.vx";
             case I_VADD_VI:
                 return "vadd.vi";
+            case I_VSE8_V:
+                return "vse8.v";
+            case I_VSE16_V:
+                return "vse16.v";
             case I_VSE32_V:
                 return "vse32.v";
             case I_VSE64_V:

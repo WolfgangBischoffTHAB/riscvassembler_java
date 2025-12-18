@@ -66,7 +66,7 @@ public class App {
     // public static final int XLEN = 64;
 
     // private static final String MAIN_ENTRY_POINT_LABEL = "main";
-    private static final String MAIN_ENTRY_POINT_LABEL = "_start";
+    // private static final String MAIN_ENTRY_POINT_LABEL = "_start";
 
     private static final String INTERMEDIATE_FILE = "build/preprocessed.s";
 
@@ -74,19 +74,19 @@ public class App {
 
     private static final boolean OUTPUT_HEX_MACHINE_CODE = false;
 
-    // // plain .s assembler source code
-    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
-    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
-    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
-    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
-    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
-
-    // .elf file
-    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
-    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // plain .s assembler source code
+    private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = true;
+    private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = false;
     private static final boolean MACHINE_CODE_SOURCE_RAW = false;
     private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
     private static final boolean LINUX_BOOT_IMAGE_FILE = false;
+
+    // // .elf file
+    // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ELF_FILE = true;
+    // private static final boolean MACHINE_CODE_SOURCE_RAW = false;
+    // private static final boolean MACHINE_CODE_SOURCE_ASCII = false;
+    // private static final boolean LINUX_BOOT_IMAGE_FILE = false;
 
     // // Raw Machine Code
     // private static final boolean MACHINE_CODE_SOURCE_ASSEMBLY_FILE = false;
@@ -260,15 +260,18 @@ public class App {
             // String inputFile = "src/test/resources/riscvasm/examples/matrix_mult/helloworld.s";
             // String inputFile = "src/test/resources/riscvasm/examples/li_optimization.s";
 
-            // String inputFile = "src/test/resources/riscvasm/rvv_testing/vaadd_vv-0.S";
-            // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd_without_rvv.s";
-            // String inputFile = "src/test/resources/riscvasm/rvv_testing/compute_vadd.s";
-            // String inputFile = "src/test/resources/riscvasm/rvv_testing/simple_vadd.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing_64bit/compute_vadd_without_rvv.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing_64bit/compute_vadd.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing_64bit/simple_vadd.s";
+            // String inputFile = "src/test/resources/riscvasm/rvv_testing_64bit/vaadd_vv-0.S";
+
+            String inputFile = "src/test/resources/riscvasm/rvv_testing_32bit/vadd_8.S";
 
             // String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad.s";
             // String inputFile = "src/test/resources/riscvasm/examples/compiler_scratchpad_2.s";
 
-            String inputFile = "C:/Users/lapto/dev/java/cpp_compiler/generated_riscv_assembly.s";
+            // For the compiler
+            // String inputFile = "C:/Users/lapto/dev/java/cpp_compiler/generated_riscv_assembly.s";
 
             // String inputFile = "src/test/resources/riscvelf/factorial/factorial.s";
 
@@ -384,14 +387,7 @@ public class App {
                 logger.info("");
             }
 
-            if ((assembler.labelAddressMap == null)
-                    || (!assembler.labelAddressMap.containsKey(MAIN_ENTRY_POINT_LABEL))) {
-                throw new RuntimeException("No '" + MAIN_ENTRY_POINT_LABEL
-                        + "' label found! Do not know where to execute the application from!");
-            }
-
-            // set start address
-            startAddress = assembler.labelAddressMap.get(MAIN_ENTRY_POINT_LABEL);
+            startAddress = retrieveEntryPointSymbolFromAssemblyScript(assembler.labelAddressMap);
 
             // set global pointer
             globalPointerValue = 0x00004000;
@@ -404,25 +400,18 @@ public class App {
         // read the machine code from an elf file
         if (MACHINE_CODE_SOURCE_ELF_FILE) {
 
-            //
-            // elf to machine code
-            //
-
-            //
             // RV32
-            //
-
             Elf32 elf = new Elf32();
             elf.memory = memory;
 
             // elf.setFile("/Users/lapto/dev/riscv/libc_test/a.out");
             // elf.setFile("src/test/resources/riscvelf/factorial.out");
             // elf.setFile("C:/Users/lapto/dev/c/zork/a.out");
-            elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
+            // elf.setFile("src/test/resources/riscvelf/zork/zork.elf");
+            // elf.setFile("C:/Users/lapto/dev/machine_learning/neural_network/NeuralNetworkInAllLangs/C/build/cmain.elf");
             // elf.setFile("C:/Users/lapto/dev/riscv/egos/src/P0_Hello_World/hello.elf");
             // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/demo_cfu/main.elf");
             // elf.setFile("C:/Users/lapto/dev/VHDL/neorv32/sw/example/add1/main.elf");
-            // elf.setFile("src/test/resources/riscvelf/rvv_vector_add/main.elf");
 
             // elf.load();
 
@@ -520,6 +509,9 @@ public class App {
 
             // Elf64 elf = new Elf64();
             // elf.memory = (Memory64) memory;
+
+            // 64 bit
+            //elf.setFile("src/test/resources/riscvelf/rvv_vector_add/main.elf");
 
             // elf.setFile("src/test/resources/riscvelf/rvv_vector_add/main.elf");
 
@@ -694,26 +686,11 @@ public class App {
              * globalPointerValue = elf.globalPointerValue;
              */
 
-            if (XLEN == 32) {
+            //if (XLEN == 32) {
 
-                //
-                // startAddress 32 bit
-                //
-                // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
-                // the spice simulator uses the _start symbol
-                Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable("main");
-                Elf32Sym mainEntryPointSymbol = null;
-                if (optionalSymbol.isPresent()) {
-                    mainEntryPointSymbol = optionalSymbol.get();
-                } else {
-                    optionalSymbol = elf.getSymbolFromSymbolTable("_start");
-                    if (optionalSymbol.isPresent()) {
-                        mainEntryPointSymbol = optionalSymbol.get();
-                    }
-                }
-                startAddress = mainEntryPointSymbol.st_value & 0x00000000FFFFFFFFL;
+                startAddress = retrieveEntryPointSymbolFromElf(elf);
 
-            }
+            //}
 
             /*
              * if (XLEN == 64) {
@@ -754,10 +731,7 @@ public class App {
              * }
              */
 
-            //
             // set the global pointer register
-            //
-
             globalPointerValue = (int) elf.globalPointerValue;
 
             // stack
@@ -765,7 +739,6 @@ public class App {
 
             // set global pointer
             // globalPointerValue = 0x00004000;
-
 
         }
 
@@ -839,10 +812,7 @@ public class App {
 
             memory.copy(curPos, machineCode, 0, machineCode.length);
 
-            //
             // emulate
-            //
-
             CPU cpu = emulate(memory, startAddress, globalPointerValue, stackPointerValue);
 
         }
@@ -906,6 +876,80 @@ public class App {
         // System.out.println("done");
     }
 
+    private static long retrieveEntryPointSymbolFromAssemblyScript(Map<String,Long> labelAddressMap) {
+
+        if (labelAddressMap == null) {
+            throw new RuntimeException("No labels found! Do not know where to execute the application from!");
+        }
+
+        final String start_symbol = "_start";
+        final String main_symbol = "main";
+
+        long st_value = -1;
+
+        // startAddress 32 bit
+        // look for the symbol called "main" or "_start" inside the label table
+        // the spice simulator uses the _start symbol
+
+        // try "_start" (setup of libc which then jumps to main)
+        if (st_value == -1) {
+            if (labelAddressMap.containsKey(start_symbol)) {
+                st_value = labelAddressMap.get(start_symbol);
+            }
+        }
+
+        // try "main" (main entry point function directly without libc setup)
+        if (st_value == -1) {
+            if (labelAddressMap.containsKey(main_symbol)) {
+                st_value = labelAddressMap.get(main_symbol);
+            }
+        }
+
+        if (st_value == -1) {
+            throw new RuntimeException("No valid '_start' and no valid 'main' symbol found!");
+        }
+
+        long startAddress = st_value & 0x00000000FFFFFFFFL;
+        return startAddress;
+    }
+
+    private static long retrieveEntryPointSymbolFromElf(Elf32 elf) {
+
+        final String start_symbol = "_start";
+        final String main_symbol = "main";
+
+        int st_value = -1;
+
+        // startAddress 32 bit
+        // look for the symbol called "main" or "_start" inside the SHT_SYMTAB
+        // the spice simulator uses the _start symbol
+
+        // try "_start" (setup of libc which then jumps to main)
+        if (st_value == -1) {
+            Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable(start_symbol);
+            if (optionalSymbol.isPresent()) {
+                Elf32Sym mainEntryPointSymbol = optionalSymbol.get();
+                st_value = mainEntryPointSymbol.st_value;
+            }
+        }
+
+        // try "main" (main entry point function directly without libc setup)
+        if (st_value == -1) {
+            Optional<Elf32Sym> optionalSymbol = elf.getSymbolFromSymbolTable(main_symbol);
+            if (optionalSymbol.isPresent()) {
+                Elf32Sym mainEntryPointSymbol = optionalSymbol.get();
+                st_value = mainEntryPointSymbol.st_value;
+            }
+        }
+
+        if (st_value == -1) {
+            throw new RuntimeException("No valid '_start' and no valid 'main' symbol found!");
+        }
+
+        long startAddress = st_value & 0x00000000FFFFFFFFL;
+        return startAddress;
+    }
+
     public static int high(long x) {
         return (int) (x >> 32);
     }
@@ -948,7 +992,6 @@ public class App {
         // cpu.pc = Integer.toUnsignedInt(main_entry_point_address);
         cpu.registerFile[RISCVRegister.REG_GP.getIndex()] = globalPointerValue;
 
-        //
         // return address (ra, x1 register)
         //
         // the initial return address is retrieved from the application loader
@@ -956,7 +999,6 @@ public class App {
         // Without loader, we set it to 0xCAFEBABE = 3405691582 dec
         cpu.registerFile[RISCVRegister.REG_RA.getIndex()] = 0xCAFEBABE;
 
-        //
         // stack-pointer (sp, x2) register:
         //
         // should not point into the source code (menomics in memory!)
@@ -968,9 +1010,7 @@ public class App {
         logger.info("Stack Pointer: " + ByteArrayUtil.byteToHex((int) stackPointerValue, null, "%1$08X") + " (" + stackPointerValue + ")");
         cpu.registerFile[RISCVRegister.REG_SP.getIndex()] = stackPointerValue;
 
-        //
         // frame-pointer (s0/fp, x8 register)
-        //
         cpu.registerFile[RISCVRegister.REG_FP.getIndex()] = 0;
 
         // cpu.memory = new byte[machineCode.length + 8];

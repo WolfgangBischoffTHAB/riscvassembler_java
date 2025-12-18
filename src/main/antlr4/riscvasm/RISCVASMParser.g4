@@ -54,10 +54,10 @@ mnemonic :
     I_PRINT_REG |
 
     // RV32 I
-    
+
     I_ADD | I_ADDI | I_AND | I_ANDI | I_AUIPC |
     I_BEQ | I_BEQZ | I_BGE | I_BGT | I_BGTU | I_BLE | I_BLEU | I_BLT | I_BLTU | I_BNE | I_BNEZ |
-    I_CALL | 
+    I_CALL |
     I_ECALL | I_EBREAK |
     I_FENCE |
     I_J | I_JR | I_JAL | I_JALR |
@@ -71,7 +71,7 @@ mnemonic :
     // set flags
     I_SLT | I_SLTI | I_SLTU | I_SLTIU | I_SEQZ | I_SNEZ | I_SLTZ | I_SGTZ |
     // subtract
-    I_SUB | 
+    I_SUB |
     // stores
     I_SD | I_SW | I_SH | I_SB |
     I_WFI |
@@ -87,7 +87,7 @@ mnemonic :
 
     // Zicsr Extension
 
-    I_CSRR | I_CSRRS | I_CSRWI | I_CSRRWI | I_CSRW | I_CSRRW | 
+    I_CSRR | I_CSRRS | I_CSRWI | I_CSRRWI | I_CSRW | I_CSRRW |
     I_CSRS           | I_CSRSI | I_CSRRSI | I_CSRC | I_CSRRC |
     I_CSRCI | I_CSRRCI |
 
@@ -95,13 +95,14 @@ mnemonic :
 
     I_MUL | I_MULH | I_MULHSU | I_MULHU | I_DIV | I_DIVU | I_REM | I_REMU | I_REMU |
 
-    // V Extension (RVV Vektor extension)
+    // V Extension (RVV Vector extension)
 
     I_VSETVLI | I_VMSNE_VI |
-    I_VLE8_V | I_VLE16_V | I_VLE32_V | I_VLE64_V | 
-    I_VSE8_V | I_VSE16_V | I_VSE32_V | I_VSE64_V | 
+    I_VLE8_V | I_VLE16_V | I_VLE32_V | I_VLE64_V |
+    I_VSE8_V | I_VSE16_V | I_VSE32_V | I_VSE64_V |
     I_VMV_V_I |
-    I_VADD_VV | I_VAADD_VV
+    I_VADD_VV | I_VADD_VX | I_VAADD_VV
+
     ;
 
 // RVV selected element width (SEW)
@@ -113,7 +114,7 @@ rvv_sew :
     ;
 
 // RVV lmul
-rvv_lmul : 
+rvv_lmul :
     RVV_LMUL_MF8 |
     RVV_LMUL_MF4 |
     RVV_LMUL_MF2 |
@@ -162,7 +163,7 @@ offset :
     expr
     ;
 
-    
+
 
 expr :
     expr PLUS expr

@@ -228,6 +228,7 @@ I_VLE32_V : V L E '3' '2' DOT V ;
 I_VLE64_V : V L E '6' '4' DOT V ;
 I_VMSNE_VI : V M S N E DOT V I ;
 I_VADD_VV : V A D D DOT V V ;
+I_VADD_VX : V A D D DOT V X ;
 I_VAADD_VV : V A A D D DOT V V ;
 I_VSE8_V : V S E '8' DOT V ;
 I_VSE16_V : V S E '1' '6' DOT V ;

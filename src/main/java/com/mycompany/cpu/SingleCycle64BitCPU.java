@@ -26,7 +26,15 @@ import com.mycompany.memory.Memory;
 
 public class SingleCycle64BitCPU extends AbstractCPU {
 
+    /** This CSR (Configuration and Status register) stores VLEN */
     private static final int RVV_CSR_VLENB = 0xFFF;
+
+    /**
+     * This is the hardware implementation specific VLEN value. It says how many
+     * bits
+     * one of the V-Extension register (v0, v1, ..., v31) has.
+     */
+    private static final long VLEN = 32;
 
     private static final Logger logger = LoggerFactory.getLogger(SingleCycle64BitCPU.class);
 
@@ -57,7 +65,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     private BufferedWriter traceBufferedWriter;
 
-    // Vector Extension (RVV)
+    // Vector Extension (RVV) Register file
 
     public byte[] v0 = new byte[4 * 64];
     public byte[] v1 = new byte[4 * 64];
@@ -65,10 +73,34 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
     @SuppressWarnings("unused")
     private int lMultiplier;
+
+    /**
+     * Selected Element Width
+     */
     private int sew;
 
-    /** application vector length */
+    /**
+     * application vector length - using the I_VSETVLI, I_VSETIVLI instructions,
+     * this value is specified by the user in each iteration of strip mining. The
+     * user will specify the total remaining elements to process. The RISC-V Vector
+     * Engine will determine how many elements it can process this iteration of
+     * strip-mining which frequently will be a smaller value and return that smaller
+     * value in the first (destinatio) register as well as write that value into the
+     * vl register. The strip mining process continues until the vectors are
+     * processed.
+     */
     private long avl;
+
+    /**
+     * Vector Length set by setvl, setvli.
+     * https://github.com/riscvarchive/riscv-v-spec/blob/master/v-spec.adoc#vector-length-register-vl
+     *
+     * The vl register holds an unsigned integer specifying the number of elements
+     * to be updated with results from a vector instruction (in this iteration of
+     * the strip mining loop), as further detailed in Section Prestart, Active,
+     * Inactive, Body, and Tail Element Definitions.
+     */
+    private long vl;
 
     /**
      * ctor
@@ -208,7 +240,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
         // // DEBUG do not forget the trailing L because PC is now an long register!
         // if (pc == 0x800006b8L) {
-        //     logger.info("test");
+        // logger.info("test");
         // }
 
         // singleStepping = true;
@@ -1890,66 +1922,10 @@ public class SingleCycle64BitCPU extends AbstractCPU {
             case I_VSETVLI:
                 logger.info("I_VSETVLI: " + asmLine);
 
-                // application vector length
+                // application vector length is specified in a register
                 avl = readRegisterFile(asmLine.register_1.getIndex());
 
-                switch (asmLine.rvvLmul) {
-                    case "mf8":
-                        // System.out.println("mf8");
-                        lMultiplier = 1 / 8;
-                        break;
-                    case "mf4":
-                        // System.out.println("mf4");
-                        lMultiplier = 1 / 4;
-                        break;
-                    case "mf2":
-                        // System.out.println("mf2");
-                        lMultiplier = 1 / 2;
-                        break;
-                    case "m1":
-                        // System.out.println("m1");
-                        lMultiplier = 1;
-                        break;
-                    case "m2":
-                        // System.out.println("m2");
-                        lMultiplier = 2;
-                        break;
-                    case "m4":
-                        // System.out.println("m4");
-                        lMultiplier = 4;
-                        break;
-                    case "m8":
-                        // System.out.println("m8");
-                        lMultiplier = 8;
-                        break;
-                }
-
-                switch (asmLine.rvvSew) {
-
-                    case "e8":
-                        // System.out.println("e8");
-                        sew = 8;
-                        break;
-
-                    case "e16":
-                        // System.out.println("e16");
-                        sew = 16;
-                        break;
-
-                    case "e32":
-                        // System.out.println("e32");
-                        sew = 32;
-                        break;
-
-                    case "e64":
-                        // System.out.println("e64");
-                        sew = 64;
-                        break;
-
-                    default:
-                        throw new RuntimeException("unknown SEW");
-
-                }
+                updateVectorEngineConfiguration(asmLine, avl);
 
                 // increment PC
                 pc += asmLine.encodedLength;
@@ -1960,69 +1936,12 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 // vsetivli rd, uimm, vtypei
                 // vsetivli zero,4, e32,m1,ta,ma
 
-                // throw new RuntimeException("Not implemented yet I_VSETIVLI");
                 logger.info("I_VSETIVLI: " + asmLine);
 
-                // application vector length
+                // application vector length is specified as an immediate
                 avl = asmLine.numeric_1;
 
-                switch (asmLine.rvvLmul) {
-                    case "mf8":
-                        // System.out.println("mf8");
-                        lMultiplier = 1 / 8;
-                        break;
-                    case "mf4":
-                        // System.out.println("mf4");
-                        lMultiplier = 1 / 4;
-                        break;
-                    case "mf2":
-                        // System.out.println("mf2");
-                        lMultiplier = 1 / 2;
-                        break;
-                    case "m1":
-                        // System.out.println("m1");
-                        lMultiplier = 1;
-                        break;
-                    case "m2":
-                        // System.out.println("m2");
-                        lMultiplier = 2;
-                        break;
-                    case "m4":
-                        // System.out.println("m4");
-                        lMultiplier = 4;
-                        break;
-                    case "m8":
-                        // System.out.println("m8");
-                        lMultiplier = 8;
-                        break;
-                }
-
-                switch (asmLine.rvvSew) {
-
-                    case "e8":
-                        // System.out.println("e8");
-                        sew = 8;
-                        break;
-
-                    case "e16":
-                        // System.out.println("e16");
-                        sew = 16;
-                        break;
-
-                    case "e32":
-                        // System.out.println("e32");
-                        sew = 32;
-                        break;
-
-                    case "e64":
-                        // System.out.println("e64");
-                        sew = 64;
-                        break;
-
-                    default:
-                        throw new RuntimeException("unknown SEW");
-
-                }
+                updateVectorEngineConfiguration(asmLine, avl);
 
                 // increment PC
                 pc += asmLine.encodedLength;
@@ -2071,9 +1990,12 @@ public class SingleCycle64BitCPU extends AbstractCPU {
 
                 register_1_value_l = readRegisterFile(asmLine.register_1.getIndex());
 
+                // AVL = application vector length
                 for (int i = 0; i < avl; i++) {
 
                     long memoryValue = memory.readLong(register_1_value_l, ByteOrder.LITTLE_ENDIAN);
+
+                    // DEBUG
                     logger.info("" + ByteArrayUtil.byteToHex(memoryValue));
 
                     memory.readLong(rvvReg, (i * sew) / 8, register_1_value_l, ByteOrder.LITTLE_ENDIAN);
@@ -2227,7 +2149,92 @@ public class SingleCycle64BitCPU extends AbstractCPU {
         return true;
     }
 
+    private void updateVectorEngineConfiguration(AsmLine<?> asmLine, final long avl) {
+        // LMUL, group size - see
+        // https://github.com/riscvarchive/riscv-v-spec/blob/master/v-spec.adoc#41-mapping-for-lmul--1
+        switch (asmLine.rvvLmul) {
+            case "mf8":
+                // System.out.println("mf8");
+                lMultiplier = 1 / 8;
+                break;
+            case "mf4":
+                // System.out.println("mf4");
+                lMultiplier = 1 / 4;
+                break;
+            case "mf2":
+                // System.out.println("mf2");
+                lMultiplier = 1 / 2;
+                break;
+            case "m1":
+                // System.out.println("m1");
+                lMultiplier = 1;
+                break;
+            case "m2":
+                // System.out.println("m2");
+                lMultiplier = 2;
+                break;
+            case "m4":
+                // System.out.println("m4");
+                lMultiplier = 4;
+                break;
+            case "m8":
+                // System.out.println("m8");
+                lMultiplier = 8;
+                break;
+        }
+
+        // selected element width
+        switch (asmLine.rvvSew) {
+
+            case "e8":
+                // System.out.println("e8");
+                sew = 8;
+                break;
+
+            case "e16":
+                // System.out.println("e16");
+                sew = 16;
+                break;
+
+            case "e32":
+                // System.out.println("e32");
+                sew = 32;
+                break;
+
+            case "e64":
+                // System.out.println("e64");
+                sew = 64;
+                break;
+
+            default:
+                throw new RuntimeException("unknown SEW");
+
+        }
+
+        // compute how many vector registers need to be combined to serve the user
+        // request
+        long registerCount = (VLEN * lMultiplier) * sew;
+        vl = (VLEN * lMultiplier) / sew;
+
+        System.out.println("VLEN = " + VLEN);
+        System.out.println("LMUL = " + lMultiplier);
+        System.out.println("SEW = " + sew);
+        System.out.println("Registers Grouped = " + registerCount + " = VLEN * LMUL / SEW");
+        System.out.println("vl = " + vl + " = VLEN * LMUL * SEW");
+
+        // need to stay below half the registers to perform an operation between two
+        // vectors batches where each vector batch requires half the total availble
+        // registers in the worst case
+        if (registerCount > (32 / 2)) {
+            throw new RuntimeException("Not enought registers!");
+        }
+
+        // TODO return the vl into first register
+        // asf
+    }
+
     private byte[] getRVVRegister(int index) {
+
         switch (index) {
             case 0:
                 return v0;
@@ -2313,7 +2320,7 @@ public class SingleCycle64BitCPU extends AbstractCPU {
                 break;
 
             case RVV_CSR_VLENB:
-                csrValue = 32;
+                csrValue = VLEN;
                 break;
 
             default:
